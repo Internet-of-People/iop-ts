@@ -1,5 +1,5 @@
 {
-  "name": "root",
+  "name": "@internet-of-people/morpheus-ts",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -7,10 +7,14 @@
   },
   "private": true,
   "scripts": {
-    "bootstrap": "lerna bootstrap --hoist --force-local"
+    "install": "lerna bootstrap",
+    "build": "lerna run build",
+    "clean": "lerna run clean && rimraf node_modules",
+    "test": "lerna run test"
   },
   "devDependencies": {
     "lerna": "3.18.5",
-    "typescript": "3.7.2"
+    "typescript": "3.7.2",
+    "rimraf": "3.0.0"
   }
 }

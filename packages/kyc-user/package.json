@@ -1,13 +1,16 @@
 {
-  "name": "kyc-user",
+  "name": "@internet-of-people/kyc-user",
   "description": "",
-  "main": "dist/index.js",
+  "main": "./dist/main.js",
+  "typings": "./dist/main.d.ts",
+  "private": true,
   "scripts": {
     "build": "tsc -p .",
+    "clean": "rimraf dist && rimraf node_modules",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "did-manager": "file:../did-manager"
+    "@internet-of-people/did-manager": "0.1.0-alpha.1"
   }
 }

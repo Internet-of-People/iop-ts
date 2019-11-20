@@ -1,8 +1,17 @@
 {
-  "name": "did-manager",
+  "name": "@internet-of-people/did-manager",
+  "version": "0.1.0-alpha.1",
   "description": "",
+  "main": "dist/index",
+  "module": "dist/index",
+  "browser": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p .",
+    "clean": "rimraf dist && rimraf node_modules",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "LGPL-3.0-or-later"

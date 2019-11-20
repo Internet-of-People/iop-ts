@@ -1,5 +1,7 @@
 {
   "lerna": "3.18.2",
+  "hoist": true,
+  "forceLocal": true,
   "packages": [
     "packages/*"
   ],
