@@ -1,0 +1,9 @@
+{
+  "name": "did-manager",
+  "description": "",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "LGPL-3.0-or-later"
+}

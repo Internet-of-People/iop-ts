@@ -1,0 +1,13 @@
+{
+  "name": "kyc-user",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "did-manager": "file:../did-manager"
+  }
+}
