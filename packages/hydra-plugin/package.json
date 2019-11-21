@@ -1,0 +1,25 @@
+{
+  "name": "@internet-of-people/morpheus-hydra-plugin",
+  "version": "0.1.0-alpha.1",
+  "author": {
+    "url": "https://iop.global/dsf",
+    "name": "Internet of People",
+    "email": "prometheus@iop-ventures.com"
+  },
+  "description": "",
+  "main": "./dist/index.js",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p .",
+    "clean": "rimraf dist && rimraf node_modules",
+    "test": "jest --detectOpenHandles --no-cache --passWithNoTests"
+  },
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@internet-of-people/did-manager": "0.1.0-alpha.1"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "verbose": true
+  }
+}
