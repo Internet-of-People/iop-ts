@@ -1,22 +1,46 @@
 {
   "name": "@internet-of-people/morpheus-hydra-plugin",
   "version": "0.1.0-alpha.1",
+  "private": true,
+  "license": "GPL-3.0-or-later",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "",
-  "main": "./dist/index.js",
-  "private": true,
+  "description": "A plugin for Hydra blockchain nodes that add Morpheus specific custom transaction types and a layer 2 consensus with its own state",
+  "main": "./dist/Main.js",
   "scripts": {
     "build": "tsc -p .",
     "clean": "rimraf dist && rimraf node_modules",
     "test": "jest --detectOpenHandles --no-cache --passWithNoTests"
   },
-  "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@internet-of-people/did-manager": "0.1.0-alpha.1"
+    "@arkecosystem/core-event-emitter": "^2.6.0-next.6",
+    "@arkecosystem/core-http-utils": "^2.6.0-next.6",
+    "@arkecosystem/core-interfaces": "^2.6.0-next.6",
+    "@arkecosystem/crypto": "^2.6.0-next.6",
+    "@internet-of-people/did-manager": "0.1.0-alpha.1",
+    "buffer": "5.4.2",
+    "p-queue": "6.2.1",
+    "sqlite": "3.0.3",
+    "socketcluster": "^14.3.5",
+    "socketcluster-client": "^14.2.2"
+  },
+  "devDependencies": {
+    "@types/socketcluster": "^14.0.2",
+    "@types/socketcluster-client": "^13.0.3",
+    "@types/bytebuffer": "5.0.40",
+    "@types/jest": "24.0.23",
+    "@types/node": "12.7.4",
+    "jest-extended": "0.11.2",
+    "jest": "24.9.0",
+    "rimraf": "3.0.0",
+    "ts-jest": "24.1.0",
+    "tslint-config-prettier": "1.18.0",
+    "tslint": "5.20.1",
+    "typedoc": "0.15.0",
+    "typescript": "3.7.2"
   },
   "jest": {
     "preset": "ts-jest",
