@@ -1,5 +1,11 @@
 {
   "name": "@internet-of-people/kyc-user",
+  "version": "0.1.0-alpha.1",
+  "author": {
+    "url": "https://iop.global/dsf",
+    "name": "Internet of People",
+    "email": "prometheus@iop-ventures.com"
+  },
   "description": "",
   "main": "./dist/main.js",
   "typings": "./dist/main.d.ts",

@@ -1,5 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-ts",
+  "version": "0.1.0-alpha.1",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -7,11 +8,11 @@
   },
   "private": true,
   "scripts": {
-    "install": "lerna bootstrap",
-    "build": "npm run lint && lerna run build",
+    "install": "lerna bootstrap --ci",
+    "build": "npm run lint && lerna run --stream build",
     "clean": "lerna run clean && rimraf node_modules",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "test": "lerna run test"
+    "test": "lerna run --stream test"
   },
   "devDependencies": {
     "@types/jest": "24.0.23",
