@@ -1,0 +1,30 @@
+{
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "rules": {
+    "ban": [
+      true,
+      {
+        "name": ["assert", "equal"],
+        "message": "Use 'strictEqual' instead."
+      },
+      {
+        "name": ["*", "forEach"],
+        "message": "Use a regular for loop instead."
+      }
+    ],
+    "await-promise": true,
+    "no-console": false,
+    "no-default-export": true,
+    "no-floating-promises": true,
+    "no-null-keyword": true,
+    "no-shadowed-variable": false,
+    "no-submodule-imports": true,
+    "no-switch-case-fall-through": true,
+    "no-unsafe-finally": true,
+    "object-literal-sort-keys": false,
+    "only-arrow-functions": true,
+    "radix": false,
+    "return-undefined": true
+  },
+  "exclude": ["node_modules", "dist"]
+}
