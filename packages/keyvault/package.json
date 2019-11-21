@@ -1,0 +1,27 @@
+{
+  "name": "@internet-of-people/keyvault",
+  "version": "0.1.0-alpha.1",
+  "author": {
+    "url": "https://iop.global/dsf",
+    "name": "Internet of People",
+    "email": "prometheus@iop-ventures.com"
+  },
+  "description": "",
+  "main": "dist/index",
+  "module": "dist/index",
+  "browser": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "./build-rust.sh && tsc -p .",
+    "clean": "rimraf dist && rimraf node_modules && rimraf rust/target && rimraf rust/pkg && rimraf rust/Cargo.lock",
+    "test": "jest --detectOpenHandles --no-cache"
+  },
+  "license": "LGPL-3.0-or-later",
+  "jest": {
+    "preset": "ts-jest",
+    "verbose": true
+  }
+}
