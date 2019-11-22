@@ -7,4 +7,5 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
+keyvault = { path="../../../../mercury-rust/keyvault" }
 wasm-bindgen = "*"
