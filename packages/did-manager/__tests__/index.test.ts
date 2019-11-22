@@ -1,4 +1,4 @@
-import { DidManager } from './index';
+import { DidManager } from '../src/index';
 
 describe('Test', () => {
   it('testing hello', () => {

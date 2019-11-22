@@ -23,5 +23,9 @@
   "jest": {
     "preset": "ts-jest",
     "verbose": true
+  },
+  "dependencies": {
+    "@arkecosystem/crypto": "2.5.28",
+    "@arkecosystem/core-interfaces": "2.5.28"
   }
 }
