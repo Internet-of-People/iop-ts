@@ -1,8 +1,12 @@
 import { OperationType } from './OperationType';
 
 export const registerBeforeProofSchema = {
+  type: 'object',
   properties: {
-    operation: OperationType.RegisterBeforeProof,
+    operation: {
+      type: 'string',
+      const: OperationType.RegisterBeforeProof
+    },
     params: {
       type: 'object',
       properties: {

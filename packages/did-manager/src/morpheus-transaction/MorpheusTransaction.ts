@@ -10,9 +10,9 @@ export interface IMorpheusData extends Crypto.ITransactionData {
 
 export class MorpheusTransaction extends Transactions.Transaction {
   public static readonly ID: string = 'morpheusData';
-  public static readonly TYPE_GROUP: number = 42;
-  public static readonly TYPE: number = 1;
-  public static readonly FEE: Utils.BigNumber = Utils.BigNumber.make('5000000000'); // TODO
+  public static readonly typeGroup: number = 4242;
+  public static readonly type: number = 1;
+  public static readonly key: string = 'morpheusTransaction';
 
   /**
    * Returns a transaction's (a collection of operation attempts) schema, like:
@@ -31,20 +31,23 @@ export class MorpheusTransaction extends Transactions.Transaction {
       $id: this.ID,
       required: ['asset','type','typeGroup'],
       properties: {
-        type: { transactionType: this.TYPE, },
-        typeGroup: { const: this.TYPE_GROUP, },
-        amount: { bignumber: { minimum: 0, maximum: 0 } }, // TODO
+        type: { transactionType: this.type, },
+        typeGroup: { const: this.typeGroup, },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
           type: 'object',
-          required: [ this.ID ],
+          required: [ 'morpheusData' ],
           properties: {
-            required: ['operationAttempts'],
-            transactions: {
-              type: 'array',
-              items: {
-                anyOf: [
-                  registerBeforeProofSchema,
-                ]
+            morpheusData: {
+              type: 'object',
+              required: ['operationAttempts'],
+              properties: {
+                operationAttempts: {
+                  type: 'array',
+                  items: {
+                    anyOf: [ registerBeforeProofSchema ]
+                  }
+                }
               }
             }
           }
@@ -52,6 +55,7 @@ export class MorpheusTransaction extends Transactions.Transaction {
       },
     });
   }
+  protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(1e7);
 
   public data: IMorpheusData = {
     amount: Utils.BigNumber.make(0),
@@ -65,15 +69,19 @@ export class MorpheusTransaction extends Transactions.Transaction {
   public serialize(): ByteBuffer {
     const data = this.data.asset!.morpheusData as IMorpheusAsset;
     const jsonSer = JSON.stringify(data);
-    const buffer = new ByteBuffer(jsonSer.length);
-    buffer.writeString(jsonSer);
+    const jsonBytes = Buffer.from(jsonSer, 'utf8');
+    const buffer = new ByteBuffer(jsonBytes.length+1, true);
+    // TODO: serialize data using msgpack instead of just putting json in it
+    buffer.writeUint8(jsonBytes.length);
+    buffer.append(jsonBytes, 'hex');
     return buffer;
   }
 
   public deserialize(buffer: ByteBuffer): void {
     let morpheusData: IMorpheusAsset;
-    const json = buffer.readString(buffer.capacity());
-    morpheusData = JSON.parse(json as string);
+    const length = buffer.readUint8();
+    const data = buffer.readString(length);
+    morpheusData = JSON.parse(data);
     this.data.asset = {
       morpheusData,
     };

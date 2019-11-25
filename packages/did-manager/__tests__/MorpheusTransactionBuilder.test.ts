@@ -1,16 +1,19 @@
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import 'jest-extended';
-import { MorpheusTransactionBuilder } from '../src/morpheus-transaction';
+import { MorpheusTransaction, MorpheusTransactionBuilder, OperationAttemptsBuilder } from '../src/morpheus-transaction';
 
 describe('MorpheusTransactionBuilder', () => {
   it('should verify correctly', () => {
-    /*const builder = new MorpheusTransactionBuilder();
-    const actual = builder
-      .beforeProof("my content id")
-      .nonce('42')
-      .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire');*/
+    Managers.configManager.setFromPreset('testnet');
+    Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction);
 
-    // TODO
-    // expect(actual.build().verified).toBeTrue();
-    // expect(actual.verify()).toBeTrue();
+    const builder = new MorpheusTransactionBuilder();
+    const actual = builder
+      .fromOperationAttempts(new OperationAttemptsBuilder().beforeProof({contentId:"my content id"}))
+      .nonce('42')
+      .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire');
+
+    expect(actual.build().verified).toBeTrue();
+    expect(actual.verify()).toBeTrue();
   });
 });
