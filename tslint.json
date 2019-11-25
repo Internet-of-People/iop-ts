@@ -24,7 +24,8 @@
     "object-literal-sort-keys": false,
     "only-arrow-functions": true,
     "radix": false,
-    "return-undefined": true
+    "return-undefined": true,
+    "no-empty-interface": false
   },
   "exclude": ["node_modules", "dist"]
 }

@@ -10,11 +10,11 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
     this.data.fee = MorpheusTransaction.FEE;
     this.data.amount = Utils.BigNumber.ZERO;
     this.data.asset = {};
-    this.data.asset[MorpheusTransaction.KEY] = {};
+    this.data.asset[MorpheusTransaction.ID] = {};
   }
 
   public beforeProof(contentId: string): MorpheusTransactionBuilder {
-    this.data.asset![MorpheusTransaction.KEY] = { contentId };
+    this.data.asset![MorpheusTransaction.ID] = { contentId }; // TODO: this must not be good
     return this;
   }
 
