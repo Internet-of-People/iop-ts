@@ -15,8 +15,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "./build-rust.sh && tsc -p .",
-    "clean": "rimraf dist && rimraf node_modules && rimraf rust/target && rimraf rust/pkg && rimraf rust/Cargo.lock",
+    "build": "tsc -p .",
+    "clean": "rimraf dist && rimraf node_modules",
     "test": "jest --detectOpenHandles --no-cache"
   },
   "license": "LGPL-3.0-or-later",

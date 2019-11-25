@@ -22,18 +22,6 @@ $ npm --version
 6.13.1
 ```
 
-Some components (e.g. the keyvault) are implemented in Rust.
-The easiest way to deploy a Rust environment is to visit the
-[Rustup page](https://rustup.rs/) and follow the instructions.
-
-```bash
-# You should have got Rust installed already
-$ rustc --version
-rustc 1.39.0 (4560ea788 2019-11-04)
-# Install Rust's WebAssembly toolset 
-$ cargo install wasm-pack
-```
-
 
 ### Build
 
@@ -47,3 +35,4 @@ $ npm run test
 ...
 lerna success - @internet-of-people/...
 ```
+
