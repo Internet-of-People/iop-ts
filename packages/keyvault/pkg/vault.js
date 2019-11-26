@@ -44,13 +44,6 @@ function getStringFromWasm(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory().subarray(ptr, ptr + len));
 }
 
-function passArray8ToWasm(arg) {
-    const ptr = wasm.__wbindgen_malloc(arg.length * 1);
-    getUint8Memory().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
 const heap = new Array(32);
 
 heap.fill(undefined);
@@ -71,6 +64,13 @@ function takeObject(idx) {
     const ret = getObject(idx);
     dropObject(idx);
     return ret;
+}
+
+function passArray8ToWasm(arg) {
+    const ptr = wasm.__wbindgen_malloc(arg.length * 1);
+    getUint8Memory().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
 }
 
 function addHeapObject(obj) {
@@ -124,6 +124,20 @@ class Vault {
     static deserialize(from) {
         const ret = wasm.vault_deserialize(passStringToWasm(from), WASM_VECTOR_LEN);
         return Vault.__wrap(ret);
+    }
+    /**
+    * @returns {any}
+    */
+    profiles() {
+        const ret = wasm.vault_profiles(this.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @returns {any}
+    */
+    active_id() {
+        const ret = wasm.vault_active_id(this.ptr);
+        return takeObject(ret);
     }
     /**
     * @returns {string}

@@ -18,6 +18,14 @@ export class Vault {
 */
   static deserialize(from: string): Vault;
 /**
+* @returns {any} 
+*/
+  profiles(): any;
+/**
+* @returns {any} 
+*/
+  active_id(): any;
+/**
 * @returns {string} 
 */
   create_id(): string;
