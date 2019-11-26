@@ -18,9 +18,9 @@ export class Vault {
 */
   static deserialize(from: string): Vault;
 /**
-* @returns {any} 
+* @returns {any[]} 
 */
-  profiles(): any;
+  profiles(): any[];
 /**
 * @returns {any} 
 */

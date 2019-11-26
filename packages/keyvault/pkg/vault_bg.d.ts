@@ -4,7 +4,7 @@ export function __wbg_vault_free(a: number): void;
 export function vault_new(a: number, b: number): number;
 export function vault_serialize(a: number, b: number): void;
 export function vault_deserialize(a: number, b: number): number;
-export function vault_profiles(a: number): number;
+export function vault_profiles(a: number, b: number): void;
 export function vault_active_id(a: number): number;
 export function vault_create_id(a: number, b: number): void;
 export function vault_sign(a: number, b: number, c: number, d: number, e: number): number;

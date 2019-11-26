@@ -44,6 +44,14 @@ function getStringFromWasm(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory().subarray(ptr, ptr + len));
 }
 
+let cachegetUint32Memory = null;
+function getUint32Memory() {
+    if (cachegetUint32Memory === null || cachegetUint32Memory.buffer !== wasm.memory.buffer) {
+        cachegetUint32Memory = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachegetUint32Memory;
+}
+
 const heap = new Array(32);
 
 heap.fill(undefined);
@@ -64,6 +72,16 @@ function takeObject(idx) {
     const ret = getObject(idx);
     dropObject(idx);
     return ret;
+}
+
+function getArrayJsValueFromWasm(ptr, len) {
+    const mem = getUint32Memory();
+    const slice = mem.subarray(ptr / 4, ptr / 4 + len);
+    const result = [];
+    for (let i = 0; i < slice.length; i++) {
+        result.push(takeObject(slice[i]));
+    }
+    return result;
 }
 
 function passArray8ToWasm(arg) {
@@ -126,11 +144,15 @@ class Vault {
         return Vault.__wrap(ret);
     }
     /**
-    * @returns {any}
+    * @returns {any[]}
     */
     profiles() {
-        const ret = wasm.vault_profiles(this.ptr);
-        return takeObject(ret);
+        const retptr = 8;
+        const ret = wasm.vault_profiles(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getArrayJsValueFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 4);
+        return v0;
     }
     /**
     * @returns {any}
@@ -162,13 +184,13 @@ class Vault {
 }
 module.exports.Vault = Vault;
 
-module.exports.__wbindgen_json_parse = function(arg0, arg1) {
-    const ret = JSON.parse(getStringFromWasm(arg0, arg1));
+module.exports.__wbindgen_string_new = function(arg0, arg1) {
+    const ret = getStringFromWasm(arg0, arg1);
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    const ret = getStringFromWasm(arg0, arg1);
+module.exports.__wbindgen_json_parse = function(arg0, arg1) {
+    const ret = JSON.parse(getStringFromWasm(arg0, arg1));
     return addHeapObject(ret);
 };
 
