@@ -11,6 +11,15 @@ export class Vault {
 /**
 * @returns {string} 
 */
+  serialize(): string;
+/**
+* @param {string} from 
+* @returns {Vault} 
+*/
+  static deserialize(from: string): Vault;
+/**
+* @returns {string} 
+*/
   create_id(): string;
 /**
 * @param {string} id_str 

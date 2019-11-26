@@ -109,6 +109,25 @@ class Vault {
     /**
     * @returns {string}
     */
+    serialize() {
+        const retptr = 8;
+        const ret = wasm.vault_serialize(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+    /**
+    * @param {string} from
+    * @returns {Vault}
+    */
+    static deserialize(from) {
+        const ret = wasm.vault_deserialize(passStringToWasm(from), WASM_VECTOR_LEN);
+        return Vault.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
     create_id() {
         const retptr = 8;
         const ret = wasm.vault_create_id(retptr, this.ptr);
