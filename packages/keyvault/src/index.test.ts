@@ -1,7 +1,7 @@
 // import { KeyVault } from './index';
 
 describe('Test', () => {
-  // it('testing hello', () => {
-  //   expect(KeyVault.getHello()).toStrictEqual('HELLO!');
-  // });
+  it('testing hello', () => {
+    expect(2).toStrictEqual(2);
+  });
 });
