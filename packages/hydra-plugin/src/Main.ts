@@ -1,4 +1,5 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { Container, Database } from "@arkecosystem/core-interfaces";
+import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 
 import { AppLog, IAppLog } from "./AppLog";
 import { BlockEventSource } from "./BlockEventSource";
@@ -34,6 +35,7 @@ const register = async (container: Container.IContainer) => {
   const log = new AppLog(container.resolvePlugin('logger'));
   log.info(`Starting up`);
   const eventEmitter: NodeJS.EventEmitter = container.resolvePlugin('event-emitter');
+  const db: Database.IDatabaseService = container.resolvePlugin('database');
   const blockEventSource = new BlockEventSource(
     log,
     eventEmitter,
@@ -46,6 +48,13 @@ const register = async (container: Container.IContainer) => {
   //   4705,
   //   queue,
   // );
+
+  blockEventSource.subscribe('test', {
+    async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
+      log.info(`GOT BLOCK!!!!!!!! ${block.height}`);
+    },
+    async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {}
+  });
 
   const plugin = new Composite(log, blockEventSource)
   await plugin.init();
@@ -63,7 +72,7 @@ export const plugin: Container.IPluginDescriptor = {
   pkg: require("../package.json"),
   required: true,
   defaults,
-  alias: "hydra-morpheus-plugin",
+  alias: "morpheus-hydra-plugin",
   register,
   deregister,
 };
