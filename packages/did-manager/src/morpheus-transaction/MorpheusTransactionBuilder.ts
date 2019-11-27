@@ -1,4 +1,4 @@
-import { Transactions, Utils } from '@arkecosystem/crypto';
+import { Interfaces, Transactions, Utils } from '@arkecosystem/crypto';
 import { MorpheusTransaction } from './MorpheusTransaction';
 import { OperationAttemptsBuilder } from "./OperationAttemptsBuilder";
 
@@ -33,6 +33,13 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
     };
     this.data.fee = MorpheusTransactionBuilder.calculateFee(attemptsBuilder);
     return this;
+  }
+
+  public getStruct(): Interfaces.ITransactionData {
+    const struct: Interfaces.ITransactionData = super.getStruct();
+    struct.amount = this.data.amount;
+    struct.asset = this.data.asset;
+    return struct;
   }
 
   protected instance(): MorpheusTransactionBuilder {

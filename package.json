@@ -11,18 +11,24 @@
     "install": "lerna bootstrap --ci",
     "build": "npm run lint && lerna run --stream build",
     "clean": "lerna run clean && rimraf node_modules",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint": "tslint -p tsconfig.json -c tslint.json --fix",
     "test": "lerna run --stream test"
   },
   "devDependencies": {
     "@types/jest": "24.0.23",
     "jest-extended": "0.11.2",
     "jest": "24.9.0",
+    "husky": "3.1.0",
     "lerna": "3.18.5",
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0",
     "tslint-config-prettier": "1.18.0",
     "tslint": "5.20.1",
     "typescript": "3.7.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lerna run lint"
+    }
   }
 }
