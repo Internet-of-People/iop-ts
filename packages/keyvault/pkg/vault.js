@@ -91,6 +91,10 @@ function passArray8ToWasm(arg) {
     return ptr;
 }
 
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
+
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -181,12 +185,36 @@ class Vault {
         const ret = wasm.vault_sign(this.ptr, passStringToWasm(id_str), WASM_VECTOR_LEN, passArray8ToWasm(message), WASM_VECTOR_LEN);
         return takeObject(ret);
     }
+    /**
+    * @param {string | undefined} signer_id_str
+    * @param {any} signed_message_obj
+    * @returns {boolean}
+    */
+    validate_signature(signer_id_str, signed_message_obj) {
+        const ptr0 = isLikeNone(signer_id_str) ? 0 : passStringToWasm(signer_id_str);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.vault_validate_signature(this.ptr, ptr0, len0, addHeapObject(signed_message_obj));
+        return ret !== 0;
+    }
 }
 module.exports.Vault = Vault;
 
 module.exports.__wbindgen_string_new = function(arg0, arg1) {
     const ret = getStringFromWasm(arg0, arg1);
     return addHeapObject(ret);
+};
+
+module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
+    const obj = getObject(arg1);
+    const ret = JSON.stringify(obj === undefined ? null : obj);
+    const ret0 = passStringToWasm(ret);
+    const ret1 = WASM_VECTOR_LEN;
+    getInt32Memory()[arg0 / 4 + 0] = ret0;
+    getInt32Memory()[arg0 / 4 + 1] = ret1;
+};
+
+module.exports.__wbindgen_object_drop_ref = function(arg0) {
+    takeObject(arg0);
 };
 
 module.exports.__wbindgen_json_parse = function(arg0, arg1) {

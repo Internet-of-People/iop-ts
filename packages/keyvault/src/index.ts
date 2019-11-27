@@ -1,42 +1,36 @@
-import { readFileSync, writeFileSync } from 'fs'
-import { Vault } from '../pkg';
+import { DidVault } from './DidVault';
 
 const vaultPath = process.argv[2] || "vault.json";
 
-console.log("Initializing vault from", vaultPath);
 let vault;
 try {
-  const serializedVault = readFileSync(vaultPath, "utf8");
-  vault = Vault.deserialize(serializedVault);
+  console.log("Initializing vault from", vaultPath);
+  vault = DidVault.loadFile(vaultPath);
 }
 catch (e) {
   console.log("Failed to load existing vault, creating new one");
   // TODO do not hardwire demo phrase, do the usual play somewhere: generate, show, ensure it was written
-  vault = new Vault("include pear escape sail spy orange cute despair witness trouble sleep torch wire burst unable brass expose fiction drift clock duck oxygen aerobic already");
+  vault = DidVault.fromSeedPhrase(DidVault.DEMO_PHRASE, vaultPath);
 }
 
-let id;
+let did;
 try {
   console.log("Vault initialized, fetching identities");
-  const active = vault.active_id();
+  const active = vault.activeDid();
   if (!active) {
     throw new Error("No identities found in vault");
   }
-  id = active;
+  did = active;
 }
 catch (e) {
   console.log("No identity found, creating one");
-  id = vault.create_id();
-
-  const serializedVault = vault.serialize();
-  writeFileSync(vaultPath, serializedVault, "utf8");
-  console.log("Saved vault to", vaultPath);
+  did = vault.createDid();
 }
 
-console.log("Active identity is:", id);
+console.log("Active identity is:", did);
 
 const messageBytes = new Uint8Array([42, 20, 20, 77]);
-const signedMessage = vault.sign(id, messageBytes);
+const signedMessage = vault.sign(did, messageBytes);
 console.log("Signed message:", signedMessage);
 
 // "Pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6"

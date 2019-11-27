@@ -8,5 +8,6 @@ export function vault_profiles(a: number, b: number): void;
 export function vault_active_id(a: number): number;
 export function vault_create_id(a: number, b: number): void;
 export function vault_sign(a: number, b: number, c: number, d: number, e: number): number;
+export function vault_validate_signature(a: number, b: number, c: number, d: number): number;
 export function __wbindgen_malloc(a: number): number;
 export function __wbindgen_free(a: number, b: number): void;

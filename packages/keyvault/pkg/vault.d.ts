@@ -35,4 +35,10 @@ export class Vault {
 * @returns {any} 
 */
   sign(id_str: string, message: Uint8Array): any;
+/**
+* @param {string | undefined} signer_id_str 
+* @param {any} signed_message_obj 
+* @returns {boolean} 
+*/
+  validate_signature(signer_id_str: string | undefined, signed_message_obj: any): boolean;
 }
