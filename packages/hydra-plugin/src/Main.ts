@@ -4,6 +4,7 @@ import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 import { AppLog, IAppLog } from "./AppLog";
 import { BlockEventSource } from "./BlockEventSource";
 import { NativeScheduler } from "./Scheduler";
+import { Server } from "./Server";
 
 export interface IInitializable {
   init(): Promise<void>
@@ -35,19 +36,14 @@ const register = async (container: Container.IContainer) => {
   const log = new AppLog(container.resolvePlugin('logger'));
   log.info(`Starting up`);
   const eventEmitter: NodeJS.EventEmitter = container.resolvePlugin('event-emitter');
-  const db: Database.IDatabaseService = container.resolvePlugin('database');
+  // const db: Database.IDatabaseService = container.resolvePlugin('database');
   const blockEventSource = new BlockEventSource(
     log,
     eventEmitter,
     NativeScheduler.schedule
   );
 
-  // const queue = new Queue();
-  // const server = new Server(
-  //   "0.0.0.0",
-  //   4705,
-  //   queue,
-  // );
+  const server = new Server("0.0.0.0", 4705, log);
 
   blockEventSource.subscribe('test', {
     async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
@@ -58,7 +54,7 @@ const register = async (container: Container.IContainer) => {
     }
   });
 
-  const plugin = new Composite(log, blockEventSource)
+  const plugin = new Composite(log, blockEventSource, server)
   await plugin.init();
   return plugin;
 }
