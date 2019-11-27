@@ -53,7 +53,9 @@ const register = async (container: Container.IContainer) => {
     async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
       log.info(`GOT BLOCK!!!!!!!! ${block.height}`);
     },
-    async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {}
+    async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {
+      // it's empty for a reason
+    }
   });
 
   const plugin = new Composite(log, blockEventSource)
