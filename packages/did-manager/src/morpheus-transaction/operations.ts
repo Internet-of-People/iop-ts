@@ -8,3 +8,7 @@ export interface IOperation {
 export interface IRegisterBeforeProofParam extends IOperationParam {
   contentId: string;
 }
+
+export interface IRevokeBeforeProofParam extends IOperationParam {
+  contentId: string;
+}

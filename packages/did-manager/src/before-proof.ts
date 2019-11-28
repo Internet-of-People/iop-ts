@@ -1,4 +1,4 @@
-import { TimeSeries } from "../time-series";
+import { TimeSeries } from "./time-series";
 
 export interface IBeforeProofOperations {
   register(height: number): void;

@@ -3,7 +3,8 @@ import { MorpheusTransaction } from '../src/morpheus-transaction';
 describe('MorpheusTransaction', () => {
   it('can be serialized/deserialized', () => {
     const data = { operationAttempts: [
-        { operation: "registerBeforeProof", params: { contentId: 'PROOF' } }
+        { operation: "registerBeforeProof", params: { contentId: 'PROOF' } },
+        { operation: "revokeBeforeProof", params: { contentId: 'OLD_PROOF' } },
       ] };
 
     const tx = new MorpheusTransaction();

@@ -8,8 +8,11 @@ describe('MorpheusTransactionBuilder', () => {
     Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction);
 
     const builder = new MorpheusTransactionBuilder();
+    const ops = new OperationAttemptsBuilder()
+      .registerBeforeProof({contentId:"my content id"})
+      .revokeBeforeProof({contentId:"old content id"});
     const actual = builder
-      .fromOperationAttempts(new OperationAttemptsBuilder().beforeProof({contentId:"my content id"}))
+      .fromOperationAttempts(ops)
       .nonce('42')
       .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire');
 
