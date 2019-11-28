@@ -6,7 +6,8 @@
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "",
+  "description": "Business model and a Hydra transaction type for managing DIDs on chain",
+  "repository": "https://github.com/internet-of-people/morpheus-ts",
   "main": "dist/index",
   "module": "dist/index",
   "browser": "dist/index",
