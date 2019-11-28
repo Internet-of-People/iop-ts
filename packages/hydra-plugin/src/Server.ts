@@ -20,7 +20,7 @@ export class Server implements IInitializable {
     server.route([
       {
         method: "GET",
-        path: "/{did}/document/{blockHeight?}",
+        path: "/did/{did}/document/{blockHeight?}",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {did} } = request;
           this.log.debug(`Getting DID document for ${did}`);
@@ -29,7 +29,7 @@ export class Server implements IInitializable {
       },
       {
         method: "GET",
-        path: "/{did}/operations/{from}/{to?}",
+        path: "/did/{did}/operations/{from}/{to?}",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {did, from, to} } = request;
           this.log.debug(`Getting DID operations for ${did} from ${from} to ${to}`);
@@ -38,7 +38,7 @@ export class Server implements IInitializable {
       },
       {
         method: "GET",
-        path: "/{did}/operation-attempts/{from}/{to?}",
+        path: "/did/{did}/operation-attempts/{from}/{to?}",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {did, from, to} } = request;
           this.log.debug(`Getting DID operation attempts for ${did} from ${from} to ${to}`);
