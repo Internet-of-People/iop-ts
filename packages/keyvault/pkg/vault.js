@@ -20,6 +20,21 @@ function passStringToWasm(arg) {
     return ptr;
 }
 
+let cachegetUint8Memory = null;
+function getUint8Memory() {
+    if (cachegetUint8Memory === null || cachegetUint8Memory.buffer !== wasm.memory.buffer) {
+        cachegetUint8Memory = new Uint8Array(wasm.memory.buffer);
+    }
+    return cachegetUint8Memory;
+}
+
+function passArray8ToWasm(arg) {
+    const ptr = wasm.__wbindgen_malloc(arg.length * 1);
+    getUint8Memory().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+
 let cachegetInt32Memory = null;
 function getInt32Memory() {
     if (cachegetInt32Memory === null || cachegetInt32Memory.buffer !== wasm.memory.buffer) {
@@ -32,16 +47,12 @@ let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true 
 
 cachedTextDecoder.decode();
 
-let cachegetUint8Memory = null;
-function getUint8Memory() {
-    if (cachegetUint8Memory === null || cachegetUint8Memory.buffer !== wasm.memory.buffer) {
-        cachegetUint8Memory = new Uint8Array(wasm.memory.buffer);
-    }
-    return cachegetUint8Memory;
-}
-
 function getStringFromWasm(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory().subarray(ptr, ptr + len));
+}
+
+function getArrayU8FromWasm(ptr, len) {
+    return getUint8Memory().subarray(ptr / 1, ptr / 1 + len);
 }
 
 let cachegetUint32Memory = null;
@@ -84,15 +95,15 @@ function getArrayJsValueFromWasm(ptr, len) {
     return result;
 }
 
-function passArray8ToWasm(arg) {
-    const ptr = wasm.__wbindgen_malloc(arg.length * 1);
-    getUint8Memory().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
 function isLikeNone(x) {
     return x === undefined || x === null;
+}
+
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
 }
 
 function addHeapObject(obj) {
@@ -103,6 +114,68 @@ function addHeapObject(obj) {
     heap[idx] = obj;
     return idx;
 }
+/**
+*/
+class SignedMessage {
+
+    static __wrap(ptr) {
+        const obj = Object.create(SignedMessage.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_signedmessage_free(ptr);
+    }
+    /**
+    * @param {string} public_key
+    * @param {Uint8Array} message
+    * @param {string} signature
+    * @returns {SignedMessage}
+    */
+    constructor(public_key, message, signature) {
+        const ret = wasm.signedmessage_new(passStringToWasm(public_key), WASM_VECTOR_LEN, passArray8ToWasm(message), WASM_VECTOR_LEN, passStringToWasm(signature), WASM_VECTOR_LEN);
+        return SignedMessage.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get public_key() {
+        const retptr = 8;
+        const ret = wasm.signedmessage_public_key(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+    /**
+    * @returns {Uint8Array}
+    */
+    get message() {
+        const retptr = 8;
+        const ret = wasm.signedmessage_message(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getArrayU8FromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+    /**
+    * @returns {string}
+    */
+    get signature() {
+        const retptr = 8;
+        const ret = wasm.signedmessage_signature(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+}
+module.exports.SignedMessage = SignedMessage;
 /**
 */
 class Vault {
@@ -159,11 +232,18 @@ class Vault {
         return v0;
     }
     /**
-    * @returns {any}
+    * @returns {string}
     */
     active_id() {
-        const ret = wasm.vault_active_id(this.ptr);
-        return takeObject(ret);
+        const retptr = 8;
+        const ret = wasm.vault_active_id(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        let v0;
+        if (memi32[retptr / 4 + 0] !== 0) {
+            v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+            wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        }
+        return v0;
     }
     /**
     * @returns {string}
@@ -179,21 +259,22 @@ class Vault {
     /**
     * @param {string} id_str
     * @param {Uint8Array} message
-    * @returns {any}
+    * @returns {SignedMessage}
     */
     sign(id_str, message) {
         const ret = wasm.vault_sign(this.ptr, passStringToWasm(id_str), WASM_VECTOR_LEN, passArray8ToWasm(message), WASM_VECTOR_LEN);
-        return takeObject(ret);
+        return SignedMessage.__wrap(ret);
     }
     /**
     * @param {string | undefined} signer_id_str
-    * @param {any} signed_message_obj
+    * @param {SignedMessage} signed_message
     * @returns {boolean}
     */
-    validate_signature(signer_id_str, signed_message_obj) {
+    validate_signature(signer_id_str, signed_message) {
         const ptr0 = isLikeNone(signer_id_str) ? 0 : passStringToWasm(signer_id_str);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.vault_validate_signature(this.ptr, ptr0, len0, addHeapObject(signed_message_obj));
+        _assertClass(signed_message, SignedMessage);
+        const ret = wasm.vault_validate_signature(this.ptr, ptr0, len0, signed_message.ptr);
         return ret !== 0;
     }
 }
@@ -201,24 +282,6 @@ module.exports.Vault = Vault;
 
 module.exports.__wbindgen_string_new = function(arg0, arg1) {
     const ret = getStringFromWasm(arg0, arg1);
-    return addHeapObject(ret);
-};
-
-module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
-    const obj = getObject(arg1);
-    const ret = JSON.stringify(obj === undefined ? null : obj);
-    const ret0 = passStringToWasm(ret);
-    const ret1 = WASM_VECTOR_LEN;
-    getInt32Memory()[arg0 / 4 + 0] = ret0;
-    getInt32Memory()[arg0 / 4 + 1] = ret1;
-};
-
-module.exports.__wbindgen_object_drop_ref = function(arg0) {
-    takeObject(arg0);
-};
-
-module.exports.__wbindgen_json_parse = function(arg0, arg1) {
-    const ret = JSON.parse(getStringFromWasm(arg0, arg1));
     return addHeapObject(ret);
 };
 

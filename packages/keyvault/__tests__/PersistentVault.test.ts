@@ -1,5 +1,5 @@
 import {Vault} from "../pkg";
-import { DidVault } from '../src/DidVault';
+import { PersistentVault } from '../src/PersistentVault';
 
 describe('DidVault', () => {
   it('has a consequent interface', () => {
