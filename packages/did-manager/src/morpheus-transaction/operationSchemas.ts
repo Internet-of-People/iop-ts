@@ -2,6 +2,7 @@ import { OperationType } from './OperationType';
 
 export const registerBeforeProofSchema = {
   type: 'object',
+  required: ['operation', 'params'],
   properties: {
     operation: {
       type: 'string',
@@ -9,6 +10,7 @@ export const registerBeforeProofSchema = {
     },
     params: {
       type: 'object',
+      required: ['contentId'],
       properties: {
         contentId: {
           type: 'string'
@@ -20,6 +22,7 @@ export const registerBeforeProofSchema = {
 
 export const revokeBeforeProofSchema = {
   type: 'object',
+  required: ['operation', 'params'],
   properties: {
     operation: {
       type: 'string',
@@ -27,6 +30,7 @@ export const revokeBeforeProofSchema = {
     },
     params: {
       type: 'object',
+      required: ['contentId'],
       properties: {
         contentId: {
           type: 'string'

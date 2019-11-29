@@ -1,5 +1,5 @@
 import { Interfaces, Transactions, Utils } from '@arkecosystem/crypto';
-import { MorpheusTransaction } from './MorpheusTransaction';
+import { IMorpheusData, MorpheusTransaction } from './MorpheusTransaction';
 import { OperationAttemptsBuilder } from "./OperationAttemptsBuilder";
 
 export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<MorpheusTransactionBuilder> {
@@ -17,28 +17,27 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
     return Utils.BigNumber.make(this.OFFSET_BYTES).plus(txLength).times(this.FLAKES_PER_BYTES);
   }
 
+  private get typedData() { return this.data as IMorpheusData; }
+
   constructor() {
     super();
-    this.data.type = MorpheusTransaction.type;
-    this.data.typeGroup = MorpheusTransaction.typeGroup;
-    this.data.version = 2;
-    this.data.amount = Utils.BigNumber.ZERO;
-    this.data.asset = {};
-    this.data.asset[MorpheusTransaction.ID] = {};
+    this.typedData.type = MorpheusTransaction.type;
+    this.typedData.typeGroup = MorpheusTransaction.typeGroup;
+    this.typedData.version = 2;
+    this.typedData.amount = Utils.BigNumber.ZERO;
+    this.typedData.asset = { operationAttempts: [] };
   }
 
   public fromOperationAttempts(attemptsBuilder: OperationAttemptsBuilder): MorpheusTransactionBuilder {
-    this.data.asset![MorpheusTransaction.ID] = {
-      operationAttempts: attemptsBuilder.getAttempts(),
-    };
-    this.data.fee = MorpheusTransactionBuilder.calculateFee(attemptsBuilder);
+    this.typedData.asset.operationAttempts = attemptsBuilder.getAttempts();
+    this.typedData.fee = MorpheusTransactionBuilder.calculateFee(attemptsBuilder);
     return this;
   }
 
   public getStruct(): Interfaces.ITransactionData {
     const struct: Interfaces.ITransactionData = super.getStruct();
-    struct.amount = this.data.amount;
-    struct.asset = this.data.asset;
+    struct.amount = this.typedData.amount;
+    struct.asset = this.typedData.asset;
     return struct;
   }
 
