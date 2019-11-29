@@ -18,7 +18,7 @@ export const visit = <R>(operation: string, visitor: IOperationTypeVisitor<R>): 
 };
 
 
-// TODO generate this based on the enum
+// TODO generate this based on Object.keys(OperationType).filter(...).map(...)
 const all: string[] = [
   OperationType.RegisterBeforeProof,
   OperationType.RevokeBeforeProof,

@@ -1,6 +1,5 @@
 import { IOperationTypeVisitor, visitAll } from "./AllOperations";
-import { registerBeforeProofSchema } from './RegisterBeforeProof';
-import { revokeBeforeProofSchema } from './RevokeBeforeProof';
+import { registerBeforeProofSchema, revokeBeforeProofSchema } from './IOperationData';
 
 class SchemaVisitor implements IOperationTypeVisitor<any> {
   public registerBeforeProof() {

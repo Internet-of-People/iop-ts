@@ -19,9 +19,10 @@ export class MorpheusTransaction extends Transactions.Transaction {
    * {
    *  operationAttempts: [{
    *    operation: 'registerBeforeProof',
-   *    params: {
-   *      contentId: 'my content id'
-   *    }
+   *    contentId: 'my content id'
+   *  },{
+   *    operation: 'revokeBeforeProof',
+   *    contentId: 'old content id'
    *  }]
    * }
    */

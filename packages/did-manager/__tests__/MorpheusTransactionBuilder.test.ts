@@ -9,8 +9,8 @@ describe('MorpheusTransactionBuilder', () => {
 
     const builder = new MorpheusTransactionBuilder();
     const ops = new OperationAttemptsBuilder()
-      .registerBeforeProof({contentId:"my content id"})
-      .revokeBeforeProof({contentId:"old content id"});
+      .registerBeforeProof("my content id")
+      .revokeBeforeProof("old content id");
     const actual = builder
       .fromOperationAttempts(ops)
       .nonce('42')

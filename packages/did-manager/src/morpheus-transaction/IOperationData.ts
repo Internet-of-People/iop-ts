@@ -14,9 +14,39 @@ export interface IRegisterBeforeProofData extends IOperationData {
   contentId: string;
 }
 
+export const registerBeforeProofSchema = {
+  type: 'object',
+  required: ['operation', 'contentId'],
+  additionalProperties: false,
+  properties: {
+    operation: {
+      type: 'string',
+      const: OperationType.RegisterBeforeProof
+    },
+    contentId: {
+      type: 'string'
+    }
+  }
+};
+
 /**
  * Data transfer object of RevokeBeforeProof.
  */
 export interface IRevokeBeforeProofData extends IOperationData {
   contentId: string;
 }
+
+export const revokeBeforeProofSchema = {
+  type: 'object',
+  required: ['operation', 'contentId'],
+  additionalProperties: false,
+  properties: {
+    operation: {
+      type: 'string',
+      const: OperationType.RevokeBeforeProof
+    },
+    contentId: {
+      type: 'string'
+    }
+  }
+};

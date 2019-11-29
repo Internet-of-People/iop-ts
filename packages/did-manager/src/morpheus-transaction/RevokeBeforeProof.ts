@@ -11,25 +11,3 @@ export class RevokeBeforeProof extends IOperation {
     return visitor.revokeBeforeProof(this.contentId);
   }
 }
-
-export const revokeBeforeProofSchema = {
-  type: 'object',
-  required: ['operation', 'params'],
-  additionalProperties: false,
-  properties: {
-    operation: {
-      type: 'string',
-      const: OperationType.RevokeBeforeProof
-    },
-    params: {
-      type: 'object',
-      required: ['contentId'],
-      additionalProperties: false,
-      properties: {
-        contentId: {
-          type: 'string'
-        }
-      }
-    }
-  }
-};
