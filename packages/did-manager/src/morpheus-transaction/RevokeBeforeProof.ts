@@ -1,7 +1,7 @@
-import { IOperation, IOperationVisitor } from './IOperation';
+import { IOperation, IOperationVisitor, OperationType } from './IOperation';
 
 export class RevokeBeforeProof extends IOperation {
-  public static readonly type = 'revokeBeforeProof';
+  public static readonly type = OperationType.RevokeBeforeProof;
 
   public constructor(public readonly contentId: string) {
     super();
@@ -19,7 +19,7 @@ export const revokeBeforeProofSchema = {
   properties: {
     operation: {
       type: 'string',
-      const: RevokeBeforeProof.type
+      const: OperationType.RevokeBeforeProof
     },
     params: {
       type: 'object',

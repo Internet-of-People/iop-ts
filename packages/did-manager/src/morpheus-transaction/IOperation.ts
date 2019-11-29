@@ -1,3 +1,8 @@
+export enum OperationType {
+  RegisterBeforeProof = 'registerBeforeProof',
+  RevokeBeforeProof = 'revokeBeforeProof',
+}
+
 /**
  * Most of the time we have a heterogenous collection of
  * operations. The visitor pattern allows us to implement many
@@ -12,8 +17,8 @@ export interface IOperationVisitor<T> {
  * Interface of all operation model classes.
  */
 export abstract class IOperation {
-  public static readonly type: string;
+  public static readonly type: OperationType;
 
-  public get type() { return (this as any).__proto__.constructor.type; }
+  public get type(): OperationType { return (this as any).__proto__.constructor.type; }
   public abstract accept<T>(visitor: IOperationVisitor<T>): T;
 }

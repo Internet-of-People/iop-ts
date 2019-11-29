@@ -1,7 +1,7 @@
-import { IOperation, IOperationVisitor } from './IOperation';
+import { IOperation, IOperationVisitor, OperationType } from './IOperation';
 
 export class RegisterBeforeProof extends IOperation {
-  public static readonly type = 'registerBeforeProof';
+  public static readonly type = OperationType.RegisterBeforeProof;
 
   public constructor(public readonly contentId: string) {
     super();
@@ -19,7 +19,7 @@ export const registerBeforeProofSchema = {
   properties: {
     operation: {
       type: 'string',
-      const: RegisterBeforeProof.type
+      const: OperationType.RegisterBeforeProof
     },
     params: {
       type: 'object',

@@ -1,22 +1,23 @@
 import { IOperation } from "./IOperation";
-import { erase, IOperationData, IRegisterBeforeProofParam, IRevokeBeforeProofParam } from "./IOperationData";
+import { IOperationData } from "./IOperationData";
 import { RegisterBeforeProof } from './RegisterBeforeProof';
 import { RevokeBeforeProof } from './RevokeBeforeProof';
+import { toData } from './ToData';
 
 export class OperationAttemptsBuilder {
   private attempts: IOperation[] = [];
 
-  public registerBeforeProof(params: IRegisterBeforeProofParam): OperationAttemptsBuilder {
-    this.attempts.push(new RegisterBeforeProof(params.contentId));
+  public registerBeforeProof(contentId: string): OperationAttemptsBuilder {
+    this.attempts.push(new RegisterBeforeProof(contentId));
     return this;
   }
 
-  public revokeBeforeProof(params: IRevokeBeforeProofParam): OperationAttemptsBuilder {
-    this.attempts.push(new RevokeBeforeProof(params.contentId));
+  public revokeBeforeProof(contentId: string): OperationAttemptsBuilder {
+    this.attempts.push(new RevokeBeforeProof(contentId));
     return this;
   }
 
   public getAttempts(): IOperationData[] {
-    return this.attempts.map(op => erase(op));
+    return this.attempts.map(op => toData(op));
   }
 }
