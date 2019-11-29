@@ -7,7 +7,7 @@ import { NativeScheduler } from "./Scheduler";
 import { Server } from "./Server";
 
 export interface IInitializable {
-  init(): Promise<void>
+  init(): Promise<void>;
 }
 
 export class Composite implements IInitializable {
@@ -54,14 +54,14 @@ const register = async (container: Container.IContainer) => {
     }
   });
 
-  const plugin = new Composite(log, blockEventSource, server)
+  const plugin = new Composite(log, blockEventSource, server);
   await plugin.init();
   return plugin;
-}
+};
 
 const deregister = async (container: Container.IContainer) => {
   return container.resolvePlugin(plugin.alias).exit();
-}
+};
 
 export const defaults = {
 };

@@ -25,7 +25,8 @@
     "only-arrow-functions": true,
     "radix": false,
     "return-undefined": true,
-    "no-empty-interface": false
+    "no-empty-interface": false,
+    "semicolon": [true, "always"]
   },
   "exclude": ["node_modules", "dist"]
 }

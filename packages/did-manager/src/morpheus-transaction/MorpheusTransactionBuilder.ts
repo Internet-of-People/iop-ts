@@ -14,7 +14,7 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
    */
   private static calculateFee(attempts: OperationAttemptsBuilder): Utils.BigNumber {
     const txLength = JSON.stringify(attempts.getAttempts()).length;
-    return Utils.BigNumber.make(this.OFFSET_BYTES).plus(txLength).times(this.FLAKES_PER_BYTES)
+    return Utils.BigNumber.make(this.OFFSET_BYTES).plus(txLength).times(this.FLAKES_PER_BYTES);
   }
 
   constructor() {

@@ -1,6 +1,6 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 // import { badData, boomify, notFound, unauthorized } from "@hapi/boom";
-import { Lifecycle, Request } from "@hapi/hapi"
+import { Lifecycle, Request } from "@hapi/hapi";
 import { IAppLog } from "./AppLog";
 
 import { IInitializable } from "./Main";

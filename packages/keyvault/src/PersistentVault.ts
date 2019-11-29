@@ -40,7 +40,7 @@ export class PersistentVault {
   }
 
   public sign(message: Uint8Array, did: string): SignedMessage {
-    return this.vault.sign(did, message)
+    return this.vault.sign(did, message);
   }
 
   public validateSignature(signedMessage: SignedMessage, did?: string): boolean {

@@ -14,7 +14,7 @@ export class NativeScheduler {
         setTimeout(
           () => rej(new Error(`Task ${name} timeouted`)),
           ms
-        )
+        );
       }
     );
   }
