@@ -14,6 +14,6 @@ export interface IOperationVisitor<T> {
 export abstract class IOperation {
   public static readonly type: string;
 
-  public get type() { return IOperation.type; }
+  public get type() { return (this as any).__proto__.constructor.type; }
   public abstract accept<T>(visitor: IOperationVisitor<T>): T;
 }

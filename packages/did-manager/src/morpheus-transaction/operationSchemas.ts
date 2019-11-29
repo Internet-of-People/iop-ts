@@ -1,4 +1,4 @@
-import { visitAll, IOperationTypeVisitor } from "./AllOperations";
+import { IOperationTypeVisitor, visitAll } from "./AllOperations";
 import { registerBeforeProofSchema } from './RegisterBeforeProof';
 import { revokeBeforeProofSchema } from './RevokeBeforeProof';
 
