@@ -1,41 +1,15 @@
-import { OperationType } from './OperationType';
+import { visitAll, IOperationTypeVisitor } from "./AllOperations";
+import { registerBeforeProofSchema } from './RegisterBeforeProof';
+import { revokeBeforeProofSchema } from './RevokeBeforeProof';
 
-export const registerBeforeProofSchema = {
-  type: 'object',
-  required: ['operation', 'params'],
-  properties: {
-    operation: {
-      type: 'string',
-      const: OperationType.RegisterBeforeProof
-    },
-    params: {
-      type: 'object',
-      required: ['contentId'],
-      properties: {
-        contentId: {
-          type: 'string'
-        }
-      }
-    }
+class SchemaVisitor implements IOperationTypeVisitor<any> {
+  public registerBeforeProof() {
+    return registerBeforeProofSchema;
   }
-};
 
-export const revokeBeforeProofSchema = {
-  type: 'object',
-  required: ['operation', 'params'],
-  properties: {
-    operation: {
-      type: 'string',
-      const: OperationType.RevokeBeforeProof
-    },
-    params: {
-      type: 'object',
-      required: ['contentId'],
-      properties: {
-        contentId: {
-          type: 'string'
-        }
-      }
-    }
+  public revokeBeforeProof() {
+    return revokeBeforeProofSchema;
   }
-};
+}
+
+export const allSchemas = (): any[] => visitAll(new SchemaVisitor());

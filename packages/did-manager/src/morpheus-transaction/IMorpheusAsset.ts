@@ -1,5 +1,5 @@
-import { IOperation } from './operations';
+import { IOperationData } from './IOperationData';
 
 export interface IMorpheusAsset {
-  operationAttempts: IOperation[];
+  operationAttempts: IOperationData[];
 }
