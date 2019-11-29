@@ -35,6 +35,10 @@ export class PersistentVault {
     return did;
   }
 
+  public dids(): string[] {
+    return this.vault.profiles();
+  }
+
   public sign(message: Uint8Array, did: string): SignedMessage {
     return this.vault.sign(did, message)
   }
