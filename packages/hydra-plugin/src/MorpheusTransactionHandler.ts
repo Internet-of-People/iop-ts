@@ -2,7 +2,8 @@ import { Database, State } from "@arkecosystem/core-interfaces";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { Transaction } from "@internet-of-people/did-manager";
+import { MorpheusTransaction } from "@internet-of-people/did-manager";
+const { Transaction } = MorpheusTransaction;
 const { key, type, typeGroup } = Transaction.MorpheusTransaction;
 import { IMorpheusState } from "./MorpheusState";
 

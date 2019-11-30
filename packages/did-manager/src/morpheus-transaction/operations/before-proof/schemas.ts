@@ -1,18 +1,4 @@
-import { OperationType } from './IOperation';
-
-/**
- * Data transfer object for IOperation implementations.
- */
-export interface IOperationData {
-  operation: OperationType;
-}
-
-/**
- * Data transfer object of RegisterBeforeProof.
- */
-export interface IRegisterBeforeProofData extends IOperationData {
-  contentId: string;
-}
+import { OperationType } from '../operation-type';
 
 export const registerBeforeProofSchema = {
   type: 'object',
@@ -28,13 +14,6 @@ export const registerBeforeProofSchema = {
     }
   }
 };
-
-/**
- * Data transfer object of RevokeBeforeProof.
- */
-export interface IRevokeBeforeProofData extends IOperationData {
-  contentId: string;
-}
 
 export const revokeBeforeProofSchema = {
   type: 'object',

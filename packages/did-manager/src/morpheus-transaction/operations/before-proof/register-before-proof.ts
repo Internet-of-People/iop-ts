@@ -1,6 +1,8 @@
-import { IOperation, IOperationVisitor, OperationType } from './IOperation';
+import { IOperationVisitor } from '../../../interfaces';
+import { Operation } from '../operation';
+import { OperationType } from '../operation-type';
 
-export class RegisterBeforeProof extends IOperation {
+export class RegisterBeforeProof extends Operation {
   public static readonly type = OperationType.RegisterBeforeProof;
 
   public constructor(public readonly contentId: string) {

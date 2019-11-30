@@ -1,5 +1,7 @@
-import { IOperation, IOperationVisitor, OperationType } from './IOperation';
-import { IOperationData, IRegisterBeforeProofData, IRevokeBeforeProofData } from './IOperationData';
+import { IOperationVisitor } from '../../interfaces';
+import { IOperationData, IRegisterBeforeProofData, IRevokeBeforeProofData } from '../../interfaces/operation-data';
+import { Operation } from './operation';
+import { OperationType } from './operation-type';
 
 /**
  * A visitor that extracts specific data objects needed to represent operations.
@@ -25,6 +27,6 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
  * If we want to get rid of IOperationData completely, it is possible to do so in the future.
  * @param operation The operation model to convert
  */
-export const toData = (operation: IOperation): IOperationData => {
+export const toData = (operation: Operation): IOperationData => {
   return operation.accept(new ToDataVisitor());
 };

@@ -1,4 +1,4 @@
-import { MorpheusTransaction } from '../src/morpheus-transaction';
+import { Transaction } from '../src/morpheus-transaction';
 
 describe('MorpheusTransaction', () => {
   const operationAttempts1 = [
@@ -11,11 +11,11 @@ describe('MorpheusTransaction', () => {
   for (const operationAttempts of [operationAttempts1, operationAttempts2]) {
     it('can be serialized/deserialized', () => {
 
-      const tx = new MorpheusTransaction();
+      const tx = new Transaction.MorpheusTransaction();
       tx.data.asset.operationAttempts = Object.assign([], operationAttempts);
       const serializedBuffer = tx.serialize();
   
-      const rx = new MorpheusTransaction();
+      const rx = new Transaction.MorpheusTransaction();
       rx.deserialize(serializedBuffer.flip());
   
       expect(rx.data.asset).toBeDefined();

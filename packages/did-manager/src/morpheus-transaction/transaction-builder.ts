@@ -1,6 +1,6 @@
 import { Interfaces, Transactions, Utils } from '@arkecosystem/crypto';
-import { IMorpheusData, MorpheusTransaction } from './MorpheusTransaction';
-import { OperationAttemptsBuilder } from "./OperationAttemptsBuilder";
+import { OperationAttemptsBuilder } from "./operations";
+import { IMorpheusData, MorpheusTransaction } from './transaction';
 
 export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<MorpheusTransactionBuilder> {
   // see minFeePool: https://github.com/Internet-of-People/hydra-core/blob/master/packages/core/bin/config/mainnet/plugins.js

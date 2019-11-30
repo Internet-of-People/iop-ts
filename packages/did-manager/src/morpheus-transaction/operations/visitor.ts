@@ -1,11 +1,7 @@
-import { OperationType } from './IOperation';
+import { IOperationTypeVisitor } from '../../interfaces';
+import { OperationType } from './operation-type';
 
-export interface IOperationTypeVisitor<R> {
-  registerBeforeProof(): R;
-  revokeBeforeProof(): R;
-}
-
-export const visit = <R>(operation: string, visitor: IOperationTypeVisitor<R>): R => {
+export const visitOperation = <R>(operation: string, visitor: IOperationTypeVisitor<R>): R => {
   switch (operation) {
     case OperationType.RegisterBeforeProof:
       return visitor.registerBeforeProof();
@@ -24,6 +20,6 @@ const all: string[] = [
   OperationType.RevokeBeforeProof,
 ];
 
-export const visitAll = <R>(visitor: IOperationTypeVisitor<R>): R[] => {
-  return all.map(type => visit(type, visitor));
+export const visitAllOperationTypes = <R>(visitor: IOperationTypeVisitor<R>): R[] => {
+  return all.map(type => visitOperation(type, visitor));
 };

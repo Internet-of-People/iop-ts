@@ -1,5 +1,5 @@
 import Optional from 'optional-js';
-import { TimeSeries, ITimeSeries } from "./time-series";
+import { TimeSeries, ITimeSeries } from "../src/time-series";
 
 describe('empty series', () => {
   let series: ITimeSeries;

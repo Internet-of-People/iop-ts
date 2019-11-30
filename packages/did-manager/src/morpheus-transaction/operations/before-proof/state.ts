@@ -1,22 +1,7 @@
-import { TimeSeries } from "./time-series";
-
-export interface IBeforeProofQueries {
-  existsAt(height: number): boolean;
-}
-
-export interface IBeforeProofOperations {
-  register(height: number): void;
-  revoke(height: number): void;
-}
-
-export interface IBeforeProofState {
-  readonly query: IBeforeProofQueries;
-  readonly apply: IBeforeProofOperations;
-  readonly revert: IBeforeProofOperations;
-}
+import { IBeforeProofOperations, IBeforeProofQueries, IBeforeProofState } from "../../../interfaces";
+import { TimeSeries } from "../../../time-series";
 
 export class BeforeProofState implements IBeforeProofState {
-
   public readonly query: IBeforeProofQueries = {
     existsAt: (height: number): boolean => {
       return this.periods.query.get(height);

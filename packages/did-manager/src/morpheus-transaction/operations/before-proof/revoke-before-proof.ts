@@ -1,6 +1,8 @@
-import { IOperation, IOperationVisitor, OperationType } from './IOperation';
+import { IOperationVisitor } from '../../../interfaces';
+import { Operation } from '../operation';
+import { OperationType } from '../operation-type';
 
-export class RevokeBeforeProof extends IOperation {
+export class RevokeBeforeProof extends Operation {
   public static readonly type = OperationType.RevokeBeforeProof;
 
   public constructor(public readonly contentId: string) {

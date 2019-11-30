@@ -1,14 +1,14 @@
 import { Managers, Transactions } from "@arkecosystem/crypto";
 import 'jest-extended';
-import { MorpheusTransaction, MorpheusTransactionBuilder, OperationAttemptsBuilder } from '../src/morpheus-transaction';
+import { Builder, Transaction, Operations } from '../src/morpheus-transaction';
 
 describe('MorpheusTransactionBuilder', () => {
   it('should verify correctly', () => {
     Managers.configManager.setFromPreset('testnet');
-    Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(Transaction.MorpheusTransaction);
 
-    const builder = new MorpheusTransactionBuilder();
-    const ops = new OperationAttemptsBuilder()
+    const builder = new Builder.MorpheusTransactionBuilder();
+    const ops = new Operations.OperationAttemptsBuilder()
       .registerBeforeProof("my content id")
       .revokeBeforeProof("old content id");
     const actual = builder

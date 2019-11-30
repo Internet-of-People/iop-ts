@@ -1,4 +1,6 @@
-import { BeforeProofState, IBeforeProofState } from "@internet-of-people/did-manager";
+import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
+
+const { Operations: { BeforeProof: { State: { BeforeProofState } } } } = MorpheusTransaction;
 
 export interface IMorpheusOperations {
   registerBeforeProof(contentId: string, height: number): void;
@@ -49,5 +51,5 @@ export class MorpheusState implements IMorpheusState {
     },
   };
 
-  private beforeProofs = new Map<string, IBeforeProofState>();
+  private beforeProofs = new Map<string, Interfaces.IBeforeProofState>();
 }

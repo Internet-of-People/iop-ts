@@ -1,11 +1,10 @@
-import { IOperation } from "./IOperation";
-import { IOperationData } from "./IOperationData";
-import { RegisterBeforeProof } from './RegisterBeforeProof';
-import { RevokeBeforeProof } from './RevokeBeforeProof';
-import { toData } from './ToData';
+import { IOperationData } from "../../interfaces/operation-data";
+import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
+import { Operation } from "./operation";
+import { toData } from './to-data';
 
 export class OperationAttemptsBuilder {
-  private attempts: IOperation[] = [];
+  private attempts: Operation[] = [];
 
   public registerBeforeProof(contentId: string): OperationAttemptsBuilder {
     this.attempts.push(new RegisterBeforeProof(contentId));

@@ -1,8 +1,8 @@
 import { Interfaces as Crypto, Transactions, Utils } from '@arkecosystem/crypto';
 import ByteBuffer from 'bytebuffer';
 
-import { IMorpheusAsset } from './IMorpheusAsset';
-import { allSchemas } from './operationSchemas';
+import { IMorpheusAsset } from '../interfaces/asset';
+import { operationSchemas } from './operations';
 const { schemas } = Transactions;
 
 export interface IMorpheusData extends Crypto.ITransactionData {
@@ -43,7 +43,7 @@ export class MorpheusTransaction extends Transactions.Transaction {
             operationAttempts: {
               type: 'array',
               items: {
-                anyOf: allSchemas()
+                anyOf: operationSchemas()
               }
             }
           }
