@@ -14,8 +14,6 @@ export interface IRegisterBeforeProofData extends IOperationData {
   contentId: string;
 }
 
-
-
 /**
  * Data transfer object of RevokeBeforeProof.
  */

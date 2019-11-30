@@ -1,10 +1,13 @@
-import { Container, Database } from "@arkecosystem/core-interfaces";
+import { Container } from "@arkecosystem/core-interfaces";
 import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 
+import { Handlers } from '@arkecosystem/core-transactions';
 import { AppLog, IAppLog } from "./AppLog";
 import { BlockEventSource } from "./BlockEventSource";
+import { MorpheusTransactionHandler } from './MorpheusTransactionHandler';
 import { NativeScheduler } from "./Scheduler";
 import { Server } from "./Server";
+import {MorpheusStateHandler} from "./state-handler";
 
 export interface IInitializable {
   init(): Promise<void>;
@@ -45,17 +48,32 @@ const register = async (container: Container.IContainer) => {
 
   const server = new Server("0.0.0.0", 4705, log);
 
+  let state = MorpheusStateHandler.instance();
   blockEventSource.subscribe('test', {
     async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
-      log.info(`GOT BLOCK!!!!!!!! ${block.height}`);
+      if(!block.transactions) {
+        return;
+      }
+      for (const transaction of block.transactions) {
+        const stateBackup = state;
+        try {
+          MorpheusStateHandler.applyTransactionToState(transaction, state);
+        } catch (e) {
+          state = stateBackup;
+          // TODO: log error
+        }
+      }
     },
     async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {
+      // TODO
       // it's empty for a reason
     }
   });
 
   const plugin = new Composite(log, blockEventSource, server);
   await plugin.init();
+
+  Handlers.Registry.registerTransactionHandler(MorpheusTransactionHandler);
   return plugin;
 };
 
