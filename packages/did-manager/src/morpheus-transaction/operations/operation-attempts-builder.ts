@@ -1,4 +1,4 @@
-import { IOperationData } from "../../interfaces/operation-data";
+import { IOperationData } from "../../interfaces";
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
 import { Operation } from "./operation";
 import { toData } from './to-data';

@@ -1,7 +1,6 @@
-import { MorpheusStateHandler } from "../src/state-handler";
-
+import Optional from "optional-js";
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
-import { IAppLog } from "../src/app-log";
+import { MorpheusStateHandler } from "../src/state-handler";
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
@@ -43,29 +42,45 @@ describe('StateHandler', () => {
       blockId,
       transactionId,
     });
-    expect(handler.query().isConfirmed(transactionId)).toBeTruthy();
+    expect(handler.query().isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
     expect(handler.query().beforeProofExistsAt(contentId, 5)).toBeTruthy();
     expect(handler.query().beforeProofExistsAt(contentId, undefined)).toBeTruthy();
     expect(handler.query().beforeProofExistsAt(contentId, 3)).toBeFalsy();
     expect(handler.query().beforeProofExistsAt(contentId, 7)).toBeTruthy();
   });
 
-  it('rejects state change with old block height', () => {
+  it('rejects before proof with old block height or already registered content id', () => {
     const handler = MorpheusStateHandler.instance();
+    expect(handler.query().isConfirmed(transactionId)).toStrictEqual(Optional.empty());
     handler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },
       blockHeight: 5,
       blockId,
       transactionId,
     });
-    expect(handler.query().isConfirmed(transactionId)).toBeTruthy();
-    const newTransactionId = transactionId + 'x';
+    expect(handler.query().isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+
+    const beforeBlockHeightTxId = transactionId + 'old';
     handler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },
       blockHeight: 3,
       blockId,
-      transactionId: newTransactionId,
+      transactionId: beforeBlockHeightTxId,
     });
 
+    // TODO: change the api to be able to know what was the rejection reason
+    expect(handler.query().isConfirmed(beforeBlockHeightTxId)).toStrictEqual(Optional.of(false));
+
+    const afterBlockHeightTxId = transactionId + 'already';
+    handler.applyTransactionToState({
+      asset: { operationAttempts: registrationAttempt },
+      blockHeight: 7,
+      blockId, // TODO: should we also test if the blockId changes?
+      transactionId: afterBlockHeightTxId,
+    });
+
+    expect(handler.query().isConfirmed(afterBlockHeightTxId)).toStrictEqual(Optional.of(false));
   });
+
+  // TODO: test corrupt state
 });

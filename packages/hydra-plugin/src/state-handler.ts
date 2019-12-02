@@ -42,20 +42,27 @@ export class MorpheusStateHandler {
       this.state = newState;
     } catch(e){
       this.logger!.info(`Transaction could not be applied. Error: ${e.message}, TX: ${JSON.stringify(stateChange)}`);
+      newState.apply.rejectTx(stateChange.transactionId);
     }
   }
 
   public revertTransactionFromState(stateChange: IStateChange): void {
     try {
-      if(!this.state.query.isConfirmed(stateChange.transactionId)) {
+      const confirmed = this.state.query.isConfirmed(stateChange.transactionId);
+      if(!confirmed.isPresent()) {
         throw new Error(`Transaction ${stateChange.transactionId} was not confirmed, cannot revert.`);
       }
-      for (const operationData of stateChange.asset.operationAttempts) {
-        const operation = fromData(operationData);
-        operation.accept(this.revert(stateChange.blockHeight));
+      if(!confirmed.get()) {
+        this.state.revert.rejectTx(stateChange.transactionId);
       }
+      else {
+        this.state.revert.confirmTx(stateChange.transactionId);
 
-      this.state.revert.confirmTx(stateChange.transactionId);
+        for (const operationData of stateChange.asset.operationAttempts) {
+          const operation = fromData(operationData);
+          operation.accept(this.revert(stateChange.blockHeight));
+        }
+      }
     } catch(e) {
       this.logger!.error(`Layer 2 state is corrupt. Error: ${e.message}`);
       // TODO: mark whole layer 2 state as corrupt: no new changes are accepted; no queries are served
