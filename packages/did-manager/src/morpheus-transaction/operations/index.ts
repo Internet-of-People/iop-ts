@@ -1,4 +1,4 @@
-import * as OperationData from '../../interfaces/operation-data';
+import * as OperationData from '../../interfaces';
 import * as BeforeProof from './before-proof';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';
 import * as Types from './operation-type';

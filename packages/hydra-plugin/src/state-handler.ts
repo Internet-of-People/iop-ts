@@ -12,16 +12,19 @@ export interface IStateChange {
 }
 
 export class MorpheusStateHandler {
+  public static reset() {
+    this.handler = undefined;
+  }
   public static instance(): MorpheusStateHandler {
-    if(!this.handler) {
+    if (!this.handler) {
       this.handler = new MorpheusStateHandler();
     }
-
     return this.handler;
   }
 
-  private static handler: MorpheusStateHandler;
-  public logger: IAppLog|undefined;
+  private static handler: MorpheusStateHandler | undefined;
+
+  public logger: IAppLog | undefined;
   private state: IMorpheusState;
   private constructor() {
     this.state = new MorpheusState();

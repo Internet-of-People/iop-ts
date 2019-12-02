@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsc -p .",
     "clean": "rimraf dist && rimraf node_modules",
-    "test": "jest --detectOpenHandles --no-cache --passWithNoTests"
+    "test": "jest --detectOpenHandles --no-cache",
+    "test:watch": "jest --detectOpenHandles --no-cache --watch"
   },
   "dependencies": {
     "@arkecosystem/core-event-emitter": "^2.6.0-next.6",
