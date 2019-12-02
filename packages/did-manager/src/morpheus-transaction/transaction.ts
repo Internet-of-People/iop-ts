@@ -1,13 +1,11 @@
-import { Interfaces as Crypto, Transactions, Utils } from '@arkecosystem/crypto';
+import { Transactions, Utils } from '@arkecosystem/crypto';
 import ByteBuffer from 'bytebuffer';
 
-import { IMorpheusAsset } from '../interfaces/asset';
+import { IMorpheusAsset, IMorpheusData } from '../interfaces';
 import { operationSchemas } from './operations';
 const { schemas } = Transactions;
 
-export interface IMorpheusData extends Crypto.ITransactionData {
-  asset: IMorpheusAsset;
-}
+
 
 export class MorpheusTransaction extends Transactions.Transaction {
   public static readonly typeGroup: number = 4242;

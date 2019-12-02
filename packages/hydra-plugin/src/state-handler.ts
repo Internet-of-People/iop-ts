@@ -1,34 +1,83 @@
-import {Database} from "@arkecosystem/core-interfaces";
-import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 import {Interfaces, MorpheusTransaction} from "@internet-of-people/did-manager";
+import cloneDeep from "lodash.clonedeep";
+import {IAppLog} from "./AppLog";
 import {IMorpheusState, MorpheusState} from "./MorpheusState";
-const { Operations: { Types } } = MorpheusTransaction;
+const { Operations: { fromData } } = MorpheusTransaction;
+
+export interface IStateChange {
+  asset: Interfaces.IMorpheusAsset;
+  blockHeight: number;
+  blockId: string;
+  transactionId: string;
+}
 
 export class MorpheusStateHandler {
-  public static instance(): IMorpheusState {
-    if(!this.state){
-      this.state = new MorpheusState();
+  public static instance(): MorpheusStateHandler {
+    if(!this.handler) {
+      this.handler = new MorpheusStateHandler();
     }
 
-    return this.state;
+    return this.handler;
   }
 
-  public static applyTransactionToState(transaction: Database.IBootstrapTransaction|CryptoIf.ITransactionData, state: IMorpheusState): void {
-    const asset = transaction.asset as Interfaces.IMorpheusAsset;
-    for (const operation of asset.operationAttempts) {
-      switch (operation.operation) {
-        case Types.OperationType.RegisterBeforeProof:
-          // state.apply.registerBeforeProof()
-          // TODO: typings (IMorpheusAsset) is not good here I think.
-          // asset must has a structure like: {operationAttempts: [{operation: "registerBeforeProof": params: {contentId: "id"}}]},
-          break;
-        case Types.OperationType.RevokeBeforeProof:
-          break;
-        default:
-          throw new Error(`Unknow operation type '${operation.operation}' at height ${transaction.blockId}. TX: ${JSON.stringify(transaction)}`);
+  private static handler: MorpheusStateHandler;
+  public logger: IAppLog|undefined;
+  private state: IMorpheusState;
+  private constructor() {
+    this.state = new MorpheusState();
+  }
+
+  public applyTransactionToState(stateChange: IStateChange): void {
+    const newState = cloneDeep(this.state);
+
+    try {
+      for (const operationData of stateChange.asset.operationAttempts) {
+        const operation = fromData(operationData);
+        operation.accept(this.apply(stateChange.blockHeight));
       }
+      newState.apply.confirmTx(stateChange.transactionId);
+      this.state = newState;
+    } catch(e){
+      this.logger!.info(`Transaction could not be applied. Error: ${e.message}, TX: ${JSON.stringify(stateChange)}`);
     }
   }
 
-  private static state: IMorpheusState|undefined;
+  public revertTransactionFromState(stateChange: IStateChange): void {
+    try {
+      if(!this.state.query.isConfirmed(stateChange.transactionId)) {
+        throw new Error(`Transaction ${stateChange.transactionId} was not confirmed, cannot revert.`);
+      }
+      for (const operationData of stateChange.asset.operationAttempts) {
+        const operation = fromData(operationData);
+        operation.accept(this.revert(stateChange.blockHeight));
+      }
+
+      this.state.revert.confirmTx(stateChange.transactionId);
+    } catch(e) {
+      this.logger!.error(`Layer 2 state is corrupt. Error: ${e.message}`);
+      // TODO: mark whole layer 2 state as corrupt: no new changes are accepted; no queries are served
+    }
+  }
+
+  private apply(height: number): Interfaces.IOperationVisitor<void> {
+    return {
+      registerBeforeProof:(contentId: string): void => {
+        this.state.apply.registerBeforeProof(contentId, height);
+      },
+      revokeBeforeProof: (contentId: string): void => {
+        this.state.apply.revokeBeforeProof(contentId, height);
+      }
+    };
+  }
+
+  private revert(height: number): Interfaces.IOperationVisitor<void> {
+    return {
+      registerBeforeProof:(contentId: string): void => {
+        this.state.revert.registerBeforeProof(contentId, height);
+      },
+      revokeBeforeProof: (contentId: string): void => {
+        this.state.revert.revokeBeforeProof(contentId, height);
+      }
+    };
+  }
 }

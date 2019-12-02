@@ -1,18 +1,16 @@
-import {Database, State} from "@arkecosystem/core-interfaces";
-import {Handlers, TransactionReader} from "@arkecosystem/core-transactions";
-import {Interfaces as CryptoIf, Transactions} from "@arkecosystem/crypto";
+import { Database, State } from "@arkecosystem/core-interfaces";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces as CryptoIf, Transactions } from "@arkecosystem/crypto";
 
-import {MorpheusTransaction } from "@internet-of-people/did-manager";
-import {MorpheusStateHandler} from "./state-handler";
+import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
+import { MorpheusStateHandler } from "./state-handler";
 
 const { Transaction } = MorpheusTransaction;
-const { key, type, typeGroup } = Transaction.MorpheusTransaction;
 
+/**
+ * Handles Morpheus custom transactions on Layer 1 (IWalletManager)
+ */
 export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
-  /*public constructor(private state: IMorpheusState) {
-    super();
-  }*/
-
   public getConstructor(): typeof Transactions.Transaction {
     return Transaction.MorpheusTransaction;
   }
@@ -26,19 +24,17 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-    let state = MorpheusStateHandler.instance();
     const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
     while (reader.hasNext()) {
       const transactions = await reader.read();
       for (const transaction of transactions) {
-        const stateBackup = state;
-        try {
-          MorpheusStateHandler.applyTransactionToState(transaction, state);
-        } catch (e) {
-          state = stateBackup;
-          // TODO: log error
-        }
+        MorpheusStateHandler.instance().applyTransactionToState({
+          asset: transaction.asset as Interfaces.IMorpheusAsset,
+          blockHeight: transaction.blockHeight,
+          blockId: transaction.blockId,
+          transactionId: transaction.id,
+        });
       }
     }
   }

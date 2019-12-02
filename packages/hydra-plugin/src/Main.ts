@@ -1,8 +1,8 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 
 import { Handlers } from '@arkecosystem/core-transactions';
 import { AppLog, IAppLog } from "./AppLog";
+import {BlockHandler} from "./block-handler";
 import { BlockEventSource } from "./BlockEventSource";
 import { MorpheusTransactionHandler } from './MorpheusTransactionHandler';
 import { NativeScheduler } from "./Scheduler";
@@ -46,29 +46,13 @@ const register = async (container: Container.IContainer) => {
     NativeScheduler.schedule
   );
 
+  // TODO: try to remove singleton pattern and use DI (maybe awilix)
+  MorpheusStateHandler.instance().logger = log;
+
   const server = new Server("0.0.0.0", 4705, log);
 
-  let state = MorpheusStateHandler.instance();
-  blockEventSource.subscribe('test', {
-    async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
-      if(!block.transactions) {
-        return;
-      }
-      for (const transaction of block.transactions) {
-        const stateBackup = state;
-        try {
-          MorpheusStateHandler.applyTransactionToState(transaction, state);
-        } catch (e) {
-          state = stateBackup;
-          // TODO: log error
-        }
-      }
-    },
-    async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {
-      // TODO
-      // it's empty for a reason
-    }
-  });
+  const blockHandler = new BlockHandler();
+  blockEventSource.subscribe('Morpheus block-handler', blockHandler);
 
   const plugin = new Composite(log, blockEventSource, server);
   await plugin.init();

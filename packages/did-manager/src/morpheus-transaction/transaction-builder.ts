@@ -1,6 +1,7 @@
-import { Interfaces, Transactions, Utils } from '@arkecosystem/crypto';
+import { Interfaces as CryptoIf, Transactions, Utils } from '@arkecosystem/crypto';
+import * as Interfaces  from '../interfaces';
 import { OperationAttemptsBuilder } from "./operations";
-import { IMorpheusData, MorpheusTransaction } from './transaction';
+import { MorpheusTransaction } from './transaction';
 
 export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<MorpheusTransactionBuilder> {
   // see minFeePool: https://github.com/Internet-of-People/hydra-core/blob/master/packages/core/bin/config/mainnet/plugins.js
@@ -17,7 +18,7 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
     return Utils.BigNumber.make(this.OFFSET_BYTES).plus(txLength).times(this.FLAKES_PER_BYTES);
   }
 
-  private get typedData() { return this.data as IMorpheusData; }
+  private get typedData() { return this.data as Interfaces.IMorpheusData; }
 
   constructor() {
     super();
@@ -34,8 +35,8 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
     return this;
   }
 
-  public getStruct(): Interfaces.ITransactionData {
-    const struct: Interfaces.ITransactionData = super.getStruct();
+  public getStruct(): CryptoIf.ITransactionData {
+    const struct: CryptoIf.ITransactionData = super.getStruct();
     struct.amount = this.typedData.amount;
     struct.asset = this.typedData.asset;
     return struct;

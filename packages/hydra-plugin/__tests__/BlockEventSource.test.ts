@@ -3,9 +3,9 @@ import { EventEmitter } from 'events';
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 
-import { IAppLog } from './AppLog';
-import { BlockEventSource, IBlockListener } from './BlockEventSource';
-import { Task, Scheduler } from "./Scheduler";
+import { IAppLog } from '../src/AppLog';
+import { BlockEventSource, IBlockListener } from '../src/BlockEventSource';
+import { Task, Scheduler } from "../src/Scheduler";
 
 describe('BlockEventSource', () => {
   let fixture: Fixture;
@@ -80,7 +80,7 @@ describe('BlockEventSource', () => {
     expect(listener1.onBlockApplied).not.toBeCalled();
     expect(listener2.onBlockApplied).not.toBeCalled();
     expect(listener3.onBlockApplied).not.toBeCalled();
-    
+
     await fixture.scheduler.runAll();
     expect(callOrder).toEqual([1,2,3]);
   });
