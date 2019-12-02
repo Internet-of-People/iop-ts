@@ -3,13 +3,16 @@ import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 import { Lifecycle, Request } from "@hapi/hapi";
 import { IAppLog } from "./app-log";
 
+// TODO break circular dependency
 import { IInitializable } from "./main";
+import { MorpheusStateHandler } from "./state-handler";
 
 export class Server implements IInitializable {
   public constructor(
     private host: string,
     private port: number,
     private log: IAppLog,
+    private stateHandler: MorpheusStateHandler,
   ) {}
 
   public async init(): Promise<void> {
@@ -58,8 +61,9 @@ export class Server implements IInitializable {
         method: "GET",
         path: "/before-proof/{contentId}/exists/{blockHeight?}",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          // TODO: update the architecture docs too.
-          return false;
+          const { params: {contentId, blockHeight} } = request;
+          const height = Number.isNaN( Number(blockHeight)) ? undefined : Number.parseInt(blockHeight);
+          return this.stateHandler.query().beforeProofExistsAt(contentId, height);
         }
       },
     ]);

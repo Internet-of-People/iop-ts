@@ -47,9 +47,10 @@ const register = async (container: Container.IContainer) => {
   );
 
   // TODO: try to remove singleton pattern and use DI (maybe awilix)
-  MorpheusStateHandler.instance().logger = log;
+  const stateHandler = MorpheusStateHandler.instance();
+  stateHandler.logger = log;
 
-  const server = new Server("0.0.0.0", 4705, log);
+  const server = new Server("0.0.0.0", 4705, log, stateHandler);
 
   const blockHandler = new BlockHandler();
   blockEventSource.subscribe('Morpheus block-handler', blockHandler);

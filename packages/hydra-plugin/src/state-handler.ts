@@ -1,7 +1,7 @@
 import {Interfaces, MorpheusTransaction} from "@internet-of-people/did-manager";
 import cloneDeep from "lodash.clonedeep";
 import {IAppLog} from "./app-log";
-import {IMorpheusState, MorpheusState} from "./state";
+import {IMorpheusQueries, IMorpheusState, MorpheusState} from "./state";
 const { Operations: { fromData } } = MorpheusTransaction;
 
 export interface IStateChange {
@@ -57,6 +57,10 @@ export class MorpheusStateHandler {
       this.logger!.error(`Layer 2 state is corrupt. Error: ${e.message}`);
       // TODO: mark whole layer 2 state as corrupt: no new changes are accepted; no queries are served
     }
+  }
+
+  public query(): IMorpheusQueries {
+    return this.state.query;
   }
 
   private apply(height: number): Interfaces.IOperationVisitor<void> {

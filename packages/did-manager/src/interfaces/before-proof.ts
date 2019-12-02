@@ -1,5 +1,5 @@
 export interface IBeforeProofQueries {
-  existsAt(height: number): boolean;
+  existsAt(height?: number): boolean;
 }
 
 export interface IBeforeProofOperations {

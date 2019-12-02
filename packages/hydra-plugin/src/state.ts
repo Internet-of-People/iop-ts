@@ -12,7 +12,7 @@ export interface IMorpheusOperations {
 }
 
 export interface IMorpheusQueries {
-  beforeProofExistsAt(contentId: string, height: number): boolean;
+  beforeProofExistsAt(contentId: string, height?: number): boolean;
   isConfirmed(transactionId: string): boolean;
 }
 
@@ -27,7 +27,7 @@ export class MorpheusState implements IMorpheusState {
     isConfirmed: (transactionId: string): boolean => {
       return this.confirmedTxs[transactionId] || false;
     },
-    beforeProofExistsAt: (contentId: string, height: number): boolean => {
+    beforeProofExistsAt: (contentId: string, height?: number): boolean => {
       const beforeProofState = this.beforeProofs.get(contentId);
       return beforeProofState !== undefined && beforeProofState.query.existsAt(height);
     }
