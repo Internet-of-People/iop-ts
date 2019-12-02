@@ -9,7 +9,7 @@
     "email": "prometheus@iop-ventures.com"
   },
   "description": "A plugin for Hydra blockchain nodes that add Morpheus specific custom transaction types and a layer 2 consensus with its own state",
-  "main": "./dist/Main.js",
+  "main": "./dist/main.js",
   "scripts": {
     "build": "tsc -p .",
     "clean": "rimraf dist && rimraf node_modules",

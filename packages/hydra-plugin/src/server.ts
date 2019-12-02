@@ -1,14 +1,14 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 // import { badData, boomify, notFound, unauthorized } from "@hapi/boom";
 import { Lifecycle, Request } from "@hapi/hapi";
-import { IAppLog } from "./AppLog";
+import { IAppLog } from "./app-log";
 
-import { IInitializable } from "./Main";
+import { IInitializable } from "./main";
 
 export class Server implements IInitializable {
   public constructor(
-    private host: string, 
-    private port: number, 
+    private host: string,
+    private port: number,
     private log: IAppLog,
   ) {}
 

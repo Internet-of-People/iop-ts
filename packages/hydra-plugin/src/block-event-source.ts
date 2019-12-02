@@ -1,9 +1,9 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 
-import { IAppLog } from "./AppLog";
-import { IInitializable } from "./Main";
-import { Scheduler } from "./Scheduler";
+import { IAppLog } from "./app-log";
+import { IInitializable } from "./main";
+import { Scheduler } from "./scheduler";
 
 export interface IBlockListener {
   onBlockApplied(block: CryptoIf.IBlockData): Promise<void>;

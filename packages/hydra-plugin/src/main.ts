@@ -1,13 +1,13 @@
 import { Container } from "@arkecosystem/core-interfaces";
 
 import { Handlers } from '@arkecosystem/core-transactions';
-import { AppLog, IAppLog } from "./AppLog";
+import { AppLog, IAppLog } from "./app-log";
+import { BlockEventSource } from "./block-event-source";
 import {BlockHandler} from "./block-handler";
-import { BlockEventSource } from "./BlockEventSource";
-import { MorpheusTransactionHandler } from './MorpheusTransactionHandler';
-import { NativeScheduler } from "./Scheduler";
-import { Server } from "./Server";
+import { NativeScheduler } from "./scheduler";
+import { Server } from "./server";
 import {MorpheusStateHandler} from "./state-handler";
+import { MorpheusTransactionHandler } from './transaction-handler';
 
 export interface IInitializable {
   init(): Promise<void>;

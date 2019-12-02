@@ -1,5 +1,5 @@
-import { NativeScheduler } from "../src/Scheduler";
-import { IAppLog } from "../src/AppLog";
+import { NativeScheduler } from "../src/scheduler";
+import { IAppLog } from "../src/app-log";
 
 describe('Scheduler', () => {
   let fixture: Fixture;

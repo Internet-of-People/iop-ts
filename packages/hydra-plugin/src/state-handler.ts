@@ -1,7 +1,7 @@
 import {Interfaces, MorpheusTransaction} from "@internet-of-people/did-manager";
 import cloneDeep from "lodash.clonedeep";
-import {IAppLog} from "./AppLog";
-import {IMorpheusState, MorpheusState} from "./MorpheusState";
+import {IAppLog} from "./app-log";
+import {IMorpheusState, MorpheusState} from "./state";
 const { Operations: { fromData } } = MorpheusTransaction;
 
 export interface IStateChange {

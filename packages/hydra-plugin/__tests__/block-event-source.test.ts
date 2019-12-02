@@ -3,9 +3,9 @@ import { EventEmitter } from 'events';
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 
-import { IAppLog } from '../src/AppLog';
-import { BlockEventSource, IBlockListener } from '../src/BlockEventSource';
-import { Task, Scheduler } from "../src/Scheduler";
+import { IAppLog } from '../src/app-log';
+import { BlockEventSource, IBlockListener } from '../src/block-event-source';
+import { Task, Scheduler } from "../src/scheduler";
 
 describe('BlockEventSource', () => {
   let fixture: Fixture;
