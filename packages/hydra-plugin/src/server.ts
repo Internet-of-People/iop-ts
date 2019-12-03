@@ -1,13 +1,21 @@
-import { createServer, mountServer } from "@arkecosystem/core-http-utils";
-// import { badData, boomify, notFound, unauthorized } from "@hapi/boom";
-import { Lifecycle, Request } from "@hapi/hapi";
+import { createServer } from "@arkecosystem/core-http-utils";
+import { Lifecycle, Request, Server as HapiServer } from "@hapi/hapi";
+import Optional from "optional-js";
 import { IAppLog } from "./app-log";
 
 // TODO break circular dependency
 import { IInitializable } from "./main";
 import { MorpheusStateHandler } from "./state-handler";
 
+export const safePathInt = (pathHeightString: string|undefined|null): number|undefined => {
+  return Number.isNaN( Number(pathHeightString)) || pathHeightString === null 
+    ? undefined 
+    : Number.parseInt(pathHeightString!);
+};
+
 export class Server implements IInitializable {
+  private server: HapiServer|undefined;
+
   public constructor(
     private host: string,
     private port: number,
@@ -16,11 +24,11 @@ export class Server implements IInitializable {
   ) {}
 
   public async init(): Promise<void> {
-    const server = await createServer({
+    this.server = await createServer({
       host: this.host,
       port: this.port
     });
-    server.route([
+    this.server.route([
       {
         method: "GET",
         path: "/did/{did}/document/{blockHeight?}",
@@ -62,11 +70,19 @@ export class Server implements IInitializable {
         path: "/before-proof/{contentId}/exists/{blockHeight?}",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {contentId, blockHeight} } = request;
-          const height = Number.isNaN( Number(blockHeight)) ? undefined : Number.parseInt(blockHeight);
-          return this.stateHandler.query().beforeProofExistsAt(contentId, height);
+          return this.stateHandler.query().beforeProofExistsAt(
+            contentId, 
+            safePathInt(blockHeight),
+          );
         }
       },
     ]);
-    return mountServer("Wallet API", server);
+
+    // mountServer depends on logger inside ark's container
+    await this.server.start();
+  }
+
+  public get hapiServer(): Optional<HapiServer> {
+    return Optional.ofNullable(this.server);
   }
 }
