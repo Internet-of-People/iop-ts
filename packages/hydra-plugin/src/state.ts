@@ -1,4 +1,5 @@
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
+import {Cloneable} from "cloneable-ts";
 import Optional from "optional-js";
 
 const { Operations: { BeforeProof: { State: { BeforeProofState } } } } = MorpheusTransaction;
@@ -22,9 +23,11 @@ export interface IMorpheusState {
   readonly query: IMorpheusQueries;
   readonly apply: IMorpheusOperations;
   readonly revert: IMorpheusOperations;
+  clone(): IMorpheusState;
 }
 
-export class MorpheusState implements IMorpheusState {
+export class MorpheusState extends Cloneable<void> implements IMorpheusState {
+
   public readonly query: IMorpheusQueries = {
     isConfirmed: (transactionId: string): Optional<boolean> => {
       return Optional.ofNullable(this.confirmedTxs[transactionId]);
@@ -91,6 +94,10 @@ export class MorpheusState implements IMorpheusState {
   private confirmedTxs: { [key: string]: boolean } = {};
 
   private beforeProofs = new Map<string, Interfaces.IBeforeProofState>();
+
+  public constructor() {
+    super();
+  }
 
   private setConfirmTx(transactionId: string, value: boolean): void {
     if(this.confirmedTxs[transactionId]) {

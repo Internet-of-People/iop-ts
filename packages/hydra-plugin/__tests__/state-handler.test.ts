@@ -1,17 +1,16 @@
 import Optional from "optional-js";
-import cloneDeep from "lodash.clonedeep";
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
 import { MorpheusStateHandler } from "../src/state-handler";
 import { IMorpheusState, MorpheusState } from "../src/state";
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
-describe('CloneDeep', () => {
+describe('Cloneable', () => {
   it('actually works', () => {
     const contentId = "contentId";
 
     const oldState = new MorpheusState();
-    const newState = cloneDeep(oldState);
+    const newState = oldState.clone();
     expect(newState).not.toBe(oldState);
 
     newState.apply.registerBeforeProof(contentId, 5);

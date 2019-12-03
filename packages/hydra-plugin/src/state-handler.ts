@@ -1,5 +1,4 @@
 import {Interfaces, MorpheusTransaction} from "@internet-of-people/did-manager";
-import cloneDeep from "lodash.clonedeep";
 import {IAppLog} from "./app-log";
 import {IMorpheusQueries, IMorpheusState, MorpheusState} from "./state";
 const { Operations: { fromData } } = MorpheusTransaction;
@@ -31,7 +30,7 @@ export class MorpheusStateHandler {
   }
 
   public applyTransactionToState(stateChange: IStateChange): void {
-    const newState = cloneDeep(this.state);
+    const newState = this.state.clone();
 
     try {
       for (const operationData of stateChange.asset.operationAttempts) {
@@ -42,7 +41,7 @@ export class MorpheusStateHandler {
       this.state = newState;
     } catch(e){
       this.logger!.info(`Transaction could not be applied. Error: ${e.message}, TX: ${JSON.stringify(stateChange)}`);
-      newState.apply.rejectTx(stateChange.transactionId);
+      this.state.apply.rejectTx(stateChange.transactionId);
     }
   }
 
