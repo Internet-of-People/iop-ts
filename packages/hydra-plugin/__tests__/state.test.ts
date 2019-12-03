@@ -1,6 +1,7 @@
-import { IMorpheusState, MorpheusState } from "../src/state";
+import { MorpheusState } from "../src/state";
+import { IMorpheusState } from "../src/state-interfaces";
 
-describe.only('Cloneable', () => {
+describe('Cloneable', () => {
   it('actually works', () => {
     const newContentId = "newContentId";
     const oldContentId = "oldContentId";
@@ -12,8 +13,6 @@ describe.only('Cloneable', () => {
     expect(newState).not.toBe(oldState);
 
     newState.apply.registerBeforeProof(newContentId, 5);
-    console.log(oldState);
-    console.log(newState);
 
     expect(oldState.query.beforeProofExistsAt(oldContentId, 5)).toBeTruthy();
     expect(newState.query.beforeProofExistsAt(oldContentId, 5)).toBeTruthy();

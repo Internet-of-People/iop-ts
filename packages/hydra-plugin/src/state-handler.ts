@@ -1,6 +1,7 @@
-import {Interfaces, MorpheusTransaction} from "@internet-of-people/did-manager";
-import {IAppLog} from "./app-log";
-import {IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusState} from "./state";
+import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
+import { IAppLog } from "./app-log";
+import { MorpheusState } from "./state";
+import { IMorpheusOperations, IMorpheusQueries, IMorpheusState } from "./state-interfaces";
 const { Operations: { fromData } } = MorpheusTransaction;
 
 export interface IStateChange {
@@ -12,6 +13,9 @@ export interface IStateChange {
 
 export class MorpheusStateHandler {
   public get query(): IMorpheusQueries {
+    if(this.isCorrupted) {
+      throw new Error('Layer2 is corrupted.');
+    }
     return this.state.query;
   }
 
@@ -41,15 +45,19 @@ export class MorpheusStateHandler {
 
   public logger: IAppLog | undefined;
   private state: IMorpheusState;
+  private corrupted: boolean = false;
 
   private constructor() {
     this.state = new MorpheusState();
   }
 
-  public applyTransactionToState(stateChange: IStateChange): void {
-    const newState = this.state.clone();
+  public get isCorrupted(): boolean {
+    return this.corrupted;
+  }
 
+  public applyTransactionToState(stateChange: IStateChange): void {
     try {
+      const newState = this.state.clone();
       const apply = MorpheusStateHandler.atHeight(stateChange.blockHeight, newState.apply);
       for (const operationData of stateChange.asset.operationAttempts) {
         const operation = fromData(operationData);
@@ -82,8 +90,8 @@ export class MorpheusStateHandler {
         }
       }
     } catch(e) {
-      this.logger!.error(`Layer 2 state is corrupt. Error: ${e.message}`);
-      // TODO: mark whole layer 2 state as corrupt: no new changes are accepted; no queries are served
+      this.logger!.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
+      this.corrupted = true;
     }
   }
 }

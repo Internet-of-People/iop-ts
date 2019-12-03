@@ -85,5 +85,5 @@ describe('StateHandler', () => {
     expect(handler.query.beforeProofExistsAt(otherContentId, undefined)).toBeFalsy();
   });
 
-  // TODO: test corrupt state
+  it.todo('corrupted state cannot be queried');
 });

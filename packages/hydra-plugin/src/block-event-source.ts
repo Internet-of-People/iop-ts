@@ -12,6 +12,7 @@ export interface IBlockListener {
 
 export interface IBlockEventSource extends IInitializable {
   subscribe(name: string, listener: IBlockListener): void;
+  unsubscribe(name: string): void;
 }
 
 export class BlockEventSource implements IBlockEventSource {
@@ -42,6 +43,14 @@ export class BlockEventSource implements IBlockEventSource {
       throw new Error(`${this.log.appName} BlockEventSource.subscribe was called without a listener`);
     }
     this.listeners.push([name, listener]);
+  }
+
+  public unsubscribe(listenerName: string): void {
+    if (!listenerName) {
+      throw new Error(`${this.log.appName} BlockEventSource.unsubscribe was called without a name`);
+    }
+
+    this.listeners = this.listeners.filter(([name]) => name === listenerName);
   }
 
   private onBlockApplied(block: CryptoIf.IBlockData): void {

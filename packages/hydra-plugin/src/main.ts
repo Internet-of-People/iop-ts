@@ -51,11 +51,9 @@ const register = async (container: Container.IContainer) => {
   stateHandler.logger = log;
 
   const server = new Server("0.0.0.0", 4705, log, stateHandler);
+  const blockHandler = new BlockHandler(blockEventSource);
 
-  const blockHandler = new BlockHandler();
-  blockEventSource.subscribe('Morpheus block-handler', blockHandler);
-
-  const plugin = new Composite(log, blockEventSource, server);
+  const plugin = new Composite(log, blockHandler, blockEventSource, server);
   await plugin.init();
 
   Handlers.Registry.registerTransactionHandler(MorpheusTransactionHandler);

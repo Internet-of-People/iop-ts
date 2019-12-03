@@ -84,6 +84,8 @@ describe('BlockEventSource', () => {
     await fixture.scheduler.runAll();
     expect(callOrder).toEqual([1,2,3]);
   });
+
+  it.todo('listener can unsubscribe');
 });
 
 class Fixture {
