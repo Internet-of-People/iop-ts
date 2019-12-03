@@ -24,6 +24,9 @@ describe('empty series', () => {
   for (const height of [0, 5, Number.MAX_SAFE_INTEGER]) {
     it(`apply set accepts valid height ${height}`, () => {
       series.apply.set(height, true);
+      if (height - 1 >= 0) {
+        expect(series.query.get(height - 1)).toBeFalsy();
+      }
       expect(series.query.get(height)).toBeTruthy();
     });
   }

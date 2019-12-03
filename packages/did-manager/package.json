@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc -p .",
     "clean": "rimraf dist && rimraf node_modules",
-    "test": "jest --detectOpenHandles --no-cache"
+    "test": "jest --detectOpenHandles --no-cache",
+    "test:watch": "jest --detectOpenHandles --no-cache --watch"
   },
   "license": "LGPL-3.0-or-later",
   "jest": {

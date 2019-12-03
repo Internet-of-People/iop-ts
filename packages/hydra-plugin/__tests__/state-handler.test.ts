@@ -49,7 +49,7 @@ describe('StateHandler', () => {
     expect(handler.query().beforeProofExistsAt(contentId, 7)).toBeTruthy();
   });
 
-  it('rejects before proof with old block height or already registered content id', () => {
+  it('rejects before proof with already registered content id', () => {
     const handler = MorpheusStateHandler.instance();
     expect(handler.query().isConfirmed(transactionId)).toStrictEqual(Optional.empty());
     handler.applyTransactionToState({
@@ -59,27 +59,28 @@ describe('StateHandler', () => {
       transactionId,
     });
     expect(handler.query().isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+    expect(handler.query().beforeProofExistsAt(contentId, 5)).toBeTruthy();
+    expect(handler.query().beforeProofExistsAt(contentId, undefined)).toBeTruthy();
 
-    const beforeBlockHeightTxId = transactionId + 'old';
+    const otherTxId = 'someOtherTransactionId';
+    const otherContentId = 'someOtherContentId';
+    const multipleRegistrationAttempts = new OperationAttemptsBuilder()
+      .registerBeforeProof(otherContentId)
+      .registerBeforeProof(contentId)
+      .getAttempts();
     handler.applyTransactionToState({
-      asset: { operationAttempts: registrationAttempt },
-      blockHeight: 3,
+      asset: { operationAttempts: multipleRegistrationAttempts },
+      blockHeight: 7,
       blockId,
-      transactionId: beforeBlockHeightTxId,
+      transactionId: otherTxId,
     });
 
     // TODO: change the api to be able to know what was the rejection reason
-    expect(handler.query().isConfirmed(beforeBlockHeightTxId)).toStrictEqual(Optional.of(false));
-
-    const afterBlockHeightTxId = transactionId + 'already';
-    handler.applyTransactionToState({
-      asset: { operationAttempts: registrationAttempt },
-      blockHeight: 7,
-      blockId, // TODO: should we also test if the blockId changes?
-      transactionId: afterBlockHeightTxId,
-    });
-
-    expect(handler.query().isConfirmed(afterBlockHeightTxId)).toStrictEqual(Optional.of(false));
+    expect(handler.query().isConfirmed(otherTxId)).toStrictEqual(Optional.of(false));
+    expect(handler.query().beforeProofExistsAt(contentId, 7)).toBeTruthy();
+    expect(handler.query().beforeProofExistsAt(contentId, undefined)).toBeTruthy();
+    expect(handler.query().beforeProofExistsAt(otherContentId, 7)).toBeFalsy();
+    expect(handler.query().beforeProofExistsAt(otherContentId, undefined)).toBeFalsy();
   });
 
   // TODO: test corrupt state
