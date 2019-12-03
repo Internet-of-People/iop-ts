@@ -1,6 +1,38 @@
 import Optional from 'optional-js';
 import { TimeSeries, ITimeSeries } from "../src/time-series";
 
+describe('clonable series', () => {
+  let oldSeries: ITimeSeries;
+  let newSeries: ITimeSeries;
+  beforeEach(() => {
+    oldSeries = new TimeSeries(false);
+    oldSeries.apply.set(5, true);
+    newSeries = oldSeries.clone();
+  });
+
+  it('existing points are cloned', () => {
+    expect(newSeries.query.get(5)).toBeTruthy();
+  });
+
+  it('removing points from old does not affect clone', () => {
+    oldSeries.revert.set(5, true);
+    expect(oldSeries.query.get(5)).toBeFalsy();
+    expect(newSeries.query.get(5)).toBeTruthy();
+  });
+
+  it('removing points from clone does not affect old one', () => {
+    newSeries.revert.set(5, true);
+    expect(newSeries.query.get(5)).toBeFalsy();
+    expect(oldSeries.query.get(5)).toBeTruthy();
+  });
+
+  it('adding new point does not affect old one', () => {
+    newSeries.apply.set(7, false);
+    expect(newSeries.query.get(7)).toBeFalsy();
+    expect(oldSeries.query.get(7)).toBeTruthy();
+  });
+});
+
 describe('empty series', () => {
   let series: ITimeSeries;
   beforeEach(() => {

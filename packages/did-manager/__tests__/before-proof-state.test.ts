@@ -1,6 +1,39 @@
 import { IBeforeProofState } from "../src/interfaces/before-proof";
 import { BeforeProofState } from "../src/morpheus-transaction/operations/before-proof/state";
 
+describe('Cloning BeforeProofState', () => {
+  let oldProof: IBeforeProofState;
+  let newProof: IBeforeProofState;
+  beforeEach(() => {
+    oldProof = new BeforeProofState('contentId');
+    oldProof.apply.register(5);
+    newProof = oldProof.clone();
+  });
+
+  it('existing proof is cloned', () => {
+    expect(newProof.query.existsAt(5)).toBeTruthy();
+  });
+
+  it('removing proof from old does not affect clone', () => {
+    oldProof.revert.register(5);
+    expect(oldProof.query.existsAt(5)).toBeFalsy();
+    expect(newProof.query.existsAt(5)).toBeTruthy();
+  });
+
+  it('removing proof from clone does not affect old one', () => {
+    newProof.revert.register(5);
+    expect(newProof.query.existsAt(5)).toBeFalsy();
+    expect(oldProof.query.existsAt(5)).toBeTruthy();
+  });
+
+  it('revoking proof does not affect old one', () => {
+    newProof.apply.revoke(7);
+    expect(newProof.query.existsAt(7)).toBeFalsy();
+    expect(oldProof.query.existsAt(7)).toBeTruthy();
+  });
+});
+
+
 describe('BeforeProofState', () => {
   let state: IBeforeProofState;
   beforeEach(() => {

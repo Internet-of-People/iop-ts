@@ -1,4 +1,7 @@
+import deepClone from "lodash.clonedeep";
 import Optional from "optional-js";
+
+import { IState } from "./interfaces";
 
 interface IPoint<T> {
     height: number;
@@ -15,11 +18,7 @@ export interface ITimeSeriesOperations<T> {
   set(height: number, value: T): void;
 }
 
-export interface ITimeSeries<T = boolean> {
-  readonly query: ITimeSeriesQueries<T>;
-  readonly apply: ITimeSeriesOperations<T>;
-  readonly revert: ITimeSeriesOperations<T>;
-}
+export type ITimeSeries<T = boolean> = IState<ITimeSeriesQueries<T>, ITimeSeriesOperations<T>>;
 
 export class TimeSeries<T = boolean> implements ITimeSeries<T> {
   private static checkHeight(height: number) {
@@ -78,4 +77,10 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
   private points: Array<IPoint<T>> = [];
 
   public constructor(private initialValue: T) {}
+
+  public clone(): ITimeSeries<T> {
+    const cloned = new TimeSeries<T>(this.initialValue);
+    cloned.points = deepClone(this.points);
+    return cloned;
+  }
 }

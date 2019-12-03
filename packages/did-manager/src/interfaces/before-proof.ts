@@ -1,3 +1,5 @@
+import { IState } from "./state";
+
 export interface IBeforeProofQueries {
   existsAt(height?: number): boolean;
 }
@@ -7,8 +9,4 @@ export interface IBeforeProofOperations {
   revoke(height: number): void;
 }
 
-export interface IBeforeProofState {
-  readonly query: IBeforeProofQueries;
-  readonly apply: IBeforeProofOperations;
-  readonly revert: IBeforeProofOperations;
-}
+export type IBeforeProofState = IState<IBeforeProofQueries, IBeforeProofOperations>;

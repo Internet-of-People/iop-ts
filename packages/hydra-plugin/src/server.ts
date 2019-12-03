@@ -70,7 +70,7 @@ export class Server implements IInitializable {
         path: "/before-proof/{contentId}/exists/{blockHeight?}",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {contentId, blockHeight} } = request;
-          return this.stateHandler.query().beforeProofExistsAt(
+          return this.stateHandler.query.beforeProofExistsAt(
             contentId, 
             safePathInt(blockHeight),
           );

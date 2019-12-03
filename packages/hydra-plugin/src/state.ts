@@ -19,14 +19,9 @@ export interface IMorpheusQueries {
   isConfirmed(transactionId: string): Optional<boolean>;
 }
 
-export interface IMorpheusState {
-  readonly query: IMorpheusQueries;
-  readonly apply: IMorpheusOperations;
-  readonly revert: IMorpheusOperations;
-  clone(): IMorpheusState;
-}
+export type IMorpheusState = Interfaces.IState<IMorpheusQueries, IMorpheusOperations>;
 
-export class MorpheusState  implements IMorpheusState {
+export class MorpheusState implements IMorpheusState {
 
   public readonly query: IMorpheusQueries = {
     isConfirmed: (transactionId: string): Optional<boolean> => {
@@ -97,7 +92,11 @@ export class MorpheusState  implements IMorpheusState {
 
   public clone(): IMorpheusState {
     const cloned = new MorpheusState();
-    cloned.beforeProofs = cloneDeep(this.beforeProofs);
+    const clonedBeforeProofs = new Map<string, Interfaces.IBeforeProofState>();
+    for (const [key, value] of this.beforeProofs.entries()) {
+      clonedBeforeProofs.set(key, value.clone());
+    }
+    cloned.beforeProofs = clonedBeforeProofs;
     cloned.confirmedTxs = cloneDeep(this.confirmedTxs);
     return cloned;
   }

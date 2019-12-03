@@ -1,6 +1,6 @@
 import {Interfaces, MorpheusTransaction} from "@internet-of-people/did-manager";
 import {IAppLog} from "./app-log";
-import {IMorpheusQueries, IMorpheusState, MorpheusState} from "./state";
+import {IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusState} from "./state";
 const { Operations: { fromData } } = MorpheusTransaction;
 
 export interface IStateChange {
@@ -11,6 +11,10 @@ export interface IStateChange {
 }
 
 export class MorpheusStateHandler {
+  public get query(): IMorpheusQueries {
+    return this.state.query;
+  }
+
   public static reset(): void {
     this.handler = undefined;
   }
@@ -24,6 +28,17 @@ export class MorpheusStateHandler {
 
   private static handler: MorpheusStateHandler | undefined;
 
+  private static atHeight(height: number, ops: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
+    return {
+      registerBeforeProof:(contentId: string): void => {
+        ops.registerBeforeProof(contentId, height);
+      },
+      revokeBeforeProof: (contentId: string): void => {
+        ops.revokeBeforeProof(contentId, height);
+      }
+    };
+  }
+
   public logger: IAppLog | undefined;
   private state: IMorpheusState;
 
@@ -35,9 +50,10 @@ export class MorpheusStateHandler {
     const newState = this.state.clone();
 
     try {
+      const apply = MorpheusStateHandler.atHeight(stateChange.blockHeight, newState.apply);
       for (const operationData of stateChange.asset.operationAttempts) {
         const operation = fromData(operationData);
-        operation.accept(this.apply(stateChange.blockHeight));
+        operation.accept(apply);
       }
       newState.apply.confirmTx(stateChange.transactionId);
       this.state = newState;
@@ -59,40 +75,15 @@ export class MorpheusStateHandler {
       else {
         this.state.revert.confirmTx(stateChange.transactionId);
 
+        const revert = MorpheusStateHandler.atHeight(stateChange.blockHeight, this.state.revert);
         for (const operationData of stateChange.asset.operationAttempts) {
           const operation = fromData(operationData);
-          operation.accept(this.revert(stateChange.blockHeight));
+          operation.accept(revert);
         }
       }
     } catch(e) {
       this.logger!.error(`Layer 2 state is corrupt. Error: ${e.message}`);
       // TODO: mark whole layer 2 state as corrupt: no new changes are accepted; no queries are served
     }
-  }
-
-  public query(): IMorpheusQueries {
-    return this.state.query;
-  }
-
-  private apply(height: number): Interfaces.IOperationVisitor<void> {
-    return {
-      registerBeforeProof:(contentId: string): void => {
-        this.state.apply.registerBeforeProof(contentId, height);
-      },
-      revokeBeforeProof: (contentId: string): void => {
-        this.state.apply.revokeBeforeProof(contentId, height);
-      }
-    };
-  }
-
-  private revert(height: number): Interfaces.IOperationVisitor<void> {
-    return {
-      registerBeforeProof:(contentId: string): void => {
-        this.state.revert.registerBeforeProof(contentId, height);
-      },
-      revokeBeforeProof: (contentId: string): void => {
-        this.state.revert.revokeBeforeProof(contentId, height);
-      }
-    };
   }
 }
