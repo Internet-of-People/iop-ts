@@ -1,23 +1,8 @@
 import Optional from "optional-js";
-import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
+import { MorpheusTransaction } from "@internet-of-people/did-manager";
 import { MorpheusStateHandler } from "../src/state-handler";
-import { IMorpheusState, MorpheusState } from "../src/state";
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
-
-describe('Cloneable', () => {
-  it('actually works', () => {
-    const contentId = "contentId";
-
-    const oldState = new MorpheusState();
-    const newState = oldState.clone();
-    expect(newState).not.toBe(oldState);
-
-    newState.apply.registerBeforeProof(contentId, 5);
-    expect(newState.query.beforeProofExistsAt(contentId, 5)).toBeTruthy();
-    expect(oldState.query.beforeProofExistsAt(contentId, 5)).toBeFalsy();
-  });
-});
 
 describe('StateHandler singleton', () => {
   it('returns an instance', () => {
