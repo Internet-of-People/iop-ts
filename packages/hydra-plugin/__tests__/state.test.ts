@@ -2,29 +2,29 @@ import { IMorpheusState, MorpheusState } from "../src/state";
 
 describe.only('Cloneable', () => {
   it('actually works', () => {
-    const contentId = "contentId";
-    const contentIdOther = "contentIdOther";
+    const newContentId = "newContentId";
+    const oldContentId = "oldContentId";
 
     const oldState = new MorpheusState();
-    oldState.apply.registerBeforeProof(contentIdOther, 5);
+    oldState.apply.registerBeforeProof(oldContentId, 5);
 
     const newState = oldState.clone();
     expect(newState).not.toBe(oldState);
 
-    newState.apply.registerBeforeProof(contentId, 5);
+    newState.apply.registerBeforeProof(newContentId, 5);
     console.log(oldState);
     console.log(newState);
 
-    expect(oldState.query.beforeProofExistsAt(contentIdOther, 5)).toBeTruthy();
-    expect(newState.query.beforeProofExistsAt(contentIdOther, 5)).toBeTruthy();
+    expect(oldState.query.beforeProofExistsAt(oldContentId, 5)).toBeTruthy();
+    expect(newState.query.beforeProofExistsAt(oldContentId, 5)).toBeTruthy();
 
-    expect(oldState.query.beforeProofExistsAt(contentId, 5)).toBeFalsy();
-    expect(newState.query.beforeProofExistsAt(contentId, 5)).toBeTruthy();
+    expect(oldState.query.beforeProofExistsAt(newContentId, 5)).toBeFalsy();
+    expect(newState.query.beforeProofExistsAt(newContentId, 5)).toBeTruthy();
 
-    expect(oldState.query.beforeProofExistsAt(contentId, 7)).toBeTruthy();
-    oldState.apply.revokeBeforeProof(contentIdOther,7);
-    expect(oldState.query.beforeProofExistsAt(contentIdOther, 7)).toBeFalsy();
-    expect(newState.query.beforeProofExistsAt(contentIdOther, 7)).toBeTruthy();
+    expect(oldState.query.beforeProofExistsAt(oldContentId, 7)).toBeTruthy();
+    oldState.apply.revokeBeforeProof(oldContentId,7);
+    expect(oldState.query.beforeProofExistsAt(oldContentId, 7)).toBeFalsy();
+    expect(newState.query.beforeProofExistsAt(oldContentId, 7)).toBeTruthy();
   });
 });
 
