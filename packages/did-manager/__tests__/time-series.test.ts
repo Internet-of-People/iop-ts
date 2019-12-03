@@ -96,6 +96,19 @@ describe('single entry series', () => {
       expect(series.query.latestValue()).toBeTruthy();
     });
   }
+
+  it('truthy initial value can be changed into falsy', () => {
+    const series = new TimeSeries(true);
+    expect(series.query.latestValue()).toBeTruthy();
+    expect(series.query.get(5)).toBeTruthy();
+    expect(series.query.latestHeight()).toStrictEqual(Optional.empty());
+
+    series.apply.set(5, false);
+    expect(series.query.get(4)).toBeTruthy();
+    expect(series.query.latestValue()).toBeFalsy();
+    expect(series.query.get(5)).toBeFalsy();
+    expect(series.query.latestHeight()).toStrictEqual(Optional.of(5));
+  });
 });
 
 describe('multiple entry series', () => {

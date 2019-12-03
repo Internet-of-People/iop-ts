@@ -54,13 +54,6 @@ export class MorpheusState implements IMorpheusState {
     }
   };
 
-  private setConfirmTx(transactionId: string, value: boolean): void {
-    if(this.confirmedTxs[transactionId]) {
-      throw new Error(`Transaction ${transactionId} was already confirmed.`);
-    }
-    this.confirmedTxs[transactionId] = value;
-  }
-
   public readonly revert: IMorpheusOperations = {
     confirmTx: (transactionId: string): void => {
       const confirmed = this.query.isConfirmed(transactionId);
@@ -98,6 +91,13 @@ export class MorpheusState implements IMorpheusState {
   private confirmedTxs: { [key: string]: boolean } = {};
 
   private beforeProofs = new Map<string, Interfaces.IBeforeProofState>();
+
+  private setConfirmTx(transactionId: string, value: boolean): void {
+    if(this.confirmedTxs[transactionId]) {
+      throw new Error(`Transaction ${transactionId} was already confirmed.`);
+    }
+    this.confirmedTxs[transactionId] = value;
+  }
 
   private getOrCreateBeforeProof(contentId: string): Interfaces.IBeforeProofState {
     return this.beforeProofs.get(contentId) || new BeforeProofState(contentId);

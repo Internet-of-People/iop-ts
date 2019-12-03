@@ -34,7 +34,7 @@ export class BeforeProofState implements IBeforeProofState {
     },
   };
 
-  private periods = new TimeSeries(false);
+  private readonly periods = new TimeSeries(false);
 
   public constructor(public readonly contentId: string) {}
 }

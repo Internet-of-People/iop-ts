@@ -1,8 +1,24 @@
 import Optional from "optional-js";
+import cloneDeep from "lodash.clonedeep";
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
 import { MorpheusStateHandler } from "../src/state-handler";
+import { IMorpheusState, MorpheusState } from "../src/state";
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
+
+describe('CloneDeep', () => {
+  it('actually works', () => {
+    const contentId = "contentId";
+
+    const oldState = new MorpheusState();
+    const newState = cloneDeep(oldState);
+    expect(newState).not.toBe(oldState);
+
+    newState.apply.registerBeforeProof(contentId, 5);
+    expect(newState.query.beforeProofExistsAt(contentId, 5)).toBeTruthy();
+    expect(oldState.query.beforeProofExistsAt(contentId, 5)).toBeFalsy();
+  });
+});
 
 describe('StateHandler singleton', () => {
   it('returns an instance', () => {
@@ -49,6 +65,8 @@ describe('StateHandler', () => {
     expect(handler.query().beforeProofExistsAt(contentId, 7)).toBeTruthy();
   });
 
+  const otherContentId = 'someOtherContentId';
+
   it('rejects before proof with already registered content id', () => {
     const handler = MorpheusStateHandler.instance();
     expect(handler.query().isConfirmed(transactionId)).toStrictEqual(Optional.empty());
@@ -60,10 +78,10 @@ describe('StateHandler', () => {
     });
     expect(handler.query().isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
     expect(handler.query().beforeProofExistsAt(contentId, 5)).toBeTruthy();
+    expect(handler.query().beforeProofExistsAt(otherContentId, 7)).toBeFalsy();
     expect(handler.query().beforeProofExistsAt(contentId, undefined)).toBeTruthy();
 
     const otherTxId = 'someOtherTransactionId';
-    const otherContentId = 'someOtherContentId';
     const multipleRegistrationAttempts = new OperationAttemptsBuilder()
       .registerBeforeProof(otherContentId)
       .registerBeforeProof(contentId)
