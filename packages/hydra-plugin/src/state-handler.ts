@@ -90,7 +90,9 @@ export class MorpheusStateHandler {
         }
       }
     } catch(e) {
-      this.logger!.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
+      // TODO should we really use a logger here?
+      //this.logger!.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
+      console.log(`Implementation error: Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
       this.corrupted = true;
     }
   }

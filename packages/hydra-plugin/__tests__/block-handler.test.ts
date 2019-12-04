@@ -30,6 +30,7 @@ describe('BlockHandler', () => {
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID, blockHandler);
     expect(fixture.blockEventSourceMock.unsubscribe).not.toHaveBeenCalled();
 
+    // TODO this way of setting corrupted state conflicts with check at block-handler.ts:onBlockReverted():43
     MorpheusStateHandler.instance().isCorrupted = (): boolean => true;
     blockHandler.onBlockReverted(fixture.getBlock());
     expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledTimes(1);
