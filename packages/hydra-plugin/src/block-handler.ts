@@ -10,7 +10,7 @@ const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTr
  * Handles Morpheus custom transactions on Layer 2 (IMorpheusState)
  */
 export class BlockHandler implements IInitializable{
-  private static readonly SUBSCRIPTION_ID = 'Morpheus block-handler';
+  public static readonly SUBSCRIPTION_ID = 'Morpheus block-handler';
 
   constructor(private blockEventSource: IBlockEventSource) {
   }
@@ -28,7 +28,7 @@ export class BlockHandler implements IInitializable{
         transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
       });
 
-      if(MorpheusStateHandler.instance().isCorrupted) {
+      if(MorpheusStateHandler.instance().isCorrupted()) {
         this.blockEventSource.unsubscribe(BlockHandler.SUBSCRIPTION_ID);
         return;
       }
@@ -44,7 +44,7 @@ export class BlockHandler implements IInitializable{
         transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
       });
 
-      if(MorpheusStateHandler.instance().isCorrupted) {
+      if(MorpheusStateHandler.instance().isCorrupted()) {
         this.blockEventSource.unsubscribe(BlockHandler.SUBSCRIPTION_ID);
         return;
       }

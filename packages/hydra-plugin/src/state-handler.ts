@@ -13,7 +13,7 @@ export interface IStateChange {
 
 export class MorpheusStateHandler {
   public get query(): IMorpheusQueries {
-    if(this.isCorrupted) {
+    if(this.isCorrupted()) {
       throw new Error('Layer2 is corrupted.');
     }
     return this.state.query;
@@ -51,7 +51,7 @@ export class MorpheusStateHandler {
     this.state = new MorpheusState();
   }
 
-  public get isCorrupted(): boolean {
+  public isCorrupted(): boolean {
     return this.corrupted;
   }
 

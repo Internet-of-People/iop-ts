@@ -36,7 +36,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
           transactionId: transaction.id,
         });
 
-        if(MorpheusStateHandler.instance().isCorrupted) {
+        if(MorpheusStateHandler.instance().isCorrupted()) {
           return;
         }
       }
