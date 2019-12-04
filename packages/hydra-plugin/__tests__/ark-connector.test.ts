@@ -1,0 +1,72 @@
+import { Interfaces as CryptoIf, Utils } from "@arkecosystem/crypto";
+import { MorpheusTransaction } from "@internet-of-people/did-manager";
+import { EventEmitter } from 'events';
+import {IAppLog} from "../src/app-log";
+import { MorpheusArkConnector } from "../src/ark-connector";
+import {IBlockEventSource, IBlockListener} from "../src/block-event-source";
+import {BlockHandler, IBlockHandler} from "../src/block-handler";
+import { MorpheusStateHandler } from "../src/state-handler";
+const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTransaction;
+
+describe('ArkConnector', () => {
+  let arkConnector: MorpheusArkConnector;
+  let fixture: Fixture;
+
+  beforeEach(() => {
+    fixture = new Fixture();
+    arkConnector = new MorpheusArkConnector(
+      fixture.eventEmitter,
+      fixture.log,
+      fixture.blockHandler,
+      fixture.blockEventSource,
+    );
+  });
+
+  it('subscribes on init', () => {
+    expect(fixture.blockEventSourceMock.subscribe).not.toHaveBeenCalled();
+    expect(fixture.eventEmitter.listenerCount(MorpheusStateHandler.STATE_CORRUPTED_EVENT)).toBe(0);
+
+    arkConnector.init();
+    expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledTimes(1);
+    expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID, fixture.blockHandler);
+    expect(fixture.eventEmitter.listenerCount(MorpheusStateHandler.STATE_CORRUPTED_EVENT)).toBe(1);
+  });
+  it('unsubscribes on corrupted event', () => {
+    arkConnector.init();
+
+    expect(fixture.blockEventSourceMock.unsubscribe).not.toHaveBeenCalled();
+    fixture.eventEmitter.emit(MorpheusStateHandler.STATE_CORRUPTED_EVENT);
+    expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledTimes(1);
+    expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID);
+  });
+});
+
+class Fixture {
+  constructor() {
+    this.eventEmitter = new EventEmitter();
+  }
+
+  public eventEmitter: NodeJS.EventEmitter;
+
+  public logMock = {
+    appName: "hot-wallet-tests",
+    debug: jest.fn<void, [any]>(),
+    info: jest.fn<void, [any]>(),
+    warn: jest.fn<void, [any]>(),
+    error: jest.fn<void, [any]>(),
+  };
+  public log = this.logMock as IAppLog;
+
+  public blockEventSourceMock = {
+    init: jest.fn<Promise<void>, []>(),
+    subscribe: jest.fn<void, [string, IBlockListener]>(),
+    unsubscribe: jest.fn<void, [string]>(),
+  };
+  public blockEventSource = this.blockEventSourceMock as IBlockEventSource;
+
+  public blockHandlerMock = {
+    onBlockApplied: jest.fn<Promise<void>, [CryptoIf.IBlockData]>(),
+    onBlockReverted: jest.fn<Promise<void>, [CryptoIf.IBlockData]>(),
+  };
+  public blockHandler = this.blockHandlerMock as IBlockHandler;
+}

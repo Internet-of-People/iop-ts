@@ -24,6 +24,8 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    // Note: here we assume that when a block is reverted, the fact of the revert is NOT stored in the database. It means
+    // when a node is bootstrapped from scratch, it will not see any reverted blocks.
     const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
     while (reader.hasNext()) {
@@ -35,10 +37,6 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
           blockId: transaction.blockId,
           transactionId: transaction.id,
         });
-
-        if(MorpheusStateHandler.instance().isCorrupted()) {
-          return;
-        }
       }
     }
   }

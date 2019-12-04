@@ -2,11 +2,12 @@ import { Container } from "@arkecosystem/core-interfaces";
 
 import { Handlers } from '@arkecosystem/core-transactions';
 import { AppLog, IAppLog } from "./app-log";
+import { MorpheusArkConnector } from "./ark-connector";
 import { BlockEventSource } from "./block-event-source";
-import {BlockHandler} from "./block-handler";
+import { BlockHandler } from "./block-handler";
 import { NativeScheduler } from "./scheduler";
 import { Server } from "./server";
-import {MorpheusStateHandler} from "./state-handler";
+import { MorpheusStateHandler } from "./state-handler";
 import { MorpheusTransactionHandler } from './transaction-handler';
 
 export interface IInitializable {
@@ -35,11 +36,11 @@ export class Composite implements IInitializable {
   }
 }
 
+// TODO: separate register's content into a container, hence it can be tested
 const register = async (container: Container.IContainer) => {
   const log = new AppLog(container.resolvePlugin('logger'));
   log.info(`Starting up`);
   const eventEmitter: NodeJS.EventEmitter = container.resolvePlugin('event-emitter');
-  // const db: Database.IDatabaseService = container.resolvePlugin('database');
   const blockEventSource = new BlockEventSource(
     log,
     eventEmitter,
@@ -49,11 +50,19 @@ const register = async (container: Container.IContainer) => {
   // TODO: try to remove singleton pattern and use DI (maybe awilix)
   const stateHandler = MorpheusStateHandler.instance();
   stateHandler.logger = log;
+  stateHandler.eventEmitter = eventEmitter;
 
   const server = new Server("0.0.0.0", 4705, log, stateHandler);
-  const blockHandler = new BlockHandler(blockEventSource);
+  const blockHandler = new BlockHandler();
 
-  const plugin = new Composite(log, blockHandler, blockEventSource, server);
+  const arkConnector = new MorpheusArkConnector(
+    eventEmitter,
+    log,
+    blockHandler,
+    blockEventSource,
+  );
+
+  const plugin = new Composite(log, arkConnector, blockEventSource, server);
   await plugin.init();
 
   Handlers.Registry.registerTransactionHandler(MorpheusTransactionHandler);

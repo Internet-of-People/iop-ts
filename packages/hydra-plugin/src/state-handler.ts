@@ -13,11 +13,12 @@ export interface IStateChange {
 
 export class MorpheusStateHandler {
   public get query(): IMorpheusQueries {
-    if(this.isCorrupted()) {
+    if(this.corrupted) {
       throw new Error('Layer2 is corrupted.');
     }
     return this.state.query;
   }
+  public static readonly STATE_CORRUPTED_EVENT = "morpheus_state_corrupted";
 
   public static reset(): void {
     this.handler = undefined;
@@ -44,6 +45,7 @@ export class MorpheusStateHandler {
   }
 
   public logger: IAppLog | undefined;
+  public eventEmitter: NodeJS.EventEmitter | undefined;
   private state: IMorpheusState;
   private corrupted: boolean = false;
 
@@ -51,11 +53,12 @@ export class MorpheusStateHandler {
     this.state = new MorpheusState();
   }
 
-  public isCorrupted(): boolean {
-    return this.corrupted;
-  }
-
   public applyTransactionToState(stateChange: IStateChange): void {
+    if(this.corrupted) {
+      this.logger!.error('State is corrupted, not accepting applys anymore');
+      return;
+    }
+
     try {
       const newState = this.state.clone();
       const apply = MorpheusStateHandler.atHeight(stateChange.blockHeight, newState.apply);
@@ -72,6 +75,11 @@ export class MorpheusStateHandler {
   }
 
   public revertTransactionFromState(stateChange: IStateChange): void {
+    if(this.corrupted) {
+      this.logger!.error('State is corrupted, not accepting applys anymore');
+      return;
+    }
+
     try {
       const confirmed = this.state.query.isConfirmed(stateChange.transactionId);
       if(!confirmed.isPresent()) {
@@ -90,10 +98,9 @@ export class MorpheusStateHandler {
         }
       }
     } catch(e) {
-      // TODO should we really use a logger here?
-      //this.logger!.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
-      console.log(`Implementation error: Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
+      this.logger!.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
       this.corrupted = true;
+      this.eventEmitter!.emit(MorpheusStateHandler.STATE_CORRUPTED_EVENT);
     }
   }
 }
