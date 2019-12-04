@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { Server, safePathInt } from '../src/server';
 import { IAppLog } from '../src/app-log';
 import { Server as HapiServer } from "@hapi/hapi";
@@ -8,13 +9,10 @@ const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
 let hapiServer: HapiServer;
 let fixture: Fixture;
-let stateHandler: MorpheusStateHandler;
 describe('Server', () => {
   beforeEach(async () => {
     fixture = new Fixture();
-    MorpheusStateHandler.reset();
-    stateHandler = MorpheusStateHandler.instance();
-    const server = new Server("0.0.0.0", 4705, fixture.log, stateHandler);
+    const server = new Server("0.0.0.0", 4705, fixture.log, fixture.stateHandler);
     await server.init();
     hapiServer = server.hapiServer.orElseThrow(()=>new Error('Could not init HAPI server'));
   });
@@ -42,7 +40,7 @@ describe('Server', () => {
     const registrationAttempt = new OperationAttemptsBuilder()
       .registerBeforeProof(contentId)
       .getAttempts();
-    stateHandler.applyTransactionToState({
+    fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },
       blockHeight,
       blockId,
@@ -116,6 +114,8 @@ describe('safePathInt', () => {
 });
 
 class Fixture {
+  public emitter: NodeJS.EventEmitter = new EventEmitter();
+
   public logMock = {
     appName: "hot-wallet-tests",
     debug: jest.fn<void, [any]>(),
@@ -124,4 +124,7 @@ class Fixture {
     error: jest.fn<void, [any]>(),
   };
   public log = this.logMock as IAppLog;
+
+  public stateHandler = new MorpheusStateHandler(this.log, this.emitter);
+
 }

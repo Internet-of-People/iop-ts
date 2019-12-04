@@ -11,7 +11,16 @@ export interface IStateChange {
   transactionId: string;
 }
 
-export class MorpheusStateHandler {
+export const COMPONENT_NAME = "morpheus-state-handler";
+
+export interface IMorpheusStateHandler {
+  readonly query: IMorpheusQueries;
+  applyTransactionToState(stateChange: IStateChange): void;
+  revertTransactionFromState(stateChange: IStateChange): void;
+}
+
+export class MorpheusStateHandler implements IMorpheusStateHandler {
+
   public get query(): IMorpheusQueries {
     if(this.corrupted) {
       throw new Error('Layer2 is corrupted.');
@@ -19,19 +28,6 @@ export class MorpheusStateHandler {
     return this.state.query;
   }
   public static readonly STATE_CORRUPTED_EVENT = "morpheus_state_corrupted";
-
-  public static reset(): void {
-    this.handler = undefined;
-  }
-
-  public static instance(): MorpheusStateHandler {
-    if (!this.handler) {
-      this.handler = new MorpheusStateHandler();
-    }
-    return this.handler;
-  }
-
-  private static handler: MorpheusStateHandler | undefined;
 
   private static atHeight(height: number, ops: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
     return {
@@ -44,18 +40,17 @@ export class MorpheusStateHandler {
     };
   }
 
-  public logger: IAppLog | undefined;
-  public eventEmitter: NodeJS.EventEmitter | undefined;
-  private state: IMorpheusState;
+  private state: IMorpheusState = new MorpheusState();
   private corrupted: boolean = false;
 
-  private constructor() {
-    this.state = new MorpheusState();
+  public constructor(
+    private readonly logger: IAppLog,
+    private readonly eventEmitter: NodeJS.EventEmitter) {
   }
 
   public applyTransactionToState(stateChange: IStateChange): void {
     if(this.corrupted) {
-      this.logger!.error('State is corrupted, not accepting applys anymore');
+      this.logger.error('State is corrupted, not accepting applys anymore');
       return;
     }
 
@@ -69,14 +64,14 @@ export class MorpheusStateHandler {
       newState.apply.confirmTx(stateChange.transactionId);
       this.state = newState;
     } catch(e){
-      this.logger!.info(`Transaction could not be applied. Error: ${e.message}, TX: ${JSON.stringify(stateChange)}`);
+      this.logger.info(`Transaction could not be applied. Error: ${e.message}, TX: ${JSON.stringify(stateChange)}`);
       this.state.apply.rejectTx(stateChange.transactionId);
     }
   }
 
   public revertTransactionFromState(stateChange: IStateChange): void {
     if(this.corrupted) {
-      this.logger!.error('State is corrupted, not accepting applys anymore');
+      this.logger.error('State is corrupted, not accepting applys anymore');
       return;
     }
 
@@ -98,7 +93,7 @@ export class MorpheusStateHandler {
         }
       }
     } catch(e) {
-      this.logger!.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
+      this.logger.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
       this.corrupted = true;
       this.eventEmitter!.emit(MorpheusStateHandler.STATE_CORRUPTED_EVENT);
     }

@@ -15,9 +15,11 @@ export interface IBlockHandler {
 export class BlockHandler implements IBlockHandler {
   public static readonly SUBSCRIPTION_ID = 'Morpheus block-handler';
 
+  public constructor(private readonly stateHandler: MorpheusStateHandler) {}
+
   public async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
     for (const transaction of this.getMorpheusTransactions(block)) {
-      MorpheusStateHandler.instance().applyTransactionToState({
+      this.stateHandler.applyTransactionToState({
         asset: transaction.asset as Interfaces.IMorpheusAsset,
         blockHeight: block.height,
         blockId: block.id!, // !, because block is already forged, hence cannot be undefined
@@ -28,7 +30,7 @@ export class BlockHandler implements IBlockHandler {
 
   public async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {
     for (const transaction of this.getMorpheusTransactions(block)) {
-      MorpheusStateHandler.instance().revertTransactionFromState({
+      this.stateHandler.revertTransactionFromState({
         asset: transaction.asset as Interfaces.IMorpheusAsset,
         blockHeight: block.height,
         blockId: block.id!, // !, because block is already forged, hence cannot be undefined

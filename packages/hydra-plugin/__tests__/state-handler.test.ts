@@ -1,30 +1,20 @@
+import { EventEmitter } from 'events';
 import Optional from "optional-js";
 import { MorpheusTransaction } from "@internet-of-people/did-manager";
 import { MorpheusStateHandler } from "../src/state-handler";
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
-describe('StateHandler singleton', () => {
-  it('returns an instance', () => {
-    expect(MorpheusStateHandler.instance()).toBeInstanceOf(MorpheusStateHandler);
-  });
-
-  it('returns the same instance twice', () => {
-    const instance = MorpheusStateHandler.instance();
-    expect(MorpheusStateHandler.instance()).toBe(instance);
-  });
-});
-
 describe('StateHandler', () => {
+  let handler: MorpheusStateHandler;
   beforeEach(() => {
-    MorpheusStateHandler.reset();
-    MorpheusStateHandler.instance().logger = {
+    handler = new MorpheusStateHandler({
       appName: "state-handler-tests",
       debug: jest.fn<void, [any]>(),
       info: jest.fn<void, [any]>(),
       warn: jest.fn<void, [any]>(),
       error: jest.fn<void, [any]>(),
-    };
+    }, new EventEmitter());
   });
 
   const contentId = 'myFavoriteContentId';
@@ -35,7 +25,6 @@ describe('StateHandler', () => {
     .getAttempts();
 
   it('applies valid state change', () => {
-    const handler = MorpheusStateHandler.instance();
     handler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },
       blockHeight: 5,
@@ -52,7 +41,6 @@ describe('StateHandler', () => {
   const otherContentId = 'someOtherContentId';
 
   it('rejects before proof with already registered content id', () => {
-    const handler = MorpheusStateHandler.instance();
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.empty());
     handler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },

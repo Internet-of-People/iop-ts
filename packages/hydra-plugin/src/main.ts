@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-interfaces";
-
+import { asValue } from "awilix";
 import { Handlers } from '@arkecosystem/core-transactions';
 import { AppLog, IAppLog } from "./app-log";
 import { MorpheusArkConnector } from "./ark-connector";
@@ -7,8 +7,9 @@ import { BlockEventSource } from "./block-event-source";
 import { BlockHandler } from "./block-handler";
 import { NativeScheduler } from "./scheduler";
 import { Server } from "./server";
-import { MorpheusStateHandler } from "./state-handler";
+import { COMPONENT_NAME as STATE_HANDLER_COMPONENT_NAME, MorpheusStateHandler } from "./state-handler";
 import { MorpheusTransactionHandler } from './transaction-handler';
+import { COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME, transactionReaderFactory } from './transaction-reader-factory';
 
 export interface IInitializable {
   init(): Promise<void>;
@@ -47,13 +48,15 @@ const register = async (container: Container.IContainer) => {
     NativeScheduler.schedule
   );
 
-  // TODO: try to remove singleton pattern and use DI (maybe awilix)
-  const stateHandler = MorpheusStateHandler.instance();
-  stateHandler.logger = log;
-  stateHandler.eventEmitter = eventEmitter;
+  // Cannot inject MorpheusTransactionHandler with the following values
+  // (the framework instantiates the handlers). We have to put its dependencies
+  // into the container, so the transaction handler can resolve them from there.
+  const stateHandler = new MorpheusStateHandler(log, eventEmitter);
+  container.register(READER_FACTORY_COMPONENT_NAME, asValue(transactionReaderFactory));
+  container.register(STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
 
   const server = new Server("0.0.0.0", 4705, log, stateHandler);
-  const blockHandler = new BlockHandler();
+  const blockHandler = new BlockHandler(stateHandler);
 
   const arkConnector = new MorpheusArkConnector(
     eventEmitter,
