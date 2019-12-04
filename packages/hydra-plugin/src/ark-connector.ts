@@ -2,7 +2,7 @@ import { IAppLog } from "./app-log";
 import { IBlockEventSource } from "./block-event-source";
 import { BlockHandler, IBlockHandler } from "./block-handler";
 import { IInitializable } from "./main";
-import { MorpheusStateHandler } from "./state-handler";
+import { MorpheusEvents } from "./state-interfaces";
 
 export class MorpheusArkConnector implements IInitializable{
   constructor(
@@ -17,7 +17,7 @@ export class MorpheusArkConnector implements IInitializable{
 
     this.blockEventSource.subscribe(BlockHandler.SUBSCRIPTION_ID, this.blockHandler);
 
-    this.eventEmitter.on(MorpheusStateHandler.STATE_CORRUPTED_EVENT, () => {
+    this.eventEmitter.on(MorpheusEvents.StateCorrupted, () => {
       this.blockEventSource.unsubscribe(BlockHandler.SUBSCRIPTION_ID);
       this.log.error('State is corrupted, BlockHandler is unsubscribed');
     });

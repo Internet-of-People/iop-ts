@@ -17,3 +17,7 @@ export interface IMorpheusQueries {
 }
 
 export type IMorpheusState = Interfaces.IState<IMorpheusQueries, IMorpheusOperations>;
+
+export const enum MorpheusEvents {
+  StateCorrupted = "morpheus.state.corrupted",
+}

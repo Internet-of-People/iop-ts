@@ -5,7 +5,7 @@ import {IAppLog} from "../src/app-log";
 import { MorpheusArkConnector } from "../src/ark-connector";
 import {IBlockEventSource, IBlockListener} from "../src/block-event-source";
 import {BlockHandler, IBlockHandler} from "../src/block-handler";
-import { MorpheusStateHandler } from "../src/state-handler";
+import { MorpheusEvents } from "../src/state-interfaces";
 const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTransaction;
 
 describe('ArkConnector', () => {
@@ -24,18 +24,18 @@ describe('ArkConnector', () => {
 
   it('subscribes on init', () => {
     expect(fixture.blockEventSourceMock.subscribe).not.toHaveBeenCalled();
-    expect(fixture.eventEmitter.listenerCount(MorpheusStateHandler.STATE_CORRUPTED_EVENT)).toBe(0);
+    expect(fixture.eventEmitter.listenerCount(MorpheusEvents.StateCorrupted)).toBe(0);
 
     arkConnector.init();
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledTimes(1);
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID, fixture.blockHandler);
-    expect(fixture.eventEmitter.listenerCount(MorpheusStateHandler.STATE_CORRUPTED_EVENT)).toBe(1);
+    expect(fixture.eventEmitter.listenerCount(MorpheusEvents.StateCorrupted)).toBe(1);
   });
   it('unsubscribes on corrupted event', () => {
     arkConnector.init();
 
     expect(fixture.blockEventSourceMock.unsubscribe).not.toHaveBeenCalled();
-    fixture.eventEmitter.emit(MorpheusStateHandler.STATE_CORRUPTED_EVENT);
+    fixture.eventEmitter.emit(MorpheusEvents.StateCorrupted);
     expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledTimes(1);
     expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID);
   });
@@ -49,7 +49,7 @@ class Fixture {
   public eventEmitter: NodeJS.EventEmitter;
 
   public logMock = {
-    appName: "hot-wallet-tests",
+    appName: "ark-connector.test",
     debug: jest.fn<void, [any]>(),
     info: jest.fn<void, [any]>(),
     warn: jest.fn<void, [any]>(),

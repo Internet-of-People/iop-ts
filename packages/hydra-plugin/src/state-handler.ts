@@ -1,7 +1,7 @@
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
 import { IAppLog } from "./app-log";
 import { MorpheusState } from "./state";
-import { IMorpheusOperations, IMorpheusQueries, IMorpheusState } from "./state-interfaces";
+import { IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusEvents } from "./state-interfaces";
 const { Operations: { fromData } } = MorpheusTransaction;
 
 export interface IStateChange {
@@ -27,7 +27,6 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     }
     return this.state.query;
   }
-  public static readonly STATE_CORRUPTED_EVENT = "morpheus_state_corrupted";
 
   private static atHeight(height: number, ops: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
     return {
@@ -95,7 +94,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     } catch(e) {
       this.logger.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
       this.corrupted = true;
-      this.eventEmitter!.emit(MorpheusStateHandler.STATE_CORRUPTED_EVENT);
+      this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
     }
   }
 }

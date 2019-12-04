@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, State } from "@arkecosystem/core-interfaces";
 import { Interfaces } from "@internet-of-people/did-manager";
-import { asValue, asFunction } from "awilix";
+import { asValue } from "awilix";
 import Optional from "optional-js";
 import { MorpheusTransactionHandler } from "../src/transaction-handler";
 import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler, IStateChange } from "../src/state-handler";
