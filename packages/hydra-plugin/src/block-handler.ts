@@ -1,3 +1,4 @@
+import { Database } from "@arkecosystem/core-interfaces";
 import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
 import { IAppLog } from "./app-log";
@@ -19,12 +20,16 @@ export class BlockHandler implements IBlockHandler {
   public constructor(
     private readonly stateHandler: MorpheusStateHandler,
     private readonly log: IAppLog,
+    private readonly transactions: Database.ITransactionsBusinessRepository,
   ) {}
 
   public async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
-    const morpheusTxs = this.getMorpheusTransactions(block);
-    this.log.debug(morpheusTxs);
-    this.log.debug(JSON.stringify(block));
+    if(!block.id) {
+      this.log.warn(`Block ${block.height} does not have id.`);
+      return;
+    }
+
+    const morpheusTxs = await this.getMorpheusTransactions(block.id);
     this.log.debug(`onBlockApplied contains ${morpheusTxs.length} transactions.`);
     for (const transaction of morpheusTxs) {
       this.stateHandler.applyTransactionToState({
@@ -37,7 +42,12 @@ export class BlockHandler implements IBlockHandler {
   }
 
   public async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {
-    const morpheusTxs = this.getMorpheusTransactions(block);
+    if(!block.id) {
+      this.log.warn(`Block ${block.height} does not have id.`);
+      return;
+    }
+
+    const morpheusTxs = await this.getMorpheusTransactions(block.id);
     this.log.debug(`onBlockReverted contains ${morpheusTxs.length} transactions.`);
     for (const transaction of morpheusTxs) {
       this.stateHandler.revertTransactionFromState({
@@ -49,8 +59,10 @@ export class BlockHandler implements IBlockHandler {
     }
   }
 
-  private getMorpheusTransactions(block: CryptoIf.IBlockData): Interfaces.IMorpheusData[]  {
-    return (block.transactions||[])
+  private async getMorpheusTransactions(blockId: string): Promise<Interfaces.IMorpheusData[]>  {
+    const result = await this.transactions.findAllByBlock(blockId);
+    return result
+      .rows
       .filter(tx => tx.typeGroup === typeGroup && tx.type === type)
       .map(tx=>tx as Interfaces.IMorpheusData);
   }

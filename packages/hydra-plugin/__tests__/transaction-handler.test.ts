@@ -3,6 +3,7 @@ import { Database, State } from "@arkecosystem/core-interfaces";
 import { Interfaces } from "@internet-of-people/did-manager";
 import { asValue } from "awilix";
 import Optional from "optional-js";
+import {IAppLog, COMPONENT_NAME as LOGGER_COMPONENT} from "../src/app-log";
 import { MorpheusTransactionHandler } from "../src/transaction-handler";
 import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler, IStateChange } from "../src/state-handler";
 import { ITransactionReader, COMPONENT_NAME as READER_FACTORY_COMPONENT } from "../src/transaction-reader-factory";
@@ -26,6 +27,15 @@ describe('TransactionHandler', () => {
 });
 
 class Fixture {
+  public logMock = {
+    appName: "hot-wallet-tests",
+    debug: jest.fn<void, [any]>(),
+    info: jest.fn<void, [any]>(),
+    warn: jest.fn<void, [any]>(),
+    error: jest.fn<void, [any]>(),
+  };
+  public log = this.logMock as IAppLog;
+
   public stateHandlerMock = {
     query: {
       beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
@@ -46,6 +56,7 @@ class Fixture {
     try {
       app.register(STATE_HANDLER_COMPONENT, asValue(this.stateHandler));
       app.register(READER_FACTORY_COMPONENT, asValue(async () => this.transactionReader));
+      app.register(LOGGER_COMPONENT, asValue(this.log));
     } catch (error) {
       console.log(`Error in fixture setup: ${error.message}`);
     }

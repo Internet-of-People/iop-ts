@@ -4,7 +4,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoIf, Transactions } from "@arkecosystem/crypto";
 
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
-import {AppLog} from "./app-log";
+import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog} from "./app-log";
 import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler } from "./state-handler";
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader, TransactionReaderFactory } from './transaction-reader-factory';
 
@@ -27,7 +27,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-    const logger = new AppLog(app.resolvePlugin('logger'));
+    const logger: IAppLog = app.resolve(LOGGER_COMPONENT);
     logger.debug('Bootstrapping Morpheus plugin...');
 
     // Note: here we assume that when a block is reverted, the fact of the revert is NOT stored in the database.

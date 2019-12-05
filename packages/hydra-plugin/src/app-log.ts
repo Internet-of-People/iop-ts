@@ -1,5 +1,7 @@
 import { Logger } from "@arkecosystem/core-interfaces";
 
+export const COMPONENT_NAME:string = 'morpheus-logger';
+
 export interface IAppLog {
   readonly appName: string;
   debug(message: any): void;
@@ -16,7 +18,7 @@ export class AppLog implements IAppLog {
     this.logger = logger;
   }
 
-  public get appName(): string { 
+  public get appName(): string {
     return this.PREFIX;
   }
 

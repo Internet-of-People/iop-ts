@@ -1,7 +1,7 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { Container, Database } from "@arkecosystem/core-interfaces";
 import { Handlers } from '@arkecosystem/core-transactions';
 import { asValue } from "awilix";
-import { AppLog, IAppLog } from "./app-log";
+import { AppLog, COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from "./app-log";
 import { MorpheusArkConnector } from "./ark-connector";
 import { BlockEventSource } from "./block-event-source";
 import { BlockHandler } from "./block-handler";
@@ -40,6 +40,8 @@ export class Composite implements IInitializable {
 // TODO: separate register's content into a container, hence it can be tested
 const register = async (container: Container.IContainer) => {
   const log = new AppLog(container.resolvePlugin('logger'));
+  const db: Database.IDatabaseService = container.resolvePlugin('database');
+
   log.info(`Starting up`);
   const eventEmitter: NodeJS.EventEmitter = container.resolvePlugin('event-emitter');
   const blockEventSource = new BlockEventSource(
@@ -54,9 +56,10 @@ const register = async (container: Container.IContainer) => {
   const stateHandler = new MorpheusStateHandler(log, eventEmitter);
   container.register(READER_FACTORY_COMPONENT_NAME, asValue(transactionReaderFactory));
   container.register(STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
+  container.register(LOGGER_COMPONENT, asValue(log));
 
   const server = new Server("0.0.0.0", 4705, log, stateHandler);
-  const blockHandler = new BlockHandler(stateHandler, log);
+  const blockHandler = new BlockHandler(stateHandler, log, db.transactionsBusinessRepository);
 
   const arkConnector = new MorpheusArkConnector(
     eventEmitter,
