@@ -54,11 +54,14 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     }
 
     try {
+      this.logger.debug(`applyTransactionToState tx: ${stateChange.transactionId}, contains ${stateChange.asset.operationAttempts.length} operations...`);
       const newState = this.state.clone();
       const apply = MorpheusStateHandler.atHeight(stateChange.blockHeight, newState.apply);
       for (const operationData of stateChange.asset.operationAttempts) {
+        this.logger.debug(`Applying operation ${operationData.operation}...`);
         const operation = fromData(operationData);
         operation.accept(apply);
+        this.logger.debug(`Operation applied`);
       }
       newState.apply.confirmTx(stateChange.transactionId);
       this.state = newState;
@@ -75,6 +78,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     }
 
     try {
+      this.logger.debug(`revertTransactionFromState tx: ${stateChange.transactionId}, contains ${stateChange.asset.operationAttempts.length} operations...`);
       const confirmed = this.state.query.isConfirmed(stateChange.transactionId);
       if(!confirmed.isPresent()) {
         throw new Error(`Transaction ${stateChange.transactionId} was not confirmed, cannot revert.`);
@@ -87,8 +91,10 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
         const revert = MorpheusStateHandler.atHeight(stateChange.blockHeight, this.state.revert);
         for (const operationData of stateChange.asset.operationAttempts) {
+          this.logger.debug(`Reverting operation ${operationData.operation}...`);
           const operation = fromData(operationData);
           operation.accept(revert);
+          this.logger.debug(`Operation reverted`);
         }
       }
     } catch(e) {

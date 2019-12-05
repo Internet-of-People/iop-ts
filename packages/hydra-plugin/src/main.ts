@@ -56,7 +56,7 @@ const register = async (container: Container.IContainer) => {
   container.register(STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
 
   const server = new Server("0.0.0.0", 4705, log, stateHandler);
-  const blockHandler = new BlockHandler(stateHandler);
+  const blockHandler = new BlockHandler(stateHandler, log);
 
   const arkConnector = new MorpheusArkConnector(
     eventEmitter,
