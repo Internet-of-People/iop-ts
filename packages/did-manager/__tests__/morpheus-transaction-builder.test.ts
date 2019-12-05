@@ -12,7 +12,7 @@ describe('MorpheusTransactionBuilder', () => {
       .registerBeforeProof("my content id")
       .revokeBeforeProof("old content id");
     const actual = builder
-      .fromOperationAttempts(ops)
+      .fromOperationAttempts(ops.getAttempts())
       .nonce('42')
       .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire');
 

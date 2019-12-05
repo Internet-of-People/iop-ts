@@ -1,4 +1,4 @@
-import { IBeforeProofState } from "../src/interfaces/before-proof";
+import { IBeforeProofState } from "../src/interfaces";
 import { BeforeProofState } from "../src/morpheus-transaction/operations/before-proof/state";
 
 describe('Cloning BeforeProofState', () => {
