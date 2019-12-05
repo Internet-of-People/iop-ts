@@ -61,6 +61,8 @@ export class BlockHandler implements IBlockHandler {
 
   private async getMorpheusTransactions(blockId: string): Promise<Interfaces.IMorpheusData[]>  {
     const result = await this.transactions.findAllByBlock(blockId);
+    this.log.debug('rows: '+result.rows.length);
+    this.log.debug(JSON.stringify(result.rows));
     return result
       .rows
       .filter(tx => tx.typeGroup === typeGroup && tx.type === type)

@@ -5,8 +5,6 @@ import { IMorpheusAsset, IMorpheusData } from '../interfaces';
 import { operationSchemas } from './operations';
 const { schemas } = Transactions;
 
-
-
 export class MorpheusTransaction extends Transactions.Transaction {
   public static readonly typeGroup: number = 4242;
   public static readonly type: number = 1;

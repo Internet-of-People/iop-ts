@@ -28,7 +28,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
 
   public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
     const logger: IAppLog = app.resolve(LOGGER_COMPONENT);
-    logger.debug('Bootstrapping Morpheus plugin...');
+    logger.info('Bootstrapping Morpheus plugin...');
 
     // Note: here we assume that when a block is reverted, the fact of the revert is NOT stored in the database.
     // This means, when a node is bootstrapped from scratch, it will not see any reverted blocks.
