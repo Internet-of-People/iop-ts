@@ -1,14 +1,19 @@
 import { IOperationTypeVisitor } from '../../interfaces';
-import { Schemas } from './before-proof';
+import { Schemas as BeforeProofSchemas } from './before-proof';
+import { Schemas as DidDocumentSchemas } from './did-document';
 import { visitAllOperationTypes } from "./visitor";
 
-class SchemaVisitor implements IOperationTypeVisitor<any> {
-  public registerBeforeProof() {
-    return Schemas.registerBeforeProofSchema;
+class SchemaVisitor implements IOperationTypeVisitor<unknown> {
+  public registerBeforeProof(): unknown {
+    return BeforeProofSchemas.registerBeforeProofSchema;
   }
 
-  public revokeBeforeProof() {
-    return Schemas.revokeBeforeProofSchema;
+  public revokeBeforeProof(): unknown {
+    return BeforeProofSchemas.revokeBeforeProofSchema;
+  }
+
+  public addKey(): unknown {
+    return DidDocumentSchemas.addKey;
   }
 }
 

@@ -7,6 +7,8 @@ export const visitOperation = <R>(operation: string, visitor: IOperationTypeVisi
       return visitor.registerBeforeProof();
     case OperationType.RevokeBeforeProof:
       return visitor.revokeBeforeProof();
+    case OperationType.AddKey:
+      return visitor.addKey();
     default: {
       throw new Error(`Unknown operation type ${operation}`);
     }
@@ -18,6 +20,7 @@ export const visitOperation = <R>(operation: string, visitor: IOperationTypeVisi
 const all: string[] = [
   OperationType.RegisterBeforeProof,
   OperationType.RevokeBeforeProof,
+  OperationType.AddKey,
 ];
 
 export const visitAllOperationTypes = <R>(visitor: IOperationTypeVisitor<R>): R[] => {

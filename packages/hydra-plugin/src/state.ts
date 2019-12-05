@@ -3,7 +3,7 @@ import cloneDeep from "lodash.clonedeep";
 import Optional from "optional-js";
 import { IMorpheusOperations, IMorpheusQueries, IMorpheusState } from "./state-interfaces";
 
-const { Operations: { BeforeProof: { State: { BeforeProofState } } } } = MorpheusTransaction;
+const { Operations: { BeforeProof: { BeforeProofState }, DidDocument: { DidDocumentState } } } = MorpheusTransaction;
 
 export class MorpheusState implements IMorpheusState {
 
@@ -33,6 +33,11 @@ export class MorpheusState implements IMorpheusState {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
       beforeProof.apply.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
+    },
+    addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, height: number): void => {
+      const state = this.getOrCreateDidDocument(did);
+      state.apply.addKey(auth, height);
+      this.didDocuments.set(did, state);
     }
   };
 
@@ -68,20 +73,34 @@ export class MorpheusState implements IMorpheusState {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
       beforeProof.revert.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
+    },
+    addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, height: number): void => {
+      const state = this.getOrCreateDidDocument(did);
+      state.revert.addKey(auth, height);
+      this.didDocuments.set(did, state);
     }
   };
 
   private confirmedTxs: { [key: string]: boolean } = {};
   private beforeProofs = new Map<string, Interfaces.IBeforeProofState>();
+  private didDocuments = new Map<Interfaces.Did, Interfaces.IDidDocumentState>();
 
   public clone(): IMorpheusState {
     const cloned = new MorpheusState();
+    cloned.confirmedTxs = cloneDeep(this.confirmedTxs);
+
     const clonedBeforeProofs = new Map<string, Interfaces.IBeforeProofState>();
     for (const [key, value] of this.beforeProofs.entries()) {
       clonedBeforeProofs.set(key, value.clone());
     }
     cloned.beforeProofs = clonedBeforeProofs;
-    cloned.confirmedTxs = cloneDeep(this.confirmedTxs);
+
+    const clonedDidDocuments = new Map<Interfaces.Did, Interfaces.IDidDocumentState>();
+    for (const [key, value] of this.didDocuments.entries()) {
+      clonedDidDocuments.set(key, value.clone());
+    }
+    cloned.didDocuments = clonedDidDocuments;
+
     return cloned;
   }
 
@@ -94,5 +113,9 @@ export class MorpheusState implements IMorpheusState {
 
   private getOrCreateBeforeProof(contentId: string): Interfaces.IBeforeProofState {
     return this.beforeProofs.get(contentId) || new BeforeProofState(contentId);
+  }
+
+  private getOrCreateDidDocument(did: Interfaces.Did): Interfaces.IDidDocumentState {
+    return this.didDocuments.get(did) || new DidDocumentState(did);
   }
 }

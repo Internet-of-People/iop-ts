@@ -1,7 +1,7 @@
-import { IOperationVisitor } from '../../interfaces';
-import { IOperationData, IRegisterBeforeProofData, IRevokeBeforeProofData } from '../../interfaces/operation-data';
-import { Operation } from './operation';
-import { OperationType } from './operation-type';
+import {Authentication, Did, IAddKeyData, IOperationVisitor} from '../../interfaces';
+import {IOperationData, IRegisterBeforeProofData, IRevokeBeforeProofData} from '../../interfaces/operation-data';
+import {Operation} from './operation';
+import {OperationType} from './operation-type';
 
 /**
  * A visitor that extracts specific data objects needed to represent operations.
@@ -19,6 +19,14 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
       operation: OperationType.RevokeBeforeProof,
       contentId
     } as IRevokeBeforeProofData;
+  }
+
+  public addKey(did: Did, auth: Authentication): IAddKeyData {
+    return {
+      operation: OperationType.AddKey,
+      did,
+      auth
+    } as IAddKeyData;
   }
 }
 

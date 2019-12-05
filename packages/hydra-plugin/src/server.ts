@@ -57,11 +57,10 @@ export class Server implements IInitializable {
         }
       },
       {
-        method: "GET",
-        path: "/did/{did}/check-transaction-validity",
+        method: "POST",
+        path: "/check-transaction-validity",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          const { params: {did} } = request;
-          this.log.debug(`Checking tx validity for did ${did}`);
+          this.log.debug(`Checking tx validity`);
           return false;
         }
       },

@@ -4,6 +4,9 @@ import Optional from "optional-js";
 export interface IMorpheusOperations {
   registerBeforeProof(contentId: string, height: number): void;
   revokeBeforeProof(contentId: string, height: number): void;
+
+  addKey(did: Interfaces.Did, auth: Interfaces.Authentication, height: number): void;
+
   /**
    * Marks a transaction as confirmed, all operations were valid.
    */

@@ -1,5 +1,6 @@
-import { IOperationData } from "../../interfaces";
+import {Authentication, Did, IOperationData} from "../../interfaces";
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
+import {AddKey} from "./did-document";
 import { Operation } from "./operation";
 import { toData } from './to-data';
 
@@ -13,6 +14,11 @@ export class OperationAttemptsBuilder {
 
   public revokeBeforeProof(contentId: string): OperationAttemptsBuilder {
     this.attempts.push(new RevokeBeforeProof(contentId));
+    return this;
+  }
+
+  public addKey(did: Did, auth: Authentication): OperationAttemptsBuilder {
+    this.attempts.push(new AddKey(did, auth));
     return this;
   }
 

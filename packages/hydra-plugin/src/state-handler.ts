@@ -2,6 +2,7 @@ import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager
 import { IAppLog } from "./app-log";
 import { MorpheusState } from "./state";
 import { IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusEvents } from "./state-interfaces";
+
 const { Operations: { fromData } } = MorpheusTransaction;
 
 export interface IStateChange {
@@ -35,6 +36,9 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       },
       revokeBeforeProof: (contentId: string): void => {
         ops.revokeBeforeProof(contentId, height);
+      },
+      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication): void => {
+        ops.addKey(did, auth, height);
       }
     };
   }
