@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, State } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoIf, Transactions } from "@arkecosystem/crypto";
 
@@ -43,6 +43,15 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
         });
       }
     }
+  }
+
+  public async canEnterTransactionPool(
+    data: CryptoIf.ITransactionData,
+    pool: TransactionPool.IConnection,
+    processor: TransactionPool.IProcessor,
+  ): Promise<boolean> {
+    // TODO: check if the fee is at least the calculated fee
+    return true;
   }
 
   public async isActivated(): Promise<boolean> {

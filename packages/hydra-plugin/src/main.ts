@@ -1,6 +1,6 @@
 import { Container } from "@arkecosystem/core-interfaces";
-import { asValue } from "awilix";
 import { Handlers } from '@arkecosystem/core-transactions';
+import { asValue } from "awilix";
 import { AppLog, IAppLog } from "./app-log";
 import { MorpheusArkConnector } from "./ark-connector";
 import { BlockEventSource } from "./block-event-source";

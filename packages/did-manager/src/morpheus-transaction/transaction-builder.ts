@@ -1,6 +1,6 @@
 import { Interfaces as CryptoIf, Transactions, Utils } from '@arkecosystem/crypto';
+import {IOperationData} from "../interfaces";
 import * as Interfaces  from '../interfaces';
-import { OperationAttemptsBuilder } from "./operations";
 import { MorpheusTransaction } from './transaction';
 
 export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<MorpheusTransactionBuilder> {
@@ -13,8 +13,8 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
    * https://blog.ark.io/towards-flexible-marketplace-with-ark-dynamic-fees-running-on-new-core-31f1aaf1e867
    * @param attempts
    */
-  private static calculateFee(attempts: OperationAttemptsBuilder): Utils.BigNumber {
-    const txLength = JSON.stringify(attempts.getAttempts()).length;
+  private static calculateFee(attempts: IOperationData[]): Utils.BigNumber {
+    const txLength = JSON.stringify(attempts).length;
     return Utils.BigNumber.make(this.OFFSET_BYTES).plus(txLength).times(this.FLAKES_PER_BYTES);
   }
 
@@ -29,9 +29,9 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
     this.typedData.asset = { operationAttempts: [] };
   }
 
-  public fromOperationAttempts(attemptsBuilder: OperationAttemptsBuilder): MorpheusTransactionBuilder {
-    this.typedData.asset.operationAttempts = attemptsBuilder.getAttempts();
-    this.typedData.fee = MorpheusTransactionBuilder.calculateFee(attemptsBuilder);
+  public fromOperationAttempts(attempts: IOperationData[]): MorpheusTransactionBuilder {
+    this.typedData.asset.operationAttempts = attempts;
+    this.typedData.fee = MorpheusTransactionBuilder.calculateFee(attempts);
     return this;
   }
 
