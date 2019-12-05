@@ -1,9 +1,10 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool, Logger } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoIf, Transactions } from "@arkecosystem/crypto";
 
 import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
+import {AppLog} from "./app-log";
 import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler } from "./state-handler";
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader, TransactionReaderFactory } from './transaction-reader-factory';
 
@@ -26,6 +27,9 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    const logger = new AppLog(app.resolvePlugin('logger'));
+    logger.debug('Bootstrapping Morpheus plugin...');
+
     // Note: here we assume that when a block is reverted, the fact of the revert is NOT stored in the database.
     // This means, when a node is bootstrapped from scratch, it will not see any reverted blocks.
     const readerFactory: TransactionReaderFactory = app.resolve(READER_FACTORY_COMPONENT);
@@ -34,6 +38,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
 
     while (reader.hasNext()) {
       const transactions = await reader.read();
+      logger.debug(`Processing ${transactions.length} transactions in batch...`);
       for (const transaction of transactions) {
         stateHandler.applyTransactionToState({
           asset: transaction.asset as Interfaces.IMorpheusAsset,
