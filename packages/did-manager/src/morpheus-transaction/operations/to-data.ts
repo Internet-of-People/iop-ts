@@ -21,11 +21,12 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
     } as IRevokeBeforeProofData;
   }
 
-  public addKey(did: Did, auth: Authentication): IAddKeyData {
+  public addKey(did: Did, auth: Authentication, expiresAtHeight: number | undefined): IAddKeyData {
     return {
       operation: OperationType.AddKey,
       did,
-      auth
+      auth,
+      expiresAtHeight,
     } as IAddKeyData;
   }
 }

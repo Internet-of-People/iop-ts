@@ -5,7 +5,7 @@ export interface IMorpheusOperations {
   registerBeforeProof(contentId: string, height: number): void;
   revokeBeforeProof(contentId: string, height: number): void;
 
-  addKey(did: Interfaces.Did, auth: Interfaces.Authentication, height: number): void;
+  addKey(did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight: number | undefined, height: number): void;
 
   /**
    * Marks a transaction as confirmed, all operations were valid.
@@ -17,6 +17,7 @@ export interface IMorpheusOperations {
 export interface IMorpheusQueries {
   beforeProofExistsAt(contentId: string, height?: number): boolean;
   isConfirmed(transactionId: string): Optional<boolean>;
+  getDidDocumentAt(did: Interfaces.Did, height: number): Interfaces.IDidDocument;
 }
 
 export type IMorpheusState = Interfaces.IState<IMorpheusQueries, IMorpheusOperations>;

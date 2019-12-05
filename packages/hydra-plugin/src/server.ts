@@ -33,9 +33,12 @@ export class Server implements IInitializable {
         method: "GET",
         path: "/did/{did}/document/{blockHeight?}",
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          const { params: {did} } = request;
+          const { params: {did, blockHeight} } = request;
           this.log.debug(`Getting DID document for ${did}`);
-          return {};
+          // TODO missing height should be filled in by latest block seen by layer-1
+          const height = safePathInt(blockHeight) || Number.MAX_SAFE_INTEGER;
+          const document = this.stateHandler.query.getDidDocumentAt(did, height);
+          return document.toData();
         }
       },
       {

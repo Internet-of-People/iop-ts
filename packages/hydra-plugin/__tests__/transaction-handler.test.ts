@@ -3,7 +3,7 @@ import { Database, State } from "@arkecosystem/core-interfaces";
 import { Interfaces } from "@internet-of-people/did-manager";
 import { asValue } from "awilix";
 import Optional from "optional-js";
-import {IAppLog, COMPONENT_NAME as LOGGER_COMPONENT} from "../src/app-log";
+import { IAppLog, COMPONENT_NAME as LOGGER_COMPONENT } from "../src/app-log";
 import { MorpheusTransactionHandler } from "../src/transaction-handler";
 import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler, IStateChange } from "../src/state-handler";
 import { ITransactionReader, COMPONENT_NAME as READER_FACTORY_COMPONENT } from "../src/transaction-reader-factory";
@@ -40,6 +40,7 @@ class Fixture {
     query: {
       beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
+      getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Interfaces.Did, number]>(),
     },
     applyTransactionToState: jest.fn<void, [IStateChange]>(),
     revertTransactionFromState: jest.fn<void, [IStateChange]>(),

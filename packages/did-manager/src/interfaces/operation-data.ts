@@ -28,4 +28,5 @@ export interface IRevokeBeforeProofData extends IOperationData {
 export interface IAddKeyData extends IOperationData {
   did: Did;
   auth: Authentication;
+  expiresAtHeight?: number;
 }

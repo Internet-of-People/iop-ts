@@ -8,7 +8,7 @@ import {Authentication, Did} from "./did-document";
 export interface IOperationVisitor<T> {
   registerBeforeProof(contentId: string): T;
   revokeBeforeProof(contentId: string): T;
-  addKey(did: Did, auth: Authentication): T;
+  addKey(did: Did, auth: Authentication, expiresAtHeight: number | undefined): T;
 }
 
 export interface IOperationTypeVisitor<R> {

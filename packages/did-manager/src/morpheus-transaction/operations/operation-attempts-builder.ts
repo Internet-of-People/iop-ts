@@ -17,8 +17,8 @@ export class OperationAttemptsBuilder {
     return this;
   }
 
-  public addKey(did: Did, auth: Authentication): OperationAttemptsBuilder {
-    this.attempts.push(new AddKey(did, auth));
+  public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): OperationAttemptsBuilder {
+    this.attempts.push(new AddKey(did, auth, expiresAtHeight));
     return this;
   }
 

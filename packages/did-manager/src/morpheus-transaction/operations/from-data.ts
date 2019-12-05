@@ -21,7 +21,7 @@ class FromData implements IOperationTypeVisitor<Operation> {
 
   public addKey(): Operation {
     const params = this.data as IAddKeyData;
-    return new AddKey(params.did, params.auth);
+    return new AddKey(params.did, params.auth, params.expiresAtHeight);
   }
 }
 

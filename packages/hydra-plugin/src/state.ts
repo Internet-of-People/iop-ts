@@ -14,6 +14,10 @@ export class MorpheusState implements IMorpheusState {
     beforeProofExistsAt: (contentId: string, height?: number): boolean => {
       const beforeProofState = this.beforeProofs.get(contentId);
       return beforeProofState !== undefined && beforeProofState.query.existsAt(height);
+    },
+    getDidDocumentAt: (did: Interfaces.Did, height: number): Interfaces.IDidDocument => {
+      const didState = this.getOrCreateDidDocument(did);
+      return didState.query.getAt(height);
     }
   };
 
@@ -34,9 +38,9 @@ export class MorpheusState implements IMorpheusState {
       beforeProof.apply.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
-    addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, height: number): void => {
+    addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight: number | undefined, height: number): void => {
       const state = this.getOrCreateDidDocument(did);
-      state.apply.addKey(auth, height);
+      state.apply.addKey(auth, expiresAtHeight, height);
       this.didDocuments.set(did, state);
     }
   };
@@ -74,9 +78,9 @@ export class MorpheusState implements IMorpheusState {
       beforeProof.revert.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
-    addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, height: number): void => {
+    addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight: number | undefined, height: number): void => {
       const state = this.getOrCreateDidDocument(did);
-      state.revert.addKey(auth, height);
+      state.revert.addKey(auth, expiresAtHeight, height);
       this.didDocuments.set(did, state);
     }
   };

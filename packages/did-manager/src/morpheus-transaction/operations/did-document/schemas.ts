@@ -2,7 +2,7 @@ import {OperationType} from "../operation-type";
 
 export const addKey = {
   type: 'object',
-  required: ['operation', 'auth'],
+  required: ['operation', 'did', 'auth'],
   additionalProperties: false,
   properties: {
     operation: {
@@ -14,6 +14,10 @@ export const addKey = {
     },
     auth: {
       type: 'string'
+    },
+    expiresAtHeight: {
+      type: 'number',
+      minValue: 1,
     }
   }
 };
