@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, State, TransactionPool, Logger } from "@arkecosystem/core-interfaces";
+import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoIf, Transactions } from "@arkecosystem/crypto";
 

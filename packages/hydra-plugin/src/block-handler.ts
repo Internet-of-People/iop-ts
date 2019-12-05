@@ -23,6 +23,8 @@ export class BlockHandler implements IBlockHandler {
 
   public async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
     const morpheusTxs = this.getMorpheusTransactions(block);
+    this.log.debug(morpheusTxs);
+    this.log.debug(JSON.stringify(block));
     this.log.debug(`onBlockApplied contains ${morpheusTxs.length} transactions.`);
     for (const transaction of morpheusTxs) {
       this.stateHandler.applyTransactionToState({
