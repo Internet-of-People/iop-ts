@@ -14,6 +14,7 @@
     "build": "tsc -p .",
     "clean": "rimraf dist && rimraf node_modules",
     "test": "jest --detectOpenHandles --no-cache --passWithNoTests",
+    "example:transfer": "npm run build && node dist/main.js transfer",
     "example:before-proof": "npm run build && node dist/main.js before-proof"
   },
   "license": "GPL-3.0-or-later",

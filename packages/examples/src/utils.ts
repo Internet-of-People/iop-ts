@@ -22,3 +22,13 @@ export const askForPassphrase = async (): Promise<string> => {
   return result.passphrase;
 };
 
+export const askForAddress = async (): Promise<string> => {
+  const result = await inquirer.prompt([{
+    name: 'address',
+    message: 'Type your recipient\'s address below:',
+  }]);
+  if(!result.address) {
+    throw new Error('address must not be empty.');
+  }
+  return result.address;
+};

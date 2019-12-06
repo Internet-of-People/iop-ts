@@ -1,8 +1,9 @@
-import { Managers, Transactions } from "@arkecosystem/crypto";
+import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { MorpheusTransaction } from "@internet-of-people/did-manager";
 import { Api } from "./api";
 import { BeforeProofExample } from "./before-proof";
-import { askForNetwork } from "./utils";
+import {TransactionSender} from "./transaction-sender";
+import { askForNetwork, askForPassphrase, askForAddress } from "./utils";
 
 const { Transaction } = MorpheusTransaction;
 
@@ -17,6 +18,13 @@ const asynRun = async (): Promise<void> => {
   Transactions.TransactionRegistry.registerTransactionType(Transaction.MorpheusTransaction);
 
   switch (process.argv[2]) {
+    case 'transfer':
+      await TransactionSender.sendTransfer(
+        await askForPassphrase(), // genesis
+        await askForAddress(),
+        Utils.BigNumber.make(1000 * 1e8),
+      );
+      break;
     case BeforeProofExample.ID:
       await new BeforeProofExample().run();
       break;

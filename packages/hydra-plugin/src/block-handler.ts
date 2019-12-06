@@ -23,49 +23,44 @@ export class BlockHandler implements IBlockHandler {
     private readonly transactions: Database.ITransactionsBusinessRepository,
   ) {}
 
-  public async onBlockApplied(block: CryptoIf.IBlockData): Promise<void> {
-    if(!block.id) {
-      this.log.warn(`Block ${block.height} does not have id.`);
+  public async onBlockApplied(blockData: CryptoIf.IBlockData): Promise<void> {
+    if(!blockData.id) {
+      this.log.warn(`Block ${blockData.height} does not have id.`);
       return;
     }
 
-    const morpheusTxs = await this.getMorpheusTransactions(block.id);
+    const morpheusTxs = await this.getMorpheusTransactions(blockData);
     this.log.debug(`onBlockApplied contains ${morpheusTxs.length} transactions.`);
     for (const transaction of morpheusTxs) {
       this.stateHandler.applyTransactionToState({
         asset: transaction.asset as Interfaces.IMorpheusAsset,
-        blockHeight: block.height,
-        blockId: block.id!, // !, because block is already forged, hence cannot be undefined
+        blockHeight: blockData.height,
+        blockId: blockData.id!, // !, because block is already forged, hence cannot be undefined
         transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
       });
     }
   }
 
-  public async onBlockReverted(block: CryptoIf.IBlockData): Promise<void> {
-    if(!block.id) {
-      this.log.warn(`Block ${block.height} does not have id.`);
+  public async onBlockReverted(blockData: CryptoIf.IBlockData): Promise<void> {
+    if(!blockData.id) {
+      this.log.warn(`Block ${blockData.height} does not have id.`);
       return;
     }
 
-    const morpheusTxs = await this.getMorpheusTransactions(block.id);
+    const morpheusTxs = await this.getMorpheusTransactions(blockData);
     this.log.debug(`onBlockReverted contains ${morpheusTxs.length} transactions.`);
     for (const transaction of morpheusTxs) {
       this.stateHandler.revertTransactionFromState({
         asset: transaction.asset as Interfaces.IMorpheusAsset,
-        blockHeight: block.height,
-        blockId: block.id!, // !, because block is already forged, hence cannot be undefined
+        blockHeight: blockData.height,
+        blockId: blockData.id!, // !, because block is already forged, hence cannot be undefined
         transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
       });
     }
   }
 
-  private async getMorpheusTransactions(blockId: string): Promise<Interfaces.IMorpheusData[]>  {
-    const result = await this.transactions.findAllByBlock(blockId);
-    this.log.debug('rows: '+result.rows.length);
-    this.log.debug(JSON.stringify(result.rows));
-    return result
-      .rows
-      .filter(tx => tx.typeGroup === typeGroup && tx.type === type)
+  private async getMorpheusTransactions(blockData: CryptoIf.IBlockData): Promise<Interfaces.IMorpheusData[]>  {
+    return blockData.transactions!.filter(tx => tx.typeGroup === typeGroup && tx.type === type)
       .map(tx=>tx as Interfaces.IMorpheusData);
   }
 }
