@@ -39,7 +39,7 @@ export const didToAuth = (did: Did): Authentication => {
 
 const authEntryIsValidAt = (entry: IAuthenticationEntry, height: number): boolean => {
   return !entry.validUntilHeight || entry.validUntilHeight > height;
-}
+};
 
 const authEntryToData = (entry: IAuthenticationEntry, height: number): IKeyData => {
   return {
@@ -47,7 +47,7 @@ const authEntryToData = (entry: IAuthenticationEntry, height: number): IKeyData 
     expired: !authEntryIsValidAt(entry, height),
     expiresAtHeight: entry.validUntilHeight,
   };
-}
+};
 
 export class DidDocumentState implements IDidDocumentState {
 
@@ -76,13 +76,13 @@ export class DidDocumentState implements IDidDocumentState {
       }
       const lastKey = this.keys[0];
       if (lastKey.auth !== auth) {
-        throw new Error(`Cannot revert addKey in DID ${this.did}, because the key does not match the last added one.`)
+        throw new Error(`Cannot revert addKey in DID ${this.did}, because the key does not match the last added one.`);
       }
       if (lastKey.validFromHeight !== height) {
-        throw new Error(`Cannot revert addKey in DID ${this.did}, because it was not added at the specified height.`)
+        throw new Error(`Cannot revert addKey in DID ${this.did}, because it was not added at the specified height.`);
       }
       if (lastKey.validUntilHeight !== expiresAtHeight) {
-        throw new Error(`Cannot revert addKey in DID ${this.did}, because it was not added with the same expiration.`)
+        throw new Error(`Cannot revert addKey in DID ${this.did}, because it was not added with the same expiration.`);
       }
       this.keys.shift();
     }

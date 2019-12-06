@@ -6,13 +6,13 @@ export type PublicKey = string;
 export type Authentication = KeyId | PublicKey;
 
 export interface IKeyData {
-  auth: Authentication,
-  expiresAtHeight?: number,
-  expired: boolean,
+  auth: Authentication;
+  expiresAtHeight?: number;
+  expired: boolean;
 }
 
 export interface IDidDocumentData {
-  keys: IKeyData[],
+  keys: IKeyData[];
 }
 
 export interface IDidDocument {
