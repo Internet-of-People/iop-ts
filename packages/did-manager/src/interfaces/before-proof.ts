@@ -1,4 +1,4 @@
-import { IState } from "./state";
+import { IState } from './state';
 
 export interface IBeforeProofQueries {
   existsAt(height?: number): boolean;

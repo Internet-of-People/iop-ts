@@ -1,6 +1,6 @@
-import { MorpheusTransaction } from "@internet-of-people/did-manager";
-import inquirer from "inquirer";
-import {TransactionSender} from "./transaction-sender";
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
+import inquirer from 'inquirer';
+import {TransactionSender} from './transaction-sender';
 
 const {
   Operations: { OperationAttemptsBuilder }

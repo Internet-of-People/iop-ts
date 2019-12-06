@@ -1,11 +1,11 @@
-import { createServer } from "@arkecosystem/core-http-utils";
-import { Lifecycle, Request, Server as HapiServer } from "@hapi/hapi";
-import Optional from "optional-js";
-import { IAppLog } from "./app-log";
+import { createServer } from '@arkecosystem/core-http-utils';
+import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
+import Optional from 'optional-js';
+import { IAppLog } from './app-log';
 
 // TODO break circular dependency
-import { IInitializable } from "./main";
-import { MorpheusStateHandler } from "./state-handler";
+import { IInitializable } from './main';
+import { MorpheusStateHandler } from './state-handler';
 
 export const safePathInt = (pathHeightString: string|undefined|null): number|undefined => {
   return Number.isNaN( Number(pathHeightString)) || pathHeightString === null 
@@ -30,8 +30,8 @@ export class Server implements IInitializable {
     });
     this.server.route([
       {
-        method: "GET",
-        path: "/did/{did}/document/{blockHeight?}",
+        method: 'GET',
+        path: '/did/{did}/document/{blockHeight?}',
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {did, blockHeight} } = request;
           this.log.debug(`Getting DID document for ${did}`);
@@ -42,8 +42,8 @@ export class Server implements IInitializable {
         }
       },
       {
-        method: "GET",
-        path: "/did/{did}/operations/{from}/{to?}",
+        method: 'GET',
+        path: '/did/{did}/operations/{from}/{to?}',
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {did, from, to} } = request;
           this.log.debug(`Getting DID operations for ${did} from ${from} to ${to}`);
@@ -51,8 +51,8 @@ export class Server implements IInitializable {
         }
       },
       {
-        method: "GET",
-        path: "/did/{did}/operation-attempts/{from}/{to?}",
+        method: 'GET',
+        path: '/did/{did}/operation-attempts/{from}/{to?}',
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {did, from, to} } = request;
           this.log.debug(`Getting DID operation attempts for ${did} from ${from} to ${to}`);
@@ -60,16 +60,16 @@ export class Server implements IInitializable {
         }
       },
       {
-        method: "POST",
-        path: "/check-transaction-validity",
+        method: 'POST',
+        path: '/check-transaction-validity',
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          this.log.debug(`Checking tx validity`);
+          this.log.debug('Checking tx validity');
           return false;
         }
       },
       {
-        method: "GET",
-        path: "/before-proof/{contentId}/exists/{blockHeight?}",
+        method: 'GET',
+        path: '/before-proof/{contentId}/exists/{blockHeight?}',
         handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: {contentId, blockHeight} } = request;
           return this.stateHandler.query.beforeProofExistsAt(

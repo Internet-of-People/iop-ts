@@ -1,5 +1,5 @@
 import {SignedMessage, Vault} from '../pkg';
-import {PersistentVault} from "../src/PersistentVault";
+import {PersistentVault} from '../src/PersistentVault';
 
 describe('Vault', () => {
   it('can be serialized/deserialized', () => {
@@ -12,7 +12,7 @@ describe('Vault', () => {
     vault.create_id();
     expect(vault.profiles()).toHaveLength(2);
     expect(vault.profiles()).toStrictEqual(
-      ["IezbeWGSY2dqcUBqT8K7R14xr", "Iez25N5WZ1Q6TQpgpyYgiu9gTX"]
+      ['IezbeWGSY2dqcUBqT8K7R14xr', 'Iez25N5WZ1Q6TQpgpyYgiu9gTX']
     );
 
     const vaultSerStr = vault.serialize();

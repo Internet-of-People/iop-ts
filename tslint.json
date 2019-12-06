@@ -26,7 +26,8 @@
     "radix": false,
     "return-undefined": true,
     "no-empty-interface": false,
-    "semicolon": [true, "always"]
+    "semicolon": [true, "always"],
+    "quotemark": [true, "single", "jsx-double", "avoid-escape", "avoid-template"]
   },
   "exclude": ["node_modules", "dist"]
 }

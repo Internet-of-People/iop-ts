@@ -1,5 +1,5 @@
-import { NativeScheduler } from "../src/scheduler";
-import { IAppLog } from "../src/app-log";
+import { IAppLog } from '../src/app-log';
+import { NativeScheduler } from '../src/scheduler';
 
 describe('Scheduler', () => {
   let fixture: Fixture;
@@ -9,21 +9,21 @@ describe('Scheduler', () => {
   });
 
   it('scheduled calls resolve in sequence', async ()=>{
-    const resolves: Array<number>=[];
-    const task1 = () => new Promise<void>((res,_rej)=>{
+    const resolves: number[]=[];
+    const task1 = () => new Promise<void>((res,_)=>{
       setTimeout(()=>{
         resolves.push(1);
         res();
       },100);
     });
 
-    const task2 = () => new Promise<void>((res,_rej)=>{
+    const task2 = () => new Promise<void>((res,_)=>{
       resolves.push(2);
       res();
     });
 
-    NativeScheduler.schedule(fixture.log, "name1", task1);
-    NativeScheduler.schedule(fixture.log, "name2", task2);
+    NativeScheduler.schedule(fixture.log, 'name1', task1);
+    NativeScheduler.schedule(fixture.log, 'name2', task2);
 
     jest.runAllImmediates();
     jest.runAllTimers();
@@ -37,21 +37,21 @@ describe('Scheduler', () => {
   });
 
   it('stuck scheduled call will timeout', async()=>{
-    const resolves: Array<number>=[];
-    const task1 = () => new Promise<void>((res,_rej)=>{
+    const resolves: number[]=[];
+    const task1 = () => new Promise<void>((res,_)=>{
       setTimeout(()=>{
         resolves.push(1);
         res();
       },6000);
     });
 
-    const task2 = () => new Promise<void>((res,_rej)=>{
+    const task2 = () => new Promise<void>((res,_)=>{
       resolves.push(2);
       res();
     });
 
-    NativeScheduler.schedule(fixture.log, "name1", task1);
-    NativeScheduler.schedule(fixture.log, "name2", task2);
+    NativeScheduler.schedule(fixture.log, 'name1', task1);
+    NativeScheduler.schedule(fixture.log, 'name2', task2);
 
     jest.runAllImmediates();
     jest.advanceTimersByTime(5100);
@@ -73,7 +73,7 @@ describe('Scheduler', () => {
 
 class Fixture {
   public logMock = {
-    appName: "hot-wallet-tests",
+    appName: 'hot-wallet-tests',
     debug: jest.fn<void, [any]>(),
     info: jest.fn<void, [any]>(),
     warn: jest.fn<void, [any]>(),

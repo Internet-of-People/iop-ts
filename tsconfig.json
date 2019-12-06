@@ -65,6 +65,6 @@
     "resolveJsonModule": true
   },
   "exclude": [
-    "node_modules", "dist", "**/**.spec.ts", "**/**.test.ts"
+    "node_modules", "dist", "__tests__", "**/**.spec.ts", "**/**.test.ts"
   ]
 }

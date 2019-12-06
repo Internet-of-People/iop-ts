@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "skipLibCheck": true
+    "skipLibCheck": true // Some @arkecosystem dependencies fail with strictNullChecks
   },
   "include": [
     "src/**/**.ts",

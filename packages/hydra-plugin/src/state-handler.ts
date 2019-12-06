@@ -1,7 +1,7 @@
-import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
-import { IAppLog } from "./app-log";
-import { MorpheusState } from "./state";
-import { IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusEvents } from "./state-interfaces";
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { IAppLog } from './app-log';
+import { MorpheusState } from './state';
+import { IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusEvents } from './state-interfaces';
 
 const { Operations: { fromData } } = MorpheusTransaction;
 
@@ -12,7 +12,7 @@ export interface IStateChange {
   transactionId: string;
 }
 
-export const COMPONENT_NAME = "morpheus-state-handler";
+export const COMPONENT_NAME = 'morpheus-state-handler';
 
 export interface IMorpheusStateHandler {
   readonly query: IMorpheusQueries;
@@ -65,7 +65,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
         this.logger.debug(`Applying operation ${operationData.operation}...`);
         const operation = fromData(operationData);
         operation.accept(apply);
-        this.logger.debug(`Operation applied`);
+        this.logger.debug('Operation applied');
       }
       newState.apply.confirmTx(stateChange.transactionId);
       this.state = newState;
@@ -98,7 +98,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
           this.logger.debug(`Reverting operation ${operationData.operation}...`);
           const operation = fromData(operationData);
           operation.accept(revert);
-          this.logger.debug(`Operation reverted`);
+          this.logger.debug('Operation reverted');
         }
       }
     } catch(e) {

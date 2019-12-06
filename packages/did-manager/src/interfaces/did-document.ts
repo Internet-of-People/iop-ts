@@ -1,4 +1,4 @@
-import { IState } from "./state";
+import { IState } from './state';
 
 export type Did = string;
 export type KeyId = string;

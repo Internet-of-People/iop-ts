@@ -1,6 +1,6 @@
-import { Managers, Transactions } from "@arkecosystem/crypto";
+import { Managers, Transactions } from '@arkecosystem/crypto';
 import 'jest-extended';
-import { Builder, Transaction, Operations } from '../src/morpheus-transaction';
+import { Builder, Operations, Transaction } from '../src/morpheus-transaction';
 
 describe('MorpheusTransactionBuilder', () => {
   it('should verify correctly', () => {
@@ -9,8 +9,8 @@ describe('MorpheusTransactionBuilder', () => {
 
     const builder = new Builder.MorpheusTransactionBuilder();
     const ops = new Operations.OperationAttemptsBuilder()
-      .registerBeforeProof("my content id")
-      .revokeBeforeProof("old content id");
+      .registerBeforeProof('my content id')
+      .revokeBeforeProof('old content id');
     const actual = builder
       .fromOperationAttempts(ops.getAttempts())
       .nonce('42')

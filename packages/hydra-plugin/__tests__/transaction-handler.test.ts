@@ -1,12 +1,12 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, State } from "@arkecosystem/core-interfaces";
-import { Interfaces } from "@internet-of-people/did-manager";
-import { asValue } from "awilix";
-import Optional from "optional-js";
-import { IAppLog, COMPONENT_NAME as LOGGER_COMPONENT } from "../src/app-log";
-import { MorpheusTransactionHandler } from "../src/transaction-handler";
-import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler, IStateChange } from "../src/state-handler";
-import { ITransactionReader, COMPONENT_NAME as READER_FACTORY_COMPONENT } from "../src/transaction-reader-factory";
+import { app } from '@arkecosystem/core-container';
+import { Database, State } from '@arkecosystem/core-interfaces';
+import { Interfaces } from '@internet-of-people/did-manager';
+import { asValue } from 'awilix';
+import Optional from 'optional-js';
+import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '../src/app-log';
+import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler, IStateChange } from '../src/state-handler';
+import { MorpheusTransactionHandler } from '../src/transaction-handler';
+import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader } from '../src/transaction-reader-factory';
 
 describe('TransactionHandler', () => {
   let fixture: Fixture;
@@ -15,7 +15,7 @@ describe('TransactionHandler', () => {
   });
 
   it('container stuff', async () => {
-    let txHandler = fixture.createSut();
+    const txHandler = fixture.createSut();
     fixture.mockTransactionReader([
       fixture.createBootstrapTx({}, [])
     ]);
@@ -28,7 +28,7 @@ describe('TransactionHandler', () => {
 
 class Fixture {
   public logMock = {
-    appName: "hot-wallet-tests",
+    appName: 'hot-wallet-tests',
     debug: jest.fn<void, [any]>(),
     info: jest.fn<void, [any]>(),
     warn: jest.fn<void, [any]>(),
@@ -74,20 +74,20 @@ class Fixture {
 
   public createBootstrapTx(props: Partial<Database.IBootstrapTransaction>, ops: Interfaces.IOperationData[]): Database.IBootstrapTransaction {
     return {
-      id: "txId",
+      id: 'txId',
       version: 2,
       timestamp: 0,
-      senderPublicKey: "sender",
-      recipientId: "",
-      fee: "0.2",
-      amount: "4",
-      vendorField: "",
+      senderPublicKey: 'sender',
+      recipientId: '',
+      fee: '0.2',
+      amount: '4',
+      vendorField: '',
       asset: { operationAttempts: [...ops] } as Interfaces.IMorpheusAsset,
-      blockId: "blockId",
-      blockGeneratorPublicKey: "forger",
+      blockId: 'blockId',
+      blockGeneratorPublicKey: 'forger',
       blockHeight: 42,
-      blockReward: "5",
+      blockReward: '5',
       ...props
-    }
+    };
   }
 }

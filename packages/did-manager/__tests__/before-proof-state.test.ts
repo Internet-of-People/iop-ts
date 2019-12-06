@@ -1,5 +1,5 @@
-import { IBeforeProofState } from "../src/interfaces";
-import { BeforeProofState } from "../src/morpheus-transaction/operations/before-proof/state";
+import { IBeforeProofState } from '../src/interfaces';
+import { BeforeProofState } from '../src/morpheus-transaction/operations/before-proof/state';
 
 describe('Cloning BeforeProofState', () => {
   let oldProof: IBeforeProofState;
@@ -54,4 +54,4 @@ describe('BeforeProofState', () => {
     expect(state.query.existsAt(undefined)).toBeTruthy();
   });
 
-})
+});

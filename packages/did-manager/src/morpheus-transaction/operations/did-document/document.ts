@@ -1,4 +1,4 @@
-import {Authentication, IDidDocument, IDidDocumentData} from "../../../interfaces";
+import {Authentication, IDidDocument, IDidDocumentData} from '../../../interfaces';
 
 export class DidDocument implements IDidDocument {
   public constructor(private data: IDidDocumentData) {

@@ -1,5 +1,5 @@
 import Optional from 'optional-js';
-import { TimeSeries, ITimeSeries } from "../src/time-series";
+import { ITimeSeries, TimeSeries } from '../src/time-series';
 
 describe('clonable series', () => {
   let oldSeries: ITimeSeries;
@@ -40,11 +40,11 @@ describe('empty series', () => {
   });
 
   it('returns initial value for valid heights', () => {
-    let seriesInitiallyFalse: ITimeSeries = new TimeSeries(false);
+    const seriesInitiallyFalse: ITimeSeries = new TimeSeries(false);
     expect(seriesInitiallyFalse.query.get(0)).toBeFalsy();
     expect(seriesInitiallyFalse.query.latestValue()).toBeFalsy();
 
-    let seriesInitiallyTrue: ITimeSeries = new TimeSeries(true);
+    const seriesInitiallyTrue: ITimeSeries = new TimeSeries(true);
     expect(seriesInitiallyTrue.query.get(0)).toBeTruthy();
     expect(seriesInitiallyTrue.query.latestValue()).toBeTruthy();
   });
@@ -70,7 +70,7 @@ describe('empty series', () => {
   }
 
   it('rejects revert set', () => {
-    expect(() => series.revert.set(1, false)).toThrowError('nothing to unset')
+    expect(() => series.revert.set(1, false)).toThrowError('nothing to unset');
   });
 });
 
@@ -98,7 +98,7 @@ describe('single entry series', () => {
     expect(series.query.get(5)).toBeFalsy();
   });
 
-  const validCases: [number, boolean][] = [
+  const validCases: Array<[number, boolean]> = [
     [0, false],
     [4, false],
     [5, true],
@@ -113,7 +113,7 @@ describe('single entry series', () => {
   it('get rejects invalid height', () => {
     expect(() => series.query.get(-1)).toThrowError('non-negative');
     expect(() => series.query.get(0.1)).toThrowError('integer');
-  })
+  });
 
   for (const height of [5, 4, 0]) {
     it(`rejects already set height ${height}`, () => {
@@ -176,7 +176,7 @@ describe('multiple entry series', () => {
     expect(series.query.latestValue()).toBeFalsy();
   });
 
-  const validCases: [number, boolean][] = [
+  const validCases: Array<[number, boolean]> = [
     [0, false],
     [4, false],
     [5, true],

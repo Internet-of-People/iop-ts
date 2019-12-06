@@ -1,7 +1,7 @@
 import {IAddKeyData, IOperationData, IOperationTypeVisitor,
         IRegisterBeforeProofData, IRevokeBeforeProofData} from '../../interfaces';
-import { RegisterBeforeProof, RevokeBeforeProof } from "./before-proof";
-import {AddKey} from "./did-document";
+import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
+import {AddKey} from './did-document';
 import { Operation } from './operation';
 import { visitOperation } from './visitor';
 

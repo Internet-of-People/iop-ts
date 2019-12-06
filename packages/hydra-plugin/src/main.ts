@@ -1,13 +1,13 @@
-import { Container, Database } from "@arkecosystem/core-interfaces";
+import { Container, Database } from '@arkecosystem/core-interfaces';
 import { Handlers } from '@arkecosystem/core-transactions';
-import { asValue } from "awilix";
-import { AppLog, COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from "./app-log";
-import { MorpheusArkConnector } from "./ark-connector";
-import { BlockEventSource } from "./block-event-source";
-import { BlockHandler } from "./block-handler";
-import { NativeScheduler } from "./scheduler";
-import { Server } from "./server";
-import { COMPONENT_NAME as STATE_HANDLER_COMPONENT_NAME, MorpheusStateHandler } from "./state-handler";
+import { asValue } from 'awilix';
+import { AppLog, COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from './app-log';
+import { MorpheusArkConnector } from './ark-connector';
+import { BlockEventSource } from './block-event-source';
+import { BlockHandler } from './block-handler';
+import { NativeScheduler } from './scheduler';
+import { Server } from './server';
+import { COMPONENT_NAME as STATE_HANDLER_COMPONENT_NAME, MorpheusStateHandler } from './state-handler';
 import { MorpheusTransactionHandler } from './transaction-handler';
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME, transactionReaderFactory } from './transaction-reader-factory';
 
@@ -42,7 +42,7 @@ const register = async (container: Container.IContainer) => {
   const log = new AppLog(container.resolvePlugin('logger'));
   const db: Database.IDatabaseService = container.resolvePlugin('database');
 
-  log.info(`Starting up`);
+  log.info('Starting up');
   const eventEmitter: NodeJS.EventEmitter = container.resolvePlugin('event-emitter');
   const blockEventSource = new BlockEventSource(
     log,
@@ -58,7 +58,7 @@ const register = async (container: Container.IContainer) => {
   container.register(STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
   container.register(LOGGER_COMPONENT, asValue(log));
 
-  const server = new Server("0.0.0.0", 4705, log, stateHandler);
+  const server = new Server('0.0.0.0', 4705, log, stateHandler);
   const blockHandler = new BlockHandler(stateHandler, log, db.transactionsBusinessRepository);
 
   const arkConnector = new MorpheusArkConnector(
@@ -83,10 +83,10 @@ export const defaults = {
 };
 
 export const plugin: Container.IPluginDescriptor = {
-  pkg: require("../package.json"),
+  pkg: require('../package.json'),
   required: true,
   defaults,
-  alias: "morpheus-hydra-plugin",
+  alias: 'morpheus-hydra-plugin',
   register,
   deregister,
 };

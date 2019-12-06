@@ -1,7 +1,7 @@
-import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
-import cloneDeep from "lodash.clonedeep";
-import Optional from "optional-js";
-import { IMorpheusOperations, IMorpheusQueries, IMorpheusState } from "./state-interfaces";
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import cloneDeep from 'lodash.clonedeep';
+import Optional from 'optional-js';
+import { IMorpheusOperations, IMorpheusQueries, IMorpheusState } from './state-interfaces';
 
 const { Operations: { BeforeProof: { BeforeProofState }, DidDocument: { DidDocumentState } } } = MorpheusTransaction;
 

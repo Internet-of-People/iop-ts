@@ -1,8 +1,8 @@
-import {unlinkSync} from "fs";
+import {unlinkSync} from 'fs';
 import {SignedMessage, Vault} from '../pkg';
-import {PersistentVault} from "../src/PersistentVault";
+import {PersistentVault} from '../src/PersistentVault';
 
-const VAULT_FILE = "vault.json";
+const VAULT_FILE = 'vault.json';
 
 describe('PersistentVault', () => {
   let vault: PersistentVault;
@@ -21,14 +21,14 @@ describe('PersistentVault', () => {
   it('is persistent', () => {
     expect(vault.dids()).toHaveLength(2);
     expect(vault.dids()).toStrictEqual(
-      ["IezbeWGSY2dqcUBqT8K7R14xr", "Iez25N5WZ1Q6TQpgpyYgiu9gTX"]
+      ['IezbeWGSY2dqcUBqT8K7R14xr', 'Iez25N5WZ1Q6TQpgpyYgiu9gTX']
     );
   });
 
   it('can validate signatures', () => {
     const message = new Uint8Array([1,2,3,4,5]);
     const didOpt = vault.activeDid();
-    expect(didOpt).toStrictEqual("Iez25N5WZ1Q6TQpgpyYgiu9gTX");
+    expect(didOpt).toStrictEqual('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
     const did = didOpt as string;
     const signedMessage = vault.sign(message, did);
     expect(signedMessage).toBeTruthy();

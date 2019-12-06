@@ -53,7 +53,7 @@ export class MorpheusTransaction extends Transactions.Transaction {
     amount: Utils.BigNumber.make(0),
     asset: { operationAttempts: [] },
     fee: Utils.BigNumber.make(0),
-    senderPublicKey: "",
+    senderPublicKey: '',
     timestamp: 0,
     type: MorpheusTransaction.type
   };

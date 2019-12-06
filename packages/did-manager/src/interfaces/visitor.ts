@@ -3,7 +3,7 @@
  * operations. The visitor pattern allows us to implement many
  * algorithms that work on the limited set of operation types.
  */
-import {Authentication, Did} from "./did-document";
+import {Authentication, Did} from './did-document';
 
 export interface IOperationVisitor<T> {
   registerBeforeProof(contentId: string): T;

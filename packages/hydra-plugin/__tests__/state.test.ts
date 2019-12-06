@@ -1,10 +1,10 @@
-import { MorpheusState } from "../src/state";
-import { IMorpheusState } from "../src/state-interfaces";
+import { MorpheusState } from '../src/state';
+import { IMorpheusState } from '../src/state-interfaces';
 
 describe('Cloneable', () => {
   it('actually works', () => {
-    const newContentId = "newContentId";
-    const oldContentId = "oldContentId";
+    const newContentId = 'newContentId';
+    const oldContentId = 'oldContentId';
 
     const oldState = new MorpheusState();
     oldState.apply.registerBeforeProof(oldContentId, 5);

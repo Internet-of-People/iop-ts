@@ -1,7 +1,7 @@
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { EventEmitter } from 'events';
-import Optional from "optional-js";
-import { MorpheusTransaction } from "@internet-of-people/did-manager";
-import { MorpheusStateHandler } from "../src/state-handler";
+import Optional from 'optional-js';
+import { MorpheusStateHandler } from '../src/state-handler';
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
@@ -9,7 +9,7 @@ describe('StateHandler', () => {
   let handler: MorpheusStateHandler;
   beforeEach(() => {
     handler = new MorpheusStateHandler({
-      appName: "state-handler-tests",
+      appName: 'state-handler-tests',
       debug: jest.fn<void, [any]>(),
       info: jest.fn<void, [any]>(),
       warn: jest.fn<void, [any]>(),

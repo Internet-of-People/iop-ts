@@ -1,8 +1,8 @@
-import { IAppLog } from "./app-log";
-import { IBlockEventSource } from "./block-event-source";
-import { BlockHandler, IBlockHandler } from "./block-handler";
-import { IInitializable } from "./main";
-import { MorpheusEvents } from "./state-interfaces";
+import { IAppLog } from './app-log';
+import { IBlockEventSource } from './block-event-source';
+import { BlockHandler, IBlockHandler } from './block-handler';
+import { IInitializable } from './main';
+import { MorpheusEvents } from './state-interfaces';
 
 export class MorpheusArkConnector implements IInitializable{
   constructor(
@@ -13,7 +13,7 @@ export class MorpheusArkConnector implements IInitializable{
   ){}
 
   public async init(): Promise<void> {
-    this.log.info(`Starting up`);
+    this.log.info('Starting up');
 
     this.blockEventSource.subscribe(BlockHandler.SUBSCRIPTION_ID, this.blockHandler);
 

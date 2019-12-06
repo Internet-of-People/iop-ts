@@ -1,5 +1,5 @@
 import { OperationType } from '../morpheus-transaction/operations/operation-type';
-import {Authentication, Did} from "./did-document";
+import {Authentication, Did} from './did-document';
 
 /**
  * Data transfer object for IOperation implementations.

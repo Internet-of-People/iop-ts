@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "typeAcquisition": {
+    "enable": true,
+    "include": ["jest-ts"]
+  }
+}

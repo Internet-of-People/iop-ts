@@ -1,5 +1,5 @@
-import { Interfaces } from "@internet-of-people/did-manager";
-import Optional from "optional-js";
+import { Interfaces } from '@internet-of-people/did-manager';
+import Optional from 'optional-js';
 
 export interface IMorpheusOperations {
   registerBeforeProof(contentId: string, height: number): void;
@@ -23,5 +23,5 @@ export interface IMorpheusQueries {
 export type IMorpheusState = Interfaces.IState<IMorpheusQueries, IMorpheusOperations>;
 
 export const enum MorpheusEvents {
-  StateCorrupted = "morpheus.state.corrupted",
+  StateCorrupted = 'morpheus.state.corrupted',
 }

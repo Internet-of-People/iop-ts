@@ -1,5 +1,5 @@
-import { Interfaces, Utils } from "@arkecosystem/crypto";
-import axios, { AxiosInstance } from "axios";
+import { Interfaces, Utils } from '@arkecosystem/crypto';
+import axios, { AxiosInstance } from 'axios';
 
 export class Api {
 

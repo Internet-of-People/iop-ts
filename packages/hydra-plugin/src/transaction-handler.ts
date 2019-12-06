@@ -1,11 +1,11 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces as CryptoIf, Transactions } from "@arkecosystem/crypto";
+import { app } from '@arkecosystem/core-container';
+import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces';
+import { Handlers } from '@arkecosystem/core-transactions';
+import { Interfaces as CryptoIf, Transactions } from '@arkecosystem/crypto';
 
-import { Interfaces, MorpheusTransaction } from "@internet-of-people/did-manager";
-import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog} from "./app-log";
-import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler } from "./state-handler";
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog} from './app-log';
+import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler } from './state-handler';
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader, TransactionReaderFactory } from './transaction-reader-factory';
 
 const { Transaction } = MorpheusTransaction;

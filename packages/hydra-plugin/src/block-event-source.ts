@@ -1,9 +1,9 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
+import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
+import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
-import { IAppLog } from "./app-log";
-import { IInitializable } from "./main";
-import { Scheduler } from "./scheduler";
+import { IAppLog } from './app-log';
+import { IInitializable } from './main';
+import { Scheduler } from './scheduler';
 
 export interface IBlockListener {
   onBlockApplied(block: CryptoIf.IBlockData): Promise<void>;
@@ -55,7 +55,7 @@ export class BlockEventSource implements IBlockEventSource {
 
   private onBlockApplied(block: CryptoIf.IBlockData): void {
     if (!block) {
-      this.log.error("BlockApplied was called without a block");
+      this.log.error('BlockApplied was called without a block');
       return;
     }
     for (const [name, listener] of this.listeners) {
@@ -65,7 +65,7 @@ export class BlockEventSource implements IBlockEventSource {
 
   private onBlockReverted(block: CryptoIf.IBlockData): void {
     if (!block) {
-      this.log.error("BlockReverted was called without a block");
+      this.log.error('BlockReverted was called without a block');
       return;
     }
     for (const [name, listener] of this.listeners) {

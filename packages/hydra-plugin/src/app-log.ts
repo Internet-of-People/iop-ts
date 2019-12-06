@@ -1,4 +1,4 @@
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Logger } from '@arkecosystem/core-interfaces';
 
 export const COMPONENT_NAME:string = 'morpheus-logger';
 

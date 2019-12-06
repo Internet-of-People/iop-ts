@@ -1,11 +1,11 @@
-import { Interfaces as CryptoIf, Utils } from "@arkecosystem/crypto";
-import { MorpheusTransaction } from "@internet-of-people/did-manager";
+import { Interfaces as CryptoIf, Utils } from '@arkecosystem/crypto';
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { EventEmitter } from 'events';
-import {IAppLog} from "../src/app-log";
-import { MorpheusArkConnector } from "../src/ark-connector";
-import {IBlockEventSource, IBlockListener} from "../src/block-event-source";
-import {BlockHandler, IBlockHandler} from "../src/block-handler";
-import { MorpheusEvents } from "../src/state-interfaces";
+import {IAppLog} from '../src/app-log';
+import { MorpheusArkConnector } from '../src/ark-connector';
+import {IBlockEventSource, IBlockListener} from '../src/block-event-source';
+import {BlockHandler, IBlockHandler} from '../src/block-handler';
+import { MorpheusEvents } from '../src/state-interfaces';
 const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTransaction;
 
 describe('ArkConnector', () => {
@@ -22,17 +22,17 @@ describe('ArkConnector', () => {
     );
   });
 
-  it('subscribes on init', () => {
+  it('subscribes on init', async () => {
     expect(fixture.blockEventSourceMock.subscribe).not.toHaveBeenCalled();
     expect(fixture.eventEmitter.listenerCount(MorpheusEvents.StateCorrupted)).toBe(0);
 
-    arkConnector.init();
+    await arkConnector.init();
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledTimes(1);
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID, fixture.blockHandler);
     expect(fixture.eventEmitter.listenerCount(MorpheusEvents.StateCorrupted)).toBe(1);
   });
-  it('unsubscribes on corrupted event', () => {
-    arkConnector.init();
+  it('unsubscribes on corrupted event', async () => {
+    await arkConnector.init();
 
     expect(fixture.blockEventSourceMock.unsubscribe).not.toHaveBeenCalled();
     fixture.eventEmitter.emit(MorpheusEvents.StateCorrupted);
@@ -42,14 +42,11 @@ describe('ArkConnector', () => {
 });
 
 class Fixture {
-  constructor() {
-    this.eventEmitter = new EventEmitter();
-  }
 
   public eventEmitter: NodeJS.EventEmitter;
 
   public logMock = {
-    appName: "ark-connector.test",
+    appName: 'ark-connector.test',
     debug: jest.fn<void, [any]>(),
     info: jest.fn<void, [any]>(),
     warn: jest.fn<void, [any]>(),
@@ -69,4 +66,7 @@ class Fixture {
     onBlockReverted: jest.fn<Promise<void>, [CryptoIf.IBlockData]>(),
   };
   public blockHandler = this.blockHandlerMock as IBlockHandler;
+  constructor() {
+    this.eventEmitter = new EventEmitter();
+  }
 }

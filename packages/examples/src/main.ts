@@ -1,9 +1,9 @@
-import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { MorpheusTransaction } from "@internet-of-people/did-manager";
-import { Api } from "./api";
-import { BeforeProofExample } from "./before-proof";
-import { TransactionSender } from "./transaction-sender";
-import { askForAddress, askForNetwork, askForPassphrase } from "./utils";
+import { Managers, Transactions, Utils } from '@arkecosystem/crypto';
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
+import { Api } from './api';
+import { BeforeProofExample } from './before-proof';
+import { TransactionSender } from './transaction-sender';
+import { askForAddress, askForNetwork, askForPassphrase } from './utils';
 
 const { Transaction } = MorpheusTransaction;
 

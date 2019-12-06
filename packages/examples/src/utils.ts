@@ -1,4 +1,4 @@
-import inquirer from "inquirer";
+import inquirer from 'inquirer';
 
 export const askForNetwork = async (): Promise<'testnet'|'devnet'|'mainnet'> => {
   const networkResult = await inquirer.prompt([{

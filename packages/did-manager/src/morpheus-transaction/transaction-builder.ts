@@ -1,5 +1,5 @@
 import { Interfaces as CryptoIf, Transactions, Utils } from '@arkecosystem/crypto';
-import {IOperationData} from "../interfaces";
+import {IOperationData} from '../interfaces';
 import * as Interfaces  from '../interfaces';
 import { MorpheusTransaction } from './transaction';
 

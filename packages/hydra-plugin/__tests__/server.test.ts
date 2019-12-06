@@ -1,8 +1,8 @@
+import { Server as HapiServer } from '@hapi/hapi';
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { EventEmitter } from 'events';
-import { Server, safePathInt } from '../src/server';
 import { IAppLog } from '../src/app-log';
-import { Server as HapiServer } from "@hapi/hapi";
-import { MorpheusTransaction } from "@internet-of-people/did-manager";
+import { safePathInt, Server } from '../src/server';
 import { MorpheusStateHandler } from '../src/state-handler';
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
@@ -12,7 +12,7 @@ let fixture: Fixture;
 describe('Server', () => {
   beforeEach(async () => {
     fixture = new Fixture();
-    const server = new Server("0.0.0.0", 4705, fixture.log, fixture.stateHandler);
+    const server = new Server('0.0.0.0', 4705, fixture.log, fixture.stateHandler);
     await server.init();
     hapiServer = server.hapiServer.orElseThrow(()=>new Error('Could not init HAPI server'));
   });
@@ -93,7 +93,7 @@ describe('safePathInt', () => {
   });
 
   it('handles null', () => {
-    expect(safePathInt(null)).toBe(undefined);
+    expect(safePathInt(null)).toBe(undefined); // tslint:disable-line no-null-keyword
   });
 
   it('handles string undefined', () => {
@@ -117,7 +117,7 @@ class Fixture {
   public emitter: NodeJS.EventEmitter = new EventEmitter();
 
   public logMock = {
-    appName: "hot-wallet-tests",
+    appName: 'hot-wallet-tests',
     debug: jest.fn<void, [any]>(),
     info: jest.fn<void, [any]>(),
     warn: jest.fn<void, [any]>(),

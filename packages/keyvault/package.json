@@ -15,7 +15,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p .",
+    "build": "npm run build:src && npm run build:test",
+    "build:src": "tsc -p . ",
+    "build:test": "tsc -p tsconfig.test.json",
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "tslint -p tsconfig.json -c ../../tslint.json --fix",
+    "lint:test": "tslint -p tsconfig.test.json -c ../../tslint.json --fix",
     "clean": "rimraf dist && rimraf node_modules",
     "test": "jest --detectOpenHandles --no-cache"
   },

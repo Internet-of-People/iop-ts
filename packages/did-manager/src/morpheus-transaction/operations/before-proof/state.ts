@@ -1,5 +1,5 @@
-import { IBeforeProofOperations, IBeforeProofQueries, IBeforeProofState } from "../../../interfaces";
-import { ITimeSeries, TimeSeries } from "../../../time-series";
+import { IBeforeProofOperations, IBeforeProofQueries, IBeforeProofState } from '../../../interfaces';
+import { ITimeSeries, TimeSeries } from '../../../time-series';
 
 export class BeforeProofState implements IBeforeProofState {
   public readonly query: IBeforeProofQueries = {

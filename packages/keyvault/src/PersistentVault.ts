@@ -1,9 +1,9 @@
-import {readFileSync, writeFileSync} from "fs";
-import {SignedMessage, Vault} from "../pkg";
+import {readFileSync, writeFileSync} from 'fs';
+import {SignedMessage, Vault} from '../pkg';
 
 export class PersistentVault {
   // TODO this probably should come from Rust with some Wasm binding
-  public static readonly DEMO_PHRASE = "include pear escape sail spy orange cute despair witness trouble sleep torch wire burst unable brass expose fiction drift clock duck oxygen aerobic already";
+  public static readonly DEMO_PHRASE = 'include pear escape sail spy orange cute despair witness trouble sleep torch wire burst unable brass expose fiction drift clock duck oxygen aerobic already';
 
   public static fromSeedPhrase(seedPhrase: string, vaultPath: string): PersistentVault {
     const vault = new Vault(seedPhrase);
@@ -16,7 +16,7 @@ export class PersistentVault {
     return new PersistentVault(vault, vaultPath);
   }
 
-  private static readonly ENCODING = "utf8";
+  private static readonly ENCODING = 'utf8';
   private readonly vault: Vault;
   private readonly path: string;
 

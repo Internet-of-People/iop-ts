@@ -1,4 +1,4 @@
-import cloneDeep from "lodash.clonedeep";
+import cloneDeep from 'lodash.clonedeep';
 import {
   Authentication,
   Did,
@@ -7,21 +7,21 @@ import {
   IDidDocumentQueries,
   IDidDocumentState,
   IKeyData
-} from "../../../interfaces";
-import { DidDocument } from "./document";
+} from '../../../interfaces';
+import { DidDocument } from './document';
 
-export const MORPHEUS_DID_PREFIX = "did:morpheus:";
-export const MULTICIPHER_KEYID_PREFIX = "i";
+export const MORPHEUS_DID_PREFIX = 'did:morpheus:';
+export const MULTICIPHER_KEYID_PREFIX = 'i';
 
 // TODO these might needed to be moved somewhere else
 export enum AuthenticationKind {
-  PublicKey = "PublicKey",
-  KeyId = "KeyId",
+  PublicKey = 'PublicKey',
+  KeyId = 'KeyId',
 }
 
 export enum CipherSuite {
-  Ed25519Key = "Ed25519",
-  Secp256k1Key = "Secp256k1",
+  Ed25519Key = 'Ed25519',
+  Secp256k1Key = 'Secp256k1',
 }
 
 interface IAuthenticationEntry {

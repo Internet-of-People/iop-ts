@@ -1,7 +1,7 @@
-import { Identities, Transactions, Utils } from "@arkecosystem/crypto";
-import { Interfaces ,MorpheusTransaction } from "@internet-of-people/did-manager";
-import { Api } from "./api";
-import { askForPassphrase } from "./utils";
+import { Identities, Transactions, Utils } from '@arkecosystem/crypto';
+import { Interfaces ,MorpheusTransaction } from '@internet-of-people/did-manager';
+import { Api } from './api';
+import { askForPassphrase } from './utils';
 
 const {
   Builder: { MorpheusTransactionBuilder }

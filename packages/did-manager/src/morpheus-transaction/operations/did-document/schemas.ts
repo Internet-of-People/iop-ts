@@ -1,4 +1,4 @@
-import {OperationType} from "../operation-type";
+import {OperationType} from '../operation-type';
 
 export const addKey = {
   type: 'object',

@@ -1,7 +1,7 @@
-import deepClone from "lodash.clonedeep";
-import Optional from "optional-js";
+import deepClone from 'lodash.clonedeep';
+import Optional from 'optional-js';
 
-import { IState } from "./interfaces";
+import { IState } from './interfaces';
 
 interface IPoint<T> {
     height: number;

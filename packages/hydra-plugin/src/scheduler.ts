@@ -1,6 +1,6 @@
-import Queue from "p-queue";
+import Queue from 'p-queue';
 
-import { IAppLog } from "./app-log";
+import { IAppLog } from './app-log';
 
 const queue = new Queue({concurrency: 1});
 

@@ -1,27 +1,28 @@
+// tslint:disable max-classes-per-file
 import { EventEmitter } from 'events';
 
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
-import { Interfaces as CryptoIf } from "@arkecosystem/crypto";
+import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
 import { IAppLog } from '../src/app-log';
 import { BlockEventSource, IBlockListener } from '../src/block-event-source';
-import { Task, Scheduler } from "../src/scheduler";
+import { Scheduler, Task } from '../src/scheduler';
 
 describe('BlockEventSource', () => {
   let fixture: Fixture;
 
   beforeEach(async () => {
     fixture = new Fixture();
-  })
+  });
 
-  it("constructor does not subscribe to emitter", () => {
+  it('constructor does not subscribe to emitter', () => {
     fixture.createSut();
 
     expect(fixture.emitter.listenerCount(ApplicationEvents.BlockApplied)).toBe(0);
     expect(fixture.emitter.listenerCount(ApplicationEvents.BlockReverted)).toBe(0);
   });
 
-  it("init subscribes to emitter", async () => {
+  it('init subscribes to emitter', async () => {
     const sut = fixture.createSut();
 
     await sut.init();
@@ -54,7 +55,7 @@ describe('BlockEventSource', () => {
 
     await sut.init();
 
-    const callOrder: Array<number> = [];
+    const callOrder: number[] = [];
 
     const listener1 = fixture.createListener();
     const listener2 = fixture.createListener();
@@ -93,7 +94,7 @@ class Fixture {
   public scheduler = new DummyScheduler();
 
   public logMock = {
-    appName: "hot-wallet-tests",
+    appName: 'hot-wallet-tests',
     debug: jest.fn<void, [any]>(),
     info: jest.fn<void, [any]>(),
     warn: jest.fn<void, [any]>(),
@@ -130,10 +131,10 @@ class DummyScheduler {
   }
 
   public dump() {
-    console.log("tasks pending: " + JSON.stringify(this.tasks.map((name,_)=>name)));
+    console.log('tasks pending: ' + JSON.stringify(this.tasks.map((name,_)=>name)));
   }
 
-  public schedule(_log: IAppLog, name: string, task: Task): void {
+  public schedule(_: IAppLog, name: string, task: Task): void {
     this.tasks.push([name, task]);
   }
 

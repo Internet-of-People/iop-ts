@@ -1,7 +1,7 @@
-import {Authentication, Did, IOperationData} from "../../interfaces";
+import {Authentication, Did, IOperationData} from '../../interfaces';
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
-import {AddKey} from "./did-document";
-import { Operation } from "./operation";
+import {AddKey} from './did-document';
+import { Operation } from './operation';
 import { toData } from './to-data';
 
 export class OperationAttemptsBuilder {
