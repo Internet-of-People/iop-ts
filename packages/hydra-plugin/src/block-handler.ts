@@ -1,26 +1,18 @@
-import { Database } from '@arkecosystem/core-interfaces';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { IAppLog } from './app-log';
+import { IBlockListener } from './block-event-source';
 import { MorpheusStateHandler } from './state-handler';
 
 const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTransaction;
 
-export interface IBlockHandler {
-  onBlockApplied(block: CryptoIf.IBlockData): Promise<void>;
-  onBlockReverted(block: CryptoIf.IBlockData): Promise<void>;
-}
-
 /**
  * Handles Morpheus custom transactions on Layer 2 (IMorpheusState)
  */
-export class BlockHandler implements IBlockHandler {
-  public static readonly SUBSCRIPTION_ID = 'Morpheus block-handler';
-
+export class BlockHandler implements IBlockListener {
   public constructor(
     private readonly stateHandler: MorpheusStateHandler,
     private readonly log: IAppLog,
-    private readonly transactions: Database.ITransactionsBusinessRepository,
   ) {}
 
   public async onBlockApplied(blockData: CryptoIf.IBlockData): Promise<void> {
@@ -33,9 +25,9 @@ export class BlockHandler implements IBlockHandler {
     this.log.debug(`onBlockApplied contains ${morpheusTxs.length} transactions.`);
     for (const transaction of morpheusTxs) {
       this.stateHandler.applyTransactionToState({
-        asset: transaction.asset as Interfaces.IMorpheusAsset,
+        asset: transaction.asset,
         blockHeight: blockData.height,
-        blockId: blockData.id!, // !, because block is already forged, hence cannot be undefined
+        blockId: blockData.id,
         transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
       });
     }
@@ -51,9 +43,9 @@ export class BlockHandler implements IBlockHandler {
     this.log.debug(`onBlockReverted contains ${morpheusTxs.length} transactions.`);
     for (const transaction of morpheusTxs) {
       this.stateHandler.revertTransactionFromState({
-        asset: transaction.asset as Interfaces.IMorpheusAsset,
+        asset: transaction.asset,
         blockHeight: blockData.height,
-        blockId: blockData.id!, // !, because block is already forged, hence cannot be undefined
+        blockId: blockData.id,
         transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
       });
     }

@@ -69,8 +69,8 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       }
       newState.apply.confirmTx(stateChange.transactionId);
       this.state = newState;
-    } catch(e){
-      this.logger.info(`Transaction could not be applied. Error: ${e.message}, TX: ${JSON.stringify(stateChange)}`);
+    } catch (e) {
+      this.logger.info(`Transaction could not be applied. Error: ${e}, TX: ${JSON.stringify(stateChange)}`);
       this.state.apply.rejectTx(stateChange.transactionId);
     }
   }
@@ -101,8 +101,8 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
           this.logger.debug('Operation reverted');
         }
       }
-    } catch(e) {
-      this.logger.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e.message}`);
+    } catch (e) {
+      this.logger.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e}`);
       this.corrupted = true;
       this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
     }

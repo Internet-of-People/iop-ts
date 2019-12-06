@@ -70,10 +70,9 @@ export class MorpheusTransaction extends Transactions.Transaction {
   }
 
   public deserialize(buffer: ByteBuffer): void {
-    let morpheusData: IMorpheusAsset;
     const length = buffer.readUint8();
     const data = buffer.readString(length);
-    morpheusData = JSON.parse(data);
+    const morpheusData = JSON.parse(data) as unknown as IMorpheusAsset;
     this.data.asset = morpheusData;
   }
 }

@@ -1,5 +1,5 @@
 import { IAppLog } from '../src/app-log';
-import { NativeScheduler } from '../src/scheduler';
+import { schedule } from '../src/scheduler';
 
 describe('Scheduler', () => {
   let fixture: Fixture;
@@ -22,8 +22,8 @@ describe('Scheduler', () => {
       res();
     });
 
-    NativeScheduler.schedule(fixture.log, 'name1', task1);
-    NativeScheduler.schedule(fixture.log, 'name2', task2);
+    schedule(fixture.log, 'name1', task1);
+    schedule(fixture.log, 'name2', task2);
 
     jest.runAllImmediates();
     jest.runAllTimers();
@@ -50,8 +50,8 @@ describe('Scheduler', () => {
       res();
     });
 
-    NativeScheduler.schedule(fixture.log, 'name1', task1);
-    NativeScheduler.schedule(fixture.log, 'name2', task2);
+    schedule(fixture.log, 'name1', task1);
+    schedule(fixture.log, 'name2', task2);
 
     jest.runAllImmediates();
     jest.advanceTimersByTime(5100);

@@ -8,26 +8,29 @@ import {OperationType} from './operation-type';
  */
 class ToDataVisitor implements IOperationVisitor<IOperationData> {
   public registerBeforeProof(contentId: string): IOperationData {
-    return {
+    const result: IRegisterBeforeProofData = {
       operation: OperationType.RegisterBeforeProof,
       contentId
-    } as IRegisterBeforeProofData;
+    };
+    return result;
   }
   
   public revokeBeforeProof(contentId: string): IOperationData {
-    return {
+    const result: IRevokeBeforeProofData = {
       operation: OperationType.RevokeBeforeProof,
       contentId
-    } as IRevokeBeforeProofData;
+    };
+    return result;
   }
 
-  public addKey(did: Did, auth: Authentication, expiresAtHeight: number | undefined): IAddKeyData {
-    return {
+  public addKey(did: Did, auth: Authentication, expiresAtHeight: number | undefined): IOperationData {
+    const result: IAddKeyData = {
       operation: OperationType.AddKey,
       did,
       auth,
       expiresAtHeight,
-    } as IAddKeyData;
+    };
+    return result;
   }
 }
 

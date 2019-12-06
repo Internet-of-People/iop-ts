@@ -1,12 +1,9 @@
-import { Interfaces as CryptoIf, Utils } from '@arkecosystem/crypto';
-import { MorpheusTransaction } from '@internet-of-people/did-manager';
+import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { EventEmitter } from 'events';
-import {IAppLog} from '../src/app-log';
+import { IAppLog} from '../src/app-log';
 import { MorpheusArkConnector } from '../src/ark-connector';
-import {IBlockEventSource, IBlockListener} from '../src/block-event-source';
-import {BlockHandler, IBlockHandler} from '../src/block-handler';
+import { IBlockEventSource, IBlockListener } from '../src/block-event-source';
 import { MorpheusEvents } from '../src/state-interfaces';
-const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTransaction;
 
 describe('ArkConnector', () => {
   let arkConnector: MorpheusArkConnector;
@@ -17,7 +14,7 @@ describe('ArkConnector', () => {
     arkConnector = new MorpheusArkConnector(
       fixture.eventEmitter,
       fixture.log,
-      fixture.blockHandler,
+      fixture.blockListener,
       fixture.blockEventSource,
     );
   });
@@ -28,7 +25,7 @@ describe('ArkConnector', () => {
 
     await arkConnector.init();
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledTimes(1);
-    expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID, fixture.blockHandler);
+    expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledWith(MorpheusArkConnector.SUBSCRIPTION_ID, fixture.blockListener);
     expect(fixture.eventEmitter.listenerCount(MorpheusEvents.StateCorrupted)).toBe(1);
   });
   it('unsubscribes on corrupted event', async () => {
@@ -37,7 +34,7 @@ describe('ArkConnector', () => {
     expect(fixture.blockEventSourceMock.unsubscribe).not.toHaveBeenCalled();
     fixture.eventEmitter.emit(MorpheusEvents.StateCorrupted);
     expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledTimes(1);
-    expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledWith(BlockHandler.SUBSCRIPTION_ID);
+    expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledWith(MorpheusArkConnector.SUBSCRIPTION_ID);
   });
 });
 
@@ -61,11 +58,11 @@ class Fixture {
   };
   public blockEventSource = this.blockEventSourceMock as IBlockEventSource;
 
-  public blockHandlerMock = {
+  public blockListenerMock = {
     onBlockApplied: jest.fn<Promise<void>, [CryptoIf.IBlockData]>(),
     onBlockReverted: jest.fn<Promise<void>, [CryptoIf.IBlockData]>(),
   };
-  public blockHandler = this.blockHandlerMock as IBlockHandler;
+  public blockListener = this.blockListenerMock as IBlockListener;
   constructor() {
     this.eventEmitter = new EventEmitter();
   }

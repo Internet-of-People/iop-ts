@@ -27,10 +27,10 @@ export class BlockEventSource implements IBlockEventSource {
   }
 
   public async init(): Promise<void> {
-    this.emitter.on(ApplicationEvents.BlockApplied, block => {
+    this.emitter.on(ApplicationEvents.BlockApplied, (block: CryptoIf.IBlockData) => {
       this.onBlockApplied(block);
     });
-    this.emitter.on(ApplicationEvents.BlockReverted, block => {
+    this.emitter.on(ApplicationEvents.BlockReverted, (block: CryptoIf.IBlockData) => {
       this.onBlockReverted(block);
     });
   }

@@ -39,7 +39,8 @@ export class Api {
 
   public async sendTx(tx: Interfaces.ITransactionJson): Promise<string> {
     console.log('Sending tx...');
-    const id = (await this.api.post('/transactions', JSON.stringify({ transactions:[tx] }))).data.data.accept;
+    const resp = await this.api.post('/transactions', JSON.stringify({ transactions:[tx] }));
+    const id = resp.data.data.accept;
     console.log(`Tx send, id: ${id}`);
     return id;
   }
@@ -51,7 +52,7 @@ export class Api {
       const nonce = Utils.BigNumber.make(resp.data.data.nonce);
       console.log(`Nonce of ${address} is ${nonce.toFixed()}`);
       return nonce;
-    } catch (ex) {
+    } catch (e) {
       console.log(`Could not get wallet for ${address}, probably a cold wallet.`);
       console.log(`Nonce of ${address} is 0`);
       return Utils.BigNumber.ZERO;
@@ -65,7 +66,7 @@ export class Api {
       const balance = Utils.BigNumber.make(resp.data.data.balance);
       console.log(`Balance of ${address} is ${balance.toFixed()}`);
       return balance;
-    } catch(e){
+    } catch (e) {
       console.log(`Could not get wallet for ${address}, probably a cold wallet.`);
       console.log(`Balance of ${address} is 0`);
       return Utils.BigNumber.ZERO;
@@ -74,6 +75,7 @@ export class Api {
 
   public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {
     console.log('Getting node crypto config...');
-    return (await this.api.get('/node/configuration/crypto')).data.data;
+    const resp = await this.api.get('/node/configuration/crypto');
+    return resp.data.data;
   }
 }

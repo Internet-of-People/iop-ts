@@ -24,7 +24,7 @@ export class TransactionSender {
       .sign(fromPassphrase)
       .build().toJson();
 
-    return await Api.get().sendTx(signedTx);
+    return Api.get().sendTx(signedTx);
   }
 
   public static async sendMorpheusTx(attempts: Interfaces.IOperationData[]): Promise<string> {
@@ -47,6 +47,6 @@ export class TransactionSender {
     unsignedTx.nonce(nonce.toFixed());
 
     const signedTx = unsignedTx.sign(passphrase).build().toJson();
-    return await Api.get().sendTx(signedTx);
+    return Api.get().sendTx(signedTx);
   }
 }

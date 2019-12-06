@@ -9,7 +9,7 @@ export class MorpheusState implements IMorpheusState {
 
   public readonly query: IMorpheusQueries = {
     isConfirmed: (transactionId: string): Optional<boolean> => {
-      return Optional.ofNullable(this.confirmedTxs[transactionId]);
+      return Optional.ofNullable(this.confirmedTxs.get(transactionId));
     },
     beforeProofExistsAt: (contentId: string, height?: number): boolean => {
       const beforeProofState = this.beforeProofs.get(contentId);
@@ -55,7 +55,7 @@ export class MorpheusState implements IMorpheusState {
         throw new Error(`Transaction ${transactionId} was rejected, hence its confirmation cannot be reverted`);
       }
 
-      delete this.confirmedTxs[transactionId];
+      this.confirmedTxs.delete(transactionId);
     },
     rejectTx: (transactionId: string): void => {
       const confirmed = this.query.isConfirmed(transactionId);
@@ -66,7 +66,7 @@ export class MorpheusState implements IMorpheusState {
         throw new Error(`Transaction ${transactionId} was confirmed, hence its rejection cannot be reverted`);
       }
 
-      delete this.confirmedTxs[transactionId];
+      this.confirmedTxs.delete(transactionId);
     },
     registerBeforeProof: (contentId: string, height: number) => {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
@@ -85,7 +85,7 @@ export class MorpheusState implements IMorpheusState {
     }
   };
 
-  private confirmedTxs: { [key: string]: boolean } = {};
+  private confirmedTxs = new Map<string, boolean>();
   private beforeProofs = new Map<string, Interfaces.IBeforeProofState>();
   private didDocuments = new Map<Interfaces.Did, Interfaces.IDidDocumentState>();
 
@@ -109,10 +109,10 @@ export class MorpheusState implements IMorpheusState {
   }
 
   private setConfirmTx(transactionId: string, value: boolean): void {
-    if(this.confirmedTxs[transactionId]) {
+    if(this.confirmedTxs.get(transactionId)) {
       throw new Error(`Transaction ${transactionId} was already confirmed.`);
     }
-    this.confirmedTxs[transactionId] = value;
+    this.confirmedTxs.set(transactionId, value);
   }
 
   private getOrCreateBeforeProof(contentId: string): Interfaces.IBeforeProofState {

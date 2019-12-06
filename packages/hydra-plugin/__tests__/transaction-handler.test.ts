@@ -20,7 +20,9 @@ describe('TransactionHandler', () => {
       fixture.createBootstrapTx({}, [])
     ]);
 
-    await txHandler.bootstrap({} as Database.IConnection, {} as State.IWalletManager);
+    const connection = {} as unknown as Database.IConnection;
+    const walletManager = {} as unknown as State.IWalletManager;
+    await txHandler.bootstrap(connection, walletManager);
 
     expect(fixture.stateHandler.applyTransactionToState).toBeCalledTimes(1);
   });
@@ -58,8 +60,8 @@ class Fixture {
       app.register(STATE_HANDLER_COMPONENT, asValue(this.stateHandler));
       app.register(READER_FACTORY_COMPONENT, asValue(async () => this.transactionReader));
       app.register(LOGGER_COMPONENT, asValue(this.log));
-    } catch (error) {
-      console.log(`Error in fixture setup: ${error.message}`);
+    } catch (e) {
+      console.log(`Error in fixture setup: ${e}`);
     }
   }
 
@@ -73,6 +75,9 @@ class Fixture {
   }
 
   public createBootstrapTx(props: Partial<Database.IBootstrapTransaction>, ops: Interfaces.IOperationData[]): Database.IBootstrapTransaction {
+    const asset: Interfaces.IMorpheusAsset = {
+      operationAttempts: [...ops]
+    };
     return {
       id: 'txId',
       version: 2,
@@ -82,7 +87,7 @@ class Fixture {
       fee: '0.2',
       amount: '4',
       vendorField: '',
-      asset: { operationAttempts: [...ops] } as Interfaces.IMorpheusAsset,
+      asset,
       blockId: 'blockId',
       blockGeneratorPublicKey: 'forger',
       blockHeight: 42,

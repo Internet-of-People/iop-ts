@@ -33,7 +33,7 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
         if (this.points.length && this.points[0].height >= height) {
           throw new Error('value was already set at that height');
         }
-        const point = {height, value} as IPoint<T>;
+        const point: IPoint<T> = { height, value };
         this.points.unshift(point);
       },
   };
