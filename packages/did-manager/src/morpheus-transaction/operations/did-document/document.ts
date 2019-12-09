@@ -1,4 +1,4 @@
-import {Authentication, IDidDocument, IDidDocumentData} from '../../../interfaces';
+import { Authentication, IDidDocument, IDidDocumentData } from '../../../interfaces';
 
 export class DidDocument implements IDidDocument {
   public constructor(private data: IDidDocumentData) {
@@ -20,4 +20,7 @@ export class DidDocument implements IDidDocument {
     return this.data; // TODO consider if we should clone here or is this OK
   }
 
+  public getHeight(): number {
+    return this.data.atHeight;
+  }
 }

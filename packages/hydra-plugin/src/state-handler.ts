@@ -37,8 +37,8 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       revokeBeforeProof: (contentId: string): void => {
         ops.revokeBeforeProof(contentId, height);
       },
-      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight: number | undefined): void => {
-        ops.addKey(did, auth, expiresAtHeight, height);
+      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
+        ops.addKey(height, did, auth, expiresAtHeight);
       }
     };
   }

@@ -42,11 +42,15 @@ const authEntryIsValidAt = (entry: IAuthenticationEntry, height: number): boolea
 };
 
 const authEntryToData = (entry: IAuthenticationEntry, height: number): IKeyData => {
-  return {
+  const data: IKeyData =  {
     auth: entry.auth,
     expired: !authEntryIsValidAt(entry, height),
-    expiresAtHeight: entry.validUntilHeight,
   };
+
+  if(entry.validUntilHeight) {
+    data.expiresAtHeight = entry.validUntilHeight;
+  }
+  return data;
 };
 
 export class DidDocumentState implements IDidDocumentState {
@@ -55,12 +59,16 @@ export class DidDocumentState implements IDidDocumentState {
     getAt: (height: number): IDidDocument => {
       const reversedKeys = this.keys.slice(0).reverse();
       const keyDatas = reversedKeys.map(key => authEntryToData(key, height));
-      return new DidDocument({keys: keyDatas});
+      return new DidDocument({ keys: keyDatas, atHeight: height });
     }
   };
 
   public readonly apply: IDidDocumentOperations = {
-    addKey: (auth: Authentication, expiresAtHeight: number | undefined, height: number): void => {
+    addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
+      if(height < 2) {
+        throw new Error('Keys cannot be added before 2');
+      }
+
       const lastEntryWithAuth = this.keys.find(entry => entry.auth === auth);
       if (lastEntryWithAuth && authEntryIsValidAt(lastEntryWithAuth, height) ) {
         throw new Error(`DID ${this.did} already has a still valid key ${auth}`);
@@ -70,7 +78,11 @@ export class DidDocumentState implements IDidDocumentState {
   };
 
   public readonly revert: IDidDocumentOperations = {
-    addKey: (auth: Authentication, expiresAtHeight: number | undefined, height: number): void => {
+    addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
+      if(height < 2) {
+        throw new Error('Keys cannot be added before 2');
+      }
+
       if (!this.keys.length) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because there are no keys`);
       }
