@@ -8,6 +8,14 @@ export interface IOperationData {
   operation: OperationType;
 }
 
+export interface ISignableOperationData extends IOperationData {}
+
+export interface ISignedOperationData extends IOperationData {
+  signable: ISignableOperationData;
+  public_key: string;
+  signature: string;
+}
+
 /**
  * Data transfer object of RegisterBeforeProof.
  */
@@ -25,7 +33,7 @@ export interface IRevokeBeforeProofData extends IOperationData {
 /**
  * Data transfer object of AddKey.
  */
-export interface IAddKeyData extends IOperationData {
+export interface IAddKeyData extends ISignableOperationData {
   did: Did;
   auth: Authentication;
   expiresAtHeight?: number;
