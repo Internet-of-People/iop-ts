@@ -1,16 +1,15 @@
-import {Authentication, Did, IOperationData} from '../../interfaces';
+import { Interfaces } from '@internet-of-people/keyvault';
+import { IOperationData, ISignedOperationsData, Operation} from '../../interfaces';
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
-import {AddKey} from './did-document';
-import { Operation } from './operation';
+import { Signed } from './signed';
+import { SignedOperationAttemptsBuilder } from './signed-operation-attempt-builder';
 import { toData } from './to-data';
-import {PersistentVault} from "@internet-of-people/keyvault";
 
 export class OperationAttemptsBuilder {
   private attempts: Operation[] = [];
-  private vault?: PersistentVault;
 
-  public withVault(vault: PersistentVault) {
-    this.vault = vault;
+  public withVault(vault: Interfaces.IVault): SignedOperationAttemptsBuilder {
+    return new SignedOperationAttemptsBuilder(this.signed.bind(this), vault);
   }
 
   public registerBeforeProof(contentId: string): OperationAttemptsBuilder {
@@ -23,12 +22,12 @@ export class OperationAttemptsBuilder {
     return this;
   }
 
-  public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): OperationAttemptsBuilder {
-    this.attempts.push(new AddKey(did, auth, expiresAtHeight));
-    return this;
-  }
-
   public getAttempts(): IOperationData[] {
     return this.attempts.map(op => toData(op));
+  }
+
+  private signed(data: ISignedOperationsData): OperationAttemptsBuilder {
+    this.attempts.push(new Signed(data));
+    return this;
   }
 }

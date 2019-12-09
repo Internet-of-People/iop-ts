@@ -1,7 +1,11 @@
 export enum OperationType {
+  Signed = 'signed',
+
   RegisterBeforeProof = 'registerBeforeProof',
   RevokeBeforeProof = 'revokeBeforeProof',
+}
 
+export enum SignableOperationType {
   AddKey = 'addKey',
   RevokeKey = 'revokeKey',
   AddRight = 'addRight',

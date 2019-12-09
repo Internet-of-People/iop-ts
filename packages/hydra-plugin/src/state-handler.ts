@@ -1,9 +1,10 @@
+import { Interfaces as KeyVaultInterfaces } from '@internet-of-people/key-vault';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { IAppLog } from './app-log';
 import { MorpheusState } from './state';
 import { IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusEvents } from './state-interfaces';
 
-const { Operations: { fromData } } = MorpheusTransaction;
+const { Operations: { fromData, Signed } } = MorpheusTransaction;
 
 export interface IStateChange {
   asset: Interfaces.IMorpheusAsset;
@@ -29,17 +30,33 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     return this.state.query;
   }
 
-  private static atHeight(height: number, ops: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
+  private atHeightSignable(height: number/*, signerAuth: Authentication*/, state: IMorpheusOperations): Interfaces.ISignableOperationVisitor<void> {
     return {
+      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
+        // TODO we must check somewhere if signer has update rights on did
+        state.addKey(height, did, auth, expiresAtHeight);
+      },
+    };
+  }
+
+  private atHeight(height: number, state: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
+    return {
+      signed: (operations: Interfaces.ISignedOperationsData/*, signerAuth: Authentication*/): void => {
+        // TODO validateSignature is a wrong name for a "getter"
+        const signableOperations = Signed.validateSignature(operations, this.vault);
+        const atHeightSignable = this.atHeightSignable(height/*, signerAuth*/, state);
+        for (const signable of signableOperations) {
+          this.logger.debug(`Applying signable operation ${signable.operation}...`);
+          signable.accept(atHeightSignable);
+          this.logger.debug('Operation applied');
+        }
+      },
       registerBeforeProof:(contentId: string): void => {
-        ops.registerBeforeProof(contentId, height);
+        state.registerBeforeProof(contentId, height);
       },
       revokeBeforeProof: (contentId: string): void => {
-        ops.revokeBeforeProof(contentId, height);
+        state.revokeBeforeProof(contentId, height);
       },
-      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
-        ops.addKey(height, did, auth, expiresAtHeight);
-      }
     };
   }
 
@@ -48,7 +65,8 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
   public constructor(
     private readonly logger: IAppLog,
-    private readonly eventEmitter: NodeJS.EventEmitter) {
+    private readonly eventEmitter: NodeJS.EventEmitter,
+    private readonly vault: KeyVaultInterfaces.IVault) {
   }
 
   public applyTransactionToState(stateChange: IStateChange): void {
@@ -60,7 +78,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     try {
       this.logger.debug(`applyTransactionToState tx: ${stateChange.transactionId}, contains ${stateChange.asset.operationAttempts.length} operations...`);
       const newState = this.state.clone();
-      const apply = MorpheusStateHandler.atHeight(stateChange.blockHeight, newState.apply);
+      const apply = this.atHeight(stateChange.blockHeight, newState.apply);
       for (const operationData of stateChange.asset.operationAttempts) {
         this.logger.debug(`Applying operation ${operationData.operation}...`);
         const operation = fromData(operationData);
@@ -93,7 +111,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       else {
         this.state.revert.confirmTx(stateChange.transactionId);
 
-        const revert = MorpheusStateHandler.atHeight(stateChange.blockHeight, this.state.revert);
+        const revert = this.atHeight(stateChange.blockHeight, this.state.revert);
         for (const operationData of stateChange.asset.operationAttempts) {
           this.logger.debug(`Reverting operation ${operationData.operation}...`);
           const operation = fromData(operationData);

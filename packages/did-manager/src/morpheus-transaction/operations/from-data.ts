@@ -1,14 +1,26 @@
-import {IAddKeyData, IOperationData, IOperationTypeVisitor,
-        IRegisterBeforeProofData, IRevokeBeforeProofData} from '../../interfaces';
+import {
+  IOperationData,
+  IOperationTypeVisitor,
+  IRegisterBeforeProofData,
+  IRevokeBeforeProofData,
+  ISignedOperationsData,
+  Operation
+} from '../../interfaces';
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
-import {AddKey} from './did-document';
-import { Operation } from './operation';
 import { visitOperation } from './visitor';
+import { Signed } from './signed';
 
 class FromData implements IOperationTypeVisitor<Operation> {
-  public constructor(private readonly data: IOperationData) {}
+  public constructor(
+    private readonly data: IOperationData
+  ) {}
 
   // TODO verify schema of params
+  public signed(): Operation {
+    const params = this.data as ISignedOperationsData;
+    return new Signed(params);
+  }
+
   public registerBeforeProof(): Operation {
     const params = this.data as IRegisterBeforeProofData;
     return new RegisterBeforeProof(params.contentId);
@@ -17,11 +29,6 @@ class FromData implements IOperationTypeVisitor<Operation> {
   public revokeBeforeProof(): Operation {
     const params = this.data as IRevokeBeforeProofData;
     return new RevokeBeforeProof(params.contentId);
-  }
-
-  public addKey(): Operation {
-    const params = this.data as IAddKeyData;
-    return new AddKey(params.did, params.auth, params.expiresAtHeight);
   }
 }
 

@@ -1,0 +1,19 @@
+import { SignableOperation, ISignableOperationData, ISignableOperationVisitor, IAddKeyData, SignableOperationType, Did, Authentication } from '../../interfaces';
+
+class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperationData> {
+  public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): ISignableOperationData {
+    const result: IAddKeyData = {
+      operation: SignableOperationType.AddKey,
+      did,
+      auth,
+    };
+    if (expiresAtHeight) {
+      result.expiresAtHeight = expiresAtHeight;
+    }
+    return result;
+  }
+}
+
+export const toSignableData = (operation: SignableOperation): ISignableOperationData => {
+  return operation.accept(new ToSignableDataVisitor());
+};

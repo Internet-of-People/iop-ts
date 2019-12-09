@@ -1,4 +1,4 @@
-import {OperationType} from '../operation-type';
+import { SignableOperationType } from '../../../interfaces';
 
 export const addKey = {
   type: 'object',
@@ -7,7 +7,7 @@ export const addKey = {
   properties: {
     operation: {
       type: 'string',
-      const: OperationType.AddKey
+      const: SignableOperationType.AddKey
     },
     did: {
       type: 'string',

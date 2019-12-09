@@ -1,4 +1,4 @@
-import { OperationType } from '../operation-type';
+import { OperationType } from '../../../interfaces';
 
 export const registerBeforeProofSchema = {
   type: 'object',

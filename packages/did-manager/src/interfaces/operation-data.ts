@@ -1,5 +1,5 @@
-import { OperationType } from '../morpheus-transaction/operations/operation-type';
 import {Authentication, Did} from './did-document';
+import { OperationType, SignableOperationType } from './operation-type';
 
 /**
  * Data transfer object for IOperation implementations.
@@ -8,11 +8,14 @@ export interface IOperationData {
   operation: OperationType;
 }
 
-export interface ISignableOperationData extends IOperationData {}
+export interface ISignableOperationData {
+  operation: SignableOperationType,
+}
 
-export interface ISignedOperationData extends IOperationData {
-  signable: ISignableOperationData;
-  public_key: string;
+export interface ISignedOperationsData extends IOperationData {
+  signables: ISignableOperationData[];
+  signerDid: string;
+  signerPublicKey: string;
   signature: string;
 }
 

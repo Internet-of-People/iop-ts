@@ -1,22 +1,35 @@
-import {Authentication, Did, IOperationData} from '../../interfaces';
-import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
-import {AddKey} from './did-document';
-import { Operation } from './operation';
-import { toData } from './to-data';
-import {OperationAttemptsBuilder} from './operation-attempts-builder'
-import { PersistentVault } from "@internet-of-people/keyvault";
+import { Interfaces } from '@internet-of-people/keyvault';
+import { Authentication, Did, ISignedOperationsData, OperationType, SignableOperation } from '../../interfaces';
+import { AddKey} from './did-document';
+import { OperationAttemptsBuilder } from './operation-attempts-builder';
+import { toSignableData } from './to-signable-data';
+import { toBytes } from '../serde';
 
-export class SignedOperationAttemptBuilder {
-  public constructor(private readonly builder: OperationAttemptsBuilder,
-                     private readonly operation: Operation,
-                     private readonly vault: PersistentVault) {
+export class SignedOperationAttemptsBuilder {
+  private signableOperations: SignableOperation[] = [];
+
+  public constructor(
+    private readonly finish: (operation: ISignedOperationsData) => OperationAttemptsBuilder,
+    private readonly vault: Interfaces.IVault,
+  ) {
   }
 
-  public sign(): OperationAttemptsBuilder {
-    let operationData = toData(this.operation);
-    let opBinary
-    sign operation;
-    add it to builder;
-    return builder;
+  public sign(did: string): OperationAttemptsBuilder {
+    const signableOperationDatas = this.signableOperations.map(toSignableData);
+    const opBytes = toBytes(signableOperationDatas);
+    const signedMessage = this.vault.sign(opBytes, did);
+    const signedOperationData: ISignedOperationsData = {
+      operation: OperationType.Signed,
+      signables: signableOperationDatas,
+      signerPublicKey: signedMessage.public_key,
+      signerDid: did,
+      signature: signedMessage.signature,
+    };
+    return this.finish(signedOperationData);
+  }
+
+  public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): SignedOperationAttemptsBuilder {
+    this.signableOperations.push(new AddKey(did, auth, expiresAtHeight));
+    return this;
   }
 }

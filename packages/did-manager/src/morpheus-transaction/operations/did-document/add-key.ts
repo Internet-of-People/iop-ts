@@ -1,8 +1,7 @@
-import {Authentication, Did, IOperationVisitor} from '../../../interfaces';
-import { Operation } from '../operation';
-import { OperationType } from '../operation-type';
+import {Authentication, Did, ISignableOperationVisitor, SignableOperationType} from '../../../interfaces';
+import { SignableOperation } from '../../../interfaces/operation';
 
-export class AddKey extends Operation {
+export class AddKey extends SignableOperation {
   public constructor(
     private readonly did: Did,
     private readonly auth: Authentication,
@@ -11,9 +10,9 @@ export class AddKey extends Operation {
     super();
   }
 
-  public get type() { return OperationType.AddKey; }
+  public get type() { return SignableOperationType.AddKey; }
 
-  public accept<T>(visitor: IOperationVisitor<T>): T {
+  public accept<T>(visitor: ISignableOperationVisitor<T>): T {
     return visitor.addKey(this.did, this.auth, this.expiresAtHeight);
   }
 }

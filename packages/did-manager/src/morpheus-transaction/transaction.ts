@@ -3,6 +3,7 @@ import ByteBuffer from 'bytebuffer';
 
 import { IMorpheusAsset, IMorpheusData } from '../interfaces';
 import { operationSchemas } from './operations';
+import { fromBuffer, toBuffer } from './serde';
 const { schemas } = Transactions;
 
 export class MorpheusTransaction extends Transactions.Transaction {
@@ -60,19 +61,11 @@ export class MorpheusTransaction extends Transactions.Transaction {
 
   public serialize(): ByteBuffer {
     const data: IMorpheusAsset = this.data.asset;
-    const jsonSer = JSON.stringify(data);
-    const jsonBytes = Buffer.from(jsonSer, 'utf8');
-    const buffer = new ByteBuffer(jsonBytes.length+1, true);
-    // TODO: serialize data using msgpack instead of just putting json in it
-    buffer.writeUint8(jsonBytes.length);
-    buffer.append(jsonBytes, 'hex');
-    return buffer;
+    return toBuffer(data);
   }
 
   public deserialize(buffer: ByteBuffer): void {
-    const length = buffer.readUint8();
-    const data = buffer.readString(length);
-    const morpheusData = JSON.parse(data) as unknown as IMorpheusAsset;
-    this.data.asset = morpheusData;
+    const data: IMorpheusAsset = fromBuffer(buffer);
+    this.data.asset = data;
   }
 }

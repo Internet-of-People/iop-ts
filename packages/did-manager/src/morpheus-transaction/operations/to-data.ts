@@ -1,12 +1,14 @@
-import {Authentication, Did, IAddKeyData, IOperationVisitor} from '../../interfaces';
-import {IOperationData, IRegisterBeforeProofData, IRevokeBeforeProofData} from '../../interfaces/operation-data';
-import {Operation} from './operation';
-import {OperationType} from './operation-type';
+import { IOperationData,IOperationVisitor, IRegisterBeforeProofData, IRevokeBeforeProofData,  ISignedOperationsData, OperationType } from '../../interfaces';
+import { Operation } from '../../interfaces/operation';
 
 /**
  * A visitor that extracts specific data objects needed to represent operations.
  */
 class ToDataVisitor implements IOperationVisitor<IOperationData> {
+  public signed(operations: ISignedOperationsData): IOperationData {
+    return operations;
+  }
+
   public registerBeforeProof(contentId: string): IOperationData {
     const result: IRegisterBeforeProofData = {
       operation: OperationType.RegisterBeforeProof,
@@ -19,16 +21,6 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
     const result: IRevokeBeforeProofData = {
       operation: OperationType.RevokeBeforeProof,
       contentId
-    };
-    return result;
-  }
-
-  public addKey(did: Did, auth: Authentication, expiresAtHeight: number | undefined): IOperationData {
-    const result: IAddKeyData = {
-      operation: OperationType.AddKey,
-      did,
-      auth,
-      expiresAtHeight,
     };
     return result;
   }

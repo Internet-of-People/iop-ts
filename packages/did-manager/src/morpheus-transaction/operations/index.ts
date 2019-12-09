@@ -2,9 +2,9 @@ import * as OperationData from '../../interfaces';
 import * as BeforeProof from './before-proof';
 import * as DidDocument from './did-document';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';
-import * as Types from './operation-type';
 import { operationSchemas } from './schemas';
 import * as Visitor from './visitor';
+import { Signed } from './signed';
 
 export * from './from-data';
 export * from './to-data';
@@ -15,6 +15,6 @@ export {
   DidDocument,
   OperationAttemptsBuilder,
   OperationData,
-  Types,
+  Signed,
   Visitor,
 };

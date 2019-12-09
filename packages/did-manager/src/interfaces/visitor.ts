@@ -3,16 +3,24 @@
  * operations. The visitor pattern allows us to implement many
  * algorithms that work on the limited set of operation types.
  */
-import {Authentication, Did} from './did-document';
+import { Authentication, Did, ISignedOperationsData } from '.';
 
 export interface IOperationVisitor<T> {
+  signed(operations: ISignedOperationsData): T;
   registerBeforeProof(contentId: string): T;
   revokeBeforeProof(contentId: string): T;
-  addKey(did: Did, auth: Authentication, expiresAtHeight: number | undefined): T;
+}
+
+export interface ISignableOperationVisitor<T> {
+  addKey(did: Did, auth: Authentication, expiresAtHeight?: number): T;
 }
 
 export interface IOperationTypeVisitor<R> {
+  signed(): R;
   registerBeforeProof(): R;
   revokeBeforeProof(): R;
+}
+
+export interface ISignableOperationTypeVisitor<R> {
   addKey(): R;
 }
