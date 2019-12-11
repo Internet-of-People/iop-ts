@@ -95,21 +95,21 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     }
   }
 
-  private atHeightSignable(height: number/*, signerAuth: Authentication*/, state: IMorpheusOperations): Interfaces.ISignableOperationVisitor<void> {
+  private atHeightSignable(height: number, signerAuth: Interfaces.Authentication, state: IMorpheusOperations): Interfaces.ISignableOperationVisitor<void> {
     return {
-      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
-        // TODO we must check somewhere if signer has update rights on did
-        state.addKey(height, did, auth, expiresAtHeight);
+      addKey: (did: Interfaces.Did, newAuth: Interfaces.Authentication, expiresAtHeight?: number): void => {
+        state.addKey(height, signerAuth, did, newAuth, expiresAtHeight);
       },
     };
   }
 
   private atHeight(height: number, state: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
     return {
-      signed: (operations: Interfaces.ISignedOperationsData/*, signerAuth: Authentication*/): void => {
+      signed: (operations: Interfaces.ISignedOperationsData): void => {
         // TODO validateSignature is a wrong name for a "getter"
-        const signableOperations = Signed.validateSignature(operations);
-        const atHeightSignable = this.atHeightSignable(height/*, signerAuth*/, state);
+        const signableOperations = Signed.getAuthenticatedOperations(operations);
+        const signerAuth = operations.signerPublicKey;
+        const atHeightSignable = this.atHeightSignable(height, signerAuth, state);
         for (const signable of signableOperations) {
           this.logger.debug(`Applying signable operation ${signable.type}...`);
           signable.accept(atHeightSignable);

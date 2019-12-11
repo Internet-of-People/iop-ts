@@ -28,7 +28,7 @@
     "@arkecosystem/core-interfaces": "^2.6.0-next.6",
     "@arkecosystem/core-transactions": "^2.6.0-next.6",
     "@arkecosystem/crypto": "^2.6.0-next.6",
-    "@internet-of-people/key-vault": "0.1.0-alpha.1",
+    "@internet-of-people/keyvault": "0.1.0-alpha.1",
     "@internet-of-people/did-manager": "0.1.0-alpha.1",
     "@hapi/boom": "^8.0.0",
     "@hapi/hapi": "^18.3.1",

@@ -1,4 +1,4 @@
-import { SignedMessage, validateSignature as kvValidateSignature } from '@internet-of-people/keyvault';
+import { SignedMessage, validateSignature } from '@internet-of-people/keyvault';
 import { IOperationVisitor, ISignedOperationsData, Operation, OperationType, SignableOperation } from '../../interfaces';
 import { toBytes } from '../serde';
 import { fromSignableData } from './from-signable-data';
@@ -7,10 +7,10 @@ export class Signed extends Operation {
 
   public get type() { return OperationType.Signed; }
 
-  public static validateSignature(data: ISignedOperationsData): SignableOperation[] {
+  public static getAuthenticatedOperations(data: ISignedOperationsData): SignableOperation[] {
     const signableBytes = toBytes(data.signables);
     const message = new SignedMessage(data.signerPublicKey, signableBytes, data.signature);
-    if (!kvValidateSignature(message, data.signerDid)) {
+    if (!validateSignature(message, data.signerDid)) {
       throw new Error('Invalid signature');
     }
     return data.signables.map(fromSignableData);

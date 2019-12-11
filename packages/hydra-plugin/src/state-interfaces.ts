@@ -5,7 +5,13 @@ export interface IMorpheusOperations {
   registerBeforeProof(contentId: string, height: number): void;
   revokeBeforeProof(contentId: string, height: number): void;
 
-  addKey(height: number, did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void;
+  addKey(
+    height: number,
+    signerAuth: Interfaces.Authentication,
+    did: Interfaces.Did,
+    newAuth: Interfaces.Authentication,
+    expiresAtHeight?: number,
+  ): void;
 
   /**
    * Marks a transaction as confirmed, all operations were valid.

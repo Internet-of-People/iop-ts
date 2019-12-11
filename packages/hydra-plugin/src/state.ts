@@ -38,9 +38,18 @@ export class MorpheusState implements IMorpheusState {
       beforeProof.apply.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
-    addKey: (height: number, did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
+    addKey: (
+      height: number,
+      signerAuth: Interfaces.Authentication,
+      did: Interfaces.Did,
+      newAuth: Interfaces.Authentication,
+      expiresAtHeight?: number,
+    ): void => {
       const state = this.getOrCreateDidDocument(did);
-      state.apply.addKey(height, auth, expiresAtHeight);
+      if (!state.query.getAt(height).canUpdateDocument(signerAuth)) {
+        throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
+      }
+      state.apply.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     }
   };
@@ -78,9 +87,18 @@ export class MorpheusState implements IMorpheusState {
       beforeProof.revert.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
-    addKey: (height: number, did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
+    addKey: (
+      height: number,
+      signerAuth: Interfaces.Authentication,
+      did: Interfaces.Did,
+      newAuth: Interfaces.Authentication,
+      expiresAtHeight?: number,
+    ): void => {
       const state = this.getOrCreateDidDocument(did);
-      state.revert.addKey(height, auth, expiresAtHeight);
+      if (!state.query.getAt(height).canUpdateDocument(signerAuth)) {
+        throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
+      }
+      state.revert.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     }
   };
