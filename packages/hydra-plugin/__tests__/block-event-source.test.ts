@@ -9,6 +9,7 @@ import { BlockEventSource, IBlockListener } from '../src/block-event-source';
 import { Scheduler, Task } from '../src/scheduler';
 
 describe('BlockEventSource', () => {
+  const block = {id:'id1'};
   let fixture: Fixture;
 
   beforeEach(async () => {
@@ -40,8 +41,6 @@ describe('BlockEventSource', () => {
 
     const listener = fixture.createListener();
     sut.subscribe('listener',listener);
-
-    const block = {id:'id1'};
 
     fixture.emitter.emit(ApplicationEvents.BlockApplied,block);
     expect(listener.onBlockApplied).not.toBeCalled();
@@ -75,8 +74,6 @@ describe('BlockEventSource', () => {
     sut.subscribe('listener2',listener2);
     sut.subscribe('listener3',listener3);
 
-    const block = {id:'id1'};
-
     fixture.emitter.emit(ApplicationEvents.BlockApplied,block);
     expect(listener1.onBlockApplied).not.toBeCalled();
     expect(listener2.onBlockApplied).not.toBeCalled();
@@ -86,7 +83,23 @@ describe('BlockEventSource', () => {
     expect(callOrder).toEqual([1,2,3]);
   });
 
-  it.todo('listener can unsubscribe');
+  it('listener can unsubscribe', async () => {
+    const sut = fixture.createSut();
+    await sut.init();
+
+    const listener = fixture.createListener();
+    sut.subscribe('listener',listener);
+
+    fixture.emitter.emit(ApplicationEvents.BlockApplied,block);
+    expect(listener.onBlockApplied).not.toBeCalled();
+    await fixture.scheduler.runAll();
+    expect(listener.onBlockApplied).toBeCalledTimes(1);
+
+    sut.unsubscribe('listener');
+    fixture.emitter.emit(ApplicationEvents.BlockApplied,block);
+    await fixture.scheduler.runAll();
+    expect(listener.onBlockApplied).toBeCalledTimes(1);
+  });
 });
 
 class Fixture {

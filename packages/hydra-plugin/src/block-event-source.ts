@@ -50,7 +50,7 @@ export class BlockEventSource implements IBlockEventSource {
       throw new Error(`${this.log.appName} BlockEventSource.unsubscribe was called without a name`);
     }
 
-    this.listeners = this.listeners.filter(([name]) => name === listenerName);
+    this.listeners = this.listeners.filter(([name]) => name !== listenerName);
   }
 
   private onBlockApplied(block: CryptoIf.IBlockData): void {

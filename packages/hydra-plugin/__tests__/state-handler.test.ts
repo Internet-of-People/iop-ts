@@ -1,4 +1,4 @@
-import { MorpheusTransaction } from '@internet-of-people/did-manager';
+import {Interfaces, MorpheusTransaction} from '@internet-of-people/did-manager';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/state-handler';
@@ -73,5 +73,22 @@ describe('StateHandler', () => {
     expect(handler.query.beforeProofExistsAt(otherContentId, undefined)).toBeFalsy();
   });
 
-  it.todo('corrupted state cannot be queried');
+  it('corrupted state cannot be queried', () => {
+    handler.applyTransactionToState({
+      asset: { operationAttempts: registrationAttempt },
+      blockHeight: 5,
+      blockId,
+      transactionId,
+    });
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+
+    handler.revertTransactionFromState({
+      asset: {operationAttempts:[]},
+      blockHeight: -1,
+      blockId: 'invalid',
+      transactionId: 'invalid'
+    });
+
+    expect(() =>handler.query).toThrowError();
+  });
 });
