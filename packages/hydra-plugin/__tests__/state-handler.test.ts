@@ -1,4 +1,5 @@
-import {Interfaces, MorpheusTransaction} from '@internet-of-people/did-manager';
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { SignedMessage, PersistentVault, Vault, Interfaces as KvInterfaces } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/state-handler';
@@ -6,6 +7,13 @@ import { MorpheusStateHandler } from '../src/state-handler';
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
 describe('StateHandler', () => {
+  const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
+  rustVault.create_id();
+  rustVault.create_id();
+  const vault: KvInterfaces.IVault = {
+    sign: (message: Uint8Array, did: string): SignedMessage => rustVault.sign(did, message)
+  };
+
   let handler: MorpheusStateHandler;
   beforeEach(() => {
     handler = new MorpheusStateHandler({
@@ -90,5 +98,55 @@ describe('StateHandler', () => {
     });
 
     expect(() =>handler.query).toThrowError();
+  });
+
+  it('authentication passes on signed operation', () => {
+    const attempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .sign('IezbeWGSY2dqcUBqT8K7R14xr')
+      .getAttempts();
+    expect(attempts[0].operation).toBe(Interfaces.OperationType.Signed);
+    handler.applyTransactionToState({
+      asset: { operationAttempts: attempts },
+      blockHeight: 5,
+      blockId,
+      transactionId,
+    });
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+  });
+
+  it('authentication fails on invalid signature', () => {
+    const attempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .sign('IezbeWGSY2dqcUBqT8K7R14xr')
+      .getAttempts();
+    const signed = attempts[0] as Interfaces.ISignedOperationsData;
+    // Note: We create an invalid, but well-formed signature with this modification
+    signed.signature = signed.signature.substring(0, signed.signature.length - 1) + 'j';
+    handler.applyTransactionToState({
+      asset: { operationAttempts: attempts },
+      blockHeight: 5,
+      blockId,
+      transactionId,
+    });
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
+  });
+
+  it.skip('default key can add new key', () => {
+    const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
+    const newKey = 'Iez25N5WZ1Q6TQpgpyYgiu9gTX';
+    const attempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .addKey(did, newKey)
+      .sign('IezbeWGSY2dqcUBqT8K7R14xr')
+      .getAttempts();
+    handler.applyTransactionToState({
+      asset: { operationAttempts: attempts },
+      blockHeight: 5,
+      blockId,
+      transactionId,
+    });
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 5).toData().keys[1].auth).toBe(newKey);
   });
 });

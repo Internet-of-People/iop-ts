@@ -57,4 +57,24 @@ describe('MorpheusState', () => {
     state.apply.registerBeforeProof(contentId, 5);
     expect( () => state.apply.registerBeforeProof(contentId, 7)).toThrowError(`Before proof ${contentId} is already registered at 7`);
   });
+
+  it.skip('default key can add new key', () => {
+    const did = 'did:morpheus:ezFoo';
+    state.apply.addKey(5, 'iezFoo', did, 'iezBar');
+
+    const keys5 = state.query.getDidDocumentAt(did, 5).toData().keys;
+    expect(keys5).toHaveLength(2);
+    expect(keys5[0].auth).toBe('iezFoo');
+    expect(keys5[1].auth).toBe('iezBar');
+
+    const keys4 = state.query.getDidDocumentAt(did, 4).toData().keys;
+    expect(keys4).toHaveLength(1);
+    expect(keys5[0].auth).toBe('iezFoo');
+  });
+
+  it('rejects add key done with unauthorized key', () => {
+    const did = 'did:morpheus:ezFoo';
+    expect(() => state.apply.addKey(5, 'iezBar', did, 'iezBar'))
+      .toThrowError('iezBar cannot update did:morpheus:ezFoo at height 5');
+  });
 });
