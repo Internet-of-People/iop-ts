@@ -7,8 +7,8 @@ import {
   Operation
 } from '../../interfaces';
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
-import { visitOperation } from './visitor';
 import { Signed } from './signed';
+import { visitOperation } from './visitor';
 
 class FromData implements IOperationTypeVisitor<Operation> {
   public constructor(

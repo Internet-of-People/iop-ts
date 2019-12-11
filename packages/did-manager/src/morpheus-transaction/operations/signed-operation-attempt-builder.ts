@@ -1,9 +1,9 @@
 import { Interfaces } from '@internet-of-people/keyvault';
 import { Authentication, Did, ISignedOperationsData, OperationType, SignableOperation } from '../../interfaces';
+import { toBytes } from '../serde';
 import { AddKey} from './did-document';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';
 import { toSignableData } from './to-signable-data';
-import { toBytes } from '../serde';
 
 export class SignedOperationAttemptsBuilder {
   private signableOperations: SignableOperation[] = [];

@@ -1,4 +1,3 @@
-import { Interfaces as KeyVaultInterfaces } from '@internet-of-people/key-vault';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { IAppLog } from './app-log';
 import { MorpheusState } from './state';
@@ -43,10 +42,10 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     return {
       signed: (operations: Interfaces.ISignedOperationsData/*, signerAuth: Authentication*/): void => {
         // TODO validateSignature is a wrong name for a "getter"
-        const signableOperations = Signed.validateSignature(operations, this.vault);
+        const signableOperations = Signed.validateSignature(operations);
         const atHeightSignable = this.atHeightSignable(height/*, signerAuth*/, state);
         for (const signable of signableOperations) {
-          this.logger.debug(`Applying signable operation ${signable.operation}...`);
+          this.logger.debug(`Applying signable operation ${signable.type}...`);
           signable.accept(atHeightSignable);
           this.logger.debug('Operation applied');
         }
@@ -66,7 +65,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
   public constructor(
     private readonly logger: IAppLog,
     private readonly eventEmitter: NodeJS.EventEmitter,
-    private readonly vault: KeyVaultInterfaces.IVault) {
+  ) {
   }
 
   public applyTransactionToState(stateChange: IStateChange): void {

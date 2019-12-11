@@ -55,5 +55,5 @@ export class Vault {
 * @param {SignedMessage} signed_message 
 * @returns {boolean} 
 */
-  validate_signature(signer_id_str: string | undefined, signed_message: SignedMessage): boolean;
+  static validate_signature(signer_id_str: string | undefined, signed_message: SignedMessage): boolean;
 }

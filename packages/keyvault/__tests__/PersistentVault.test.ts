@@ -1,6 +1,6 @@
 import {unlinkSync} from 'fs';
 import {SignedMessage, Vault} from '../pkg';
-import {PersistentVault} from '../src/PersistentVault';
+import {PersistentVault, validateSignature} from '../src';
 
 const VAULT_FILE = 'vault.json';
 
@@ -32,12 +32,12 @@ describe('PersistentVault', () => {
     const did = didOpt as string;
     const signedMessage = vault.sign(message, did);
     expect(signedMessage).toBeTruthy();
-    expect( vault.validateSignature(signedMessage, did) ).toBe(true);
-    expect( vault.validateSignature(signedMessage) ).toBe(true);
+    expect( validateSignature(signedMessage, did) ).toBe(true);
+    expect( validateSignature(signedMessage) ).toBe(true);
 
     const wrongMessage = new Uint8Array([1,2,255,4,5]);
     const wrongSignedMessage = new SignedMessage(signedMessage.public_key, wrongMessage, signedMessage.signature);
-    expect( vault.validateSignature(wrongSignedMessage, did) ).toBe(false);
+    expect( validateSignature(wrongSignedMessage, did) ).toBe(false);
   });
 
   afterAll(() => {

@@ -3,8 +3,8 @@ import * as BeforeProof from './before-proof';
 import * as DidDocument from './did-document';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';
 import { operationSchemas } from './schemas';
-import * as Visitor from './visitor';
 import { Signed } from './signed';
+import * as Visitor from './visitor';
 
 export * from './from-data';
 export * from './to-data';

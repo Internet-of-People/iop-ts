@@ -15,7 +15,7 @@ export const toBytes = <T>(data: T): Uint8Array => {
   buffer.flip();
   const bytes = Uint8Array.from(buffer.toBuffer());
   return bytes;
-}
+};
 
 export const fromBuffer = <T>(buffer: ByteBuffer): T => {
   const length = buffer.readVarint32();

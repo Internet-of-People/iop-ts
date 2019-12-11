@@ -2,6 +2,10 @@ import {readFileSync, writeFileSync} from 'fs';
 import {SignedMessage, Vault} from '../pkg';
 import * as Interfaces from './interfaces';
 
+export const validateSignature = (signedMessage: SignedMessage, did?: string): boolean => {
+  return Vault.validate_signature(did, signedMessage);
+};
+
 export class PersistentVault implements Interfaces.IVault {
   // TODO this probably should come from Rust with some Wasm binding
   public static readonly DEMO_PHRASE = 'include pear escape sail spy orange cute despair witness trouble sleep torch wire burst unable brass expose fiction drift clock duck oxygen aerobic already';
@@ -42,10 +46,6 @@ export class PersistentVault implements Interfaces.IVault {
 
   public sign(message: Uint8Array, did: string): SignedMessage {
     return this.vault.sign(did, message);
-  }
-
-  public validateSignature(signedMessage: SignedMessage, did?: string): boolean {
-    return this.vault.validate_signature(did, signedMessage);
   }
 
   private saveFile(): void {

@@ -1,4 +1,4 @@
-import { SignableOperation, ISignableOperationData, ISignableOperationVisitor, IAddKeyData, SignableOperationType, Did, Authentication } from '../../interfaces';
+import { Authentication, Did, IAddKeyData, ISignableOperationData, ISignableOperationVisitor, SignableOperation, SignableOperationType } from '../../interfaces';
 
 class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperationData> {
   public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): ISignableOperationData {

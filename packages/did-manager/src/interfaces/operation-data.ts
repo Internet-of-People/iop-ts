@@ -9,7 +9,7 @@ export interface IOperationData {
 }
 
 export interface ISignableOperationData {
-  operation: SignableOperationType,
+  operation: SignableOperationType;
 }
 
 export interface ISignedOperationsData extends IOperationData {

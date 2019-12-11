@@ -22,7 +22,6 @@ describe('OperationAttemptsBuilder', () => {
     const signMock = jest.fn<SignedMessage, [Uint8Array, string]>();
     const vault: Interfaces.IVault = {
       sign: signMock,
-      validateSignature: jest.fn<boolean, [SignedMessage, string | undefined]>(),
     };
     const expectedAddKeyData: IAddKeyData = {
       operation: SignableOperationType.AddKey,

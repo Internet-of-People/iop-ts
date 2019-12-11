@@ -1,6 +1,6 @@
-import {ISignableOperationTypeVisitor, OperationType} from "../../interfaces";
-import {Schemas as DidDocumentSchemas} from "./did-document";
-import {visitAllSignableOperationTypes} from "./visitor";
+import {ISignableOperationTypeVisitor, OperationType} from '../../interfaces';
+import {Schemas as DidDocumentSchemas} from './did-document';
+import {visitAllSignableOperationTypes} from './visitor';
 
 class SignableSchemaVisitor implements ISignableOperationTypeVisitor<unknown> {
   public addKey(): unknown {

@@ -1,5 +1,5 @@
 import {SignedMessage, Vault} from '../pkg';
-import {PersistentVault} from '../src/PersistentVault';
+import {PersistentVault, validateSignature} from '../src';
 
 describe('Vault', () => {
   it('can be serialized/deserialized', () => {
@@ -19,20 +19,5 @@ describe('Vault', () => {
     const vaultDeser = Vault.deserialize(vaultSerStr);
 
     expect(vaultDeser.profiles()).toStrictEqual(vault.profiles());
-  });
-
-  it('can validate signatures', () => {
-    const vault = new Vault(PersistentVault.DEMO_PHRASE);
-    const id = vault.create_id();
-
-    const message = new Uint8Array([1,2,3,4,5]);
-    const signedMessage = vault.sign(id, message);
-    expect(signedMessage).toBeTruthy();
-    expect( vault.validate_signature(id, signedMessage) ).toBe(true);
-    expect( vault.validate_signature(undefined, signedMessage) ).toBe(true);
-
-    const wrongMessage = new Uint8Array([1,2,255,4,5]);
-    const wrongSignedMessage = new SignedMessage(signedMessage.public_key, wrongMessage, signedMessage.signature);
-    expect( vault.validate_signature(id, wrongSignedMessage) ).toBe(false);
   });
 });

@@ -1,7 +1,7 @@
-import { ISignableOperationTypeVisitor, ISignableOperationData, IAddKeyData } from "../../interfaces";
+import { IAddKeyData, ISignableOperationData, ISignableOperationTypeVisitor } from '../../interfaces';
 import { SignableOperation } from '../../interfaces/operation';
 import { AddKey } from './did-document';
-import { visitSignableOperation } from "./visitor";
+import { visitSignableOperation } from './visitor';
 
 class FromSignableData implements ISignableOperationTypeVisitor<SignableOperation> {
   public constructor(private readonly data: ISignableOperationData) {}
@@ -14,4 +14,4 @@ class FromSignableData implements ISignableOperationTypeVisitor<SignableOperatio
 
 export const fromSignableData = (data: ISignableOperationData): SignableOperation => {
   return visitSignableOperation(data.operation, new FromSignableData(data));
-}
+};

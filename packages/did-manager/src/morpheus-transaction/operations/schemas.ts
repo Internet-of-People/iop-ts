@@ -1,7 +1,7 @@
 import {IOperationTypeVisitor } from '../../interfaces';
 import { Schemas as BeforeProofSchemas } from './before-proof';
+import {getSchema} from './signable-schemas';
 import {visitAllOperationTypes } from './visitor';
-import {getSchema} from './signable-schemas'
 
 class SchemaVisitor implements IOperationTypeVisitor<unknown> {
   public signed(): unknown {

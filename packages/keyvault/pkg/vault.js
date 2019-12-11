@@ -270,11 +270,11 @@ class Vault {
     * @param {SignedMessage} signed_message
     * @returns {boolean}
     */
-    validate_signature(signer_id_str, signed_message) {
+    static validate_signature(signer_id_str, signed_message) {
         const ptr0 = isLikeNone(signer_id_str) ? 0 : passStringToWasm(signer_id_str);
         const len0 = WASM_VECTOR_LEN;
         _assertClass(signed_message, SignedMessage);
-        const ret = wasm.vault_validate_signature(this.ptr, ptr0, len0, signed_message.ptr);
+        const ret = wasm.vault_validate_signature(ptr0, len0, signed_message.ptr);
         return ret !== 0;
     }
 }
