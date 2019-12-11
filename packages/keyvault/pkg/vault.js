@@ -20,21 +20,6 @@ function passStringToWasm(arg) {
     return ptr;
 }
 
-let cachegetUint8Memory = null;
-function getUint8Memory() {
-    if (cachegetUint8Memory === null || cachegetUint8Memory.buffer !== wasm.memory.buffer) {
-        cachegetUint8Memory = new Uint8Array(wasm.memory.buffer);
-    }
-    return cachegetUint8Memory;
-}
-
-function passArray8ToWasm(arg) {
-    const ptr = wasm.__wbindgen_malloc(arg.length * 1);
-    getUint8Memory().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
 let cachegetInt32Memory = null;
 function getInt32Memory() {
     if (cachegetInt32Memory === null || cachegetInt32Memory.buffer !== wasm.memory.buffer) {
@@ -47,12 +32,38 @@ let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true 
 
 cachedTextDecoder.decode();
 
+let cachegetUint8Memory = null;
+function getUint8Memory() {
+    if (cachegetUint8Memory === null || cachegetUint8Memory.buffer !== wasm.memory.buffer) {
+        cachegetUint8Memory = new Uint8Array(wasm.memory.buffer);
+    }
+    return cachegetUint8Memory;
+}
+
 function getStringFromWasm(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory().subarray(ptr, ptr + len));
 }
 
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
+}
+
+function passArray8ToWasm(arg) {
+    const ptr = wasm.__wbindgen_malloc(arg.length * 1);
+    getUint8Memory().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+
 function getArrayU8FromWasm(ptr, len) {
     return getUint8Memory().subarray(ptr / 1, ptr / 1 + len);
+}
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
 
 let cachegetUint32Memory = null;
@@ -95,17 +106,6 @@ function getArrayJsValueFromWasm(ptr, len) {
     return result;
 }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
-}
-
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -114,6 +114,136 @@ function addHeapObject(obj) {
     heap[idx] = obj;
     return idx;
 }
+/**
+*/
+class KeyId {
+
+    static __wrap(ptr) {
+        const obj = Object.create(KeyId.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_keyid_free(ptr);
+    }
+    /**
+    * @param {string} key_id_str
+    * @returns {KeyId}
+    */
+    constructor(key_id_str) {
+        const ret = wasm.keyid_new(passStringToWasm(key_id_str), WASM_VECTOR_LEN);
+        return KeyId.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    toString() {
+        const retptr = 8;
+        const ret = wasm.keyid_toString(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+}
+module.exports.KeyId = KeyId;
+/**
+*/
+class PublicKey {
+
+    static __wrap(ptr) {
+        const obj = Object.create(PublicKey.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_publickey_free(ptr);
+    }
+    /**
+    * @param {string} pub_key_str
+    * @returns {PublicKey}
+    */
+    constructor(pub_key_str) {
+        const ret = wasm.publickey_new(passStringToWasm(pub_key_str), WASM_VECTOR_LEN);
+        return PublicKey.__wrap(ret);
+    }
+    /**
+    * @returns {KeyId}
+    */
+    keyId() {
+        const ret = wasm.publickey_keyId(this.ptr);
+        return KeyId.__wrap(ret);
+    }
+    /**
+    * @param {KeyId} key_id
+    * @returns {boolean}
+    */
+    validateId(key_id) {
+        _assertClass(key_id, KeyId);
+        const ret = wasm.publickey_validateId(this.ptr, key_id.ptr);
+        return ret !== 0;
+    }
+    /**
+    * @returns {string}
+    */
+    toString() {
+        const retptr = 8;
+        const ret = wasm.publickey_toString(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+}
+module.exports.PublicKey = PublicKey;
+/**
+*/
+class Signature {
+
+    static __wrap(ptr) {
+        const obj = Object.create(Signature.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_signature_free(ptr);
+    }
+    /**
+    * @param {string} sign_str
+    * @returns {Signature}
+    */
+    constructor(sign_str) {
+        const ret = wasm.signature_new(passStringToWasm(sign_str), WASM_VECTOR_LEN);
+        return Signature.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    toString() {
+        const retptr = 8;
+        const ret = wasm.signature_toString(retptr, this.ptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+}
+module.exports.Signature = Signature;
 /**
 */
 class SignedMessage {
@@ -132,25 +262,23 @@ class SignedMessage {
         wasm.__wbg_signedmessage_free(ptr);
     }
     /**
-    * @param {string} public_key
+    * @param {PublicKey} public_key
     * @param {Uint8Array} message
-    * @param {string} signature
+    * @param {Signature} signature
     * @returns {SignedMessage}
     */
     constructor(public_key, message, signature) {
-        const ret = wasm.signedmessage_new(passStringToWasm(public_key), WASM_VECTOR_LEN, passArray8ToWasm(message), WASM_VECTOR_LEN, passStringToWasm(signature), WASM_VECTOR_LEN);
+        _assertClass(public_key, PublicKey);
+        _assertClass(signature, Signature);
+        const ret = wasm.signedmessage_new(public_key.ptr, passArray8ToWasm(message), WASM_VECTOR_LEN, signature.ptr);
         return SignedMessage.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * @returns {PublicKey}
     */
-    get public_key() {
-        const retptr = 8;
-        const ret = wasm.signedmessage_public_key(retptr, this.ptr);
-        const memi32 = getInt32Memory();
-        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
-        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
-        return v0;
+    get publicKey() {
+        const ret = wasm.signedmessage_publicKey(this.ptr);
+        return PublicKey.__wrap(ret);
     }
     /**
     * @returns {Uint8Array}
@@ -164,15 +292,25 @@ class SignedMessage {
         return v0;
     }
     /**
-    * @returns {string}
+    * @returns {Signature}
     */
     get signature() {
-        const retptr = 8;
-        const ret = wasm.signedmessage_signature(retptr, this.ptr);
-        const memi32 = getInt32Memory();
-        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
-        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
-        return v0;
+        const ret = wasm.signedmessage_signature(this.ptr);
+        return Signature.__wrap(ret);
+    }
+    /**
+    * @param {KeyId | undefined} signer_id_opt
+    * @returns {boolean}
+    */
+    validate(signer_id_opt) {
+        let ptr0 = 0;
+        if (!isLikeNone(signer_id_opt)) {
+            _assertClass(signer_id_opt, KeyId);
+            ptr0 = signer_id_opt.ptr;
+            signer_id_opt.ptr = 0;
+        }
+        const ret = wasm.signedmessage_validate(this.ptr, ptr0);
+        return ret !== 0;
     }
 }
 module.exports.SignedMessage = SignedMessage;
@@ -232,50 +370,28 @@ class Vault {
         return v0;
     }
     /**
-    * @returns {string}
+    * @returns {KeyId}
     */
-    active_id() {
-        const retptr = 8;
-        const ret = wasm.vault_active_id(retptr, this.ptr);
-        const memi32 = getInt32Memory();
-        let v0;
-        if (memi32[retptr / 4 + 0] !== 0) {
-            v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
-            wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
-        }
-        return v0;
+    activeId() {
+        const ret = wasm.vault_activeId(this.ptr);
+        return ret === 0 ? undefined : KeyId.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * @returns {KeyId}
     */
-    create_id() {
-        const retptr = 8;
-        const ret = wasm.vault_create_id(retptr, this.ptr);
-        const memi32 = getInt32Memory();
-        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
-        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
-        return v0;
+    createId() {
+        const ret = wasm.vault_createId(this.ptr);
+        return KeyId.__wrap(ret);
     }
     /**
-    * @param {string} id_str
+    * @param {KeyId} key_id
     * @param {Uint8Array} message
     * @returns {SignedMessage}
     */
-    sign(id_str, message) {
-        const ret = wasm.vault_sign(this.ptr, passStringToWasm(id_str), WASM_VECTOR_LEN, passArray8ToWasm(message), WASM_VECTOR_LEN);
+    sign(key_id, message) {
+        _assertClass(key_id, KeyId);
+        const ret = wasm.vault_sign(this.ptr, key_id.ptr, passArray8ToWasm(message), WASM_VECTOR_LEN);
         return SignedMessage.__wrap(ret);
-    }
-    /**
-    * @param {string | undefined} signer_id_str
-    * @param {SignedMessage} signed_message
-    * @returns {boolean}
-    */
-    static validate_signature(signer_id_str, signed_message) {
-        const ptr0 = isLikeNone(signer_id_str) ? 0 : passStringToWasm(signer_id_str);
-        const len0 = WASM_VECTOR_LEN;
-        _assertClass(signed_message, SignedMessage);
-        const ret = wasm.vault_validate_signature(ptr0, len0, signed_message.ptr);
-        return ret !== 0;
     }
 }
 module.exports.Vault = Vault;

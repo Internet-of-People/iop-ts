@@ -1,6 +1,8 @@
 import { MorpheusState } from '../src/state';
 import { IMorpheusState } from '../src/state-interfaces';
 
+import { assertStringlyEqual, defaultKeyId, did, keyId1 } from './state-handler.test';
+
 describe('Cloneable', () => {
   it('actually works', () => {
     const newContentId = 'newContentId';
@@ -58,23 +60,21 @@ describe('MorpheusState', () => {
     expect( () => state.apply.registerBeforeProof(contentId, 7)).toThrowError(`Before proof ${contentId} is already registered at 7`);
   });
 
-  it.skip('default key can add new key', () => {
-    const did = 'did:morpheus:ezFoo';
-    state.apply.addKey(5, 'iezFoo', did, 'iezBar');
+  it('default key can add new key', () => {
+    state.apply.addKey(5, defaultKeyId, did, keyId1);
 
     const keys5 = state.query.getDidDocumentAt(did, 5).toData().keys;
     expect(keys5).toHaveLength(2);
-    expect(keys5[0].auth).toBe('iezFoo');
-    expect(keys5[1].auth).toBe('iezBar');
+    assertStringlyEqual(keys5[0].auth, defaultKeyId);
+    assertStringlyEqual(keys5[1].auth, keyId1);
 
     const keys4 = state.query.getDidDocumentAt(did, 4).toData().keys;
     expect(keys4).toHaveLength(1);
-    expect(keys5[0].auth).toBe('iezFoo');
+    assertStringlyEqual(keys4[0].auth, defaultKeyId);
   });
 
   it('rejects add key done with unauthorized key', () => {
-    const did = 'did:morpheus:ezFoo';
-    expect(() => state.apply.addKey(5, 'iezBar', did, 'iezBar'))
-      .toThrowError('iezBar cannot update did:morpheus:ezFoo at height 5');
+    expect(() => state.apply.addKey(5, keyId1, did, keyId1))
+      .toThrowError('Iez25N5WZ1Q6TQpgpyYgiu9gTX cannot update did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr at height 5');
   });
 });

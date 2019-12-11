@@ -1,4 +1,4 @@
-import { Interfaces } from '@internet-of-people/keyvault';
+import {Interfaces, KeyId} from '@internet-of-people/keyvault';
 import { Authentication, Did, ISignedOperationsData, OperationType, SignableOperation } from '../../interfaces';
 import { toBytes } from '../serde';
 import { AddKey} from './did-document';
@@ -14,15 +14,14 @@ export class SignedOperationAttemptsBuilder {
   ) {
   }
 
-  public sign(did: string): OperationAttemptsBuilder {
+  public sign(keyId: KeyId): OperationAttemptsBuilder {
     const signableOperationDatas = this.signableOperations.map(toSignableData);
     const opBytes = toBytes(signableOperationDatas);
-    const signedMessage = this.vault.sign(opBytes, did);
+    const signedMessage = this.vault.sign(opBytes, keyId);
     const signedOperationData: ISignedOperationsData = {
       operation: OperationType.Signed,
       signables: signableOperationDatas,
-      signerPublicKey: signedMessage.public_key,
-      signerDid: did,
+      signerPublicKey: signedMessage.publicKey,
       signature: signedMessage.signature,
     };
     return this.finish(signedOperationData);

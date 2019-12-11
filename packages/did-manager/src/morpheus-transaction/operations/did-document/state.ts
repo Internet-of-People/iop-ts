@@ -1,3 +1,4 @@
+import {KeyId} from '@internet-of-people/keyvault';
 import cloneDeep from 'lodash.clonedeep';
 import {
   Authentication,
@@ -11,7 +12,7 @@ import {
 import { DidDocument } from './document';
 
 export const MORPHEUS_DID_PREFIX = 'did:morpheus:';
-export const MULTICIPHER_KEYID_PREFIX = 'i';
+export const MULTICIPHER_KEYID_PREFIX = 'I';
 
 // TODO these might needed to be moved somewhere else
 export enum AuthenticationKind {
@@ -34,7 +35,8 @@ interface IAuthenticationEntry {
 }
 
 export const didToAuth = (did: Did): Authentication => {
-  return did.replace(new RegExp(`^${MORPHEUS_DID_PREFIX}`), MULTICIPHER_KEYID_PREFIX);
+  const keyId = did.replace(new RegExp(`^${MORPHEUS_DID_PREFIX}`), MULTICIPHER_KEYID_PREFIX);
+  return new KeyId(keyId);
 };
 
 const authEntryIsValidAt = (entry: IAuthenticationEntry, height: number): boolean => {
@@ -58,8 +60,10 @@ export class DidDocumentState implements IDidDocumentState {
   public readonly query: IDidDocumentQueries = {
     getAt: (height: number): IDidDocument => {
       const reversedKeys = this.keys.slice(0).reverse();
-      const keyDatas = reversedKeys.map(key => authEntryToData(key, height));
-      return new DidDocument({ keys: keyDatas, atHeight: height });
+      const keyDatas = reversedKeys
+        .filter(key => (key.validFromHeight || 0) <= height)
+        .map(key => authEntryToData(key, height));
+      return new DidDocument({ did: this.did, keys: keyDatas, atHeight: height });
     }
   };
 

@@ -1,3 +1,4 @@
+import {PublicKey, Signature} from '@internet-of-people/keyvault';
 import {Authentication, Did} from './did-document';
 import { OperationType, SignableOperationType } from './operation-type';
 
@@ -14,9 +15,8 @@ export interface ISignableOperationData {
 
 export interface ISignedOperationsData extends IOperationData {
   signables: ISignableOperationData[];
-  signerDid: string;
-  signerPublicKey: string;
-  signature: string;
+  signerPublicKey: PublicKey;
+  signature: Signature;
 }
 
 /**

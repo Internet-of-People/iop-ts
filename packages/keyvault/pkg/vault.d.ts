@@ -1,18 +1,74 @@
 /* tslint:disable */
 /**
 */
+export class KeyId {
+  free(): void;
+/**
+* @param {string} key_id_str 
+* @returns {KeyId} 
+*/
+  constructor(key_id_str: string);
+/**
+* @returns {string} 
+*/
+  toString(): string;
+}
+/**
+*/
+export class PublicKey {
+  free(): void;
+/**
+* @param {string} pub_key_str 
+* @returns {PublicKey} 
+*/
+  constructor(pub_key_str: string);
+/**
+* @returns {KeyId} 
+*/
+  keyId(): KeyId;
+/**
+* @param {KeyId} key_id 
+* @returns {boolean} 
+*/
+  validateId(key_id: KeyId): boolean;
+/**
+* @returns {string} 
+*/
+  toString(): string;
+}
+/**
+*/
+export class Signature {
+  free(): void;
+/**
+* @param {string} sign_str 
+* @returns {Signature} 
+*/
+  constructor(sign_str: string);
+/**
+* @returns {string} 
+*/
+  toString(): string;
+}
+/**
+*/
 export class SignedMessage {
   free(): void;
 /**
-* @param {string} public_key 
+* @param {PublicKey} public_key 
 * @param {Uint8Array} message 
-* @param {string} signature 
+* @param {Signature} signature 
 * @returns {SignedMessage} 
 */
-  constructor(public_key: string, message: Uint8Array, signature: string);
+  constructor(public_key: PublicKey, message: Uint8Array, signature: Signature);
+/**
+* @param {KeyId | undefined} signer_id_opt 
+* @returns {boolean} 
+*/
+  validate(signer_id_opt?: KeyId): boolean;
   readonly message: Uint8Array;
-  readonly public_key: string;
-  readonly signature: string;
+  readonly publicKey: PublicKey;
+  readonly signature: Signature;
 }
 /**
 */
@@ -37,23 +93,17 @@ export class Vault {
 */
   profiles(): any[];
 /**
-* @returns {string} 
+* @returns {KeyId} 
 */
-  active_id(): string | undefined;
+  activeId(): KeyId | undefined;
 /**
-* @returns {string} 
+* @returns {KeyId} 
 */
-  create_id(): string;
+  createId(): KeyId;
 /**
-* @param {string} id_str 
+* @param {KeyId} key_id 
 * @param {Uint8Array} message 
 * @returns {SignedMessage} 
 */
-  sign(id_str: string, message: Uint8Array): SignedMessage;
-/**
-* @param {string | undefined} signer_id_str 
-* @param {SignedMessage} signed_message 
-* @returns {boolean} 
-*/
-  static validate_signature(signer_id_str: string | undefined, signed_message: SignedMessage): boolean;
+  sign(key_id: KeyId, message: Uint8Array): SignedMessage;
 }

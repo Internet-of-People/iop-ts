@@ -1,11 +1,13 @@
-import { SignedMessage, Vault } from '../pkg';
+import { KeyId, PublicKey, Signature, SignedMessage, Vault } from '../pkg';
 import * as Interfaces from './interfaces';
-import { PersistentVault, validateSignature } from './PersistentVault';
+import { PersistentVault } from './PersistentVault';
 
 export {
   Interfaces,
+  KeyId,
   PersistentVault,
+  PublicKey,
+  Signature,
   SignedMessage,
   Vault,
-  validateSignature,
 };

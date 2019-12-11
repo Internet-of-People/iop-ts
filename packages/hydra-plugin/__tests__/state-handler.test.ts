@@ -1,17 +1,29 @@
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { SignedMessage, PersistentVault, Vault, Interfaces as KvInterfaces } from '@internet-of-people/keyvault';
+import { Interfaces as KvInterfaces, KeyId, PersistentVault, Signature, SignedMessage, Vault } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/state-handler';
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
+export const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
+export const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
+export const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
+
+export interface IToString {
+  toString(): string;
+}
+
+export const assertStringlyEqual = (actual: IToString, expected: IToString): void => {
+  expect(actual.toString()).toStrictEqual(expected.toString());
+};
+
 describe('StateHandler', () => {
   const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
-  rustVault.create_id();
-  rustVault.create_id();
+  rustVault.createId();
+  rustVault.createId();
   const vault: KvInterfaces.IVault = {
-    sign: (message: Uint8Array, did: string): SignedMessage => rustVault.sign(did, message)
+    sign: (message: Uint8Array, keyId: KeyId): SignedMessage => rustVault.sign(keyId, message)
   };
 
   let handler: MorpheusStateHandler;
@@ -103,7 +115,7 @@ describe('StateHandler', () => {
   it('authentication passes on signed operation', () => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
-      .sign('IezbeWGSY2dqcUBqT8K7R14xr')
+      .sign(defaultKeyId)
       .getAttempts();
     expect(attempts[0].operation).toBe(Interfaces.OperationType.Signed);
     handler.applyTransactionToState({
@@ -118,11 +130,11 @@ describe('StateHandler', () => {
   it('authentication fails on invalid signature', () => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
-      .sign('IezbeWGSY2dqcUBqT8K7R14xr')
+      .sign(defaultKeyId)
       .getAttempts();
     const signed = attempts[0] as Interfaces.ISignedOperationsData;
-    // Note: We create an invalid, but well-formed signature with this modification
-    signed.signature = signed.signature.substring(0, signed.signature.length - 1) + 'j';
+    const invalidSignature = 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4';
+    signed.signature = new Signature(invalidSignature);
     handler.applyTransactionToState({
       asset: { operationAttempts: attempts },
       blockHeight: 5,
@@ -132,13 +144,11 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
   });
 
-  it.skip('default key can add new key', () => {
-    const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-    const newKey = 'Iez25N5WZ1Q6TQpgpyYgiu9gTX';
+  it('default key can add new key', () => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
-      .addKey(did, newKey)
-      .sign('IezbeWGSY2dqcUBqT8K7R14xr')
+      .addKey(did, keyId1)
+      .sign(defaultKeyId)
       .getAttempts();
     handler.applyTransactionToState({
       asset: { operationAttempts: attempts },
@@ -147,6 +157,6 @@ describe('StateHandler', () => {
       transactionId,
     });
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
-    expect(handler.query.getDidDocumentAt(did, 5).toData().keys[1].auth).toBe(newKey);
+    assertStringlyEqual(handler.query.getDidDocumentAt(did, 5).toData().keys[1].auth, keyId1);
   });
 });

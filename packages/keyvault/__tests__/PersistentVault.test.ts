@@ -1,6 +1,6 @@
 import {unlinkSync} from 'fs';
-import {SignedMessage, Vault} from '../pkg';
-import {PersistentVault, validateSignature} from '../src';
+import {KeyId, SignedMessage, Vault} from '../pkg';
+import {PersistentVault} from '../src';
 
 const VAULT_FILE = 'vault.json';
 
@@ -10,8 +10,8 @@ describe('PersistentVault', () => {
   beforeAll( () => {
     const inMemoryVault = new Vault(PersistentVault.DEMO_PHRASE);
     vault = new PersistentVault(inMemoryVault, VAULT_FILE);
-    vault.createDid();
-    vault.createDid();
+    vault.createId();
+    vault.createId();
   });
 
   beforeEach( () => {
@@ -19,25 +19,26 @@ describe('PersistentVault', () => {
   });
 
   it('is persistent', () => {
-    expect(vault.dids()).toHaveLength(2);
-    expect(vault.dids()).toStrictEqual(
+    expect(vault.ids()).toHaveLength(2);
+    expect(vault.ids()).toStrictEqual(
       ['IezbeWGSY2dqcUBqT8K7R14xr', 'Iez25N5WZ1Q6TQpgpyYgiu9gTX']
     );
   });
 
   it('can validate signatures', () => {
     const message = new Uint8Array([1,2,3,4,5]);
-    const didOpt = vault.activeDid();
-    expect(didOpt).toStrictEqual('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
-    const did = didOpt as string;
-    const signedMessage = vault.sign(message, did);
+    const idOpt = vault.activeId();
+    expect(idOpt).toBeTruthy();
+    const id = idOpt as KeyId;
+    expect(id.toString()).toStrictEqual('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
+    const signedMessage = vault.sign(message, id);
     expect(signedMessage).toBeTruthy();
-    expect( validateSignature(signedMessage, did) ).toBe(true);
-    expect( validateSignature(signedMessage) ).toBe(true);
+    expect( signedMessage.validate(id) ).toBe(true);
+    expect( signedMessage.validate() ).toBe(true);
 
     const wrongMessage = new Uint8Array([1,2,255,4,5]);
-    const wrongSignedMessage = new SignedMessage(signedMessage.public_key, wrongMessage, signedMessage.signature);
-    expect( validateSignature(wrongSignedMessage, did) ).toBe(false);
+    const wrongSignedMessage = new SignedMessage(signedMessage.publicKey, wrongMessage, signedMessage.signature);
+    expect( wrongSignedMessage.validate(id) ).toBe(false);
   });
 
   afterAll(() => {

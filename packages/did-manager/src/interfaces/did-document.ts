@@ -1,8 +1,7 @@
+import {KeyId, PublicKey} from '@internet-of-people/keyvault';
 import { IState } from './state';
 
 export type Did = string;
-export type KeyId = string;
-export type PublicKey = string;
 export type Authentication = KeyId | PublicKey;
 
 export interface IKeyData {
@@ -15,6 +14,7 @@ export interface IKeyData {
 // https://iop-stack.gitlab.iop-ventures.com/dids-and-claims/specification/#/glossary?id=did-document
 // or create a DTO for it
 export interface IDidDocumentData {
+  did: Did;
   keys: IKeyData[];
   atHeight: number;
 }

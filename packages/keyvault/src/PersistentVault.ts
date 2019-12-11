@@ -1,10 +1,7 @@
 import {readFileSync, writeFileSync} from 'fs';
-import {SignedMessage, Vault} from '../pkg';
+import {KeyId, SignedMessage, Vault} from '../pkg';
 import * as Interfaces from './interfaces';
 
-export const validateSignature = (signedMessage: SignedMessage, did?: string): boolean => {
-  return Vault.validate_signature(did, signedMessage);
-};
 
 export class PersistentVault implements Interfaces.IVault {
   // TODO this probably should come from Rust with some Wasm binding
@@ -30,22 +27,22 @@ export class PersistentVault implements Interfaces.IVault {
     this.path = vaultPath;
   }
 
-  public activeDid(): string | undefined {
-    return this.vault.active_id();
+  public activeId(): KeyId | undefined {
+    return this.vault.activeId();
   }
 
-  public createDid(): string {
-    const did = this.vault.create_id();
+  public createId(): KeyId {
+    const id = this.vault.createId();
     this.saveFile();
-    return did;
+    return id;
   }
 
-  public dids(): string[] {
+  public ids(): KeyId[] {
     return this.vault.profiles();
   }
 
-  public sign(message: Uint8Array, did: string): SignedMessage {
-    return this.vault.sign(did, message);
+  public sign(message: Uint8Array, id: KeyId): SignedMessage {
+    return this.vault.sign(id, message);
   }
 
   private saveFile(): void {
