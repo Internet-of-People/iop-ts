@@ -5,5 +5,6 @@ export * from './did-document';
 export * from './operation-data';
 export * from './operation-type';
 export * from './operation';
+export * from './signable-operation';
 export * from './state';
 export * from './visitor';

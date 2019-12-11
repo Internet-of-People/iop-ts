@@ -1,5 +1,10 @@
-import {Authentication, Did, ISignableOperationVisitor, SignableOperationType} from '../../../interfaces';
-import { SignableOperation } from '../../../interfaces/operation';
+import {
+  Authentication,
+  Did,
+  ISignableOperationVisitor,
+  SignableOperation,
+  SignableOperationType,
+} from '../../../interfaces';
 
 export class AddKey extends SignableOperation {
   public constructor(

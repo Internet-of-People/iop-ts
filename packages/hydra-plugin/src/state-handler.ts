@@ -29,36 +29,6 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     return this.state.query;
   }
 
-  private atHeightSignable(height: number/*, signerAuth: Authentication*/, state: IMorpheusOperations): Interfaces.ISignableOperationVisitor<void> {
-    return {
-      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
-        // TODO we must check somewhere if signer has update rights on did
-        state.addKey(height, did, auth, expiresAtHeight);
-      },
-    };
-  }
-
-  private atHeight(height: number, state: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
-    return {
-      signed: (operations: Interfaces.ISignedOperationsData/*, signerAuth: Authentication*/): void => {
-        // TODO validateSignature is a wrong name for a "getter"
-        const signableOperations = Signed.validateSignature(operations);
-        const atHeightSignable = this.atHeightSignable(height/*, signerAuth*/, state);
-        for (const signable of signableOperations) {
-          this.logger.debug(`Applying signable operation ${signable.type}...`);
-          signable.accept(atHeightSignable);
-          this.logger.debug('Operation applied');
-        }
-      },
-      registerBeforeProof:(contentId: string): void => {
-        state.registerBeforeProof(contentId, height);
-      },
-      revokeBeforeProof: (contentId: string): void => {
-        state.revokeBeforeProof(contentId, height);
-      },
-    };
-  }
-
   private state: IMorpheusState = new MorpheusState();
   private corrupted: boolean = false;
 
@@ -123,5 +93,35 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       this.corrupted = true;
       this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
     }
+  }
+
+  private atHeightSignable(height: number/*, signerAuth: Authentication*/, state: IMorpheusOperations): Interfaces.ISignableOperationVisitor<void> {
+    return {
+      addKey: (did: Interfaces.Did, auth: Interfaces.Authentication, expiresAtHeight?: number): void => {
+        // TODO we must check somewhere if signer has update rights on did
+        state.addKey(height, did, auth, expiresAtHeight);
+      },
+    };
+  }
+
+  private atHeight(height: number, state: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
+    return {
+      signed: (operations: Interfaces.ISignedOperationsData/*, signerAuth: Authentication*/): void => {
+        // TODO validateSignature is a wrong name for a "getter"
+        const signableOperations = Signed.validateSignature(operations);
+        const atHeightSignable = this.atHeightSignable(height/*, signerAuth*/, state);
+        for (const signable of signableOperations) {
+          this.logger.debug(`Applying signable operation ${signable.type}...`);
+          signable.accept(atHeightSignable);
+          this.logger.debug('Operation applied');
+        }
+      },
+      registerBeforeProof:(contentId: string): void => {
+        state.registerBeforeProof(contentId, height);
+      },
+      revokeBeforeProof: (contentId: string): void => {
+        state.revokeBeforeProof(contentId, height);
+      },
+    };
   }
 }

@@ -1,9 +1,8 @@
 import { OperationType } from '../../../interfaces';
 
 export const registerBeforeProofSchema = {
-  type: 'object',
   required: ['operation', 'contentId'],
-  additionalProperties: false,
+  // additionalProperties: false, TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
       type: 'string',
@@ -16,9 +15,8 @@ export const registerBeforeProofSchema = {
 };
 
 export const revokeBeforeProofSchema = {
-  type: 'object',
   required: ['operation', 'contentId'],
-  additionalProperties: false,
+  // additionalProperties: false, TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
       type: 'string',

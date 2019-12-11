@@ -1,5 +1,5 @@
 import { IOperationVisitor, OperationType } from '../../../interfaces';
-import { Operation } from '../../../interfaces/operation';
+import { Operation } from '../../../interfaces';
 
 export class RegisterBeforeProof extends Operation {
   public constructor(public readonly contentId: string) {

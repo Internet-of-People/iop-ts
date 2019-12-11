@@ -1,5 +1,4 @@
-import { IAddKeyData, ISignableOperationData, ISignableOperationTypeVisitor } from '../../interfaces';
-import { SignableOperation } from '../../interfaces/operation';
+import { IAddKeyData, ISignableOperationData, ISignableOperationTypeVisitor, SignableOperation } from '../../interfaces';
 import { AddKey } from './did-document';
 import { visitSignableOperation } from './visitor';
 

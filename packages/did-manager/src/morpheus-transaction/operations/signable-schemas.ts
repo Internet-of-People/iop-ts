@@ -12,9 +12,8 @@ export const signableOperationSchemas = (): any[] => visitAllSignableOperationTy
 
 export const getSchema = (): unknown => {
   return {
-    type: 'object',
     required: ['operation', 'publicKey', 'signature', 'signables'],
-    additionalProperties: false,
+    // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
     properties: {
       operation: {
         type: 'string',

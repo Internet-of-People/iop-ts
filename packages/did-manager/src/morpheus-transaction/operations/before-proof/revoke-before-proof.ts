@@ -1,5 +1,4 @@
-import { IOperationVisitor, ISignedOperationsData, OperationType } from '../../../interfaces';
-import { Operation } from '../../../interfaces/operation';
+import { IOperationVisitor, Operation, OperationType } from '../../../interfaces';
 
 export class RevokeBeforeProof extends Operation {
   public constructor(public readonly contentId: string) {

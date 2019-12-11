@@ -33,7 +33,6 @@ export class MorpheusTransaction extends Transactions.Transaction {
         typeGroup: { const: this.typeGroup, },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
-          type: 'object',
           required: ['operationAttempts'],
           additionalProperties: false,
           properties: {

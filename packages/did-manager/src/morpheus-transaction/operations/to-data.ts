@@ -1,5 +1,12 @@
-import { IOperationData,IOperationVisitor, IRegisterBeforeProofData, IRevokeBeforeProofData,  ISignedOperationsData, OperationType } from '../../interfaces';
-import { Operation } from '../../interfaces/operation';
+import {
+  IOperationData,
+  IOperationVisitor,
+  IRegisterBeforeProofData,
+  IRevokeBeforeProofData,
+  ISignedOperationsData,
+  Operation,
+  OperationType,
+} from '../../interfaces';
 
 /**
  * A visitor that extracts specific data objects needed to represent operations.
@@ -16,7 +23,7 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
     };
     return result;
   }
-  
+
   public revokeBeforeProof(contentId: string): IOperationData {
     const result: IRevokeBeforeProofData = {
       operation: OperationType.RevokeBeforeProof,

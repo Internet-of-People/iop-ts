@@ -1,4 +1,4 @@
-import { Interfaces, SignedMessage, validateSignature as kvValidateSignature } from '@internet-of-people/keyvault';
+import { SignedMessage, validateSignature as kvValidateSignature } from '@internet-of-people/keyvault';
 import { IOperationVisitor, ISignedOperationsData, Operation, OperationType, SignableOperation } from '../../interfaces';
 import { toBytes } from '../serde';
 import { fromSignableData } from './from-signable-data';
