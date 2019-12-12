@@ -106,7 +106,6 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
   private atHeight(height: number, state: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
     return {
       signed: (operations: Interfaces.ISignedOperationsData): void => {
-        // TODO validateSignature is a wrong name for a "getter"
         const signableOperations = Signed.getAuthenticatedOperations(operations);
         const signerAuth = operations.signerPublicKey;
         const atHeightSignable = this.atHeightSignable(height, signerAuth, state);

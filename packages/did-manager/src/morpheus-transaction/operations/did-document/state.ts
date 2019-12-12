@@ -98,15 +98,20 @@ export class DidDocumentState implements IDidDocumentState {
         throw new Error('Keys cannot be added before 2');
       }
 
-      const lastEntryWithAuth = this.keys.find(entry => isSameAuthentication(entry.auth, auth));
-      if (lastEntryWithAuth && entryIsValidAt(lastEntryWithAuth, height) ) {
-        throw new Error(`DID ${this.did} already has a still valid key ${auth}`);
+      const entryPresent = this.lastEntryWithAuth(auth);
+      if (entryPresent && entryIsValidAt(entryPresent, height) ) {
+        throw new Error(`DID ${this.did} already has a still valid key matching ${auth}`);
       }
       const rights = initialRights(false);
       this.keys.unshift( {auth, rights, validFromHeight: height, validUntilHeight: expiresAtHeight});
     },
     addRight: (height: number, auth: Authentication, right: Right): void => {
-      // TODO
+      const entry = this.lastEntryWithAuth(auth);
+      if (!entry || !entryIsValidAt(entry, height)) {
+        throw new Error(`DID ${this.did} has no valid key matching ${auth}`);
+      }
+      const rightHistory = entry.rights.get(right)!;
+      rightHistory.apply.set(height, true);
     }
   };
 
@@ -120,6 +125,8 @@ export class DidDocumentState implements IDidDocumentState {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because there are no keys`);
       }
       const lastKey = this.keys[0];
+      // NOTE intentionally does not use isSameAuthentication() and entryIsValidAt() because
+      //      exact types and values are already known here
       if (lastKey.auth !== auth) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because the key does not match the last added one.`);
       }
@@ -132,7 +139,12 @@ export class DidDocumentState implements IDidDocumentState {
       this.keys.shift();
     },
     addRight: (height: number, auth: Authentication, right: Right): void => {
-      // TODO
+      const entry = this.lastEntryWithAuth(auth);
+      if (!entry || !entryIsValidAt(entry, height)) {
+        throw new Error(`DID ${this.did} has no valid key matching ${auth}`);
+      }
+      const rightHistory = entry.rights.get(right)!;
+      rightHistory.revert.set(height, true);
     }
   };
 
@@ -154,5 +166,9 @@ export class DidDocumentState implements IDidDocumentState {
     const result = new DidDocumentState(this.did);
     result.keys = cloneDeep(this.keys);
     return result;
+  }
+
+  private lastEntryWithAuth(auth: Authentication): IEntry | undefined {
+    return this.keys.find(entry => isSameAuthentication(entry.auth, auth));
   }
 }
