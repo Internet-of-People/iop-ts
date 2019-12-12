@@ -46,7 +46,7 @@ export class MorpheusState implements IMorpheusState {
       expiresAtHeight?: number,
     ): void => {
       const state = this.getOrCreateDidDocument(did);
-      if (!state.query.getAt(height).canUpdateDocument(signerAuth)) {
+      if (!state.query.getAt(height).hasRight(signerAuth, Interfaces.Right.Update)) {
         throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
       }
       state.apply.addKey(height, newAuth, expiresAtHeight);
@@ -95,7 +95,7 @@ export class MorpheusState implements IMorpheusState {
       expiresAtHeight?: number,
     ): void => {
       const state = this.getOrCreateDidDocument(did);
-      if (!state.query.getAt(height).canUpdateDocument(signerAuth)) {
+      if (!state.query.getAt(height).hasRight(signerAuth, Interfaces.Right.Update)) {
         throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
       }
       state.revert.addKey(height, newAuth, expiresAtHeight);

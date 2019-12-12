@@ -1,8 +1,40 @@
-import {KeyId, PublicKey} from '@internet-of-people/keyvault';
+import { KeyId, PublicKey } from '@internet-of-people/keyvault';
 import { IState } from './state';
 
 export type Did = string;
 export type Authentication = KeyId | PublicKey;
+
+export const isSameAuthentication = (left: Authentication, right: Authentication): boolean => {
+  // NOTE ugly implementation of double dispatch for both params
+  if (left instanceof PublicKey) {
+    if (right instanceof KeyId) {
+      return left.validateId(right);
+    }
+    else {
+      return left.toString() === right.toString();
+    }
+  }
+  else {
+    if (right instanceof KeyId) {
+      return left.toString() === right.toString();
+    }
+    else {
+      return right.validateId(left);
+    }
+  }
+};
+
+export const MORPHEUS_DID_PREFIX = 'did:morpheus:';
+export const MULTICIPHER_KEYID_PREFIX = 'I';
+export const didToAuth = (did: Did): Authentication => {
+  const keyId = did.replace(new RegExp(`^${MORPHEUS_DID_PREFIX}`), MULTICIPHER_KEYID_PREFIX);
+  return new KeyId(keyId);
+};
+
+export enum Right {
+  Impersonate = 'impersonate',
+  Update = 'update',
+}
 
 export interface IKeyData {
   auth: Authentication;
@@ -16,13 +48,15 @@ export interface IKeyData {
 export interface IDidDocumentData {
   did: Did;
   keys: IKeyData[];
+  rights: Map<Right, number[]>;
   atHeight: number;
 }
 
 export interface IDidDocument {
-  getHeight(): number;
-  canImpersonate(auth: Authentication): boolean;
-  canUpdateDocument(auth: Authentication): boolean;
+  readonly height: number;
+  readonly did: Did;
+
+  hasRight(auth: Authentication, right: Right): boolean;
 
   toData(): IDidDocumentData;
   fromData(data: IDidDocumentData): void;
@@ -34,6 +68,7 @@ export interface IDidDocumentQueries {
 
 export interface IDidDocumentOperations {
   addKey(height: number, auth: Authentication, expiresAtHeight?: number): void;
+  addRight(height: number, auth: Authentication, right: Right): void;
 }
 
 export type IDidDocumentState = IState<IDidDocumentQueries, IDidDocumentOperations>;

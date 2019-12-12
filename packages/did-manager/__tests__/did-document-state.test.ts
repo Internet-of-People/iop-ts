@@ -1,5 +1,6 @@
 import { KeyId } from '@internet-of-people/keyvault';
 import * as Interfaces from '../src/interfaces';
+import { didToAuth } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 const { DidDocument } = Operations;
 
@@ -27,7 +28,7 @@ export const assertEqualAuthEntries = (actual: Interfaces.IKeyData[], expected: 
 
 describe('Relation of DID and KeyId', () => {
   it('did can be converted to auth string', () => {
-    assertStringlyEqual(DidDocument.didToAuth(did), defaultKeyId);
+    assertStringlyEqual(didToAuth(did), defaultKeyId);
   });
 });
 
@@ -40,10 +41,10 @@ describe('DidDocumentState', () => {
 
   it('can query implicit document', () => {
     const didDoc = didState.query.getAt(1);
-    expect(didDoc.getHeight()).toBe(1);
+    expect(didDoc.height).toBe(1);
+    expect(didDoc.did).toBe(did);
 
     const didData = didDoc.toData();
-    expect(didData.atHeight).toBe(1);
     assertEqualAuthEntries(didData.keys, [
       { auth: defaultKeyId, expired: false, }
     ]);
@@ -57,8 +58,8 @@ describe('DidDocumentState', () => {
 
   it('can add keys', () => {
     const stateAtHeight1 = didState.query.getAt(1);
-    expect(stateAtHeight1.getHeight()).toBe(1);
-    expect(stateAtHeight1.toData().atHeight).toBe(1);
+    expect(stateAtHeight1.height).toBe(1);
+    expect(stateAtHeight1.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight1.toData().keys, [{
       auth: defaultKeyId,
       expired: false,
@@ -66,8 +67,8 @@ describe('DidDocumentState', () => {
 
     didState.apply.addKey(2, keyId1);
     const stateAtHeight2 = didState.query.getAt(2);
-    expect(stateAtHeight2.getHeight()).toBe(2);
-    expect(stateAtHeight2.toData().atHeight).toBe(2);
+    expect(stateAtHeight2.height).toBe(2);
+    expect(stateAtHeight2.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight2.toData().keys, [
       { auth: defaultKeyId, expired: false },
       { auth: keyId1, expired: false },
@@ -75,8 +76,8 @@ describe('DidDocumentState', () => {
 
     didState.apply.addKey(5, keyId2, 10);
     const stateAtHeight5 = didState.query.getAt(5);
-    expect(stateAtHeight5.getHeight()).toBe(5);
-    expect(stateAtHeight5.toData().atHeight).toBe(5);
+    expect(stateAtHeight5.height).toBe(5);
+    expect(stateAtHeight5.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight5.toData().keys, [
       { auth: defaultKeyId, expired: false },
       { auth: keyId1, expired: false },
@@ -84,8 +85,8 @@ describe('DidDocumentState', () => {
     ]);
 
     const stateAtHeight10 = didState.query.getAt(10);
-    expect(stateAtHeight10.getHeight()).toBe(10);
-    expect(stateAtHeight10.toData().atHeight).toBe(10);
+    expect(stateAtHeight10.height).toBe(10);
+    expect(stateAtHeight10.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight10.toData().keys, [
       { auth: defaultKeyId, expired: false },
       { auth: keyId1, expired: false },
