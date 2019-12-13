@@ -60,7 +60,7 @@ describe('StateHandler', () => {
 
   const otherContentId = 'someOtherContentId';
 
-  it('rejects before proof with already registered content id', () => {
+  it('rejects before proof with already registered content id in an atomic way', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.empty());
     handler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },
@@ -158,5 +158,25 @@ describe('StateHandler', () => {
     });
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
     assertStringlyEqual(handler.query.getDidDocumentAt(did, 5).toData().keys[1].auth, keyId1);
+  });
+
+  it.skip('rights can be moved to a different key in a single transaction', () => {
+    const attempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+        .addKey(did, keyId1)
+        .addRight(did, keyId1, Interfaces.Right.Impersonate)
+        .addRight(did, keyId1, Interfaces.Right.Update)
+      .sign(defaultKeyId)
+      .withVault(vault)
+        // .removeKey(did, defaultKeyId)
+      .sign(keyId1)
+      .getAttempts();
+    handler.applyTransactionToState({
+      asset: { operationAttempts: attempts },
+      blockHeight: 5,
+      blockId,
+      transactionId,
+    });
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
   });
 });

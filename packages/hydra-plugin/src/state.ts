@@ -6,7 +6,6 @@ import { IMorpheusOperations, IMorpheusQueries, IMorpheusState } from './state-i
 const { Operations: { BeforeProof: { BeforeProofState }, DidDocument: { DidDocumentState } } } = MorpheusTransaction;
 
 export class MorpheusState implements IMorpheusState {
-
   public readonly query: IMorpheusQueries = {
     isConfirmed: (transactionId: string): Optional<boolean> => {
       return Optional.ofNullable(this.confirmedTxs.get(transactionId));
@@ -45,11 +44,20 @@ export class MorpheusState implements IMorpheusState {
       newAuth: Interfaces.Authentication,
       expiresAtHeight?: number,
     ): void => {
-      const state = this.getOrCreateDidDocument(did);
-      if (!state.query.getAt(height).hasRight(signerAuth, Interfaces.Right.Update)) {
-        throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
-      }
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
       state.apply.addKey(height, newAuth, expiresAtHeight);
+      this.didDocuments.set(did, state);
+    },
+    addRight: (
+      height: number,
+      signerAuth: Interfaces.Authentication,
+      did: Interfaces.Did,
+      auth: Interfaces.Authentication,
+      right: Interfaces.Right,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      this.ensureDifferentAuth(signerAuth, auth);
+      state.apply.addRight(height, auth, right);
       this.didDocuments.set(did, state);
     }
   };
@@ -94,11 +102,20 @@ export class MorpheusState implements IMorpheusState {
       newAuth: Interfaces.Authentication,
       expiresAtHeight?: number,
     ): void => {
-      const state = this.getOrCreateDidDocument(did);
-      if (!state.query.getAt(height).hasRight(signerAuth, Interfaces.Right.Update)) {
-        throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
-      }
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
       state.revert.addKey(height, newAuth, expiresAtHeight);
+      this.didDocuments.set(did, state);
+    },
+    addRight: (
+      height: number,
+      signerAuth: Interfaces.Authentication,
+      did: Interfaces.Did,
+      auth: Interfaces.Authentication,
+      right: Interfaces.Right,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      this.ensureDifferentAuth(signerAuth, auth);
+      state.revert.addRight(height, auth, right);
       this.didDocuments.set(did, state);
     }
   };
@@ -139,5 +156,19 @@ export class MorpheusState implements IMorpheusState {
 
   private getOrCreateDidDocument(did: Interfaces.Did): Interfaces.IDidDocumentState {
     return this.didDocuments.get(did) || new DidDocumentState(did);
+  }
+
+  private beginUpdateDidDocument(did: Interfaces.Did, height: number, signerAuth: Interfaces.Authentication): Interfaces.IDidDocumentState {
+    const state = this.getOrCreateDidDocument(did);
+    if (!state.query.getAt(height).hasRight(signerAuth, Interfaces.Right.Update)) {
+      throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
+    }
+    return state;
+  }
+
+  private ensureDifferentAuth(signerAuth: Interfaces.Authentication, auth: Interfaces.Authentication) {
+    if (Interfaces.isSameAuthentication(signerAuth, auth)) {
+      throw new Error(`${signerAuth} cannot modify its own authorization (as ${auth})`);
+    }
   }
 }

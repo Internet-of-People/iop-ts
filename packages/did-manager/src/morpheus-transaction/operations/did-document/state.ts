@@ -36,8 +36,10 @@ interface IEntry {
   rights: Map<Right, ITimeSeries>;
 }
 
-export const allRights = <T>(func: (right: Right) => T): Map<Right, T> => {
-  const mapTuples = [Right.Impersonate, Right.Update]
+export const ALL_RIGHTS = [Right.Impersonate, Right.Update];
+
+export const mapAllRights = <T>(func: (right: Right) => T): Map<Right, T> => {
+  const mapTuples = ALL_RIGHTS
     .map(r => {
       const tuple: [Right, T] = [r, func(r)];
       return tuple;
@@ -45,10 +47,9 @@ export const allRights = <T>(func: (right: Right) => T): Map<Right, T> => {
   return new Map(mapTuples);
 };
 
-export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => allRights(r => {
-  const value: ITimeSeries = new TimeSeries(initial);
-  return value;
-});
+export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => {
+  return mapAllRights(_ => new TimeSeries(initial) as ITimeSeries);
+};
 
 const entryIsValidAt = (entry: IEntry, height: number): boolean => {
   return !entry.validUntilHeight || entry.validUntilHeight > height;
@@ -76,7 +77,7 @@ export class DidDocumentState implements IDidDocumentState {
       const keys = validKeys
         .map(key => entryToKeyData(key, height));
 
-      const rights: Map<Right, number[]> = allRights(r => {
+      const rights: Map<Right, number[]> = mapAllRights(r => {
         const indexesWithRight: number[] = [];
         for (let i = 0; i < validKeys.length; i += 1) {
           const rightTimeSeries = validKeys[i].rights.get(r);

@@ -13,6 +13,14 @@ export interface IMorpheusOperations {
     expiresAtHeight?: number,
   ): void;
 
+  addRight(
+    height: number,
+    signerAuth: Interfaces.Authentication,
+    did: Interfaces.Did,
+    auth: Interfaces.Authentication,
+    right: Interfaces.Right
+  ): void;
+
   /**
    * Marks a transaction as confirmed, all operations were valid.
    */

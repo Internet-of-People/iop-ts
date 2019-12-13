@@ -77,4 +77,9 @@ describe('MorpheusState', () => {
     expect(() => state.apply.addKey(5, keyId1, did, keyId1))
       .toThrowError('Iez25N5WZ1Q6TQpgpyYgiu9gTX cannot update did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr at height 5');
   });
+
+  it.todo('apply add right accepted for different key');
+  it.todo('apply add right rejected for same key');
+  it.todo('apply add right rejected because it existed');
+  it.todo('revert add right accepted for different key');
 });

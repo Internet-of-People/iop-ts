@@ -1,4 +1,4 @@
-import { Authentication, Did, IAddKeyData, ISignableOperationData, ISignableOperationVisitor, SignableOperation, SignableOperationType } from '../../interfaces';
+import { Authentication, Did, IAddKeyData, IAddRightData, ISignableOperationData, ISignableOperationVisitor, Right, SignableOperation, SignableOperationType } from '../../interfaces';
 
 class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperationData> {
   public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): ISignableOperationData {
@@ -10,6 +10,16 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
     if (expiresAtHeight) {
       result.expiresAtHeight = expiresAtHeight;
     }
+    return result;
+  }
+
+  public addRight(did: Did, auth: Authentication, right: Right): ISignableOperationData {
+    const result: IAddRightData = {
+      operation: SignableOperationType.AddRight,
+      did,
+      auth: auth.toString(),
+      right
+    };
     return result;
   }
 }

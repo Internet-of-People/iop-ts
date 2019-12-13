@@ -1,5 +1,4 @@
-import {PublicKey, Signature} from '@internet-of-people/keyvault';
-import {AuthenticationData, Did} from './did-document';
+import { AuthenticationData, Did, Right } from './did-document';
 import { OperationType, SignableOperationType } from './operation-type';
 
 /**
@@ -43,4 +42,13 @@ export interface IAddKeyData extends ISignableOperationData {
   did: Did;
   auth: AuthenticationData;
   expiresAtHeight?: number;
+}
+
+/**
+ * Data transfer object of AddRight.
+ */
+export interface IAddRightData extends ISignableOperationData {
+  did: Did;
+  auth: AuthenticationData;
+  right: Right;
 }

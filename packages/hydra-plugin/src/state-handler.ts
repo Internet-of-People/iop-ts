@@ -100,6 +100,9 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       addKey: (did: Interfaces.Did, newAuth: Interfaces.Authentication, expiresAtHeight?: number): void => {
         state.addKey(height, signerAuth, did, newAuth, expiresAtHeight);
       },
+      addRight: (did: Interfaces.Did, auth: Interfaces.Authentication, right: Interfaces.Right): void => {
+        state.addRight(height, signerAuth, did, auth, right);
+      }
     };
   }
 

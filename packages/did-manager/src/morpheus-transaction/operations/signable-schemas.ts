@@ -6,6 +6,9 @@ class SignableSchemaVisitor implements ISignableOperationTypeVisitor<unknown> {
   public addKey(): unknown {
     return DidDocumentSchemas.addKey;
   }
+  public addRight(): unknown {
+    return DidDocumentSchemas.addRight;
+  }
 }
 
 export const signableOperationSchemas = (): any[] => visitAllSignableOperationTypes(new SignableSchemaVisitor());

@@ -14,7 +14,7 @@ export class DidDocument implements IDidDocument {
   private keys: Authentication[] = [];
 
   public constructor(data: IDidDocumentData) {
-    this.data = data;
+    this.data = data; // Note: This only satisfies a linter rule
     this.fromData(data);
   }
 

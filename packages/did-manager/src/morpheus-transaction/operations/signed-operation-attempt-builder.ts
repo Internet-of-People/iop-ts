@@ -1,7 +1,7 @@
 import {Interfaces, KeyId} from '@internet-of-people/keyvault';
-import { Authentication, Did, ISignedOperationsData, OperationType, SignableOperation } from '../../interfaces';
+import { Authentication, Did, ISignedOperationsData, OperationType, Right, SignableOperation } from '../../interfaces';
 import { toBytes } from '../serde';
-import { AddKey} from './did-document';
+import { AddKey, AddRight} from './did-document';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';
 import { toSignableData } from './to-signable-data';
 
@@ -29,6 +29,11 @@ export class SignedOperationAttemptsBuilder {
 
   public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): SignedOperationAttemptsBuilder {
     this.signableOperations.push(new AddKey(did, auth, expiresAtHeight));
+    return this;
+  }
+
+  public addRight(did: Did, auth: Authentication, right: Right): SignedOperationAttemptsBuilder {
+    this.signableOperations.push(new AddRight(did, auth, right));
     return this;
   }
 }
