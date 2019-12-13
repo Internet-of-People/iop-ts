@@ -3,6 +3,7 @@ import { IState } from './state';
 
 export type Did = string;
 export type Authentication = KeyId | PublicKey;
+export type AuthenticationData = string;
 
 export const isSameAuthentication = (left: Authentication, right: Authentication): boolean => {
   // NOTE ugly implementation of double dispatch for both params
@@ -31,13 +32,23 @@ export const didToAuth = (did: Did): Authentication => {
   return new KeyId(keyId);
 };
 
+// NOTE throws if conversion failed
+export const authenticationFromData = (data: AuthenticationData): Authentication => {
+  if (data.startsWith(MULTICIPHER_KEYID_PREFIX)) {
+    return new KeyId(data);
+  }
+  else {
+    return new PublicKey(data);
+  }
+};
+
 export enum Right {
   Impersonate = 'impersonate',
   Update = 'update',
 }
 
 export interface IKeyData {
-  auth: Authentication;
+  auth: AuthenticationData;
   expiresAtHeight?: number;
   expired: boolean;
 }

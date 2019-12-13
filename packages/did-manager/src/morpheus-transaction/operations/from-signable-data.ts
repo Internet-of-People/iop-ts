@@ -1,4 +1,10 @@
-import { IAddKeyData, ISignableOperationData, ISignableOperationTypeVisitor, SignableOperation } from '../../interfaces';
+import {
+  authenticationFromData,
+  IAddKeyData,
+  ISignableOperationData,
+  ISignableOperationTypeVisitor,
+  SignableOperation
+} from '../../interfaces';
 import { AddKey } from './did-document';
 import { visitSignableOperation } from './visitor';
 
@@ -7,7 +13,7 @@ class FromSignableData implements ISignableOperationTypeVisitor<SignableOperatio
 
   public addKey(): SignableOperation {
     const params = this.data as IAddKeyData;
-    return new AddKey(params.did, params.auth, params.expiresAtHeight);
+    return new AddKey(params.did, authenticationFromData(params.auth), params.expiresAtHeight);
   }
 }
 

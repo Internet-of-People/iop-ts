@@ -42,7 +42,7 @@ describe('OperationAttemptsBuilder', () => {
     const expectedAddKeyData: IAddKeyData = {
       operation: SignableOperationType.AddKey,
       did,
-      auth: keyId1,
+      auth: keyId1.toString(),
       expiresAtHeight: 69,
     };
     const expectedOperationData: ISignedOperationsData = {
@@ -50,10 +50,14 @@ describe('OperationAttemptsBuilder', () => {
       signables: [
         expectedAddKeyData
       ],
-      signerPublicKey: new PublicKey('Pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6'),
-      signature: new Signature('Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4'),
+      signerPublicKey: 'Pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6',
+      signature: 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4',
     };
-    signMock.mockImplementationOnce((msg, _) => new SignedMessage(expectedOperationData.signerPublicKey, msg, expectedOperationData.signature));
+    signMock.mockImplementationOnce((msg, _) => new SignedMessage(
+      new PublicKey(expectedOperationData.signerPublicKey),
+      msg,
+      new Signature(expectedOperationData.signature)
+    ));
     const attempts = builder
       .withVault(vault)
         .addKey(did, keyId1, expectedAddKeyData.expiresAtHeight)

@@ -1,5 +1,5 @@
 import {PublicKey, Signature} from '@internet-of-people/keyvault';
-import {Authentication, Did} from './did-document';
+import {AuthenticationData, Did} from './did-document';
 import { OperationType, SignableOperationType } from './operation-type';
 
 /**
@@ -13,10 +13,13 @@ export interface ISignableOperationData {
   operation: SignableOperationType;
 }
 
+export type PublicKeyData = string;
+export type SignatureData = string;
+
 export interface ISignedOperationsData extends IOperationData {
   signables: ISignableOperationData[];
-  signerPublicKey: PublicKey;
-  signature: Signature;
+  signerPublicKey: PublicKeyData;
+  signature: SignatureData;
 }
 
 /**
@@ -38,6 +41,6 @@ export interface IRevokeBeforeProofData extends IOperationData {
  */
 export interface IAddKeyData extends ISignableOperationData {
   did: Did;
-  auth: Authentication;
+  auth: AuthenticationData;
   expiresAtHeight?: number;
 }

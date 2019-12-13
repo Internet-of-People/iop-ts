@@ -46,7 +46,7 @@ describe('DidDocumentState', () => {
 
     const didData = didDoc.toData();
     assertEqualAuthEntries(didData.keys, [
-      { auth: defaultKeyId, expired: false, }
+      { auth: defaultKeyId.toString(), expired: false, }
     ]);
   });
 
@@ -61,7 +61,7 @@ describe('DidDocumentState', () => {
     expect(stateAtHeight1.height).toBe(1);
     expect(stateAtHeight1.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight1.toData().keys, [{
-      auth: defaultKeyId,
+      auth: defaultKeyId.toString(),
       expired: false,
     }]);
 
@@ -70,8 +70,8 @@ describe('DidDocumentState', () => {
     expect(stateAtHeight2.height).toBe(2);
     expect(stateAtHeight2.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight2.toData().keys, [
-      { auth: defaultKeyId, expired: false },
-      { auth: keyId1, expired: false },
+      { auth: defaultKeyId.toString(), expired: false },
+      { auth: keyId1.toString(), expired: false },
     ]);
 
     didState.apply.addKey(5, keyId2, 10);
@@ -79,18 +79,18 @@ describe('DidDocumentState', () => {
     expect(stateAtHeight5.height).toBe(5);
     expect(stateAtHeight5.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight5.toData().keys, [
-      { auth: defaultKeyId, expired: false },
-      { auth: keyId1, expired: false },
-      { auth: keyId2, expired: false, expiresAtHeight: 10 },
+      { auth: defaultKeyId.toString(), expired: false },
+      { auth: keyId1.toString(), expired: false },
+      { auth: keyId2.toString(), expired: false, expiresAtHeight: 10 },
     ]);
 
     const stateAtHeight10 = didState.query.getAt(10);
     expect(stateAtHeight10.height).toBe(10);
     expect(stateAtHeight10.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight10.toData().keys, [
-      { auth: defaultKeyId, expired: false },
-      { auth: keyId1, expired: false },
-      { auth: keyId2, expired: true, expiresAtHeight: 10 },
+      { auth: defaultKeyId.toString(), expired: false },
+      { auth: keyId1.toString(), expired: false },
+      { auth: keyId2.toString(), expired: true, expiresAtHeight: 10 },
     ]);
   });
 

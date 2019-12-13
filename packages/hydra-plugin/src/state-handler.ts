@@ -107,7 +107,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     return {
       signed: (operations: Interfaces.ISignedOperationsData): void => {
         const signableOperations = Signed.getAuthenticatedOperations(operations);
-        const signerAuth = operations.signerPublicKey;
+        const signerAuth = Interfaces.authenticationFromData(operations.signerPublicKey);
         const atHeightSignable = this.atHeightSignable(height, signerAuth, state);
         for (const signable of signableOperations) {
           this.logger.debug(`Applying signable operation ${signable.type}...`);

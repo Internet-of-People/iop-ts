@@ -56,7 +56,7 @@ const entryIsValidAt = (entry: IEntry, height: number): boolean => {
 
 const entryToKeyData = (entry: IEntry, height: number): IKeyData => {
   const data: IKeyData =  {
-    auth: entry.auth,
+    auth: entry.auth.toString(),
     expired: !entryIsValidAt(entry, height),
   };
 

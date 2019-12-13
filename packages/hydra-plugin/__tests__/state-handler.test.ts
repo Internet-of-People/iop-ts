@@ -134,7 +134,7 @@ describe('StateHandler', () => {
       .getAttempts();
     const signed = attempts[0] as Interfaces.ISignedOperationsData;
     const invalidSignature = 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4';
-    signed.signature = new Signature(invalidSignature);
+    signed.signature = invalidSignature;
     handler.applyTransactionToState({
       asset: { operationAttempts: attempts },
       blockHeight: 5,

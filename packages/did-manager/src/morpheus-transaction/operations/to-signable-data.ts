@@ -5,7 +5,7 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
     const result: IAddKeyData = {
       operation: SignableOperationType.AddKey,
       did,
-      auth,
+      auth: auth.toString(),
     };
     if (expiresAtHeight) {
       result.expiresAtHeight = expiresAtHeight;

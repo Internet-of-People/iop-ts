@@ -10,7 +10,7 @@ describe('DidDocument', () => {
 
   it('hasRights answers properly', () => {
     const keys: IKeyData[] = [
-      { auth: defaultKeyId, expired: false, },
+      { auth: defaultKeyId.toString(), expired: false, },
     ];
     const rights = new Map([
       [Right.Impersonate, [0]],

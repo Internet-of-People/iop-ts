@@ -1,4 +1,4 @@
-import { SignedMessage } from '@internet-of-people/keyvault';
+import {PublicKey, Signature, SignedMessage} from '@internet-of-people/keyvault';
 import { IOperationVisitor, ISignedOperationsData, Operation, OperationType, SignableOperation } from '../../interfaces';
 import { toBytes } from '../serde';
 import { fromSignableData } from './from-signable-data';
@@ -9,7 +9,8 @@ export class Signed extends Operation {
 
   public static getAuthenticatedOperations(data: ISignedOperationsData): SignableOperation[] {
     const signableBytes = toBytes(data.signables);
-    const message = new SignedMessage(data.signerPublicKey, signableBytes, data.signature);
+    const message = new SignedMessage(new PublicKey(data.signerPublicKey),
+      signableBytes, new Signature(data.signature));
     if (!message.validate()) {
       throw new Error('Invalid signature');
     }

@@ -21,8 +21,8 @@ export class SignedOperationAttemptsBuilder {
     const signedOperationData: ISignedOperationsData = {
       operation: OperationType.Signed,
       signables: signableOperationDatas,
-      signerPublicKey: signedMessage.publicKey,
-      signature: signedMessage.signature,
+      signerPublicKey: signedMessage.publicKey.toString(),
+      signature: signedMessage.signature.toString(),
     };
     return this.finish(signedOperationData);
   }
