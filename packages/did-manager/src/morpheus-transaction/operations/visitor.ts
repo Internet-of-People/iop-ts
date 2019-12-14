@@ -2,7 +2,7 @@ import {
   IOperationTypeVisitor,
   ISignableOperationTypeVisitor,
   OperationType,
-  SignableOperationType
+  SignableOperationType,
 } from '../../interfaces';
 
 export const visitOperation = <R>(operation: string, visitor: IOperationTypeVisitor<R>): R => {
@@ -27,7 +27,9 @@ const allOps: string[] = [
 ];
 
 export const visitAllOperationTypes = <R>(visitor: IOperationTypeVisitor<R>): R[] => {
-  return allOps.map(type => visitOperation(type, visitor));
+  return allOps.map((type: string) => {
+    return visitOperation(type, visitor);
+  });
 };
 
 
@@ -35,6 +37,7 @@ export const visitSignableOperation = <R>(operation: string, visitor: ISignableO
   switch (operation) {
     case SignableOperationType.AddKey:
       return visitor.addKey();
+
     default: {
       throw new Error(`Unknown signable operation type ${operation}`);
     }
@@ -46,5 +49,7 @@ const allSignableOps: string[] = [
 ];
 
 export const visitAllSignableOperationTypes = <R>(visitor: ISignableOperationTypeVisitor<R>): R[] => {
-  return allSignableOps.map(type => visitSignableOperation(type, visitor));
+  return allSignableOps.map((type: string) => {
+    return visitSignableOperation(type, visitor);
+  });
 };

@@ -10,16 +10,13 @@ export const isSameAuthentication = (left: Authentication, right: Authentication
   if (left instanceof PublicKey) {
     if (right instanceof KeyId) {
       return left.validateId(right);
-    }
-    else {
+    } else {
       return left.toString() === right.toString();
     }
-  }
-  else {
+  } else {
     if (right instanceof KeyId) {
       return left.toString() === right.toString();
-    }
-    else {
+    } else {
       return right.validateId(left);
     }
   }
@@ -27,6 +24,7 @@ export const isSameAuthentication = (left: Authentication, right: Authentication
 
 export const MORPHEUS_DID_PREFIX = 'did:morpheus:';
 export const MULTICIPHER_KEYID_PREFIX = 'I';
+
 export const didToAuth = (did: Did): Authentication => {
   const keyId = did.replace(new RegExp(`^${MORPHEUS_DID_PREFIX}`), MULTICIPHER_KEYID_PREFIX);
   return new KeyId(keyId);
@@ -36,8 +34,7 @@ export const didToAuth = (did: Did): Authentication => {
 export const authenticationFromData = (data: AuthenticationData): Authentication => {
   if (data.startsWith(MULTICIPHER_KEYID_PREFIX)) {
     return new KeyId(data);
-  }
-  else {
+  } else {
     return new PublicKey(data);
   }
 };

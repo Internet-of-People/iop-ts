@@ -1,3 +1,4 @@
+/* eslint no-undefined: 0 */
 import { Server as HapiServer } from '@hapi/hapi';
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { EventEmitter } from 'events';
@@ -7,32 +8,48 @@ import { MorpheusStateHandler } from '../src/state-handler';
 
 const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
 
+class Fixture {
+  public emitter: NodeJS.EventEmitter = new EventEmitter();
+
+  public logMock = {
+    appName: 'hot-wallet-tests',
+    debug: jest.fn<void, [string]>(),
+    info: jest.fn<void, [string]>(),
+    warn: jest.fn<void, [string]>(),
+    error: jest.fn<void, [string]>(),
+  };
+  public log = this.logMock as IAppLog;
+
+  public stateHandler = new MorpheusStateHandler(this.log, this.emitter);
+}
+
 let hapiServer: HapiServer;
 let fixture: Fixture;
+
 describe('Server', () => {
-  beforeEach(async () => {
+  beforeEach(async() => {
     fixture = new Fixture();
     const server = new Server('0.0.0.0', 4705, fixture.log, fixture.stateHandler);
     await server.init();
-    hapiServer = server.hapiServer.orElseThrow(()=>new Error('Could not init HAPI server'));
+    hapiServer = server.hapiServer.orElseThrow(() => {
+      return new Error('Could not init HAPI server');
+    });
   });
 
-  afterEach(async () => {
-    if(hapiServer) {
-      await hapiServer.stop();
-    }
+  afterEach(async() => {
+    await hapiServer.stop();
   });
 
-  it('unregistered content does not exist', async () => {
+  it('unregistered content does not exist', async() => {
     const res = await hapiServer.inject({
       method: 'get',
-      url: '/before-proof/invalid_content_id/exists'
+      url: '/before-proof/invalid_content_id/exists',
     });
     expect(res.statusCode).toBe(200);
     expect(res.payload).toBe(JSON.stringify(false));
   });
 
-  it('registered content exists only from its height', async () => {
+  it('registered content exists only from its height', async() => {
     const contentId = 'myFavoriteContentId';
     const transactionId = 'myFavoriteTxid';
     const blockId = 'myFavoriteBlockId';
@@ -49,21 +66,21 @@ describe('Server', () => {
 
     const res5 = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/exists/${blockHeight}`
+      url: `/before-proof/${contentId}/exists/${blockHeight}`,
     });
     expect(res5.statusCode).toBe(200);
     expect(res5.payload).toBe(JSON.stringify(true));
 
     const resLatest = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/exists`
+      url: `/before-proof/${contentId}/exists`,
     });
     expect(resLatest.statusCode).toBe(200);
     expect(resLatest.payload).toBe(JSON.stringify(true));
 
     const res4 = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/exists/${blockHeight-1}`
+      url: `/before-proof/${contentId}/exists/${blockHeight - 1}`,
     });
     expect(res4.statusCode).toBe(200);
     expect(res4.payload).toBe(JSON.stringify(false));
@@ -112,19 +129,3 @@ describe('safePathInt', () => {
     expect(safePathInt('{}')).toBe(undefined);
   });
 });
-
-class Fixture {
-  public emitter: NodeJS.EventEmitter = new EventEmitter();
-
-  public logMock = {
-    appName: 'hot-wallet-tests',
-    debug: jest.fn<void, [any]>(),
-    info: jest.fn<void, [any]>(),
-    warn: jest.fn<void, [any]>(),
-    error: jest.fn<void, [any]>(),
-  };
-  public log = this.logMock as IAppLog;
-
-  public stateHandler = new MorpheusStateHandler(this.log, this.emitter);
-
-}

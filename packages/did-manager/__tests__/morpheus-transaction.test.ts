@@ -6,18 +6,18 @@ describe('MorpheusTransaction', () => {
     { operation: 'revokeBeforeProof', contentId: 'OLD_PROOF' },
   ];
   const operationAttempts2 = [
-    'this', 'could be', 'anything', 'really', 5, 'not sure if that is good'
+    'this', 'could be', 'anything', 'really', 5, 'not sure if that is good',
   ];
-  for (const operationAttempts of [operationAttempts1, operationAttempts2]) {
-    it('can be serialized/deserialized', () => {
 
+  for (const operationAttempts of [ operationAttempts1, operationAttempts2 ]) {
+    it('can be serialized/deserialized', () => {
       const tx = new Transaction.MorpheusTransaction();
       tx.data.asset.operationAttempts = Object.assign([], operationAttempts);
       const serializedBuffer = tx.serialize();
-  
+
       const rx = new Transaction.MorpheusTransaction();
       rx.deserialize(serializedBuffer.flip());
-  
+
       expect(rx.data.asset).toBeDefined();
       expect(rx.data.asset.operationAttempts).toBeDefined();
       expect(rx.data.asset.operationAttempts).toStrictEqual(operationAttempts);

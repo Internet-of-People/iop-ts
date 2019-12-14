@@ -1,9 +1,9 @@
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import inquirer from 'inquirer';
-import {TransactionSender} from './transaction-sender';
+import { sendMorpheusTx } from './transaction-sender';
 
 const {
-  Operations: { OperationAttemptsBuilder }
+  Operations: { OperationAttemptsBuilder },
 } = MorpheusTransaction;
 
 export class BeforeProofExample {
@@ -14,7 +14,7 @@ export class BeforeProofExample {
       name: 'action',
       message: 'Choose action:',
       type: 'list',
-      choices: ['register', 'revoke'],
+      choices: [ 'register', 'revoke' ],
     }]);
     return result.action;
   }
@@ -24,12 +24,13 @@ export class BeforeProofExample {
       name: 'contentId',
       message: 'Type your contentId below:',
     }]);
-    if(!result.contentId) {
+
+    if (!result.contentId) {
       throw new Error('ContentId must not be empty.');
     }
 
     const opBuilder = new OperationAttemptsBuilder();
-    const id = await TransactionSender.sendMorpheusTx(opBuilder.registerBeforeProof(result.contentId).getAttempts());
+    const id = await sendMorpheusTx(opBuilder.registerBeforeProof(result.contentId).getAttempts());
     console.log(`Register before proof tx send, id: ${id}`);
   }
 
@@ -38,24 +39,24 @@ export class BeforeProofExample {
       name: 'contentId',
       message: 'Type your contentId below:',
     }]);
-    if(!result.contentId) {
+
+    if (!result.contentId) {
       throw new Error('ContentId must not be empty.');
     }
 
     const opBuilder = new OperationAttemptsBuilder();
-    const id = await TransactionSender.sendMorpheusTx(opBuilder.revokeBeforeProof(result.contentId).getAttempts());
+    const id = await sendMorpheusTx(opBuilder.revokeBeforeProof(result.contentId).getAttempts());
     console.log(`Revoke before proof tx send, id: ${id}`);
   }
 
   public async run(): Promise<void> {
     const action = await BeforeProofExample.askForAction();
-    if(action === 'register') {
+
+    if (action === 'register') {
       await BeforeProofExample.register();
-    }
-    else if(action === 'revoke') {
+    } else if (action === 'revoke') {
       await BeforeProofExample.revoke();
-    }
-    else {
+    } else {
       throw new Error(`Unknown action ${action}.`);
     }
   }

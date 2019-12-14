@@ -4,10 +4,10 @@ import { ITimeSeries, TimeSeries } from '../../../time-series';
 export class BeforeProofState implements IBeforeProofState {
   public readonly query: IBeforeProofQueries = {
     existsAt: (height?: number): boolean => {
-      return height === undefined ?
-        this.periods.query.latestValue() :
-        this.periods.query.get(height);
-    }
+      return height ?
+        this.periods.query.get(height) :
+        this.periods.query.latestValue();
+    },
   };
 
   public readonly apply: IBeforeProofOperations = {

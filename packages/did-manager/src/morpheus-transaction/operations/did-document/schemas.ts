@@ -1,47 +1,47 @@
 import { ALL_RIGHTS } from '.';
-import { Right, SignableOperationType } from '../../../interfaces';
+import { SignableOperationType } from '../../../interfaces';
 
 
 export const addKey = {
   type: 'object',
-  required: ['operation', 'did', 'auth'],
+  required: [ 'operation', 'did', 'auth' ],
   additionalProperties: false,
   properties: {
     operation: {
       type: 'string',
-      const: SignableOperationType.AddKey
+      const: SignableOperationType.AddKey,
     },
     did: {
       type: 'string',
     },
     auth: {
-      type: 'string'
+      type: 'string',
     },
     expiresAtHeight: {
       type: 'number',
       minValue: 1,
-    }
-  }
+    },
+  },
 };
 
 export const addRight = {
   type: 'object',
-  required: ['operation', 'did', 'auth', 'right'],
+  required: [ 'operation', 'did', 'auth', 'right' ],
   additionalProperties: false,
   properties: {
     operation: {
       type: 'string',
-      const: SignableOperationType.AddRight
+      const: SignableOperationType.AddRight,
     },
     did: {
       type: 'string',
     },
     auth: {
-      type: 'string'
+      type: 'string',
     },
     right: {
       type: 'string',
-      enum: ALL_RIGHTS
-    }
-  }
+      enum: ALL_RIGHTS,
+    },
+  },
 };

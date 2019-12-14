@@ -2,19 +2,21 @@ import Queue from 'p-queue';
 
 import { IAppLog } from './app-log';
 
-const queue = new Queue({concurrency: 1});
+const queue = new Queue({ concurrency: 1 });
 
 export type Task = () => Promise<void>;
 export type Scheduler = (log: IAppLog, name: string, task: Task) => void;
 
-export const timeout = (name: string, ms:number): Promise<void> => {
+export const timeout = async(name: string, ms: number): Promise<void> => {
   return new Promise<void>(
     (res, rej) => {
       setTimeout(
-        () => rej(new Error(`Task ${name} timeouted`)),
-        ms
+        () => {
+          return rej(new Error(`Task ${name} timeouted`));
+        },
+        ms,
       );
-    }
+    },
   );
 };
 
@@ -26,12 +28,19 @@ export const timeout = (name: string, ms:number): Promise<void> => {
 export const schedule = (log: IAppLog, name: string, task: Task): void => {
   setImmediate(() => {
     log.debug(`Task ${name} started`);
-    const taskWithTimeout = () => Promise.race([
-      task(),
-      timeout(name, 5000)
-    ]);
+
+    const taskWithTimeout = async(): Promise<void> => {
+      return Promise.race([
+        task(),
+        timeout(name, 5000),
+      ]);
+    };
     queue.add(taskWithTimeout)
-      .then(() => { log.debug(`Task ${name} finished`); })
-      .catch(e => { log.error(`Task ${name} failed: ${e}`); });
+      .then(() => {
+        log.debug(`Task ${name} finished`);
+      })
+      .catch((e) => {
+        log.error(`Task ${name} failed: ${e}`);
+      });
   });
 };

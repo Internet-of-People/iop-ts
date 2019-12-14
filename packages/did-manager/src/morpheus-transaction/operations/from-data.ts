@@ -4,7 +4,7 @@ import {
   IRegisterBeforeProofData,
   IRevokeBeforeProofData,
   ISignedOperationsData,
-  Operation
+  Operation,
 } from '../../interfaces';
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
 import { Signed } from './signed';
@@ -12,7 +12,7 @@ import { visitOperation } from './visitor';
 
 class FromData implements IOperationTypeVisitor<Operation> {
   public constructor(
-    private readonly data: IOperationData
+    private readonly data: IOperationData,
   ) {}
 
   // TODO verify schema of params

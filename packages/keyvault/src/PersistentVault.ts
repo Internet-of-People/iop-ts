@@ -1,11 +1,20 @@
-import {readFileSync, writeFileSync} from 'fs';
-import {KeyId, SignedMessage, Vault} from '../pkg';
+import { readFileSync, writeFileSync } from 'fs';
+import { KeyId, SignedMessage, Vault } from '../pkg';
 import * as Interfaces from './interfaces';
 
 
 export class PersistentVault implements Interfaces.IVault {
   // TODO this probably should come from Rust with some Wasm binding
-  public static readonly DEMO_PHRASE = 'include pear escape sail spy orange cute despair witness trouble sleep torch wire burst unable brass expose fiction drift clock duck oxygen aerobic already';
+  /* eslint max-len: 0 */
+  public static readonly DEMO_PHRASE: string = 'include pear escape sail spy orange cute despair witness trouble sleep torch wire burst unable brass expose fiction drift clock duck oxygen aerobic already';
+  private static readonly ENCODING: string = 'utf8';
+  private readonly vault: Vault;
+  private readonly path: string;
+
+  public constructor(vault: Vault, vaultPath: string) {
+    this.vault = vault;
+    this.path = vaultPath;
+  }
 
   public static fromSeedPhrase(seedPhrase: string, vaultPath: string): PersistentVault {
     const vault = new Vault(seedPhrase);
@@ -16,15 +25,6 @@ export class PersistentVault implements Interfaces.IVault {
     const serializedVault = readFileSync(vaultPath, PersistentVault.ENCODING);
     const vault = Vault.deserialize(serializedVault);
     return new PersistentVault(vault, vaultPath);
-  }
-
-  private static readonly ENCODING = 'utf8';
-  private readonly vault: Vault;
-  private readonly path: string;
-
-  constructor(vault: Vault, vaultPath: string) {
-    this.vault = vault;
-    this.path = vaultPath;
   }
 
   public activeId(): KeyId | undefined {

@@ -5,7 +5,9 @@ export class RevokeBeforeProof extends Operation {
     super();
   }
 
-  public get type() { return OperationType.RevokeBeforeProof; }
+  public get type(): OperationType {
+    return OperationType.RevokeBeforeProof;
+  }
 
   public accept<T>(visitor: IOperationVisitor<T>): T {
     return visitor.revokeBeforeProof(this.contentId);

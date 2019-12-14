@@ -19,7 +19,7 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
   public registerBeforeProof(contentId: string): IOperationData {
     const result: IRegisterBeforeProofData = {
       operation: OperationType.RegisterBeforeProof,
-      contentId
+      contentId,
     };
     return result;
   }
@@ -27,7 +27,7 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
   public revokeBeforeProof(contentId: string): IOperationData {
     const result: IRevokeBeforeProofData = {
       operation: OperationType.RevokeBeforeProof,
-      contentId
+      contentId,
     };
     return result;
   }

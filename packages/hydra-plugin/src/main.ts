@@ -9,27 +9,33 @@ import { schedule } from './scheduler';
 import { Server } from './server';
 import { COMPONENT_NAME as STATE_HANDLER_COMPONENT_NAME, MorpheusStateHandler } from './state-handler';
 import { MorpheusTransactionHandler } from './transaction-handler';
-import { COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME, transactionReaderFactory } from './transaction-reader-factory';
+import {
+  COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME,
+  transactionReaderFactory,
+} from './transaction-reader-factory';
+
+const PLUGIN_ALIAS = 'morpheus-hydra-plugin';
 
 export interface IInitializable {
   init(): Promise<void>;
 }
 
 export class Composite implements IInitializable {
-  private log: IAppLog;
-  private subcomponents: IInitializable[];
+  private readonly log: IAppLog;
+  private readonly subcomponents: IInitializable[];
 
   public constructor(log: IAppLog, ...subcomponents: IInitializable[]) {
     this.log = log;
     this.subcomponents = subcomponents;
   }
 
-  public exit() {
+  public exit(): void {
     this.log.info('stopped.');
   }
 
   public async init(): Promise<void> {
     this.log.info('Initializing');
+
     for (const component of this.subcomponents) {
       await component.init();
     }
@@ -38,7 +44,7 @@ export class Composite implements IInitializable {
 }
 
 // TODO: separate register's content into a container, hence it can be tested
-const register = async (container: Container.IContainer) => {
+const register = async(container: Container.IContainer): Promise<Composite> => {
   const log = new AppLog(container.resolvePlugin('logger'));
 
   log.info('Starting up');
@@ -46,7 +52,7 @@ const register = async (container: Container.IContainer) => {
   const blockEventSource = new BlockEventSource(
     log,
     eventEmitter,
-    schedule
+    schedule,
   );
 
   // Cannot inject MorpheusTransactionHandler with the following values
@@ -74,8 +80,9 @@ const register = async (container: Container.IContainer) => {
   return composite;
 };
 
-const deregister = async (container: Container.IContainer) => {
-  return container.resolvePlugin<Composite>(plugin.alias).exit();
+/* eslint @typescript-eslint/require-await:0 */
+const deregister = async(container: Container.IContainer): Promise<void> => {
+  container.resolvePlugin<Composite>(PLUGIN_ALIAS).exit();
 };
 
 export const defaults = {
@@ -85,7 +92,7 @@ export const plugin: Container.IPluginDescriptor = {
   pkg: require('../package.json'),
   required: true,
   defaults,
-  alias: 'morpheus-hydra-plugin',
+  alias: PLUGIN_ALIAS,
   register,
   deregister,
 };

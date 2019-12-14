@@ -1,12 +1,12 @@
 import { Interfaces } from '@internet-of-people/keyvault';
-import { IOperationData, ISignedOperationsData, Operation} from '../../interfaces';
+import { IOperationData, ISignedOperationsData, Operation } from '../../interfaces';
 import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
 import { Signed } from './signed';
 import { SignedOperationAttemptsBuilder } from './signed-operation-attempt-builder';
 import { toData } from './to-data';
 
 export class OperationAttemptsBuilder {
-  private attempts: Operation[] = [];
+  private readonly attempts: Operation[] = [];
 
   public withVault(vault: Interfaces.IVault): SignedOperationAttemptsBuilder {
     return new SignedOperationAttemptsBuilder(this.signed.bind(this), vault);
@@ -23,7 +23,9 @@ export class OperationAttemptsBuilder {
   }
 
   public getAttempts(): IOperationData[] {
-    return this.attempts.map(op => toData(op));
+    return this.attempts.map((op: Operation) => {
+      return toData(op);
+    });
   }
 
   private signed(data: ISignedOperationsData): OperationAttemptsBuilder {

@@ -8,33 +8,13 @@ import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler, IStat
 import { MorpheusTransactionHandler } from '../src/transaction-handler';
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader } from '../src/transaction-reader-factory';
 
-describe('TransactionHandler', () => {
-  let fixture: Fixture;
-  beforeEach(async () => {
-    fixture = new Fixture();
-  });
-
-  it('container stuff', async () => {
-    const txHandler = fixture.createSut();
-    fixture.mockTransactionReader([
-      fixture.createBootstrapTx({}, [])
-    ]);
-
-    const connection = {} as unknown as Database.IConnection;
-    const walletManager = {} as unknown as State.IWalletManager;
-    await txHandler.bootstrap(connection, walletManager);
-
-    expect(fixture.stateHandler.applyTransactionToState).toBeCalledTimes(1);
-  });
-});
-
 class Fixture {
   public logMock = {
     appName: 'hot-wallet-tests',
-    debug: jest.fn<void, [any]>(),
-    info: jest.fn<void, [any]>(),
-    warn: jest.fn<void, [any]>(),
-    error: jest.fn<void, [any]>(),
+    debug: jest.fn<void, [string]>(),
+    info: jest.fn<void, [string]>(),
+    warn: jest.fn<void, [string]>(),
+    error: jest.fn<void, [string]>(),
   };
   public log = this.logMock as IAppLog;
 
@@ -58,7 +38,9 @@ class Fixture {
   public constructor() {
     try {
       app.register(STATE_HANDLER_COMPONENT, asValue(this.stateHandler));
-      app.register(READER_FACTORY_COMPONENT, asValue(async () => this.transactionReader));
+      app.register(READER_FACTORY_COMPONENT, asValue(() => {
+        return this.transactionReader;
+      }));
       app.register(LOGGER_COMPONENT, asValue(this.log));
     } catch (e) {
       console.log(`Error in fixture setup: ${e}`);
@@ -69,14 +51,22 @@ class Fixture {
     return new MorpheusTransactionHandler();
   }
 
-  public mockTransactionReader(txns: Database.IBootstrapTransaction[]) {
-    this.transactionReaderMock.hasNext.mockImplementationOnce(() => true);
-    this.transactionReaderMock.read.mockImplementationOnce(async () => txns);
+  public mockTransactionReader(txns: Database.IBootstrapTransaction[]): void {
+    this.transactionReaderMock.hasNext.mockImplementationOnce(() => {
+      return true;
+    });
+    /* eslint @typescript-eslint/require-await: 0 */
+    this.transactionReaderMock.read.mockImplementationOnce(async() => {
+      return txns;
+    });
   }
 
-  public createBootstrapTx(props: Partial<Database.IBootstrapTransaction>, ops: Interfaces.IOperationData[]): Database.IBootstrapTransaction {
+  public createBootstrapTx(
+    props: Partial<Database.IBootstrapTransaction>,
+    ops: Interfaces.IOperationData[],
+  ): Database.IBootstrapTransaction {
     const asset: Interfaces.IMorpheusAsset = {
-      operationAttempts: [...ops]
+      operationAttempts: [...ops],
     };
     return {
       id: 'txId',
@@ -92,7 +82,28 @@ class Fixture {
       blockGeneratorPublicKey: 'forger',
       blockHeight: 42,
       blockReward: '5',
-      ...props
+      ...props,
     };
   }
 }
+
+describe('TransactionHandler', () => {
+  let fixture: Fixture;
+  beforeEach(() => {
+    fixture = new Fixture();
+  });
+
+  it('container stuff', async() => {
+    const txHandler = fixture.createSut();
+    fixture.mockTransactionReader([
+      fixture.createBootstrapTx({}, []),
+    ]);
+
+    const connection = {} as unknown as Database.IConnection;
+    const walletManager = {} as unknown as State.IWalletManager;
+    await txHandler.bootstrap(connection, walletManager);
+
+    /* eslint @typescript-eslint/unbound-method: 0 */
+    expect(fixture.stateHandler.applyTransactionToState).toBeCalledTimes(1);
+  });
+});

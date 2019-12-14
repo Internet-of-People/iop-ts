@@ -7,7 +7,13 @@ export interface ITransactionReader {
   read(): Promise<Database.IBootstrapTransaction[]>;
 }
 
-export type TransactionReaderFactory = (connection: Database.IConnection, constructor: typeof Transactions.Transaction) => Promise<ITransactionReader>;
+export type TransactionReaderFactory = (
+  connection: Database.IConnection,
+  constructor: typeof Transactions.Transaction,
+) => Promise<ITransactionReader>;
 
 export const COMPONENT_NAME = 'morpheus-transaction-reader-factory';
-export const transactionReaderFactory: TransactionReaderFactory = (connection, constructor) => TransactionReader.create(connection, constructor);
+
+export const transactionReaderFactory: TransactionReaderFactory = async(connection, constructor) => {
+  return TransactionReader.create(connection, constructor);
+};

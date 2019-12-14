@@ -11,6 +11,17 @@ export class MorpheusTransaction extends Transactions.Transaction {
   public static readonly type: number = 1;
   public static readonly key: string = 'morpheusTransaction';
 
+  protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(1e7);
+
+  public data: IMorpheusData = {
+    amount: Utils.BigNumber.make(0),
+    asset: { operationAttempts: [] },
+    fee: Utils.BigNumber.make(0),
+    senderPublicKey: '',
+    timestamp: 0,
+    type: MorpheusTransaction.type,
+  };
+
   /**
    * Returns a transaction's (a collection of operation attempts) schema, like:
    * {
@@ -27,10 +38,10 @@ export class MorpheusTransaction extends Transactions.Transaction {
     // noinspection TypeScriptValidateJSTypes
     return schemas.extend(schemas.transactionBaseSchema, {
       $id: this.key,
-      required: ['asset','type','typeGroup'],
+      required: [ 'asset', 'type', 'typeGroup' ],
       properties: {
-        type: { transactionType: this.type, },
-        typeGroup: { const: this.typeGroup, },
+        type: { transactionType: this.type },
+        typeGroup: { const: this.typeGroup },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
           required: ['operationAttempts'],
@@ -39,24 +50,14 @@ export class MorpheusTransaction extends Transactions.Transaction {
             operationAttempts: {
               type: 'array',
               items: {
-                anyOf: operationSchemas()
-              }
-            }
-          }
+                anyOf: operationSchemas(),
+              },
+            },
+          },
         },
       },
     });
   }
-  protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(1e7);
-
-  public data: IMorpheusData = {
-    amount: Utils.BigNumber.make(0),
-    asset: { operationAttempts: [] },
-    fee: Utils.BigNumber.make(0),
-    senderPublicKey: '',
-    timestamp: 0,
-    type: MorpheusTransaction.type
-  };
 
   public serialize(): ByteBuffer {
     const data: IMorpheusAsset = this.data.asset;

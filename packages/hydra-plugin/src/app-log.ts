@@ -1,17 +1,17 @@
 import { Logger } from '@arkecosystem/core-interfaces';
 
-export const COMPONENT_NAME:string = 'morpheus-logger';
+export const COMPONENT_NAME = 'morpheus-logger';
 
 export interface IAppLog {
   readonly appName: string;
-  debug(message: any): void;
-  info(message: any): void;
-  warn(message: any): void;
-  error(message: any): void;
+  debug(message: string): void;
+  info(message: string): void;
+  warn(message: string): void;
+  error(message: string): void;
 }
 
 export class AppLog implements IAppLog {
-  private readonly PREFIX = 'morpheus-hydra-plugin';
+  private readonly PREFIX: string = 'morpheus-hydra-plugin';
   private readonly logger: Logger.ILogger;
 
   public constructor(logger: Logger.ILogger) {
@@ -22,19 +22,19 @@ export class AppLog implements IAppLog {
     return this.PREFIX;
   }
 
-  public debug(message: any) {
+  public debug(message: string): void {
     this.logger.debug(`${this.PREFIX} ${message}.`);
   }
 
-  public info(message: any) {
+  public info(message: string): void {
     this.logger.info(`${this.PREFIX} ${message}.`);
   }
 
-  public warn(message: any) {
+  public warn(message: string): void {
     this.logger.warn(`${this.PREFIX} ${message}.`);
   }
 
-  public error(message: any) {
+  public error(message: string): void {
     this.logger.error(`${this.PREFIX} ${message}.`);
   }
 }

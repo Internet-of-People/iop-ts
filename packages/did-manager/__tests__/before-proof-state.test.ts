@@ -1,5 +1,5 @@
 import { IBeforeProofState } from '../src/interfaces';
-import { BeforeProofState } from '../src/morpheus-transaction/operations/before-proof/state';
+import { BeforeProofState } from '../src/morpheus-transaction/operations/before-proof';
 
 describe('Cloning BeforeProofState', () => {
   let oldProof: IBeforeProofState;
@@ -42,6 +42,7 @@ describe('BeforeProofState', () => {
 
   it('does not exist without registration ', () => {
     expect(state.query.existsAt(7)).toBeFalsy();
+    /* eslint no-undefined: 0 */
     expect(state.query.existsAt(undefined)).toBeFalsy();
   });
 
@@ -51,7 +52,7 @@ describe('BeforeProofState', () => {
     expect(state.query.existsAt(4)).toBeFalsy();
     expect(state.query.existsAt(5)).toBeTruthy();
     expect(state.query.existsAt(7)).toBeTruthy();
+    /* eslint no-undefined: 0 */
     expect(state.query.existsAt(undefined)).toBeTruthy();
   });
-
 });

@@ -10,11 +10,11 @@ describe('DidDocument', () => {
 
   it('hasRights answers properly', () => {
     const keys: IKeyData[] = [
-      { auth: defaultKeyId.toString(), expired: false, },
+      { auth: defaultKeyId.toString(), expired: false },
     ];
     const rights = new Map([
-      [Right.Impersonate, [0]],
-      [Right.Update, [0]],
+      [ Right.Impersonate, [0]],
+      [ Right.Update, [0]],
     ]);
     const doc = new DidDocument.DidDocument({ did, keys, rights, atHeight: 1 });
 
@@ -23,5 +23,4 @@ describe('DidDocument', () => {
     expect(doc.hasRight(keyId1, Right.Impersonate)).toBeFalsy();
     expect(doc.hasRight(keyId1, Right.Update)).toBeFalsy();
   });
-
 });

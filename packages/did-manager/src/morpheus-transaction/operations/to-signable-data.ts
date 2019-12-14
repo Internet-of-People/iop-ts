@@ -1,4 +1,14 @@
-import { Authentication, Did, IAddKeyData, IAddRightData, ISignableOperationData, ISignableOperationVisitor, Right, SignableOperation, SignableOperationType } from '../../interfaces';
+import {
+  Authentication,
+  Did,
+  IAddKeyData,
+  IAddRightData,
+  ISignableOperationData,
+  ISignableOperationVisitor,
+  Right,
+  SignableOperation,
+  SignableOperationType,
+} from '../../interfaces';
 
 class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperationData> {
   public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): ISignableOperationData {
@@ -7,6 +17,7 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
       did,
       auth: auth.toString(),
     };
+
     if (expiresAtHeight) {
       result.expiresAtHeight = expiresAtHeight;
     }
@@ -18,7 +29,7 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
       operation: SignableOperationType.AddRight,
       did,
       auth: auth.toString(),
-      right
+      right,
     };
     return result;
   }

@@ -1,5 +1,11 @@
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { Interfaces as KvInterfaces, KeyId, PersistentVault, Signature, SignedMessage, Vault } from '@internet-of-people/keyvault';
+import {
+  Interfaces as KvInterfaces,
+  KeyId,
+  PersistentVault,
+  SignedMessage,
+  Vault,
+} from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/state-handler';
@@ -23,17 +29,19 @@ describe('StateHandler', () => {
   rustVault.createId();
   rustVault.createId();
   const vault: KvInterfaces.IVault = {
-    sign: (message: Uint8Array, keyId: KeyId): SignedMessage => rustVault.sign(keyId, message)
+    sign: (message: Uint8Array, keyId: KeyId): SignedMessage => {
+      return rustVault.sign(keyId, message);
+    },
   };
 
   let handler: MorpheusStateHandler;
   beforeEach(() => {
     handler = new MorpheusStateHandler({
       appName: 'state-handler-tests',
-      debug: jest.fn<void, [any]>(),
-      info: jest.fn<void, [any]>(),
-      warn: jest.fn<void, [any]>(),
-      error: jest.fn<void, [any]>(),
+      debug: jest.fn<void, [string]>(),
+      info: jest.fn<void, [string]>(),
+      warn: jest.fn<void, [string]>(),
+      error: jest.fn<void, [string]>(),
     }, new EventEmitter());
   });
 
@@ -53,6 +61,7 @@ describe('StateHandler', () => {
     });
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
     expect(handler.query.beforeProofExistsAt(contentId, 5)).toBeTruthy();
+    /* eslint no-undefined: 0 */
     expect(handler.query.beforeProofExistsAt(contentId, undefined)).toBeTruthy();
     expect(handler.query.beforeProofExistsAt(contentId, 3)).toBeFalsy();
     expect(handler.query.beforeProofExistsAt(contentId, 7)).toBeTruthy();
@@ -71,6 +80,7 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
     expect(handler.query.beforeProofExistsAt(contentId, 5)).toBeTruthy();
     expect(handler.query.beforeProofExistsAt(otherContentId, 7)).toBeFalsy();
+    /* eslint no-undefined: 0 */
     expect(handler.query.beforeProofExistsAt(contentId, undefined)).toBeTruthy();
 
     const otherTxId = 'someOtherTransactionId';
@@ -88,8 +98,10 @@ describe('StateHandler', () => {
     // TODO: change the api to be able to know what was the rejection reason
     expect(handler.query.isConfirmed(otherTxId)).toStrictEqual(Optional.of(false));
     expect(handler.query.beforeProofExistsAt(contentId, 7)).toBeTruthy();
+    /* eslint no-undefined: 0 */
     expect(handler.query.beforeProofExistsAt(contentId, undefined)).toBeTruthy();
     expect(handler.query.beforeProofExistsAt(otherContentId, 7)).toBeFalsy();
+    /* eslint no-undefined: 0 */
     expect(handler.query.beforeProofExistsAt(otherContentId, undefined)).toBeFalsy();
   });
 
@@ -103,13 +115,15 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
     handler.revertTransactionFromState({
-      asset: {operationAttempts:[]},
+      asset: { operationAttempts: [] },
       blockHeight: -1,
       blockId: 'invalid',
-      transactionId: 'invalid'
+      transactionId: 'invalid',
     });
 
-    expect(() =>handler.query).toThrowError();
+    expect(() => {
+      return handler.query;
+    }).toThrowError();
   });
 
   it('authentication passes on signed operation', () => {
@@ -133,6 +147,7 @@ describe('StateHandler', () => {
       .sign(defaultKeyId)
       .getAttempts();
     const signed = attempts[0] as Interfaces.ISignedOperationsData;
+    /* eslint max-len: 0 */
     const invalidSignature = 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4';
     signed.signature = invalidSignature;
     handler.applyTransactionToState({
@@ -163,12 +178,12 @@ describe('StateHandler', () => {
   it.skip('rights can be moved to a different key in a single transaction', () => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
-        .addKey(did, keyId1)
-        .addRight(did, keyId1, Interfaces.Right.Impersonate)
-        .addRight(did, keyId1, Interfaces.Right.Update)
+      .addKey(did, keyId1)
+      .addRight(did, keyId1, Interfaces.Right.Impersonate)
+      .addRight(did, keyId1, Interfaces.Right.Update)
       .sign(defaultKeyId)
       .withVault(vault)
-        // .removeKey(did, defaultKeyId)
+    // .removeKey(did, defaultKeyId)
       .sign(keyId1)
       .getAttempts();
     handler.applyTransactionToState({

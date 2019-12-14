@@ -1,6 +1,5 @@
 import { KeyId } from '@internet-of-people/keyvault';
-import * as Interfaces from '../src/interfaces';
-import { didToAuth } from '../src/interfaces';
+import { didToAuth, IDidDocumentState, IKeyData } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 const { DidDocument } = Operations;
 
@@ -17,8 +16,9 @@ export const assertStringlyEqual = (actual: IToString, expected: IToString): voi
   expect(actual.toString()).toStrictEqual(expected.toString());
 };
 
-export const assertEqualAuthEntries = (actual: Interfaces.IKeyData[], expected: Interfaces.IKeyData[]): void => {
+export const assertEqualAuthEntries = (actual: IKeyData[], expected: IKeyData[]): void => {
   expect(actual).toHaveLength(expected.length);
+
   for (let i = 0; i < actual.length; i += 1) {
     assertStringlyEqual(actual[i].auth, expected[i].auth);
     expect(actual[i].expired).toBe(expected[i].expired);
@@ -33,7 +33,7 @@ describe('Relation of DID and KeyId', () => {
 });
 
 describe('DidDocumentState', () => {
-  let didState: Interfaces.IDidDocumentState;
+  let didState: IDidDocumentState;
 
   beforeEach(() => {
     didState = new DidDocument.DidDocumentState(did);
@@ -46,7 +46,7 @@ describe('DidDocumentState', () => {
 
     const didData = didDoc.toData();
     assertEqualAuthEntries(didData.keys, [
-      { auth: defaultKeyId.toString(), expired: false, }
+      { auth: defaultKeyId.toString(), expired: false },
     ]);
   });
 

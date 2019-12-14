@@ -8,75 +8,77 @@ import { IInitializable } from './main';
 import { MorpheusStateHandler } from './state-handler';
 
 export const safePathInt = (pathHeightString: string|undefined|null): number|undefined => {
-  return Number.isNaN( Number(pathHeightString)) || pathHeightString === null 
-    ? undefined 
-    : Number.parseInt(pathHeightString!);
+  return Number.isNaN(Number(pathHeightString)) || pathHeightString === null ?
+    /* eslint no-undefined: 0 */
+    undefined :
+    /* eslint @typescript-eslint/no-non-null-assertion: 0 */
+    Number.parseInt(pathHeightString!);
 };
 
 export class Server implements IInitializable {
   private server: HapiServer|undefined;
 
   public constructor(
-    private host: string,
-    private port: number,
-    private log: IAppLog,
-    private stateHandler: MorpheusStateHandler,
+    private readonly host: string,
+    private readonly port: number,
+    private readonly log: IAppLog,
+    private readonly stateHandler: MorpheusStateHandler,
   ) {}
 
   public async init(): Promise<void> {
     this.server = await createServer({
       host: this.host,
-      port: this.port
+      port: this.port,
     });
     this.server.route([
       {
         method: 'GET',
         path: '/did/{did}/document/{blockHeight?}',
-        handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          const { params: {did, blockHeight} } = request;
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const { params: { did, blockHeight } } = request;
           this.log.debug(`Getting DID document for ${did}`);
           // TODO missing height should be filled in by latest block seen by layer-1
           const height = safePathInt(blockHeight) || Number.MAX_SAFE_INTEGER;
           const document = this.stateHandler.query.getDidDocumentAt(did, height);
           return document.toData();
-        }
+        },
       },
       {
         method: 'GET',
         path: '/did/{did}/operations/{from}/{to?}',
-        handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          const { params: {did, from, to} } = request;
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const { params: { did, from, to } } = request;
           this.log.debug(`Getting DID operations for ${did} from ${from} to ${to}`);
           return [];
-        }
+        },
       },
       {
         method: 'GET',
         path: '/did/{did}/operation-attempts/{from}/{to?}',
-        handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          const { params: {did, from, to} } = request;
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const { params: { did, from, to } } = request;
           this.log.debug(`Getting DID operation attempts for ${did} from ${from} to ${to}`);
           return [];
-        }
+        },
       },
       {
         method: 'POST',
         path: '/check-transaction-validity',
-        handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
+        handler: (_: Request): Lifecycle.ReturnValue => {
           this.log.debug('Checking tx validity');
           return false;
-        }
+        },
       },
       {
         method: 'GET',
         path: '/before-proof/{contentId}/exists/{blockHeight?}',
-        handler: async (request: Request): Promise<Lifecycle.ReturnValue> => {
-          const { params: {contentId, blockHeight} } = request;
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const { params: { contentId, blockHeight } } = request;
           return this.stateHandler.query.beforeProofExistsAt(
-            contentId, 
+            contentId,
             safePathInt(blockHeight),
           );
-        }
+        },
       },
     ]);
 

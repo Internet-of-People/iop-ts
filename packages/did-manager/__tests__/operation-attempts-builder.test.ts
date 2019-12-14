@@ -1,5 +1,11 @@
 import { Interfaces, KeyId, PublicKey, Signature, SignedMessage } from '@internet-of-people/keyvault';
-import { IAddKeyData, IRegisterBeforeProofData, ISignedOperationsData, OperationType, SignableOperationType } from '../src/interfaces';
+import {
+  IAddKeyData,
+  IRegisterBeforeProofData,
+  ISignedOperationsData,
+  OperationType,
+  SignableOperationType,
+} from '../src/interfaces';
 import { OperationAttemptsBuilder } from '../src/morpheus-transaction/operations';
 import { assertStringlyEqual } from './did-document-state.test';
 
@@ -8,6 +14,7 @@ const assertSignedOperationsEqual = (actual: ISignedOperationsData, expected: IS
   assertStringlyEqual(actual.signature, expected.signature);
   expect(actual.operation).toBe(expected.operation);
   expect(actual.signables).toHaveLength(expected.signables.length);
+
   for (let i = 0; i < actual.signables.length; i += 1) {
     // TODO signed operations might need toString on some of their fields, so we might need a visitor
     expect(actual.signables[i]).toStrictEqual(expected.signables[i]);
@@ -29,7 +36,7 @@ describe('OperationAttemptsBuilder', () => {
     const attempts = builder.registerBeforeProof(contentId).getAttempts();
     const expectedBeforeProofData: IRegisterBeforeProofData = {
       operation: OperationType.RegisterBeforeProof,
-      contentId
+      contentId,
     };
     expect(attempts).toStrictEqual([expectedBeforeProofData]);
   });
@@ -48,20 +55,22 @@ describe('OperationAttemptsBuilder', () => {
     const expectedOperationData: ISignedOperationsData = {
       operation: OperationType.Signed,
       signables: [
-        expectedAddKeyData
+        expectedAddKeyData,
       ],
       signerPublicKey: 'Pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6',
       signature: 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4',
     };
-    signMock.mockImplementationOnce((msg, _) => new SignedMessage(
-      new PublicKey(expectedOperationData.signerPublicKey),
-      msg,
-      new Signature(expectedOperationData.signature)
-    ));
+    signMock.mockImplementationOnce((msg, _) => {
+      return new SignedMessage(
+        new PublicKey(expectedOperationData.signerPublicKey),
+        msg,
+        new Signature(expectedOperationData.signature),
+      );
+    });
     const attempts = builder
       .withVault(vault)
-        .addKey(did, keyId1, expectedAddKeyData.expiresAtHeight)
-        .sign(defaultKeyId)
+      .addKey(did, keyId1, expectedAddKeyData.expiresAtHeight)
+      .sign(defaultKeyId)
       .getAttempts();
     expect(attempts).toHaveLength(1);
     expect(attempts[0].operation).toBe(expectedOperationData.operation);

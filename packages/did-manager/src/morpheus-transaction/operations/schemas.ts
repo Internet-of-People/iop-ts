@@ -1,7 +1,7 @@
-import {IOperationTypeVisitor } from '../../interfaces';
+import { IOperationTypeVisitor } from '../../interfaces';
 import { Schemas as BeforeProofSchemas } from './before-proof';
-import {getSchema} from './signable-schemas';
-import {visitAllOperationTypes } from './visitor';
+import { getSchema } from './signable-schemas';
+import { visitAllOperationTypes } from './visitor';
 
 class SchemaVisitor implements IOperationTypeVisitor<unknown> {
   public signed(): unknown {
@@ -17,4 +17,6 @@ class SchemaVisitor implements IOperationTypeVisitor<unknown> {
   }
 }
 
-export const operationSchemas = (): any[] => visitAllOperationTypes(new SchemaVisitor());
+export const operationSchemas = (): unknown[] => {
+  return visitAllOperationTypes(new SchemaVisitor());
+};

@@ -4,9 +4,13 @@ import { Handlers } from '@arkecosystem/core-transactions';
 import { Interfaces as CryptoIf, Transactions } from '@arkecosystem/crypto';
 
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog} from './app-log';
+import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from './app-log';
 import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler } from './state-handler';
-import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader, TransactionReaderFactory } from './transaction-reader-factory';
+import {
+  COMPONENT_NAME as READER_FACTORY_COMPONENT,
+  ITransactionReader,
+  TransactionReaderFactory,
+} from './transaction-reader-factory';
 
 const { Transaction } = MorpheusTransaction;
 
@@ -26,7 +30,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
     return [];
   }
 
-  public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+  public async bootstrap(connection: Database.IConnection, _: State.IWalletManager): Promise<void> {
     const logger: IAppLog = app.resolve(LOGGER_COMPONENT);
     logger.info('Bootstrapping Morpheus plugin...');
 
@@ -39,6 +43,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
     while (reader.hasNext()) {
       const transactions = await reader.read();
       logger.debug(`Processing ${transactions.length} transactions in batch...`);
+
       for (const transaction of transactions) {
         stateHandler.applyTransactionToState({
           asset: transaction.asset as Interfaces.IMorpheusAsset,
@@ -51,23 +56,29 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async canEnterTransactionPool(
-    data: CryptoIf.ITransactionData,
-    pool: TransactionPool.IConnection,
-    processor: TransactionPool.IProcessor,
+    _data: CryptoIf.ITransactionData,
+    _pool: TransactionPool.IConnection,
+    _processor: TransactionPool.IProcessor,
   ): Promise<boolean> {
     // TODO: check if the fee is at least the calculated fee
-    return true;
+    return Promise.resolve(true);
   }
 
   public async isActivated(): Promise<boolean> {
-    return true;
+    return Promise.resolve(true);
   }
 
-  public async applyToRecipient(transaction: CryptoIf.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+  public async applyToRecipient(
+    _transaction: CryptoIf.ITransaction,
+    _walletManager: State.IWalletManager,
+  ): Promise<void> {
     // nothing to do here
   }
 
-  public async revertForRecipient(transaction: CryptoIf.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+  public async revertForRecipient(
+    _transaction: CryptoIf.ITransaction,
+    _walletManager: State.IWalletManager,
+  ): Promise<void> {
     // nothing to do here
   }
 }

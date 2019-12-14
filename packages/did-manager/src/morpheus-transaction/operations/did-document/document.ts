@@ -6,7 +6,7 @@ import {
   IDidDocumentData,
   IKeyData,
   isSameAuthentication,
-  Right
+  Right,
 } from '../../../interfaces';
 
 export class DidDocument implements IDidDocument {
@@ -20,12 +20,16 @@ export class DidDocument implements IDidDocument {
 
   public hasRight(auth: Authentication, right: Right): boolean {
     return this.activeKeysWithRight(right)
-      .some(([idx, _]) => isSameAuthentication(this.keys[idx], auth));
+      .some(([ idx, _ ]) => {
+        return isSameAuthentication(this.keys[idx], auth);
+      });
   }
 
   public fromData(data: IDidDocumentData): void {
     this.data = data; // TODO consider if we should clone here or is this OK
-    this.keys = data.keys.map( (keyData) => authenticationFromData(keyData.auth));
+    this.keys = data.keys.map((keyData) => {
+      return authenticationFromData(keyData.auth);
+    });
   }
 
   public toData(): IDidDocumentData {
@@ -40,10 +44,14 @@ export class DidDocument implements IDidDocument {
     return this.data.did;
   }
 
-  private activeKeysWithRight(right: Right): Array<[number, IKeyData]> {
+  private activeKeysWithRight(right: Right): [number, IKeyData][] {
     const keysWithRight = this.data.rights.get(right) || [];
     return keysWithRight
-      .map(idx => [ idx, this.data.keys[idx] ] as [number, IKeyData])
-      .filter( ([_, key]) => !key.expired);
+      .map((idx) => {
+        return [ idx, this.data.keys[idx] ] as [number, IKeyData];
+      })
+      .filter(([ _, key ]) => {
+        return !key.expired;
+      });
   }
 }

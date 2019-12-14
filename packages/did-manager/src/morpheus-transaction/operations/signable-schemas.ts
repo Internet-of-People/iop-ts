@@ -1,6 +1,6 @@
-import {ISignableOperationTypeVisitor, OperationType} from '../../interfaces';
-import {Schemas as DidDocumentSchemas} from './did-document';
-import {visitAllSignableOperationTypes} from './visitor';
+import { ISignableOperationTypeVisitor, OperationType } from '../../interfaces';
+import { Schemas as DidDocumentSchemas } from './did-document';
+import { visitAllSignableOperationTypes } from './visitor';
 
 class SignableSchemaVisitor implements ISignableOperationTypeVisitor<unknown> {
   public addKey(): unknown {
@@ -11,29 +11,31 @@ class SignableSchemaVisitor implements ISignableOperationTypeVisitor<unknown> {
   }
 }
 
-export const signableOperationSchemas = (): any[] => visitAllSignableOperationTypes(new SignableSchemaVisitor());
+const signableOperationSchemas = (): unknown[] => {
+  return visitAllSignableOperationTypes(new SignableSchemaVisitor());
+};
 
 export const getSchema = (): unknown => {
   return {
-    required: ['operation', 'publicKey', 'signature', 'signables'],
+    required: [ 'operation', 'publicKey', 'signature', 'signables' ],
     // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
     properties: {
       operation: {
         type: 'string',
-        const: OperationType.Signed
+        const: OperationType.Signed,
       },
       signables: {
         type: 'array',
         items: {
-          anyOf: signableOperationSchemas()
-        }
+          anyOf: signableOperationSchemas(),
+        },
       },
       publicKey: {
         type: 'string',
       },
       signature: {
         type: 'string',
-      }
+      },
     },
   };
 };
