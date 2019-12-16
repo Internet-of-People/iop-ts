@@ -2,20 +2,11 @@ import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import inquirer from 'inquirer';
 import { sendMorpheusTx } from '../transaction-sender';
 import { IAction } from '../action';
+import { chooseAction } from '../utils';
 
 const {
   Operations: { OperationAttemptsBuilder },
 } = MorpheusTransaction;
-
-const askForAction = async(): Promise<string> => {
-  const result = await inquirer.prompt([{
-    name: 'action',
-    message: 'Choose action:',
-    type: 'list',
-    choices: [ 'register', 'revoke' ],
-  }]);
-  return result.action;
-};
 
 const register = async(): Promise<void> => {
   const result = await inquirer.prompt([{
@@ -52,15 +43,18 @@ const revoke = async(): Promise<void> => {
 };
 
 const run = async(): Promise<void> => {
-  const action = await askForAction();
-
-  if (action === 'register') {
-    await register();
-  } else if (action === 'revoke') {
-    await revoke();
-  } else {
-    throw new Error(`Unknown action ${action}.`);
-  }
+  const subActions: IAction[] = [
+    {
+      id: 'register',
+      run: register,
+    },
+    {
+      id: 'revoke',
+      run: revoke,
+    },
+  ];
+  const subAction = await chooseAction(subActions, process.argv[3]);
+  await subAction.run();
 };
 
 const BeforeProof: IAction = {
