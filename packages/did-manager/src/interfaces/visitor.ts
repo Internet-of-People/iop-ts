@@ -13,7 +13,9 @@ export interface IOperationVisitor<T> {
 
 export interface ISignableOperationVisitor<T> {
   addKey(did: Did, auth: Authentication, expiresAtHeight?: number): T;
+  revokeKey(did: Did, auth: Authentication): T;
   addRight(did: Did, auth: Authentication, right: Right): T;
+  revokeRight(did: Did, auth: Authentication, right: Right): T;
 }
 
 export interface IOperationTypeVisitor<R> {
@@ -24,5 +26,7 @@ export interface IOperationTypeVisitor<R> {
 
 export interface ISignableOperationTypeVisitor<R> {
   addKey(): R;
+  revokeKey(): R;
   addRight(): R;
+  revokeRight(): R;
 }

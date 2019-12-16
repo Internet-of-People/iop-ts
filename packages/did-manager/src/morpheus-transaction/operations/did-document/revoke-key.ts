@@ -2,25 +2,23 @@ import {
   Authentication,
   Did,
   ISignableOperationVisitor,
-  Right,
   SignableOperation,
   SignableOperationType,
 } from '../../../interfaces';
 
-export class AddRight extends SignableOperation {
+export class RevokeKey extends SignableOperation {
   public constructor(
     private readonly did: Did,
     private readonly auth: Authentication,
-    private readonly right: Right,
   ) {
     super();
   }
 
   public get type(): SignableOperationType {
-    return SignableOperationType.AddRight;
+    return SignableOperationType.RevokeKey;
   }
 
   public accept<T>(visitor: ISignableOperationVisitor<T>): T {
-    return visitor.addRight(this.did, this.auth, this.right);
+    return visitor.revokeKey(this.did, this.auth);
   }
 }

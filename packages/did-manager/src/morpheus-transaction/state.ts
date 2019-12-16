@@ -59,6 +59,17 @@ export class MorpheusState implements IMorpheusState {
       state.apply.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     },
+    revokeKey: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      revokedAuth: Authentication,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      this.ensureDifferentAuth(signerAuth, revokedAuth);
+      state.apply.revokeKey(height, revokedAuth);
+      this.didDocuments.set(did, state);
+    },
     addRight: (
       height: number,
       signerAuth: Authentication,
@@ -69,6 +80,18 @@ export class MorpheusState implements IMorpheusState {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.apply.addRight(height, auth, right);
+      this.didDocuments.set(did, state);
+    },
+    revokeRight: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      auth: Authentication,
+      right: Right,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      this.ensureDifferentAuth(signerAuth, auth);
+      state.apply.revokeRight(height, auth, right);
       this.didDocuments.set(did, state);
     },
   };
@@ -121,6 +144,17 @@ export class MorpheusState implements IMorpheusState {
       state.revert.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     },
+    revokeKey: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      revokedAuth: Authentication,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      this.ensureDifferentAuth(signerAuth, revokedAuth);
+      state.revert.revokeKey(height, revokedAuth);
+      this.didDocuments.set(did, state);
+    },
     addRight: (
       height: number,
       signerAuth: Authentication,
@@ -133,6 +167,18 @@ export class MorpheusState implements IMorpheusState {
       state.revert.addRight(height, auth, right);
       this.didDocuments.set(did, state);
     },
+    revokeRight: (
+      height: number,
+      signerAuth: Authentication,
+      did: string,
+      auth: Authentication,
+      right: Right,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      this.ensureDifferentAuth(signerAuth, auth);
+      state.revert.revokeRight(height, auth, right);
+      this.didDocuments.set(did, state);
+    }
   };
 
   private confirmedTxs: Map<string, boolean> = new Map();

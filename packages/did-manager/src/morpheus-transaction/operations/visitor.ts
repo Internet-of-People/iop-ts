@@ -37,7 +37,12 @@ export const visitSignableOperation = <R>(operation: string, visitor: ISignableO
   switch (operation) {
     case SignableOperationType.AddKey:
       return visitor.addKey();
-
+    case SignableOperationType.RevokeKey:
+      return visitor.revokeKey();
+    case SignableOperationType.AddRight:
+      return visitor.addRight();
+    case SignableOperationType.RevokeRight:
+      return visitor.revokeRight();
     default: {
       throw new Error(`Unknown signable operation type ${operation}`);
     }
@@ -46,6 +51,9 @@ export const visitSignableOperation = <R>(operation: string, visitor: ISignableO
 
 const allSignableOps: string[] = [
   SignableOperationType.AddKey,
+  SignableOperationType.RevokeKey,
+  SignableOperationType.AddRight,
+  SignableOperationType.RevokeRight,
 ];
 
 export const visitAllSignableOperationTypes = <R>(visitor: ISignableOperationTypeVisitor<R>): R[] => {

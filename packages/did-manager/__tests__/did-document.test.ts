@@ -8,7 +8,7 @@ describe('DidDocument', () => {
   const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
   const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
   const keys: IKeyData[] = [
-    { auth: defaultKeyId.toString(), expired: false },
+    { auth: defaultKeyId.toString(), revoked: false, valid: true },
   ];
   const rights = new Map([
     [ Right.Impersonate, [0]],
@@ -35,9 +35,9 @@ describe('DidDocument', () => {
     doc.fromData({ did, keys, rights, atHeight });
     expect(doc.toData().keys).toHaveLength(1);
     expect(doc.toData().keys[0].auth).toBe(defaultKeyId.toString());
-    expect(doc.toData().keys[0].expired).toBeFalsy();
+    expect(doc.toData().keys[0].valid).toBeTruthy();
     /* eslint no-undefined: 0 */
-    expect(doc.toData().keys[0].expiresAtHeight).toBe(undefined);
+    expect(doc.toData().keys[0].validUntilHeight).toBe(undefined);
     expect(doc.toData().did).toBe(did);
     expect(doc.toData().atHeight).toBe(1);
     expect(doc.toData().rights.size).toBe(2);

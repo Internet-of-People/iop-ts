@@ -19,7 +19,7 @@ export class DidDocument implements IDidDocument {
   }
 
   public hasRight(auth: Authentication, right: Right): boolean {
-    return this.activeKeysWithRight(right)
+    return this.validKeysWithRight(right)
       .some(([ idx, _ ]) => {
         return isSameAuthentication(this.keys[idx], auth);
       });
@@ -44,14 +44,14 @@ export class DidDocument implements IDidDocument {
     return this.data.did;
   }
 
-  private activeKeysWithRight(right: Right): [number, IKeyData][] {
+  private validKeysWithRight(right: Right): [number, IKeyData][] {
     const keysWithRight = this.data.rights.get(right) || [];
     return keysWithRight
       .map((idx) => {
         return [ idx, this.data.keys[idx] ] as [number, IKeyData];
       })
       .filter(([ _, key ]) => {
-        return !key.expired;
+        return key.valid;
       });
   }
 }

@@ -7,7 +7,7 @@ import {
   SignableOperationType,
 } from '../../../interfaces';
 
-export class AddRight extends SignableOperation {
+export class RevokeRight extends SignableOperation {
   public constructor(
     private readonly did: Did,
     private readonly auth: Authentication,
@@ -17,10 +17,10 @@ export class AddRight extends SignableOperation {
   }
 
   public get type(): SignableOperationType {
-    return SignableOperationType.AddRight;
+    return SignableOperationType.RevokeRight;
   }
 
   public accept<T>(visitor: ISignableOperationVisitor<T>): T {
-    return visitor.addRight(this.did, this.auth, this.right);
+    return visitor.revokeRight(this.did, this.auth, this.right);
   }
 }

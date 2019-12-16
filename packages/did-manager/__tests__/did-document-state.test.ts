@@ -22,8 +22,8 @@ export const assertEqualAuthEntries = (actual: IKeyData[], expected: IKeyData[])
 
   for (let i = 0; i < actual.length; i += 1) {
     assertStringlyEqual(actual[i].auth, expected[i].auth);
-    expect(actual[i].expired).toBe(expected[i].expired);
-    expect(actual[i].expiresAtHeight).toBe(expected[i].expiresAtHeight);
+    expect(actual[i].valid).toBe(expected[i].valid);
+    expect(actual[i].validUntilHeight).toBe(expected[i].validUntilHeight);
   }
 };
 
@@ -47,7 +47,7 @@ describe('DidDocumentState', () => {
 
     const didData = didDoc.toData();
     assertEqualAuthEntries(didData.keys, [
-      { auth: defaultKeyId.toString(), expired: false },
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
     ]);
   });
 
@@ -63,7 +63,8 @@ describe('DidDocumentState', () => {
     expect(stateAtHeight1.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight1.toData().keys, [{
       auth: defaultKeyId.toString(),
-      expired: false,
+      revoked: false,
+      valid: true,
     }]);
 
     didState.apply.addKey(2, keyId1);
@@ -71,8 +72,8 @@ describe('DidDocumentState', () => {
     expect(stateAtHeight2.height).toBe(2);
     expect(stateAtHeight2.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight2.toData().keys, [
-      { auth: defaultKeyId.toString(), expired: false },
-      { auth: keyId1.toString(), expired: false },
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
+      { auth: keyId1.toString(), revoked: false, valid: true },
     ]);
 
     didState.apply.addKey(5, keyId2, 10);
@@ -80,18 +81,18 @@ describe('DidDocumentState', () => {
     expect(stateAtHeight5.height).toBe(5);
     expect(stateAtHeight5.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight5.toData().keys, [
-      { auth: defaultKeyId.toString(), expired: false },
-      { auth: keyId1.toString(), expired: false },
-      { auth: keyId2.toString(), expired: false, expiresAtHeight: 10 },
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
+      { auth: keyId1.toString(), revoked: false, valid: true },
+      { auth: keyId2.toString(), revoked: false, valid: true, validUntilHeight: 10 },
     ]);
 
     const stateAtHeight10 = didState.query.getAt(10);
     expect(stateAtHeight10.height).toBe(10);
     expect(stateAtHeight10.did).toBe(did);
     assertEqualAuthEntries(stateAtHeight10.toData().keys, [
-      { auth: defaultKeyId.toString(), expired: false },
-      { auth: keyId1.toString(), expired: false },
-      { auth: keyId2.toString(), expired: true, expiresAtHeight: 10 },
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
+      { auth: keyId1.toString(), revoked: false, valid: true },
+      { auth: keyId2.toString(), revoked: false, valid: false, validUntilHeight: 10 },
     ]);
   });
 

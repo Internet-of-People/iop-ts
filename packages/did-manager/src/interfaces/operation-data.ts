@@ -45,9 +45,26 @@ export interface IAddKeyData extends ISignableOperationData {
 }
 
 /**
+ * Data transfer object of RevokeKey.
+ */
+export interface IRevokeKeyData extends ISignableOperationData {
+  did: Did;
+  auth: AuthenticationData;
+}
+
+/**
  * Data transfer object of AddRight.
  */
 export interface IAddRightData extends ISignableOperationData {
+  did: Did;
+  auth: AuthenticationData;
+  right: Right;
+}
+
+/**
+ * Data transfer object of RevokeRight.
+ */
+export interface IRevokeRightData extends ISignableOperationData {
   did: Did;
   auth: AuthenticationData;
   right: Right;

@@ -32,6 +32,7 @@ interface IEntry {
   auth: Authentication;
   validFromHeight?: number;
   validUntilHeight?: number;
+  revoked: boolean,
   rights: Map<Right, ITimeSeries>;
 }
 
@@ -53,25 +54,33 @@ export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => {
 };
 
 const entryIsValidAt = (entry: IEntry, height: number): boolean => {
-  return !entry.validUntilHeight || entry.validUntilHeight > height;
+  let valid = !entry.revoked;
+  valid = valid && ( (entry.validFromHeight || 0) <= height );
+  valid = valid && ( !entry.validUntilHeight || entry.validUntilHeight > height );
+  return valid;
 };
 
 const entryToKeyData = (entry: IEntry, height: number): IKeyData => {
   const data: IKeyData = {
     auth: entry.auth.toString(),
-    expired: !entryIsValidAt(entry, height),
+    revoked: entry.revoked,
+    valid: entryIsValidAt(entry, height),
   };
 
-  if (entry.validUntilHeight) {
-    data.expiresAtHeight = entry.validUntilHeight;
+  if (entry.validFromHeight) {
+    data.validFromHeight = entry.validFromHeight;
   }
+  if (entry.validUntilHeight) {
+    data.validUntilHeight = entry.validUntilHeight;
+  }
+
   return data;
 };
 
 export class DidDocumentState implements IDidDocumentState {
   public readonly query: IDidDocumentQueries = {
     getAt: (height: number): IDidDocument => {
-      const reversedKeys = this.keys.slice(0).reverse();
+      const reversedKeys = this.keyEntries.slice(0).reverse();
       const validKeys = reversedKeys
         .filter((key) => {
           return (key.validFromHeight || 0) <= height;
@@ -108,7 +117,24 @@ export class DidDocumentState implements IDidDocumentState {
         throw new Error(`DID ${this.did} already has a still valid key matching ${auth}`);
       }
       const rights = initialRights(false);
-      this.keys.unshift({ auth, rights, validFromHeight: height, validUntilHeight: expiresAtHeight });
+      this.keyEntries.unshift({ auth, rights, validFromHeight: height,
+        validUntilHeight: expiresAtHeight, revoked: false });
+    },
+
+    revokeKey: (height: number, auth: Authentication): void => {
+      this.ensureMinHeight(height);
+
+      const indexPresent = this.lastIndexWithAuth(auth);
+      if (indexPresent < 0) {
+        throw new Error(`DID ${this.did} does not have a key matching ${auth}`);
+      }
+
+      const entryPresent = this.keyEntries[indexPresent];
+      if( ! entryIsValidAt(entryPresent, height)) {
+        throw new Error(`DID ${this.did} has a key matching ${auth}, but it's already invalidated`);
+      }
+
+      this.keyEntries[indexPresent].revoked = true;
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
@@ -124,10 +150,10 @@ export class DidDocumentState implements IDidDocumentState {
     addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
       this.ensureMinHeight(height);
 
-      if (!this.keys.length) {
+      if (!this.keyEntries.length) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because there are no keys`);
       }
-      const [lastKey] = this.keys;
+      const [lastKey] = this.keyEntries;
 
       // NOTE intentionally does not use isSameAuthentication() and entryIsValidAt() because
       //      exact types and values are already known here
@@ -142,7 +168,23 @@ export class DidDocumentState implements IDidDocumentState {
       if (lastKey.validUntilHeight !== expiresAtHeight) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because it was not added with the same expiration.`);
       }
-      this.keys.shift();
+      this.keyEntries.shift();
+    },
+
+    revokeKey: (height: number, auth: Authentication): void => {
+      this.ensureMinHeight(height);
+
+      const indexPresent = this.lastIndexWithAuth(auth);
+      if (indexPresent < 0) {
+        throw new Error(`Cannot revert revokeKey in DID ${this.did} because it does not have a key matching ${auth}`);
+      }
+
+      const entryPresent = this.keyEntries[indexPresent];
+      entryPresent.revoked = false;
+
+      if( ! entryIsValidAt(entryPresent, height)) {
+        throw new Error(`Failed to revert revokeKey in DID ${this.did} for key matching ${auth} because it's still invalid after unrevoking`);
+      }
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
@@ -159,18 +201,19 @@ export class DidDocumentState implements IDidDocumentState {
    * invalidated, but not deleted, so the index of the entry never expires in other data fields.
    * When a removed key is added again, a new entry is added with a new index.
    */
-  private keys: IEntry[] = [];
+  private keyEntries: IEntry[] = [];
 
   public constructor(public readonly did: Did) {
-    this.keys.unshift({
+    this.keyEntries.unshift({
       auth: didToAuth(did),
+      revoked: false,
       rights: initialRights(true),
     });
   }
 
   public clone(): IDidDocumentState {
     const result = new DidDocumentState(this.did);
-    result.keys = cloneDeep(this.keys);
+    result.keyEntries = cloneDeep(this.keyEntries);
     return result;
   }
 
@@ -195,8 +238,14 @@ export class DidDocumentState implements IDidDocumentState {
     return rightHistory;
   }
 
+  private lastIndexWithAuth(auth: Authentication): number {
+    return this.keyEntries.findIndex((entry) => {
+      return isSameAuthentication(entry.auth, auth);
+    });
+  }
+
   private lastEntryWithAuth(auth: Authentication): IEntry | undefined {
-    return this.keys.find((entry) => {
+    return this.keyEntries.find((entry) => {
       return isSameAuthentication(entry.auth, auth);
     });
   }

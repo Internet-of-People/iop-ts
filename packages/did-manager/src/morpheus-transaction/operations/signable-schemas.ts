@@ -6,8 +6,14 @@ class SignableSchemaVisitor implements ISignableOperationTypeVisitor<unknown> {
   public addKey(): unknown {
     return DidDocumentSchemas.addKey;
   }
+  public revokeKey(): unknown {
+    return DidDocumentSchemas.revokeKey;
+  }
   public addRight(): unknown {
     return DidDocumentSchemas.addRight;
+  }
+  public revokeRight(): unknown {
+    return DidDocumentSchemas.revokeRight;
   }
 }
 

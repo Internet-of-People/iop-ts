@@ -29,7 +29,22 @@ export interface IMorpheusOperations {
     expiresAtHeight?: number,
   ): void;
 
+  revokeKey(
+    height: number,
+    signerAuth: Authentication,
+    did: Did,
+    revokedAuth: Authentication,
+  ): void;
+
   addRight(
+    height: number,
+    signerAuth: Authentication,
+    did: Did,
+    auth: Authentication,
+    right: Right
+  ): void;
+
+  revokeRight(
     height: number,
     signerAuth: Authentication,
     did: Did,

@@ -46,8 +46,10 @@ export enum Right {
 
 export interface IKeyData {
   auth: AuthenticationData;
-  expiresAtHeight?: number;
-  expired: boolean;
+  validFromHeight?: number,
+  validUntilHeight?: number;
+  revoked: boolean;
+  valid: boolean; // NOTE: contains aggregated information derived from other fields
 }
 
 // TODO: this will be returned to the user basically. Please then follow the structure defined here:
@@ -76,6 +78,7 @@ export interface IDidDocumentQueries {
 
 export interface IDidDocumentOperations {
   addKey(height: number, auth: Authentication, expiresAtHeight?: number): void;
+  revokeKey(height: number, auth: Authentication): void;
   addRight(height: number, auth: Authentication, right: Right): void;
   revokeRight(height: number, auth: Authentication, right: Right): void;
 }

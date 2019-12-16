@@ -2,7 +2,7 @@ import {
   Authentication,
   Did,
   IAddKeyData,
-  IAddRightData,
+  IAddRightData, IRevokeKeyData, IRevokeRightData,
   ISignableOperationData,
   ISignableOperationVisitor,
   Right,
@@ -24,9 +24,28 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
     return result;
   }
 
+  public revokeKey(did: Did, auth: Authentication): ISignableOperationData {
+    const result: IRevokeKeyData = {
+      operation: SignableOperationType.RevokeKey,
+      did,
+      auth: auth.toString(),
+    };
+    return result;
+  }
+
   public addRight(did: Did, auth: Authentication, right: Right): ISignableOperationData {
     const result: IAddRightData = {
       operation: SignableOperationType.AddRight,
+      did,
+      auth: auth.toString(),
+      right,
+    };
+    return result;
+  }
+
+  public revokeRight(did: Did, auth: Authentication, right: Right): ISignableOperationData {
+    const result: IRevokeRightData = {
+      operation: SignableOperationType.RevokeRight,
       did,
       auth: auth.toString(),
       right,
