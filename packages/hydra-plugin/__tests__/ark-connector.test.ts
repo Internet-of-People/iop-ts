@@ -1,9 +1,9 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
+import { IAppLog } from '@internet-of-people/logger';
+import { Interfaces } from '@internet-of-people/did-manager';
 import { EventEmitter } from 'events';
-import { IAppLog } from '../src/app-log';
 import { MorpheusArkConnector } from '../src/ark-connector';
 import { IBlockEventSource, IBlockListener } from '../src/block-event-source';
-import { MorpheusEvents } from '../src/state-interfaces';
 
 class Fixture {
   public eventEmitter: NodeJS.EventEmitter;
@@ -51,7 +51,7 @@ describe('ArkConnector', () => {
 
   it('subscribes on init', async() => {
     expect(fixture.blockEventSourceMock.subscribe).not.toHaveBeenCalled();
-    expect(fixture.eventEmitter.listenerCount(MorpheusEvents.StateCorrupted)).toBe(0);
+    expect(fixture.eventEmitter.listenerCount(Interfaces.MorpheusEvents.StateCorrupted)).toBe(0);
 
     await arkConnector.init();
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledTimes(1);
@@ -59,13 +59,13 @@ describe('ArkConnector', () => {
       MorpheusArkConnector.SUBSCRIPTION_ID,
       fixture.blockListener,
     );
-    expect(fixture.eventEmitter.listenerCount(MorpheusEvents.StateCorrupted)).toBe(1);
+    expect(fixture.eventEmitter.listenerCount(Interfaces.MorpheusEvents.StateCorrupted)).toBe(1);
   });
   it('unsubscribes on corrupted event', async() => {
     await arkConnector.init();
 
     expect(fixture.blockEventSourceMock.unsubscribe).not.toHaveBeenCalled();
-    fixture.eventEmitter.emit(MorpheusEvents.StateCorrupted);
+    fixture.eventEmitter.emit(Interfaces.MorpheusEvents.StateCorrupted);
     expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledTimes(1);
     expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledWith(MorpheusArkConnector.SUBSCRIPTION_ID);
   });

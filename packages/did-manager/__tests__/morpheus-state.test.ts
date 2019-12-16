@@ -1,7 +1,7 @@
-import { MorpheusState } from '../src/state';
-import { IMorpheusState } from '../src/state-interfaces';
+import { MorpheusState } from '../src/morpheus-transaction/state';
+import { IMorpheusState } from '../src/interfaces';
 
-import { assertStringlyEqual, defaultKeyId, did, keyId1 } from './state-handler.test';
+import { assertStringlyEqual, defaultKeyId, did, keyId1 } from './morpheus-state-handler.test';
 
 describe('Cloneable', () => {
   it('actually works', () => {

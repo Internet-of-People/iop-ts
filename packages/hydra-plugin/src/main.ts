@@ -1,18 +1,20 @@
 import { Container } from '@arkecosystem/core-interfaces';
 import { Handlers } from '@arkecosystem/core-transactions';
+import { AppLog, COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '@internet-of-people/logger';
 import { asValue } from 'awilix';
-import { AppLog, COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from './app-log';
 import { MorpheusArkConnector } from './ark-connector';
 import { BlockEventSource } from './block-event-source';
 import { BlockHandler } from './block-handler';
 import { schedule } from './scheduler';
 import { Server } from './server';
-import { COMPONENT_NAME as STATE_HANDLER_COMPONENT_NAME, MorpheusStateHandler } from './state-handler';
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { MorpheusTransactionHandler } from './transaction-handler';
 import {
   COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME,
   transactionReaderFactory,
 } from './transaction-reader-factory';
+
+const { MorpheusStateHandler: { MorpheusStateHandler } } = MorpheusTransaction;
 
 const PLUGIN_ALIAS = 'morpheus-hydra-plugin';
 
@@ -60,7 +62,7 @@ const register = async(container: Container.IContainer): Promise<Composite> => {
   // into the container, so the transaction handler can resolve them from there.
   const stateHandler = new MorpheusStateHandler(log, eventEmitter);
   container.register(READER_FACTORY_COMPONENT_NAME, asValue(transactionReaderFactory));
-  container.register(STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
+  container.register(Interfaces.MORPHEUS_STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
   container.register(LOGGER_COMPONENT, asValue(log));
 
   const server = new Server('0.0.0.0', 4705, log, stateHandler);

@@ -1,11 +1,11 @@
 import { createServer } from '@arkecosystem/core-http-utils';
 import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
 import Optional from 'optional-js';
-import { IAppLog } from './app-log';
+import { IAppLog } from '@internet-of-people/logger';
 
 // TODO break circular dependency
 import { IInitializable } from './main';
-import { MorpheusStateHandler } from './state-handler';
+import { Interfaces } from '@internet-of-people/did-manager';
 
 export const safePathInt = (pathHeightString: string|undefined|null): number|undefined => {
   return Number.isNaN(Number(pathHeightString)) || pathHeightString === null ?
@@ -22,7 +22,7 @@ export class Server implements IInitializable {
     private readonly host: string,
     private readonly port: number,
     private readonly log: IAppLog,
-    private readonly stateHandler: MorpheusStateHandler,
+    private readonly stateHandler: Interfaces.IMorpheusStateHandler,
   ) {}
 
   public async init(): Promise<void> {

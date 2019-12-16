@@ -36,6 +36,7 @@ describe('DidDocument', () => {
     expect(doc.toData().keys).toHaveLength(1);
     expect(doc.toData().keys[0].auth).toBe(defaultKeyId.toString());
     expect(doc.toData().keys[0].expired).toBeFalsy();
+    /* eslint no-undefined: 0 */
     expect(doc.toData().keys[0].expiresAtHeight).toBe(undefined);
     expect(doc.toData().did).toBe(did);
     expect(doc.toData().atHeight).toBe(1);

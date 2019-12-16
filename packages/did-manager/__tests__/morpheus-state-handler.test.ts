@@ -1,4 +1,4 @@
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { ISignedOperationsData, OperationType, Right } from '../src/interfaces';
 import {
   Interfaces as KvInterfaces,
   KeyId,
@@ -8,9 +8,8 @@ import {
 } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
-import { MorpheusStateHandler } from '../src/state-handler';
-
-const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
+import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
+import { OperationAttemptsBuilder } from '../src/morpheus-transaction/operations';
 
 export const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 export const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
@@ -131,7 +130,7 @@ describe('StateHandler', () => {
       .withVault(vault)
       .sign(defaultKeyId)
       .getAttempts();
-    expect(attempts[0].operation).toBe(Interfaces.OperationType.Signed);
+    expect(attempts[0].operation).toBe(OperationType.Signed);
     handler.applyTransactionToState({
       asset: { operationAttempts: attempts },
       blockHeight: 5,
@@ -146,7 +145,7 @@ describe('StateHandler', () => {
       .withVault(vault)
       .sign(defaultKeyId)
       .getAttempts();
-    const signed = attempts[0] as Interfaces.ISignedOperationsData;
+    const signed = attempts[0] as ISignedOperationsData;
     /* eslint max-len: 0 */
     const invalidSignature = 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4';
     signed.signature = invalidSignature;
@@ -179,8 +178,8 @@ describe('StateHandler', () => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
       .addKey(did, keyId1)
-      .addRight(did, keyId1, Interfaces.Right.Impersonate)
-      .addRight(did, keyId1, Interfaces.Right.Update)
+      .addRight(did, keyId1, Right.Impersonate)
+      .addRight(did, keyId1, Right.Update)
       .sign(defaultKeyId)
       .withVault(vault)
     // .removeKey(did, defaultKeyId)

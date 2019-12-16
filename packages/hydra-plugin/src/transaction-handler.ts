@@ -4,8 +4,8 @@ import { Handlers } from '@arkecosystem/core-transactions';
 import { Interfaces as CryptoIf, Transactions } from '@arkecosystem/crypto';
 
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from './app-log';
-import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler } from './state-handler';
+import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '@internet-of-people/logger';
+
 import {
   COMPONENT_NAME as READER_FACTORY_COMPONENT,
   ITransactionReader,
@@ -38,7 +38,9 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
     // This means, when a node is bootstrapped from scratch, it will not see any reverted blocks.
     const readerFactory: TransactionReaderFactory = app.resolve(READER_FACTORY_COMPONENT);
     const reader: ITransactionReader = await readerFactory(connection, this.getConstructor());
-    const stateHandler: IMorpheusStateHandler = app.resolve(STATE_HANDLER_COMPONENT);
+    const stateHandler: Interfaces.IMorpheusStateHandler = app.resolve(
+      Interfaces.MORPHEUS_STATE_HANDLER_COMPONENT_NAME,
+    );
 
     while (reader.hasNext()) {
       const transactions = await reader.read();

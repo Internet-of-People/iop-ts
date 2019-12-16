@@ -1,12 +1,14 @@
 /* eslint no-undefined: 0 */
 import { Server as HapiServer } from '@hapi/hapi';
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
+import { IAppLog } from '@internet-of-people/logger';
 import { EventEmitter } from 'events';
-import { IAppLog } from '../src/app-log';
 import { safePathInt, Server } from '../src/server';
-import { MorpheusStateHandler } from '../src/state-handler';
 
-const { Operations: { OperationAttemptsBuilder } } = MorpheusTransaction;
+const {
+  Operations: { OperationAttemptsBuilder },
+  MorpheusStateHandler: { MorpheusStateHandler },
+} = MorpheusTransaction;
 
 class Fixture {
   public emitter: NodeJS.EventEmitter = new EventEmitter();

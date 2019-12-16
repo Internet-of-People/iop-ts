@@ -4,8 +4,8 @@ import { EventEmitter } from 'events';
 
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
+import { IAppLog } from '@internet-of-people/logger';
 
-import { IAppLog } from '../src/app-log';
 import { BlockEventSource, IBlockListener } from '../src/block-event-source';
 import { Scheduler, Task } from '../src/scheduler';
 

@@ -1,10 +1,9 @@
 import { app } from '@arkecosystem/core-container';
 import { Database, State } from '@arkecosystem/core-interfaces';
 import { Interfaces } from '@internet-of-people/did-manager';
+import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '@internet-of-people/logger';
 import { asValue } from 'awilix';
 import Optional from 'optional-js';
-import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '../src/app-log';
-import { COMPONENT_NAME as STATE_HANDLER_COMPONENT, IMorpheusStateHandler, IStateChange } from '../src/state-handler';
 import { MorpheusTransactionHandler } from '../src/transaction-handler';
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader } from '../src/transaction-reader-factory';
 
@@ -24,10 +23,10 @@ class Fixture {
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
       getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Interfaces.Did, number]>(),
     },
-    applyTransactionToState: jest.fn<void, [IStateChange]>(),
-    revertTransactionFromState: jest.fn<void, [IStateChange]>(),
+    applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
+    revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
   };
-  public stateHandler = this.stateHandlerMock as IMorpheusStateHandler;
+  public stateHandler = this.stateHandlerMock as Interfaces.IMorpheusStateHandler;
 
   public transactionReaderMock = {
     hasNext: jest.fn<boolean, []>(),
@@ -37,7 +36,7 @@ class Fixture {
 
   public constructor() {
     try {
-      app.register(STATE_HANDLER_COMPONENT, asValue(this.stateHandler));
+      app.register(Interfaces.MORPHEUS_STATE_HANDLER_COMPONENT_NAME, asValue(this.stateHandler));
       app.register(READER_FACTORY_COMPONENT, asValue(() => {
         return this.transactionReader;
       }));

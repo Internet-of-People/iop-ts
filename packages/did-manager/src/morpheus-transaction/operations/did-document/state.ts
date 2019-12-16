@@ -112,11 +112,11 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
-      this.getRightHistory(height,auth,right).apply.set(height, true);
+      this.getRightHistory(height, auth, right).apply.set(height, true);
     },
 
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
-      this.getRightHistory(height,auth,right).apply.set(height, false);
+      this.getRightHistory(height, auth, right).apply.set(height, false);
     },
   };
 
@@ -146,11 +146,11 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
-      this.getRightHistory(height,auth,right).revert.set(height, true);
+      this.getRightHistory(height, auth, right).revert.set(height, true);
     },
 
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
-      this.getRightHistory(height,auth,right).apply.set(height, false);
+      this.getRightHistory(height, auth, right).apply.set(height, false);
     },
   };
 
@@ -180,7 +180,7 @@ export class DidDocumentState implements IDidDocumentState {
     }
   }
 
-  private getRightHistory(height: number, auth: Authentication, right: Right): ITimeSeries<boolean> {
+  private getRightHistory(height: number, auth: Authentication, right: Right): ITimeSeries {
     const entry = this.lastEntryWithAuth(auth);
 
     if (!entry || !entryIsValidAt(entry, height)) {

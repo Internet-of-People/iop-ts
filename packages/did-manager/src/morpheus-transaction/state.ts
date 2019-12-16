@@ -1,9 +1,19 @@
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import cloneDeep from 'lodash.clonedeep';
 import Optional from 'optional-js';
-import { IMorpheusOperations, IMorpheusQueries, IMorpheusState } from './state-interfaces';
-
-const { Operations: { BeforeProof: { BeforeProofState }, DidDocument: { DidDocumentState } } } = MorpheusTransaction;
+import {
+  IMorpheusOperations,
+  IMorpheusQueries,
+  IMorpheusState,
+  Did,
+  IDidDocument,
+  Authentication,
+  Right,
+  IBeforeProofState,
+  IDidDocumentState,
+  isSameAuthentication,
+} from '../interfaces';
+import { BeforeProofState } from './operations/before-proof';
+import { DidDocumentState } from './operations/did-document';
 
 export class MorpheusState implements IMorpheusState {
   public readonly query: IMorpheusQueries = {
@@ -15,7 +25,7 @@ export class MorpheusState implements IMorpheusState {
       /* eslint no-undefined: 0 */
       return beforeProofState !== undefined && beforeProofState.query.existsAt(height);
     },
-    getDidDocumentAt: (did: Interfaces.Did, height: number): Interfaces.IDidDocument => {
+    getDidDocumentAt: (did: Did, height: number): IDidDocument => {
       const didState = this.getOrCreateDidDocument(did);
       return didState.query.getAt(height);
     },
@@ -40,9 +50,9 @@ export class MorpheusState implements IMorpheusState {
     },
     addKey: (
       height: number,
-      signerAuth: Interfaces.Authentication,
-      did: Interfaces.Did,
-      newAuth: Interfaces.Authentication,
+      signerAuth: Authentication,
+      did: Did,
+      newAuth: Authentication,
       expiresAtHeight?: number,
     ): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
@@ -51,10 +61,10 @@ export class MorpheusState implements IMorpheusState {
     },
     addRight: (
       height: number,
-      signerAuth: Interfaces.Authentication,
-      did: Interfaces.Did,
-      auth: Interfaces.Authentication,
-      right: Interfaces.Right,
+      signerAuth: Authentication,
+      did: Did,
+      auth: Authentication,
+      right: Right,
     ): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
@@ -102,9 +112,9 @@ export class MorpheusState implements IMorpheusState {
     },
     addKey: (
       height: number,
-      signerAuth: Interfaces.Authentication,
-      did: Interfaces.Did,
-      newAuth: Interfaces.Authentication,
+      signerAuth: Authentication,
+      did: Did,
+      newAuth: Authentication,
       expiresAtHeight?: number,
     ): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
@@ -113,10 +123,10 @@ export class MorpheusState implements IMorpheusState {
     },
     addRight: (
       height: number,
-      signerAuth: Interfaces.Authentication,
-      did: Interfaces.Did,
-      auth: Interfaces.Authentication,
-      right: Interfaces.Right,
+      signerAuth: Authentication,
+      did: Did,
+      auth: Authentication,
+      right: Right,
     ): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
@@ -126,21 +136,21 @@ export class MorpheusState implements IMorpheusState {
   };
 
   private confirmedTxs: Map<string, boolean> = new Map();
-  private beforeProofs: Map<string, Interfaces.IBeforeProofState> = new Map();
-  private didDocuments: Map<Interfaces.Did, Interfaces.IDidDocumentState> = new Map();
+  private beforeProofs: Map<string, IBeforeProofState> = new Map();
+  private didDocuments: Map<Did, IDidDocumentState> = new Map();
 
   public clone(): IMorpheusState {
     const cloned = new MorpheusState();
     cloned.confirmedTxs = cloneDeep(this.confirmedTxs);
 
-    const clonedBeforeProofs = new Map<string, Interfaces.IBeforeProofState>();
+    const clonedBeforeProofs = new Map<string, IBeforeProofState>();
 
     for (const [ key, value ] of this.beforeProofs.entries()) {
       clonedBeforeProofs.set(key, value.clone());
     }
     cloned.beforeProofs = clonedBeforeProofs;
 
-    const clonedDidDocuments = new Map<Interfaces.Did, Interfaces.IDidDocumentState>();
+    const clonedDidDocuments = new Map<Did, IDidDocumentState>();
 
     for (const [ key, value ] of this.didDocuments.entries()) {
       clonedDidDocuments.set(key, value.clone());
@@ -157,29 +167,29 @@ export class MorpheusState implements IMorpheusState {
     this.confirmedTxs.set(transactionId, value);
   }
 
-  private getOrCreateBeforeProof(contentId: string): Interfaces.IBeforeProofState {
+  private getOrCreateBeforeProof(contentId: string): IBeforeProofState {
     return this.beforeProofs.get(contentId) || new BeforeProofState(contentId);
   }
 
-  private getOrCreateDidDocument(did: Interfaces.Did): Interfaces.IDidDocumentState {
+  private getOrCreateDidDocument(did: Did): IDidDocumentState {
     return this.didDocuments.get(did) || new DidDocumentState(did);
   }
 
   private beginUpdateDidDocument(
-    did: Interfaces.Did,
+    did: Did,
     height: number,
-    signerAuth: Interfaces.Authentication,
-  ): Interfaces.IDidDocumentState {
+    signerAuth: Authentication,
+  ): IDidDocumentState {
     const state = this.getOrCreateDidDocument(did);
 
-    if (!state.query.getAt(height).hasRight(signerAuth, Interfaces.Right.Update)) {
+    if (!state.query.getAt(height).hasRight(signerAuth, Right.Update)) {
       throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
     }
     return state;
   }
 
-  private ensureDifferentAuth(signerAuth: Interfaces.Authentication, auth: Interfaces.Authentication): void {
-    if (Interfaces.isSameAuthentication(signerAuth, auth)) {
+  private ensureDifferentAuth(signerAuth: Authentication, auth: Authentication): void {
+    if (isSameAuthentication(signerAuth, auth)) {
       throw new Error(`${signerAuth} cannot modify its own authorization (as ${auth})`);
     }
   }

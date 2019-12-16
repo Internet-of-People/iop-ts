@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/unbound-method: 0 */
-import { IAppLog } from '../src/app-log';
+import { IAppLog } from '@internet-of-people/logger';
 import { schedule } from '../src/scheduler';
 
 class Fixture {

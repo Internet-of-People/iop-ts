@@ -1,0 +1,28 @@
+{
+  "name": "@internet-of-people/logger",
+  "version": "0.1.0-alpha.1",
+  "author": {
+    "url": "https://iop.global/dsf",
+    "name": "Internet of People",
+    "email": "prometheus@iop-ventures.com"
+  },
+  "description": "",
+  "main": "./dist/main.js",
+  "typings": "./dist/main.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:src",
+    "build:src": "tsc -p . ",
+    "lint": "npm run lint:src",
+    "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
+    "clean": "rimraf dist && rimraf node_modules",
+    "test": "echo ignored"
+  },
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@arkecosystem/core-interfaces": "^2.6.0-next.6"
+  },
+  "devDependencies": {
+    "typescript": "3.7.2"
+  }
+}

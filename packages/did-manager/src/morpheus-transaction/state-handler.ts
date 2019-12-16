@@ -1,24 +1,21 @@
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { IAppLog } from './app-log';
+import { IAppLog } from '@internet-of-people/logger';
 import { MorpheusState } from './state';
-import { IMorpheusOperations, IMorpheusQueries, IMorpheusState, MorpheusEvents } from './state-interfaces';
-
-const { Operations: { fromData, Signed } } = MorpheusTransaction;
-
-export interface IStateChange {
-  asset: Interfaces.IMorpheusAsset;
-  blockHeight: number;
-  blockId: string;
-  transactionId: string;
-}
-
-export const COMPONENT_NAME = 'morpheus-state-handler';
-
-export interface IMorpheusStateHandler {
-  readonly query: IMorpheusQueries;
-  applyTransactionToState(stateChange: IStateChange): void;
-  revertTransactionFromState(stateChange: IStateChange): void;
-}
+import {
+  Authentication,
+  authenticationFromData,
+  Did,
+  IMorpheusOperations,
+  IMorpheusQueries,
+  IMorpheusState,
+  IMorpheusStateHandler,
+  IOperationVisitor,
+  ISignableOperationVisitor,
+  ISignedOperationsData,
+  IStateChange,
+  MorpheusEvents,
+  Right,
+} from '../interfaces';
+import { fromData, Signed } from './operations';
 
 export class MorpheusStateHandler implements IMorpheusStateHandler {
   public get query(): IMorpheusQueries {
@@ -100,24 +97,24 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
   private atHeightSignable(
     height: number,
-    signerAuth: Interfaces.Authentication,
+    signerAuth: Authentication,
     state: IMorpheusOperations,
-  ): Interfaces.ISignableOperationVisitor<void> {
+  ): ISignableOperationVisitor<void> {
     return {
-      addKey: (did: Interfaces.Did, newAuth: Interfaces.Authentication, expiresAtHeight?: number): void => {
+      addKey: (did: Did, newAuth: Authentication, expiresAtHeight?: number): void => {
         state.addKey(height, signerAuth, did, newAuth, expiresAtHeight);
       },
-      addRight: (did: Interfaces.Did, auth: Interfaces.Authentication, right: Interfaces.Right): void => {
+      addRight: (did: Did, auth: Authentication, right: Right): void => {
         state.addRight(height, signerAuth, did, auth, right);
       },
     };
   }
 
-  private atHeight(height: number, state: IMorpheusOperations): Interfaces.IOperationVisitor<void> {
+  private atHeight(height: number, state: IMorpheusOperations): IOperationVisitor<void> {
     return {
-      signed: (operations: Interfaces.ISignedOperationsData): void => {
+      signed: (operations: ISignedOperationsData): void => {
         const signableOperations = Signed.getAuthenticatedOperations(operations);
-        const signerAuth = Interfaces.authenticationFromData(operations.signerPublicKey);
+        const signerAuth = authenticationFromData(operations.signerPublicKey);
         const atHeightSignable = this.atHeightSignable(height, signerAuth, state);
 
         for (const signable of signableOperations) {

@@ -8,3 +8,4 @@ export * from './operation';
 export * from './signable-operation';
 export * from './state';
 export * from './visitor';
+export * from './morpheus';
