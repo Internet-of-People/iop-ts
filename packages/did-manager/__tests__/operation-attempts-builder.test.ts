@@ -7,7 +7,7 @@ import {
   SignableOperationType,
 } from '../src/interfaces';
 import { OperationAttemptsBuilder } from '../src/morpheus-transaction/operations';
-import { assertStringlyEqual } from './did-document-state.test';
+import { assertStringlyEqual } from './utils';
 
 const assertSignedOperationsEqual = (actual: ISignedOperationsData, expected: ISignedOperationsData): void => {
   assertStringlyEqual(actual.signerPublicKey, expected.signerPublicKey);

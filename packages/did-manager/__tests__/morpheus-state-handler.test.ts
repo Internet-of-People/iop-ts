@@ -1,5 +1,11 @@
-import { ISignedOperationsData, OperationType, Right } from '../src/interfaces';
-import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
+import { ISignedOperationsData, OperationType, Right, Authentication } from '../src/interfaces';
+import {
+  Interfaces as KvInterfaces,
+  KeyId,
+  PersistentVault,
+  SignedMessage,
+  Vault,
+} from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
@@ -8,6 +14,7 @@ import { OperationAttemptsBuilder } from '../src/morpheus-transaction/operations
 export const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 export const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
 export const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
+export const keyId2 = new KeyId('IezkXs7Xd8SDWLaGKUAjEf53W');
 
 export interface IToString {
   toString(): string;
@@ -21,6 +28,7 @@ describe('StateHandler', () => {
   const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
   rustVault.createId();
   rustVault.createId();
+
   const vault: KvInterfaces.IVault = {
     sign: (message: Uint8Array, keyId: KeyId): SignedMessage => {
       return rustVault.sign(keyId, message);
@@ -28,6 +36,61 @@ describe('StateHandler', () => {
   };
 
   let handler: MorpheusStateHandler;
+  const contentId = 'myFavoriteContentId';
+  const otherContentId = 'someOtherContentId';
+  const transactionId = 'myFavoriteTxid';
+  const blockId = 'myFavoriteBlockId';
+
+  const addKey = (
+    blockHeight: number,
+    toKey: Authentication,
+    signWith: Authentication,
+    txId: string,
+  ): void => {
+    handler.applyTransactionToState({
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+        .withVault(vault)
+        .addKey(did, toKey)
+        .sign(signWith)
+        .getAttempts(),
+      }, blockHeight, blockId, transactionId: txId,
+    });
+  };
+
+  const addRight = (
+    blockHeight: number,
+    toKey: Authentication,
+    signWith: Authentication,
+    txId: string,
+  ): void => {
+    handler.applyTransactionToState({
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+        .withVault(vault)
+        .addRight(did, toKey, Right.Update)
+        .sign(signWith)
+        .getAttempts(),
+      }, blockHeight, blockId, transactionId: txId,
+    });
+  };
+
+  // TODO: @bartmoss
+  const revokeRight = (
+    blockHeight: number,
+    toKey: Authentication,
+    signWith: Authentication,
+    txId: string,
+  ): void => {
+    handler.applyTransactionToState({
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+        .withVault(vault)
+        // .revokeRight(did, toKey, Right.Update)
+        .sign(signWith)
+        .getAttempts(),
+      }, blockHeight, blockId, transactionId: txId,
+    });
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+  };
+
   beforeEach(() => {
     handler = new MorpheusStateHandler({
       appName: 'state-handler-tests',
@@ -38,9 +101,6 @@ describe('StateHandler', () => {
     }, new EventEmitter());
   });
 
-  const contentId = 'myFavoriteContentId';
-  const transactionId = 'myFavoriteTxid';
-  const blockId = 'myFavoriteBlockId';
   const registrationAttempt = new OperationAttemptsBuilder()
     .registerBeforeProof(contentId)
     .getAttempts();
@@ -59,8 +119,6 @@ describe('StateHandler', () => {
     expect(handler.query.beforeProofExistsAt(contentId, 3)).toBeFalsy();
     expect(handler.query.beforeProofExistsAt(contentId, 7)).toBeTruthy();
   });
-
-  const otherContentId = 'someOtherContentId';
 
   it('rejects before proof with already registered content id in an atomic way', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.empty());
@@ -153,17 +211,7 @@ describe('StateHandler', () => {
   });
 
   it('default key can add new key', () => {
-    const attempts = new OperationAttemptsBuilder()
-      .withVault(vault)
-      .addKey(did, keyId1)
-      .sign(defaultKeyId)
-      .getAttempts();
-    handler.applyTransactionToState({
-      asset: { operationAttempts: attempts },
-      blockHeight: 5,
-      blockId,
-      transactionId,
-    });
+    addKey(5, keyId1, defaultKeyId, transactionId);
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
     assertStringlyEqual(handler.query.getDidDocumentAt(did, 5).toData().keys[1].auth, keyId1);
   });
@@ -206,59 +254,147 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 5).toData().keys).toHaveLength(1);
   });
 
-  // TODO: @bartmoss
+  // TODO: @bartmoss: also check skipped tests below.
   it.todo('revoking keys can be reverted');
 
-  it.skip('can add rights', () => {
-    handler.applyTransactionToState({
-      asset: { operationAttempts: new OperationAttemptsBuilder()
-        .withVault(vault)
-        .addKey(did, keyId1)
-        .sign(defaultKeyId)
-        .getAttempts(),
-      }, blockHeight: 5, blockId, transactionId: 'tx1',
-    });
+  it('can add rights', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
 
-    handler.applyTransactionToState({
+    addRight(10, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+  });
+
+  it('cannot add right to a key that has not been added', () => {
+    addRight(5, keyId1, defaultKeyId, transactionId);
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
+    expect(handler.query.getDidDocumentAt(did, 5).hasRight(keyId1, Right.Update)).toBeFalsy();
+  });
+
+  it('cannot add right with the same auth', () => {
+    addRight(5, defaultKeyId, defaultKeyId, transactionId);
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
+  });
+
+  it.skip('can revoke rights', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
+
+    addRight(5, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+
+    revokeRight(15, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 14).hasRight(keyId1, Right.Update)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(did, 15).hasRight(keyId1, Right.Update)).toBeFalsy();
+  });
+
+  it.skip('cannot revoke not applied right', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    revokeRight(10, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
+  });
+
+  it.skip('cannot revoke applied right before it was applied', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    addRight(10, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+
+    revokeRight(9, keyId1, defaultKeyId, 'tx3');
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+  });
+
+  it.skip('can revoke right if has right to update', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    addKey(5, keyId2, defaultKeyId, 'tx2');
+    addRight(10, keyId1, defaultKeyId, 'tx3');
+    addRight(10, keyId2, defaultKeyId, 'tx4');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx4')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+
+    revokeRight(15, keyId1, keyId2, 'tx5');
+    expect(handler.query.isConfirmed('tx5')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
+  });
+
+  it.skip('cannot revoke right if has no right to update', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    addKey(5, keyId2, defaultKeyId, 'tx2');
+    addRight(10, keyId1, defaultKeyId, 'tx3');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+
+    revokeRight(15, keyId1, keyId2, 'tx4');
+    expect(handler.query.isConfirmed('tx4')).toStrictEqual(Optional.of(false));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+  });
+
+  it.skip('cannot revoke right with the same auth', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    addRight(10, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+
+    revokeRight(15, keyId1, keyId1, 'tx3');
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
+  });
+
+  it('adding rights can be reverted', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+
+    const stateChange = {
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
         .addRight(did, keyId1, Right.Update)
         .sign(defaultKeyId)
         .getAttempts(),
       }, blockHeight: 10, blockId, transactionId: 'tx2',
-    });
+    };
+
+    handler.applyTransactionToState(stateChange);
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
-    /*
-    * Current exception:
-    * console.log src/morpheus-transaction/state-handler.ts:57
-    Error: Unknown signable operation type addRight
-        at Object.<anonymous>.exports.visitSignableOperation (
-        * /home/mudlee/Projects/iop/morpheus-ts/packages/did-manager/src/
-        * morpheus-transaction/operations/visitor.ts:42:13)
-    *
-    * */
+    handler.revertTransactionFromState(stateChange);
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
   });
 
-  // TODO: compare these tests with did-document-state.test.ts's tests, must be almost the same + auth
-  it.todo('cannot add right twice');
+  it.skip('revoking rights can be reverted', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    addRight(10, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
-  it.todo('cannot add right if has no right to update');
+    const stateChange = {
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+        .withVault(vault)
+        // .revokeRight(did, keyId1, Right.Update) // TODO
+        .sign(defaultKeyId)
+        .getAttempts(),
+      }, blockHeight: 10, blockId, transactionId: 'tx3',
+    };
 
-  it.todo('cannot add right with the same auth');
+    handler.applyTransactionToState(stateChange);
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
 
-  it.todo('can revoke rights');
-
-  it.todo('cannot revoke not applied right');
-
-  it.todo('cannot revoke right if has no right to update');
-
-  it.todo('CAN revoke right with the same auth');
-
-  it.todo('adding rights can be reverted');
-
-  it.todo('revoking rights can be reverted');
+    handler.revertTransactionFromState(stateChange);
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+  });
 });

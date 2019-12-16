@@ -1,6 +1,7 @@
 import { KeyId } from '@internet-of-people/keyvault';
 import { didToAuth, IDidDocumentState, IKeyData, Right } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
+import { assertStringlyEqual } from './utils';
 
 const { DidDocument } = Operations;
 
@@ -8,14 +9,6 @@ const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
 const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const keyId2 = new KeyId('IezkXs7Xd8SDWLaGKUAjEf53W');
-
-export interface IToString {
-  toString(): string;
-}
-
-export const assertStringlyEqual = (actual: IToString, expected: IToString): void => {
-  expect(actual.toString()).toStrictEqual(expected.toString());
-};
 
 export const assertEqualAuthEntries = (actual: IKeyData[], expected: IKeyData[]): void => {
   expect(actual).toHaveLength(expected.length);
@@ -165,6 +158,7 @@ describe('DidDocumentState', () => {
     expect(didState.query.getAt(3).hasRight(keyId1, Right.Update)).toBeTruthy();
 
     didState.apply.revokeRight(5, keyId1, Right.Update);
+    expect(didState.query.getAt(4).hasRight(keyId1, Right.Update)).toBeTruthy();
     expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeFalsy();
   });
 
@@ -183,7 +177,7 @@ describe('DidDocumentState', () => {
     }).toThrowError(`right ${Right.Update} cannot be revoked with ${keyId1} as it was not yet added at height 5`);
   });
 
-  it('cannot revoke not applied right before it was applied', () => {
+  it('cannot revoke applied right before it was applied', () => {
     didState.apply.addKey(2, keyId1);
     didState.apply.addRight(5, keyId1, Right.Update);
 

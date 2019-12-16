@@ -29,7 +29,8 @@
   "license": "LGPL-3.0-or-later",
   "jest": {
     "preset": "ts-jest",
-    "verbose": true
+    "verbose": true,
+    "testPathIgnorePatterns": ["__tests__/utils.ts"]
   },
   "dependencies": {
     "@arkecosystem/crypto": "^2.6.0-next.6",

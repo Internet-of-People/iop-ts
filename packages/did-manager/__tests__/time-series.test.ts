@@ -148,10 +148,9 @@ describe('single entry series', () => {
 
   for (const height of [ 6, Number.MAX_SAFE_INTEGER ]) {
     it(`accepts new point at height ${height}`, () => {
-      const setTo = !series.query.get(height);
-      series.apply.set(height, setTo);
-      expect(series.query.get(height)).toBe(setTo);
-      expect(series.query.latestValue()).toBe(setTo);
+      series.apply.set(height, false);
+      expect(series.query.get(height)).toBe(false);
+      expect(series.query.latestValue()).toBe(false);
     });
   }
 
