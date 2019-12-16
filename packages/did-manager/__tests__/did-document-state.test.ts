@@ -96,14 +96,14 @@ describe('DidDocumentState', () => {
     didState.apply.addKey(2, keyId1);
     const stateAtHeight2 = didState.query.getAt(2);
     assertEqualAuthEntries(stateAtHeight2.toData().keys, [
-      { auth: defaultKeyId.toString(), expired: false },
-      { auth: keyId1.toString(), expired: false },
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
+      { auth: keyId1.toString(), revoked: false, valid: true },
     ]);
 
     didState.revert.addKey(2, keyId1);
     const stateAtHeight5 = didState.query.getAt(2);
     assertEqualAuthEntries(stateAtHeight5.toData().keys, [
-      { auth: defaultKeyId.toString(), expired: false },
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
     ]);
   });
 
