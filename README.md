@@ -22,7 +22,6 @@ $ npm --version
 6.13.1
 ```
 
-
 ### Build
 
 ```bash
@@ -36,3 +35,16 @@ $ npm run test
 lerna success - @internet-of-people/...
 ```
 
+### Contributing
+
+Feel free to open issues and send pull requests in this repository. By sending contributions, you are agreeing to transfer all intellectual property from your changes to the Decentralized Society Foundation, Panama, who owns the copyright of this code.
+
+We are using a commit hook and quite strict linting rules for our codebase. Please install `husky` to check your commits before you send us pull requests. This requires git >= 2.13 so does not work on Ubuntu 16.04 Xenial Xerus or before. Works on Ubuntu 18.04 Bionic Beaver or Debian stable distributions.
+
+```sh
+# install husky
+$ npm install -g husky
+# it automatically lints during commits
+$ git commit
+...
+```
