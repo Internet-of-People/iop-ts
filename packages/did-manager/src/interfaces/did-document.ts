@@ -77,6 +77,7 @@ export interface IDidDocumentQueries {
 export interface IDidDocumentOperations {
   addKey(height: number, auth: Authentication, expiresAtHeight?: number): void;
   addRight(height: number, auth: Authentication, right: Right): void;
+  revokeRight(height: number, auth: Authentication, right: Right): void;
 }
 
 export type IDidDocumentState = IState<IDidDocumentQueries, IDidDocumentOperations>;

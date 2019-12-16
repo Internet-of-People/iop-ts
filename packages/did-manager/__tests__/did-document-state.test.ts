@@ -1,6 +1,7 @@
 import { KeyId } from '@internet-of-people/keyvault';
 import { didToAuth, IDidDocumentState, IKeyData } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
+
 const { DidDocument } = Operations;
 
 const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
@@ -50,7 +51,7 @@ describe('DidDocumentState', () => {
     ]);
   });
 
-  it('keys cannot be added before height 2, as 1 the genesis', () => {
+  it('keys cannot be added before height 2, as 1 is the genesis', () => {
     expect(() => {
       didState.apply.addKey(1, keyId2);
     }).toThrowError();
@@ -99,4 +100,28 @@ describe('DidDocumentState', () => {
   it.todo('adding keys can be reverted');
 
   it.todo('revoking keys can be reverted');
+
+  it.todo('can add rights');
+
+  it.todo('cannot add right before 2, as 1 is the genesis');
+
+  it.todo('cannot add right twice');
+
+  it.todo('cannot add right if has no right to update');
+
+  it.todo('cannot add right with the same auth');
+
+  it.todo('can revoke rights');
+
+  it.todo('cannot revoke right before 2, as 1 is the genesis');
+
+  it.todo('cannot revoke not applied right');
+
+  it.todo('cannot revoke right if has no right to update');
+
+  it.todo('CAN revoke right with the same auth');
+
+  it.todo('adding rights can be reverted');
+
+  it.todo('revoking rights can be reverted');
 });

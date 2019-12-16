@@ -101,10 +101,7 @@ export class DidDocumentState implements IDidDocumentState {
 
   public readonly apply: IDidDocumentOperations = {
     addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
-      if (height < 2) {
-        throw new Error('Keys cannot be added before 2');
-      }
-
+      this.ensureMinHeight(height);
       const entryPresent = this.lastEntryWithAuth(auth);
 
       if (entryPresent && entryIsValidAt(entryPresent, height)) {
@@ -115,27 +112,17 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
-      const entry = this.lastEntryWithAuth(auth);
+      this.getRightHistory(height,auth,right).apply.set(height, true);
+    },
 
-      if (!entry || !entryIsValidAt(entry, height)) {
-        throw new Error(`DID ${this.did} has no valid key matching ${auth}`);
-      }
-
-      const rightHistory = entry.rights.get(right);
-
-      if (!rightHistory) {
-        throw new Error(`DID ${this.did} has no right history of right ${right}`);
-      }
-
-      rightHistory.apply.set(height, true);
+    revokeRight: (height: number, auth: Authentication, right: Right): void => {
+      this.getRightHistory(height,auth,right).apply.set(height, false);
     },
   };
 
   public readonly revert: IDidDocumentOperations = {
     addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
-      if (height < 2) {
-        throw new Error('Keys cannot be added before 2');
-      }
+      this.ensureMinHeight(height);
 
       if (!this.keys.length) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because there are no keys`);
@@ -157,19 +144,13 @@ export class DidDocumentState implements IDidDocumentState {
       }
       this.keys.shift();
     },
+
     addRight: (height: number, auth: Authentication, right: Right): void => {
-      const entry = this.lastEntryWithAuth(auth);
+      this.getRightHistory(height,auth,right).revert.set(height, true);
+    },
 
-      if (!entry || !entryIsValidAt(entry, height)) {
-        throw new Error(`DID ${this.did} has no valid key matching ${auth}`);
-      }
-      const rightHistory = entry.rights.get(right);
-
-      if (!rightHistory) {
-        throw new Error(`DID ${this.did} has no right history of right ${right}`);
-      }
-
-      rightHistory.revert.set(height, true);
+    revokeRight: (height: number, auth: Authentication, right: Right): void => {
+      this.getRightHistory(height,auth,right).apply.set(height, false);
     },
   };
 
@@ -191,6 +172,27 @@ export class DidDocumentState implements IDidDocumentState {
     const result = new DidDocumentState(this.did);
     result.keys = cloneDeep(this.keys);
     return result;
+  }
+
+  private ensureMinHeight(height: number): void {
+    if (height < 2) {
+      throw new Error('Keys cannot be added before 2');
+    }
+  }
+
+  private getRightHistory(height: number, auth: Authentication, right: Right): ITimeSeries<boolean> {
+    const entry = this.lastEntryWithAuth(auth);
+
+    if (!entry || !entryIsValidAt(entry, height)) {
+      throw new Error(`DID ${this.did} has no valid key matching ${auth}`);
+    }
+    const rightHistory = entry.rights.get(right);
+
+    if (!rightHistory) {
+      throw new Error(`DID ${this.did} has no right history of right ${right}`);
+    }
+
+    return rightHistory;
   }
 
   private lastEntryWithAuth(auth: Authentication): IEntry | undefined {
