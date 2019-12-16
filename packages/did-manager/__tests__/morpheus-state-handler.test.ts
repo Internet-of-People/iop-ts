@@ -1,11 +1,5 @@
 import { ISignedOperationsData, OperationType, Right } from '../src/interfaces';
-import {
-  Interfaces as KvInterfaces,
-  KeyId,
-  PersistentVault,
-  SignedMessage,
-  Vault,
-} from '@internet-of-people/keyvault';
+import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
@@ -174,6 +168,7 @@ describe('StateHandler', () => {
     assertStringlyEqual(handler.query.getDidDocumentAt(did, 5).toData().keys[1].auth, keyId1);
   });
 
+  // TODO: @bartmoss
   it.skip('rights can be moved to a different key in a single transaction', () => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
@@ -194,16 +189,61 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
   });
 
+  // TODO: @bartmoss
   it.todo('can revoke keys');
 
-  it.todo('adding keys can be reverted');
+  it('adding keys can be reverted', () => {
+    const attempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .addKey(did, keyId1)
+      .sign(defaultKeyId)
+      .getAttempts();
+    const stateChange = { asset: { operationAttempts: attempts }, blockHeight: 5, blockId, transactionId };
+    handler.applyTransactionToState(stateChange);
+    expect(handler.query.getDidDocumentAt(did, 5).toData().keys).toHaveLength(2);
 
+    handler.revertTransactionFromState(stateChange);
+    expect(handler.query.getDidDocumentAt(did, 5).toData().keys).toHaveLength(1);
+  });
+
+  // TODO: @bartmoss
   it.todo('revoking keys can be reverted');
 
-  it.todo('can add rights');
+  it.skip('can add rights', () => {
+    handler.applyTransactionToState({
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+        .withVault(vault)
+        .addKey(did, keyId1)
+        .sign(defaultKeyId)
+        .getAttempts(),
+      }, blockHeight: 5, blockId, transactionId: 'tx1',
+    });
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
 
-  it.todo('cannot add right before 2, as 1 is the genesis');
+    handler.applyTransactionToState({
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+        .withVault(vault)
+        .addRight(did, keyId1, Right.Update)
+        .sign(defaultKeyId)
+        .getAttempts(),
+      }, blockHeight: 10, blockId, transactionId: 'tx2',
+    });
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
+    /*
+    * Current exception:
+    * console.log src/morpheus-transaction/state-handler.ts:57
+    Error: Unknown signable operation type addRight
+        at Object.<anonymous>.exports.visitSignableOperation (
+        * /home/mudlee/Projects/iop/morpheus-ts/packages/did-manager/src/
+        * morpheus-transaction/operations/visitor.ts:42:13)
+    *
+    * */
+  });
+
+  // TODO: compare these tests with did-document-state.test.ts's tests, must be almost the same + auth
   it.todo('cannot add right twice');
 
   it.todo('cannot add right if has no right to update');
@@ -211,8 +251,6 @@ describe('StateHandler', () => {
   it.todo('cannot add right with the same auth');
 
   it.todo('can revoke rights');
-
-  it.todo('cannot revoke right before 2, as 1 is the genesis');
 
   it.todo('cannot revoke not applied right');
 

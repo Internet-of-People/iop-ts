@@ -47,6 +47,8 @@ export const mapAllRights = <T>(func: (right: Right) => T): Map<Right, T> => {
   return new Map(mapTuples);
 };
 
+// Note: that this only work, because we keep the state in memory, hence every bootstrap the state will be rebuilt
+// Otherwise it would be problematic if we add a new right without "migrating" it.
 export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => {
   return mapAllRights((_) => {
     return new TimeSeries(initial) as ITimeSeries;
@@ -142,6 +144,12 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
+      const history = this.getRightHistory(height, auth, right);
+
+      if (history.query.isEmpty()) {
+        throw new Error(`right ${right} cannot be revoked with ${auth} as it was not yet added at height ${height}`);
+      }
+
       this.getRightHistory(height, auth, right).apply.set(height, false);
     },
   };
@@ -157,7 +165,7 @@ export class DidDocumentState implements IDidDocumentState {
 
       // NOTE intentionally does not use isSameAuthentication() and entryIsValidAt() because
       //      exact types and values are already known here
-      if (lastKey.auth !== auth) {
+      if (lastKey.auth.toString() !== auth.toString()) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because the key does not match the last added one.`);
       }
 
@@ -192,7 +200,7 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
-      this.getRightHistory(height, auth, right).apply.set(height, false);
+      this.getRightHistory(height, auth, right).revert.set(height, false);
     },
   };
 
@@ -219,7 +227,7 @@ export class DidDocumentState implements IDidDocumentState {
 
   private ensureMinHeight(height: number): void {
     if (height < 2) {
-      throw new Error('Keys cannot be added before 2');
+      throw new Error('Keys cannot be added before height 2');
     }
   }
 
@@ -227,8 +235,9 @@ export class DidDocumentState implements IDidDocumentState {
     const entry = this.lastEntryWithAuth(auth);
 
     if (!entry || !entryIsValidAt(entry, height)) {
-      throw new Error(`DID ${this.did} has no valid key matching ${auth}`);
+      throw new Error(`DID ${this.did} has no valid key matching ${auth} at height ${height}`);
     }
+
     const rightHistory = entry.rights.get(right);
 
     if (!rightHistory) {

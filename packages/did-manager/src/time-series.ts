@@ -10,6 +10,7 @@ interface IPoint<T> {
 
 export interface ITimeSeriesQueries<T> {
   get(height: number): T;
+  isEmpty(): boolean;
   latestValue(): T;
   latestHeight(): Optional<number>;
 }
@@ -28,6 +29,11 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
       if (this.points.length && this.points[0].height >= height) {
         throw new Error('value was already set at that height');
       }
+
+      if (this.points.length && this.points[0].value === value) {
+        throw new Error(`value was already set to ${value}`);
+      }
+
       const point: IPoint<T> = { height, value };
       this.points.unshift(point);
     },
@@ -69,6 +75,10 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
 
     latestHeight: (): Optional<number> => {
       return this.points.length ? Optional.of(this.points[0].height) : Optional.empty();
+    },
+
+    isEmpty: (): boolean => {
+      return this.points.length === 0;
     },
   };
 

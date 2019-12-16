@@ -1,5 +1,5 @@
 import { KeyId } from '@internet-of-people/keyvault';
-import { didToAuth, IDidDocumentState, IKeyData } from '../src/interfaces';
+import { didToAuth, IDidDocumentState, IKeyData, Right } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 
 const { DidDocument } = Operations;
@@ -96,25 +96,120 @@ describe('DidDocumentState', () => {
     ]);
   });
 
+  // TODO: @bartmoss
   it.todo('can revoke keys');
 
-  it.todo('adding keys can be reverted');
+  it('adding keys can be reverted', () => {
+    didState.apply.addKey(2, keyId1);
+    const stateAtHeight2 = didState.query.getAt(2);
+    assertEqualAuthEntries(stateAtHeight2.toData().keys, [
+      { auth: defaultKeyId.toString(), expired: false },
+      { auth: keyId1.toString(), expired: false },
+    ]);
 
+    didState.revert.addKey(2, keyId1);
+    const stateAtHeight5 = didState.query.getAt(2);
+    assertEqualAuthEntries(stateAtHeight5.toData().keys, [
+      { auth: defaultKeyId.toString(), expired: false },
+    ]);
+  });
+
+  it('adding keys cannot be reverted at different height as it were added', () => {
+    didState.apply.addKey(2, keyId1);
+    expect(() => {
+      didState.revert.addKey(3, keyId1);
+    }).toThrowError(
+      `Cannot revert addKey in DID ${did}, because it was not added at the specified height.`,
+    );
+  });
+
+  it('adding keys cannot be reverted with different expiration', () => {
+    didState.apply.addKey(2, keyId1);
+    expect(() => {
+      didState.revert.addKey(2, keyId1, 5);
+    }).toThrowError(
+      `Cannot revert addKey in DID ${did}, because it was not added with the same expiration.`,
+    );
+  });
+
+  it('adding keys cannot be reverted with different key', () => {
+    didState.apply.addKey(2, keyId1);
+    expect(() => {
+      didState.revert.addKey(2, keyId2);
+    }).toThrowError(
+      `Cannot revert addKey in DID ${did}, because the key does not match the last added one.`,
+    );
+  });
+
+  // TODO: @bartmoss
   it.todo('revoking keys can be reverted');
 
-  it.todo('can add rights');
+  it('can add rights', () => {
+    didState.apply.addKey(2, keyId1);
+    didState.apply.addRight(5, keyId1, Right.Update);
+    expect(didState.query.getAt(2).hasRight(keyId1, Right.Update)).toBeFalsy();
+    expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeTruthy();
+  });
 
-  it.todo('cannot add right before 2, as 1 is the genesis');
+  it('cannot add right to a key that has not been added', () => {
+    didState.apply.addKey(5, keyId1);
+    expect(() => {
+      didState.apply.addRight(2, keyId1, Right.Update);
+    }).toThrowError(`DID ${did} has no valid key matching ${keyId1} at height 2`);
+  });
 
-  it.todo('cannot add right twice');
+  it('can revoke rights', () => {
+    didState.apply.addKey(2, keyId1);
 
-  it.todo('can revoke rights');
+    didState.apply.addRight(3, keyId1, Right.Update);
+    expect(didState.query.getAt(3).hasRight(keyId1, Right.Update)).toBeTruthy();
 
-  it.todo('cannot revoke right before 2, as 1 is the genesis');
+    didState.apply.revokeRight(5, keyId1, Right.Update);
+    expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeFalsy();
+  });
 
-  it.todo('cannot revoke not applied right');
+  it('cannot revoke right to a key that has not been added', () => {
+    didState.apply.addKey(5, keyId1);
+    expect(() => {
+      didState.apply.revokeRight(2, keyId1, Right.Update);
+    }).toThrowError(`DID ${did} has no valid key matching ${keyId1} at height 2`);
+  });
 
-  it.todo('adding rights can be reverted');
+  it('cannot revoke not applied right', () => {
+    didState.apply.addKey(2, keyId1);
 
-  it.todo('revoking rights can be reverted');
+    expect(() => {
+      didState.apply.revokeRight(5, keyId1, Right.Update);
+    }).toThrowError(`right ${Right.Update} cannot be revoked with ${keyId1} as it was not yet added at height 5`);
+  });
+
+  it('cannot revoke not applied right before it was applied', () => {
+    didState.apply.addKey(2, keyId1);
+    didState.apply.addRight(5, keyId1, Right.Update);
+
+    expect(() => {
+      didState.apply.revokeRight(3, keyId1, Right.Update);
+    }).toThrowError('value was already set at that height'); // by default it's false
+  });
+
+  it('adding rights can be reverted', () => {
+    didState.apply.addKey(2, keyId1);
+
+    didState.apply.addRight(5, keyId1, Right.Update);
+    expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeTruthy();
+
+    didState.revert.addRight(5, keyId1, Right.Update);
+    expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeFalsy();
+  });
+
+  it('revoking rights can be reverted', () => {
+    didState.apply.addKey(2, keyId1);
+
+    didState.apply.addRight(5, keyId1, Right.Update);
+    didState.apply.revokeRight(6, keyId1, Right.Update);
+    expect(didState.query.getAt(6).hasRight(keyId1, Right.Update)).toBeFalsy();
+
+    didState.revert.revokeRight(6, keyId1, Right.Update);
+    expect(didState.query.getAt(6).hasRight(keyId1, Right.Update)).toBeTruthy();
+  });
 });

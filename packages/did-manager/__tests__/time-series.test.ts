@@ -4,6 +4,7 @@ import { ITimeSeries, TimeSeries } from '../src/time-series';
 describe('clonable series', () => {
   let oldSeries: ITimeSeries;
   let newSeries: ITimeSeries;
+
   beforeEach(() => {
     oldSeries = new TimeSeries(false);
     oldSeries.apply.set(5, true);
@@ -88,6 +89,12 @@ describe('single entry series', () => {
     series.apply.set(5, true);
   });
 
+  it('apply fails if value was already set to the same', () => {
+    expect(() => {
+      series.apply.set(6, true);
+    }).toThrowError('value was already set to true');
+  });
+
   it('latestHeight return Optional.of(5)', () => {
     expect(series.query.latestHeight()).toStrictEqual(Optional.of(5));
   });
@@ -141,9 +148,10 @@ describe('single entry series', () => {
 
   for (const height of [ 6, Number.MAX_SAFE_INTEGER ]) {
     it(`accepts new point at height ${height}`, () => {
-      series.apply.set(height, true);
-      expect(series.query.get(height)).toBeTruthy();
-      expect(series.query.latestValue()).toBeTruthy();
+      const setTo = !series.query.get(height);
+      series.apply.set(height, setTo);
+      expect(series.query.get(height)).toBe(setTo);
+      expect(series.query.latestValue()).toBe(setTo);
     });
   }
 

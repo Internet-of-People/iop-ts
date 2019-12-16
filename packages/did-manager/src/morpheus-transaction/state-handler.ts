@@ -44,7 +44,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       this.logger.debug(`applyTransactionToState tx: ${stateChange.transactionId}...`);
       this.logger.debug(` contains ${stateChange.asset.operationAttempts.length} operations...`);
       const newState = this.state.clone();
-      const apply = this.atHeight(stateChange.blockHeight, newState.apply);
+      const apply = this.atHeight(stateChange.blockHeight, newState.apply, false);
 
       for (const operationData of stateChange.asset.operationAttempts) {
         this.logger.debug(`Applying operation ${operationData.operation}...`);
@@ -77,9 +77,9 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
       if (confirmed.get()) {
         this.state.revert.confirmTx(stateChange.transactionId);
-        const revert = this.atHeight(stateChange.blockHeight, this.state.revert);
+        const revert = this.atHeight(stateChange.blockHeight, this.state.revert, true);
 
-        for (const operationData of stateChange.asset.operationAttempts) {
+        for (const operationData of stateChange.asset.operationAttempts.slice().reverse()) {
           this.logger.debug(`Reverting operation ${operationData.operation}...`);
           const operation = fromData(operationData);
           operation.accept(revert);
@@ -116,14 +116,14 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     };
   }
 
-  private atHeight(height: number, state: IMorpheusOperations): IOperationVisitor<void> {
+  private atHeight(height: number, state: IMorpheusOperations, reverse: boolean): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
         const signableOperations = Signed.getAuthenticatedOperations(operations);
         const signerAuth = authenticationFromData(operations.signerPublicKey);
         const atHeightSignable = this.atHeightSignable(height, signerAuth, state);
 
-        for (const signable of signableOperations) {
+        for (const signable of reverse ? signableOperations.slice().reverse() : signableOperations) {
           this.logger.debug(`Applying signable operation ${signable.type}...`);
           signable.accept(atHeightSignable);
           this.logger.debug('Operation applied');
