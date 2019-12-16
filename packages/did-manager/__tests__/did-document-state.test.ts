@@ -107,19 +107,11 @@ describe('DidDocumentState', () => {
 
   it.todo('cannot add right twice');
 
-  it.todo('cannot add right if has no right to update');
-
-  it.todo('cannot add right with the same auth');
-
   it.todo('can revoke rights');
 
   it.todo('cannot revoke right before 2, as 1 is the genesis');
 
   it.todo('cannot revoke not applied right');
-
-  it.todo('cannot revoke right if has no right to update');
-
-  it.todo('CAN revoke right with the same auth');
 
   it.todo('adding rights can be reverted');
 

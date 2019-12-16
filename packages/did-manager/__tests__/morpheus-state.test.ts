@@ -85,8 +85,21 @@ describe('MorpheusState', () => {
       .toThrowError('Iez25N5WZ1Q6TQpgpyYgiu9gTX cannot update did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr at height 5');
   });
 
+  // TODO: revoke key tests
+
   it.todo('apply add right accepted for different key');
+
   it.todo('apply add right rejected for same key');
+
   it.todo('apply add right rejected because it existed');
+
   it.todo('revert add right accepted for different key');
+
+  it.todo('apply revoke right accepted for different key');
+
+  it.todo('apply revoke right rejected for same key');
+
+  it.todo('apply revoke right rejected because it existed');
+
+  it.todo('revert revoke right accepted for different key');
 });
