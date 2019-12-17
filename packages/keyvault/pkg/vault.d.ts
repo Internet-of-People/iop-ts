@@ -62,10 +62,14 @@ export class SignedMessage {
 */
   constructor(public_key: PublicKey, message: Uint8Array, signature: Signature);
 /**
-* @param {KeyId | undefined} signer_id_opt 
 * @returns {boolean} 
 */
-  validate(signer_id_opt?: KeyId): boolean;
+  validate(): boolean;
+/**
+* @param {KeyId} signer_id 
+* @returns {boolean} 
+*/
+  validateWithId(signer_id: KeyId): boolean;
   readonly message: Uint8Array;
   readonly publicKey: PublicKey;
   readonly signature: Signature;

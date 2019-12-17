@@ -33,12 +33,12 @@ describe('PersistentVault', () => {
     expect(id.toString()).toStrictEqual('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
     const signedMessage = vault.sign(message, id);
     expect(signedMessage).toBeTruthy();
-    expect(signedMessage.validate(id)).toBe(true);
+    expect(signedMessage.validateWithId(id)).toBe(true);
     expect(signedMessage.validate()).toBe(true);
 
     const wrongMessage = new Uint8Array([ 1, 2, 255, 4, 5 ]);
     const wrongSignedMessage = new SignedMessage(signedMessage.publicKey, wrongMessage, signedMessage.signature);
-    expect(wrongSignedMessage.validate(id)).toBe(false);
+    expect(wrongSignedMessage.validateWithId(id)).toBe(false);
   });
 
   afterAll(() => {

@@ -15,7 +15,8 @@ export function signedmessage_new(a: number, b: number, c: number, d: number): n
 export function signedmessage_publicKey(a: number): number;
 export function signedmessage_message(a: number, b: number): void;
 export function signedmessage_signature(a: number): number;
-export function signedmessage_validate(a: number, b: number): number;
+export function signedmessage_validate(a: number): number;
+export function signedmessage_validateWithId(a: number, b: number): number;
 export function vault_new(a: number, b: number): number;
 export function vault_serialize(a: number, b: number): void;
 export function vault_deserialize(a: number, b: number): number;

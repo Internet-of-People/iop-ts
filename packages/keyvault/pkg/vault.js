@@ -62,10 +62,6 @@ function getArrayU8FromWasm(ptr, len) {
     return getUint8Memory().subarray(ptr / 1, ptr / 1 + len);
 }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
 let cachegetUint32Memory = null;
 function getUint32Memory() {
     if (cachegetUint32Memory === null || cachegetUint32Memory.buffer !== wasm.memory.buffer) {
@@ -299,17 +295,19 @@ class SignedMessage {
         return Signature.__wrap(ret);
     }
     /**
-    * @param {KeyId | undefined} signer_id_opt
     * @returns {boolean}
     */
-    validate(signer_id_opt) {
-        let ptr0 = 0;
-        if (!isLikeNone(signer_id_opt)) {
-            _assertClass(signer_id_opt, KeyId);
-            ptr0 = signer_id_opt.ptr;
-            signer_id_opt.ptr = 0;
-        }
-        const ret = wasm.signedmessage_validate(this.ptr, ptr0);
+    validate() {
+        const ret = wasm.signedmessage_validate(this.ptr);
+        return ret !== 0;
+    }
+    /**
+    * @param {KeyId} signer_id
+    * @returns {boolean}
+    */
+    validateWithId(signer_id) {
+        _assertClass(signer_id, KeyId);
+        const ret = wasm.signedmessage_validateWithId(this.ptr, signer_id.ptr);
         return ret !== 0;
     }
 }
