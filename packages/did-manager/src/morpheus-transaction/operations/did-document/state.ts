@@ -32,7 +32,7 @@ interface IEntry {
   auth: Authentication;
   validFromHeight?: number;
   validUntilHeight?: number;
-  revoked: boolean;
+  revoked: ITimeSeries;
   rights: Map<Right, ITimeSeries>;
 }
 
@@ -56,7 +56,7 @@ export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => {
 };
 
 const entryIsValidAt = (entry: IEntry, height: number): boolean => {
-  let valid = !entry.revoked;
+  let valid = !entry.revoked.query.get(height);
   valid = valid && (entry.validFromHeight || 0) <= height ;
   valid = valid && (!entry.validUntilHeight || entry.validUntilHeight > height);
   return valid;
@@ -65,7 +65,7 @@ const entryIsValidAt = (entry: IEntry, height: number): boolean => {
 const entryToKeyData = (entry: IEntry, height: number): IKeyData => {
   const data: IKeyData = {
     auth: entry.auth.toString(),
-    revoked: entry.revoked,
+    revoked: entry.revoked.query.get(height),
     valid: entryIsValidAt(entry, height),
   };
 
@@ -121,7 +121,7 @@ export class DidDocumentState implements IDidDocumentState {
       }
       const rights = initialRights(false);
       this.keyEntries.unshift({ auth, rights, validFromHeight: height,
-        validUntilHeight: expiresAtHeight, revoked: false });
+        validUntilHeight: expiresAtHeight, revoked: new TimeSeries(false) });
     },
 
     revokeKey: (height: number, auth: Authentication): void => {
@@ -139,7 +139,7 @@ export class DidDocumentState implements IDidDocumentState {
         throw new Error(`DID ${this.did} has a key matching ${auth}, but it's already invalidated`);
       }
 
-      this.keyEntries[indexPresent].revoked = true;
+      this.keyEntries[indexPresent].revoked.apply.set(height, true);
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
@@ -192,7 +192,7 @@ export class DidDocumentState implements IDidDocumentState {
       }
 
       const entryPresent = this.keyEntries[indexPresent];
-      entryPresent.revoked = false;
+      entryPresent.revoked.revert.set(height, true);
 
       if (! entryIsValidAt(entryPresent, height)) {
         throw new Error(
@@ -220,7 +220,7 @@ export class DidDocumentState implements IDidDocumentState {
   public constructor(public readonly did: Did) {
     this.keyEntries.unshift({
       auth: didToAuth(did),
-      revoked: false,
+      revoked: new TimeSeries(false),
       rights: initialRights(true),
     });
   }
