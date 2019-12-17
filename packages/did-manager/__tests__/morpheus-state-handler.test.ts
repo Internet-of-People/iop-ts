@@ -81,15 +81,17 @@ describe('StateHandler', () => {
     toKey: Authentication,
     signWith: Authentication,
     txId: string,
-  ): void => {
-    handler.applyTransactionToState({
+  ): IStateChange => {
+    const stateChange = {
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
         .addRight(did, toKey, Right.Update)
         .sign(signWith)
         .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
-    });
+    };
+    handler.applyTransactionToState(stateChange);
+    return stateChange;
   };
 
   const revokeRight = (
@@ -97,15 +99,31 @@ describe('StateHandler', () => {
     toKey: Authentication,
     signWith: Authentication,
     txId: string,
-  ): void => {
-    handler.applyTransactionToState({
+  ): IStateChange => {
+    const stateChange = {
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
         .revokeRight(did, toKey, Right.Update)
         .sign(signWith)
         .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
-    });
+    };
+    handler.applyTransactionToState(stateChange);
+    return stateChange;
+  };
+
+  const tombstoneDid = (blockHeight: number, txId: string): IStateChange => {
+    const stateChange = {
+      asset: {
+        operationAttempts: new OperationAttemptsBuilder()
+          .withVault(vault)
+          .tombstoneDid(did)
+          .sign(defaultKeyId)
+          .getAttempts(),
+      }, blockHeight, blockId, transactionId: txId,
+    };
+    handler.applyTransactionToState(stateChange);
+    return stateChange;
   };
 
   beforeEach(() => {
@@ -437,16 +455,7 @@ describe('StateHandler', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
 
-    const stateChange = {
-      asset: { operationAttempts: new OperationAttemptsBuilder()
-        .withVault(vault)
-        .addRight(did, keyId1, Right.Update)
-        .sign(defaultKeyId)
-        .getAttempts(),
-      }, blockHeight: 10, blockId, transactionId: 'tx2',
-    };
-
-    handler.applyTransactionToState(stateChange);
+    const stateChange = addRight(10, keyId1, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
@@ -461,20 +470,27 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
-    const stateChange = {
-      asset: { operationAttempts: new OperationAttemptsBuilder()
-        .withVault(vault)
-        .revokeRight(did, keyId1, Right.Update)
-        .sign(defaultKeyId)
-        .getAttempts(),
-      }, blockHeight: 15, blockId, transactionId: 'tx3',
-    };
-
-    handler.applyTransactionToState(stateChange);
+    const stateChange = revokeRight(15, keyId1, defaultKeyId, 'tx3');
     expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 15).hasRight(keyId1, Right.Update)).toBeFalsy();
 
     handler.revertTransactionFromState(stateChange);
     expect(handler.query.getDidDocumentAt(did, 15).hasRight(keyId1, Right.Update)).toBeTruthy();
+  });
+
+  it('did can be tombstoned', () => {
+    tombstoneDid(15, transactionId);
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 14).isTombstoned()).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(did, 15).isTombstoned()).toBeTruthy();
+  });
+
+  it('tombstoned did can be reverted', () => {
+    const stateChange = tombstoneDid(15, transactionId);
+    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+    expect(handler.query.getDidDocumentAt(did, 15).isTombstoned()).toBeTruthy();
+
+    handler.revertTransactionFromState(stateChange);
+    expect(handler.query.getDidDocumentAt(did, 15).isTombstoned()).toBeFalsy();
   });
 });
