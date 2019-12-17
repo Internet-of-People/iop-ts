@@ -15,6 +15,10 @@ class SignableSchemaVisitor implements ISignableOperationTypeVisitor<unknown> {
   public revokeRight(): unknown {
     return DidDocumentSchemas.revokeRight;
   }
+
+  public tombstoneDid(): unknown {
+    return DidDocumentSchemas.tombstoneDid;
+  }
 }
 
 const signableOperationSchemas = (): unknown[] => {

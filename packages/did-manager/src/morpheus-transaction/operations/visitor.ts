@@ -43,6 +43,8 @@ export const visitSignableOperation = <R>(operation: string, visitor: ISignableO
       return visitor.addRight();
     case SignableOperationType.RevokeRight:
       return visitor.revokeRight();
+    case SignableOperationType.TombstoneDid:
+      return visitor.tombstoneDid();
 
     default: {
       throw new Error(`Unknown signable operation type ${operation}`);
@@ -55,6 +57,7 @@ const allSignableOps: string[] = [
   SignableOperationType.RevokeKey,
   SignableOperationType.AddRight,
   SignableOperationType.RevokeRight,
+  SignableOperationType.TombstoneDid,
 ];
 
 export const visitAllSignableOperationTypes = <R>(visitor: ISignableOperationTypeVisitor<R>): R[] => {

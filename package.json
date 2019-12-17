@@ -68,7 +68,11 @@
     }
   },
   "lint-staged": {
-    "*.{ts}": [
+    "*__tests__*": [
+      "eslint -c ./eslintrc.test.json --fix",
+      "git add"
+    ],
+    "*src/*": [
       "eslint -c ./eslintrc.json --fix",
       "git add"
     ]

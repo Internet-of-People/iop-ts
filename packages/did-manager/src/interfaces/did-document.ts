@@ -58,8 +58,9 @@ export interface IKeyData {
 export interface IDidDocumentData {
   did: Did;
   keys: IKeyData[];
-  rights: Map<Right, number[]>;
+  rights: Map<Right, number[]>; // contains key indexes from the keys property
   atHeight: number;
+  tombstoned: boolean;
 }
 
 export interface IDidDocument {
@@ -67,6 +68,7 @@ export interface IDidDocument {
   readonly did: Did;
 
   hasRight(auth: Authentication, right: Right): boolean;
+  isTombstoned(): boolean;
 
   toData(): IDidDocumentData;
   fromData(data: IDidDocumentData): void;
@@ -81,6 +83,7 @@ export interface IDidDocumentOperations {
   revokeKey(height: number, auth: Authentication): void;
   addRight(height: number, auth: Authentication, right: Right): void;
   revokeRight(height: number, auth: Authentication, right: Right): void;
+  tombstone(height: number): void;
 }
 
 export type IDidDocumentState = IState<IDidDocumentQueries, IDidDocumentOperations>;

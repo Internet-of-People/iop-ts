@@ -9,6 +9,9 @@ import {
   Right,
 } from '../../../interfaces';
 
+/**
+ * This is a DTO class aggregating the info of the current state of the given DID.
+ */
 export class DidDocument implements IDidDocument {
   private data: IDidDocumentData;
   private keys: Authentication[] = [];
@@ -23,6 +26,10 @@ export class DidDocument implements IDidDocument {
       .some(([ idx, _ ]) => {
         return isSameAuthentication(this.keys[idx], auth);
       });
+  }
+
+  public isTombstoned(): boolean {
+    return this.data.tombstoned;
   }
 
   public fromData(data: IDidDocumentData): void {

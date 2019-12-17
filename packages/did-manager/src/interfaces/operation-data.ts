@@ -69,3 +69,10 @@ export interface IRevokeRightData extends ISignableOperationData {
   auth: AuthenticationData;
   right: Right;
 }
+
+/**
+ * Data transfer object of Tombstone.
+ */
+export interface ITombstoneDidData extends ISignableOperationData {
+  did: Did;
+}

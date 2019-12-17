@@ -4,11 +4,12 @@ import {
   IAddRightData,
   IRevokeKeyData,
   IRevokeRightData,
+  ITombstoneDidData,
   ISignableOperationData,
   ISignableOperationTypeVisitor,
   SignableOperation,
 } from '../../interfaces';
-import { AddKey, AddRight, RevokeKey, RevokeRight } from './did-document';
+import { AddKey, AddRight, RevokeKey, RevokeRight, TombstoneDid } from './did-document';
 import { visitSignableOperation } from './visitor';
 
 class FromSignableData implements ISignableOperationTypeVisitor<SignableOperation> {
@@ -32,6 +33,11 @@ class FromSignableData implements ISignableOperationTypeVisitor<SignableOperatio
   public revokeRight(): SignableOperation {
     const params = this.data as IRevokeRightData;
     return new RevokeRight(params.did, authenticationFromData(params.auth), params.right);
+  }
+
+  public tombstoneDid(): SignableOperation {
+    const params = this.data as ITombstoneDidData;
+    return new TombstoneDid(params.did);
   }
 }
 

@@ -4,7 +4,7 @@ import {
   IAddKeyData,
   IAddRightData, IRevokeKeyData, IRevokeRightData,
   ISignableOperationData,
-  ISignableOperationVisitor,
+  ISignableOperationVisitor, ITombstoneDidData,
   Right,
   SignableOperation,
   SignableOperationType,
@@ -49,6 +49,14 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
       did,
       auth: auth.toString(),
       right,
+    };
+    return result;
+  }
+
+  public tombstoneDid(did: string): ISignableOperationData {
+    const result: ITombstoneDidData = {
+      operation: SignableOperationType.TombstoneDid,
+      did,
     };
     return result;
   }

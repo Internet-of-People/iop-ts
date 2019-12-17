@@ -41,7 +41,7 @@ export interface IMorpheusOperations {
     signerAuth: Authentication,
     did: Did,
     auth: Authentication,
-    right: Right
+    right: Right,
   ): void;
 
   revokeRight(
@@ -49,7 +49,13 @@ export interface IMorpheusOperations {
     signerAuth: Authentication,
     did: Did,
     auth: Authentication,
-    right: Right
+    right: Right,
+  ): void;
+
+  tombstoneDid(
+    height: number,
+    signerAuth: Authentication,
+    did: Did,
   ): void;
 
   /**
