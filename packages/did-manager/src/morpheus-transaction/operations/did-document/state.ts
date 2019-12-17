@@ -122,6 +122,7 @@ export class DidDocumentState implements IDidDocumentState {
   public readonly apply: IDidDocumentOperations = {
     addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
       this.ensureMinHeight(height);
+      this.ensureNotTombstoned(height);
       const entryPresent = this.lastEntryWithAuth(auth);
 
       if (entryPresent && entryIsValidAt(entryPresent, height)) {
@@ -134,12 +135,13 @@ export class DidDocumentState implements IDidDocumentState {
         validFromHeight:
         height,
         validUntilHeight: expiresAtHeight,
-        revoked: new TimeSeries(false)
+        revoked: new TimeSeries(false),
       });
     },
 
     revokeKey: (height: number, auth: Authentication): void => {
       this.ensureMinHeight(height);
+      this.ensureNotTombstoned(height);
 
       const indexPresent = this.lastIndexWithAuth(auth);
 
@@ -157,10 +159,12 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
+      this.ensureNotTombstoned(height);
       this.getRightHistory(height, auth, right).apply.set(height, true);
     },
 
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
+      this.ensureNotTombstoned(height);
       const history = this.getRightHistory(height, auth, right);
 
       if (history.query.isEmpty()) {
@@ -171,12 +175,14 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     tombstone: (height: number): void => {
+      this.ensureNotTombstoned(height);
       this.tombstoneHistory.apply.set(height, true);
     },
   };
 
   public readonly revert: IDidDocumentOperations = {
     addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
+      this.ensureNotTombstoned(height);
       this.ensureMinHeight(height);
 
       if (!this.keyEntries.length) {
@@ -201,6 +207,7 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     revokeKey: (height: number, auth: Authentication): void => {
+      this.ensureNotTombstoned(height);
       this.ensureMinHeight(height);
 
       const indexPresent = this.lastIndexWithAuth(auth);
@@ -220,15 +227,19 @@ export class DidDocumentState implements IDidDocumentState {
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
+      this.ensureNotTombstoned(height);
       this.getRightHistory(height, auth, right).revert.set(height, true);
     },
 
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
+      this.ensureNotTombstoned(height);
       this.getRightHistory(height, auth, right).revert.set(height, false);
     },
 
     tombstone: (height: number): void => {
-      this.tombstoneHistory.revert.set(height, false);
+      // note: here we don't have to ensure that the did is not tombstoned as the last operation could be tombstone, so
+      // we have to be able to revert it
+      this.tombstoneHistory.revert.set(height, true);
     },
   };
 
@@ -257,6 +268,12 @@ export class DidDocumentState implements IDidDocumentState {
   private ensureMinHeight(height: number): void {
     if (height < 2) {
       throw new Error('Keys cannot be added before height 2');
+    }
+  }
+
+  private ensureNotTombstoned(height: number): void {
+    if (this.tombstoneHistory.query.get(height)) {
+      throw new Error(`did is tombstoned at height ${height}, cannot be updated anymore`);
     }
   }
 

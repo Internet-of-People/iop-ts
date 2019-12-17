@@ -12,8 +12,7 @@
     "build": "lerna run --stream build",
     "clean": "lerna run clean && rimraf node_modules",
     "lint": "lerna run --stream lint",
-    "test": "npm run build && lerna run --stream test",
-    "s": "lint-staged"
+    "test": "npm run build && lerna run --stream test"
   },
   "dependencies": {
     "@arkecosystem/client": "1.0.5",
@@ -56,7 +55,6 @@
     "jest": "24.9.0",
     "jest-extended": "0.11.2",
     "lerna": "3.18.5",
-    "lint-staged": "9.5.0",
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0",
     "typedoc": "0.15.0",
@@ -64,17 +62,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build && lint-staged"
+      "pre-commit": "npm run build && npm run lint && git add ."
     }
-  },
-  "lint-staged": {
-    "*__tests__*": [
-      "eslint -c ./eslintrc.test.json --fix",
-      "git add"
-    ],
-    "*src/*": [
-      "eslint -c ./eslintrc.json --fix",
-      "git add"
-    ]
   }
 }

@@ -1,7 +1,7 @@
-import {KeyId} from '@internet-of-people/keyvault';
-import {didToAuth, IDidDocumentState, IKeyData, Right} from '../src/interfaces';
-import {Operations} from '../src/morpheus-transaction';
-import {assertStringlyEqual} from './utils';
+import { KeyId } from '@internet-of-people/keyvault';
+import { didToAuth, IDidDocumentState, IKeyData, Right } from '../src/interfaces';
+import { Operations } from '../src/morpheus-transaction';
+import { assertStringlyEqual } from './utils';
 
 const { DidDocument } = Operations;
 
@@ -251,8 +251,8 @@ describe('DidDocumentState', () => {
     });
 
     it('keys in a tombstoned did have no rights', () => {
-      didState.apply.addKey(4,keyId1);
-      didState.apply.addRight(4,keyId1,Right.Update);
+      didState.apply.addKey(4, keyId1);
+      didState.apply.addRight(4, keyId1, Right.Update);
 
       didState.apply.tombstone(5);
       const doc4 = didState.query.getAt(4);
@@ -260,7 +260,7 @@ describe('DidDocumentState', () => {
       expect(doc4.hasRight(keyId1, Right.Update)).toBeTruthy();
       expect(doc4.hasRight(defaultKeyId, Right.Update)).toBeTruthy();
       expect(doc4.hasRight(defaultKeyId, Right.Impersonate)).toBeTruthy();
-      expect(doc4.toData().rights.get(Right.Update)).toStrictEqual([0,1]);
+      expect(doc4.toData().rights.get(Right.Update)).toStrictEqual([ 0, 1 ]);
       expect(doc4.toData().rights.get(Right.Impersonate)).toStrictEqual([0]);
 
       const doc5 = didState.query.getAt(5);
@@ -273,18 +273,36 @@ describe('DidDocumentState', () => {
     });
 
     it('tombstoned did cannot be updated', () => {
-      const error = `${did} is tombstoned at height 5, cannot be updated anymore`;
+      const error = 'did is tombstoned at height 6, cannot be updated anymore';
       didState.apply.tombstone(5);
-      expect(() => { didState.apply.addKey(6,keyId1); }).toThrowError(error);
-      expect(() => { didState.apply.revokeKey(6,keyId1); }).toThrowError(error);
-      expect(() => { didState.apply.addRight(6,keyId1, Right.Update); }).toThrowError(error);
-      expect(() => { didState.apply.revokeRight(6,keyId1, Right.Update); }).toThrowError(error);
-      expect(() => { didState.apply.tombstone(6); }).toThrowError(error);
+      expect(() => {
+        didState.apply.addKey(6, keyId1);
+      }).toThrowError(error);
+      expect(() => {
+        didState.apply.revokeKey(6, keyId1);
+      }).toThrowError(error);
+      expect(() => {
+        didState.apply.addRight(6, keyId1, Right.Update);
+      }).toThrowError(error);
+      expect(() => {
+        didState.apply.revokeRight(6, keyId1, Right.Update);
+      }).toThrowError(error);
+      expect(() => {
+        didState.apply.tombstone(6);
+      }).toThrowError(error);
 
-      expect(() => { didState.revert.addKey(6,keyId1); }).toThrowError(error);
-      expect(() => { didState.revert.revokeKey(6,keyId1); }).toThrowError(error);
-      expect(() => { didState.revert.addRight(6,keyId1, Right.Update); }).toThrowError(error);
-      expect(() => { didState.revert.revokeRight(6,keyId1, Right.Update); }).toThrowError(error);
+      expect(() => {
+        didState.revert.addKey(6, keyId1);
+      }).toThrowError(error);
+      expect(() => {
+        didState.revert.revokeKey(6, keyId1);
+      }).toThrowError(error);
+      expect(() => {
+        didState.revert.addRight(6, keyId1, Right.Update);
+      }).toThrowError(error);
+      expect(() => {
+        didState.revert.revokeRight(6, keyId1, Right.Update);
+      }).toThrowError(error);
     });
 
     it('tombstoned did can be reverted', () => {

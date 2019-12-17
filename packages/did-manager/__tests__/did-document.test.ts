@@ -1,6 +1,6 @@
-import {KeyId} from '@internet-of-people/keyvault';
-import {IKeyData, Right} from '../src/interfaces';
-import {Operations} from '../src/morpheus-transaction';
+import { KeyId } from '@internet-of-people/keyvault';
+import { IKeyData, Right } from '../src/interfaces';
+import { Operations } from '../src/morpheus-transaction';
 
 const { DidDocument } = Operations;
 

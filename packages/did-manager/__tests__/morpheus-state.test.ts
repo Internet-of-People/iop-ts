@@ -1,7 +1,7 @@
-import {MorpheusState} from '../src/morpheus-transaction/state';
-import {IMorpheusState, Right} from '../src/interfaces';
+import { MorpheusState } from '../src/morpheus-transaction/state';
+import { IMorpheusState, Right } from '../src/interfaces';
 
-import {assertStringlyEqual, defaultKeyId, did, keyId1, keyId2} from './morpheus-state-handler.test';
+import { assertStringlyEqual, defaultKeyId, did, keyId1, keyId2 } from './morpheus-state-handler.test';
 
 describe('Cloneable', () => {
   it('actually works', () => {
@@ -102,7 +102,10 @@ describe('MorpheusState', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
     expect(() => {
       state.revert.addKey(5, defaultKeyId, did, defaultKeyId);
-    }).toThrowError('Cannot revert addKey in DID did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr, because the key does not match the last added one');
+    }).toThrowError(
+      `Cannot revert addKey in DID did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr, 
+      because the key does not match the last added one`,
+    );
   });
 
   it('apply add right accepted for different key', () => {
@@ -116,7 +119,7 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys7[1].auth, keyId1);
     const rights7 = data7.rights;
     expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights7.get(Right.Update)).toStrictEqual([0, 1]);
+    expect(rights7.get(Right.Update)).toStrictEqual([ 0, 1 ]);
 
     const data5 = state.query.getDidDocumentAt(did, 5).toData();
     const keys5 = data5.keys;
@@ -204,6 +207,9 @@ describe('MorpheusState', () => {
 
     expect(() => {
       state.revert.revokeKey(7, keyId1, did, keyId2);
-    }).toThrowError('Cannot revert revokeKey in DID did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr because it does not have a key matching IezkXs7Xd8SDWLaGKUAjEf53W');
+    }).toThrowError(
+      `Cannot revert revokeKey in DID did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr 
+      because it does not have a key matching IezkXs7Xd8SDWLaGKUAjEf53W`,
+    );
   });
 });

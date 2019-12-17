@@ -232,10 +232,6 @@ export class MorpheusState implements IMorpheusState {
       throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
     }
 
-    if (state.query.getAt(height).isTombstoned()) {
-      throw new Error(`${did} is tombstoned at height ${height}, cannot be updated anymore`);
-    }
-
     return state;
   }
 
