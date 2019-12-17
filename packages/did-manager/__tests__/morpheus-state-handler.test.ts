@@ -1,4 +1,4 @@
-import { ISignedOperationsData, OperationType, Right, Authentication } from '../src/interfaces';
+import {ISignedOperationsData, OperationType, Right, Authentication, IStateChange} from '../src/interfaces';
 import {
   Interfaces as KvInterfaces,
   KeyId,
@@ -28,6 +28,7 @@ describe('StateHandler', () => {
   const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
   rustVault.createId();
   rustVault.createId();
+  rustVault.createId();
 
   const vault: KvInterfaces.IVault = {
     sign: (message: Uint8Array, keyId: KeyId): SignedMessage => {
@@ -43,18 +44,36 @@ describe('StateHandler', () => {
 
   const addKey = (
     blockHeight: number,
-    toKey: Authentication,
+    keyToAdd: Authentication,
     signWith: Authentication,
     txId: string,
   ): void => {
     handler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .addKey(did, toKey)
+        .addKey(did, keyToAdd)
         .sign(signWith)
         .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     });
+  };
+
+  const revokeKey = (
+    blockHeight: number,
+    keyToRevoke: Authentication,
+    signWith: Authentication,
+    txId: string,
+  ): IStateChange => {
+    const stateChange = {
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+          .withVault(vault)
+          .revokeKey(did, keyToRevoke)
+          .sign(signWith)
+          .getAttempts(),
+      }, blockHeight, blockId, transactionId: txId,
+    };
+    handler.applyTransactionToState(stateChange);
+    return stateChange;
   };
 
   const addRight = (
@@ -73,7 +92,6 @@ describe('StateHandler', () => {
     });
   };
 
-  // TODO: @bartmoss
   const revokeRight = (
     blockHeight: number,
     toKey: Authentication,
@@ -83,12 +101,11 @@ describe('StateHandler', () => {
     handler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        // .revokeRight(did, toKey, Right.Update)
+        .revokeRight(did, toKey, Right.Update)
         .sign(signWith)
         .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     });
-    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
   };
 
   beforeEach(() => {
@@ -216,8 +233,7 @@ describe('StateHandler', () => {
     assertStringlyEqual(handler.query.getDidDocumentAt(did, 5).toData().keys[1].auth, keyId1);
   });
 
-  // TODO: @bartmoss
-  it.skip('rights can be moved to a different key in a single transaction', () => {
+  it('rights can be moved to a different key in a single transaction', () => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
       .addKey(did, keyId1)
@@ -225,7 +241,7 @@ describe('StateHandler', () => {
       .addRight(did, keyId1, Right.Update)
       .sign(defaultKeyId)
       .withVault(vault)
-    // .removeKey(did, defaultKeyId)
+      .revokeKey(did, defaultKeyId)
       .sign(keyId1)
       .getAttempts();
     handler.applyTransactionToState({
@@ -237,8 +253,60 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
   });
 
-  // TODO: @bartmoss
-  it.todo('can revoke keys');
+  it('can revoke keys', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    const doc5 = handler.query.getDidDocumentAt(did, 5).toData();
+    expect(doc5.keys).toHaveLength(2);
+    assertStringlyEqual(doc5.keys[0].auth, defaultKeyId);
+    assertStringlyEqual(doc5.keys[1].auth, keyId1);
+    expect(doc5.keys[0].valid).toBeTruthy();
+    expect(doc5.keys[1].valid).toBeTruthy();
+
+    revokeKey(10, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    const doc10 = handler.query.getDidDocumentAt(did, 10).toData();
+    expect(doc10.keys).toHaveLength(2);
+    assertStringlyEqual(doc10.keys[0].auth, defaultKeyId);
+    assertStringlyEqual(doc10.keys[1].auth, keyId1);
+    expect(doc10.keys[0].valid).toBeTruthy();
+    expect(doc10.keys[1].valid).toBeFalsy();
+  });
+
+  it('cannot revoke not existing key', () => {
+    revokeKey(10, keyId1, defaultKeyId, 'tx1');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(false));
+  });
+
+  it('can revoke key if has right to update', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    addRight(6, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+
+    revokeKey(10, defaultKeyId, keyId1, 'tx3');
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
+    const doc10 = handler.query.getDidDocumentAt(did, 10).toData();
+    expect(doc10.keys).toHaveLength(2);
+    assertStringlyEqual(doc10.keys[0].auth, defaultKeyId);
+    assertStringlyEqual(doc10.keys[1].auth, keyId1);
+    expect(doc10.keys[0].valid).toBeFalsy();
+    expect(doc10.keys[1].valid).toBeTruthy();
+  });
+
+  it('cannot revoke key if has no right to update', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+
+    revokeKey(10, defaultKeyId, keyId1, 'tx2');
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
+    const doc10 = handler.query.getDidDocumentAt(did, 10).toData();
+    expect(doc10.keys).toHaveLength(2);
+    assertStringlyEqual(doc10.keys[0].auth, defaultKeyId);
+    assertStringlyEqual(doc10.keys[1].auth, keyId1);
+    expect(doc10.keys[0].valid).toBeTruthy();
+    expect(doc10.keys[1].valid).toBeTruthy();
+  });
 
   it('adding keys can be reverted', () => {
     const attempts = new OperationAttemptsBuilder()
@@ -254,8 +322,20 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 5).toData().keys).toHaveLength(1);
   });
 
-  // TODO: @bartmoss: also check skipped tests below.
-  it.todo('revoking keys can be reverted');
+  it('revoking keys can be reverted', () => {
+    addKey(5, keyId1, defaultKeyId, 'tx1');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+
+    const stateChange = revokeKey(10, keyId1, defaultKeyId, 'tx2');
+    const doc10 = handler.query.getDidDocumentAt(did, 10).toData();
+    expect(doc10.keys[0].valid).toBeTruthy();
+    expect(doc10.keys[1].valid).toBeFalsy();
+
+    handler.revertTransactionFromState(stateChange);
+    const doc10AfterRevert = handler.query.getDidDocumentAt(did, 10).toData();
+    expect(doc10AfterRevert.keys[0].valid).toBeTruthy();
+    expect(doc10AfterRevert.keys[1].valid).toBeTruthy();
+  });
 
   it('can add rights', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
@@ -278,7 +358,7 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
   });
 
-  it.skip('can revoke rights', () => {
+  it('can revoke rights', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
@@ -287,13 +367,13 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
-    revokeRight(15, keyId1, defaultKeyId, 'tx2');
-    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    revokeRight(15, keyId1, defaultKeyId, 'tx3');
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
     expect(handler.query.getDidDocumentAt(did, 14).hasRight(keyId1, Right.Update)).toBeTruthy();
     expect(handler.query.getDidDocumentAt(did, 15).hasRight(keyId1, Right.Update)).toBeFalsy();
   });
 
-  it.skip('cannot revoke not applied right', () => {
+  it('cannot revoke not applied right', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     revokeRight(10, keyId1, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
@@ -301,7 +381,7 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
   });
 
-  it.skip('cannot revoke applied right before it was applied', () => {
+  it('cannot revoke applied right before it was applied', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     addRight(10, keyId1, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
@@ -309,11 +389,11 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
     revokeRight(9, keyId1, defaultKeyId, 'tx3');
-    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
   });
 
-  it.skip('can revoke right if has right to update', () => {
+  it('can revoke right if has right to update', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     addKey(5, keyId2, defaultKeyId, 'tx2');
     addRight(10, keyId1, defaultKeyId, 'tx3');
@@ -326,10 +406,10 @@ describe('StateHandler', () => {
 
     revokeRight(15, keyId1, keyId2, 'tx5');
     expect(handler.query.isConfirmed('tx5')).toStrictEqual(Optional.of(true));
-    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(did, 15).hasRight(keyId1, Right.Update)).toBeFalsy();
   });
 
-  it.skip('cannot revoke right if has no right to update', () => {
+  it('cannot revoke right if has no right to update', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     addKey(5, keyId2, defaultKeyId, 'tx2');
     addRight(10, keyId1, defaultKeyId, 'tx3');
@@ -343,7 +423,7 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
   });
 
-  it.skip('cannot revoke right with the same auth', () => {
+  it('cannot revoke right with the same auth', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     addRight(10, keyId1, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
@@ -374,7 +454,7 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
   });
 
-  it.skip('revoking rights can be reverted', () => {
+  it('revoking rights can be reverted', () => {
     addKey(5, keyId1, defaultKeyId, 'tx1');
     addRight(10, keyId1, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
@@ -384,17 +464,17 @@ describe('StateHandler', () => {
     const stateChange = {
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        // .revokeRight(did, keyId1, Right.Update) // TODO
+        .revokeRight(did, keyId1, Right.Update)
         .sign(defaultKeyId)
         .getAttempts(),
-      }, blockHeight: 10, blockId, transactionId: 'tx3',
+      }, blockHeight: 15, blockId, transactionId: 'tx3',
     };
 
     handler.applyTransactionToState(stateChange);
     expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
-    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(did, 15).hasRight(keyId1, Right.Update)).toBeFalsy();
 
     handler.revertTransactionFromState(stateChange);
-    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(did, 15).hasRight(keyId1, Right.Update)).toBeTruthy();
   });
 });
