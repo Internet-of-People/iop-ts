@@ -1,7 +1,7 @@
-import {MorpheusState} from '../src/morpheus-transaction/state';
-import {IMorpheusState, Right} from '../src/interfaces';
+import { MorpheusState } from '../src/morpheus-transaction/state';
+import { IMorpheusState, Right } from '../src/interfaces';
 
-import {assertStringlyEqual, defaultKeyId, did, keyId1, keyId2} from './morpheus-state-handler.test';
+import { assertStringlyEqual, defaultKeyId, did, keyId1, keyId2 } from './morpheus-state-handler.test';
 
 describe('Cloneable', () => {
   it('actually works', () => {
@@ -85,7 +85,7 @@ describe('MorpheusState', () => {
     expect(() => {
       return state.apply.addKey(5, keyId1, did, keyId1);
     })
-    .toThrowError(`${keyId1} cannot update ${did} at height 5`);
+      .toThrowError(`${keyId1} cannot update ${did} at height 5`);
   });
 
   it('revert add key works with valid data', () => {
@@ -215,7 +215,7 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys7[1].auth, keyId1);
     const rights7 = data7.rights;
     expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights7.get(Right.Update)).toStrictEqual([0, 1]);
+    expect(rights7.get(Right.Update)).toStrictEqual([ 0, 1 ]);
   });
 
   it('apply revoke key works with appropriate rights', () => {
@@ -278,25 +278,29 @@ describe('MorpheusState', () => {
 
   it('did can be tombstoned', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
-    expect(state.query.getDidDocumentAt(did,4).isTombstoned()).toBeFalsy();
-    expect(state.query.getDidDocumentAt(did,5).isTombstoned()).toBeTruthy();
+    expect(state.query.getDidDocumentAt(did, 4).isTombstoned()).toBeFalsy();
+    expect(state.query.getDidDocumentAt(did, 5).isTombstoned()).toBeTruthy();
   });
 
   it('did can only be tombstoned with key that has update right', () => {
-    expect(state.apply.tombstoneDid(5, keyId1, did)).toThrowError("?");
+    expect(() => {
+      return state.apply.tombstoneDid(5, keyId1, did);
+    }).toThrowError(
+      `${keyId1} cannot update ${did} at height ${5}`,
+    );
   });
 
   it('tombstoned did can be reverted', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
-    expect(state.query.getDidDocumentAt(did,5).isTombstoned()).toBeTruthy();
+    expect(state.query.getDidDocumentAt(did, 5).isTombstoned()).toBeTruthy();
 
-    state.revert.tombstoneDid(5,defaultKeyId,did);
-    expect(state.query.getDidDocumentAt(did,5).isTombstoned()).toBeFalsy();
+    state.revert.tombstoneDid(5, defaultKeyId, did);
+    expect(state.query.getDidDocumentAt(did, 5).isTombstoned()).toBeFalsy();
   });
 
   it('tombstoned did cannot be updated', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
-    const error = 'did is tombstoned at height 6, cannot be updated anymore';
+    const error = `${defaultKeyId} cannot update ${did} at height 6`;
     expect(() => {
       state.apply.addKey(6, defaultKeyId, did, keyId1);
     }).toThrowError(error);
@@ -310,7 +314,7 @@ describe('MorpheusState', () => {
       state.apply.revokeRight(6, defaultKeyId, did, keyId1, Right.Update);
     }).toThrowError(error);
     expect(() => {
-      state.apply.tombstoneDid(6,defaultKeyId,did);
+      state.apply.tombstoneDid(6, defaultKeyId, did);
     }).toThrowError(error);
 
     expect(() => {
@@ -329,7 +333,7 @@ describe('MorpheusState', () => {
 
   it('keys in a tombstoned did have no rights', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
-    const doc5 = state.query.getDidDocumentAt(did,5);
+    const doc5 = state.query.getDidDocumentAt(did, 5);
     expect(doc5.isTombstoned()).toBeTruthy();
     expect(doc5.hasRight(defaultKeyId, Right.Update)).toBeFalsy();
     expect(doc5.hasRight(defaultKeyId, Right.Impersonate)).toBeFalsy();

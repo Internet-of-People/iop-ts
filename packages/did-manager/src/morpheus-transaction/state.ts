@@ -175,7 +175,8 @@ export class MorpheusState implements IMorpheusState {
     },
 
     tombstoneDid: (height: number, signerAuth: Authentication, did: string): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      // note: checking for right in this case is not needed
+      const state = this.getOrCreateDidDocument(did);
       state.revert.tombstone(height);
       this.didDocuments.set(did, state);
     },

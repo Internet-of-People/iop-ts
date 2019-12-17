@@ -208,7 +208,7 @@ describe('DidDocumentState', () => {
       expect(() => {
         didState.apply.revokeRight(5, keyId1, Right.Update);
       }).toThrowError(
-        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 5`
+        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 5`,
       );
     });
 
@@ -219,7 +219,7 @@ describe('DidDocumentState', () => {
       expect(() => {
         didState.apply.revokeRight(3, keyId1, Right.Update);
       }).toThrowError(
-        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 3`
+        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 3`,
       ); // by default it's false
     });
 
