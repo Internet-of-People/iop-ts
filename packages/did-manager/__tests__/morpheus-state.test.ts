@@ -1,7 +1,7 @@
-import { MorpheusState } from '../src/morpheus-transaction/state';
-import { IMorpheusState, Right } from '../src/interfaces';
+import {MorpheusState} from '../src/morpheus-transaction/state';
+import {IMorpheusState, Right} from '../src/interfaces';
 
-import { assertStringlyEqual, defaultKeyId, did, keyId1, keyId2 } from './morpheus-state-handler.test';
+import {assertStringlyEqual, defaultKeyId, did, keyId1, keyId2} from './morpheus-state-handler.test';
 
 describe('Cloneable', () => {
   it('actually works', () => {
@@ -274,5 +274,64 @@ describe('MorpheusState', () => {
     expect(() => {
       state.revert.revokeKey(7, keyId1, did, keyId2);
     }).toThrowError(`Cannot revert revokeKey in DID ${did} because it does not have a key matching ${keyId2}`);
+  });
+
+  it('did can be tombstoned', () => {
+    state.apply.tombstoneDid(5, defaultKeyId, did);
+    expect(state.query.getDidDocumentAt(did,4).isTombstoned()).toBeFalsy();
+    expect(state.query.getDidDocumentAt(did,5).isTombstoned()).toBeTruthy();
+  });
+
+  it('did can only be tombstoned with key that has update right', () => {
+    expect(state.apply.tombstoneDid(5, keyId1, did)).toThrowError("?");
+  });
+
+  it('tombstoned did can be reverted', () => {
+    state.apply.tombstoneDid(5, defaultKeyId, did);
+    expect(state.query.getDidDocumentAt(did,5).isTombstoned()).toBeTruthy();
+
+    state.revert.tombstoneDid(5,defaultKeyId,did);
+    expect(state.query.getDidDocumentAt(did,5).isTombstoned()).toBeFalsy();
+  });
+
+  it('tombstoned did cannot be updated', () => {
+    state.apply.tombstoneDid(5, defaultKeyId, did);
+    const error = 'did is tombstoned at height 6, cannot be updated anymore';
+    expect(() => {
+      state.apply.addKey(6, defaultKeyId, did, keyId1);
+    }).toThrowError(error);
+    expect(() => {
+      state.apply.revokeKey(6, defaultKeyId, did, keyId1);
+    }).toThrowError(error);
+    expect(() => {
+      state.apply.addRight(6, defaultKeyId, did, keyId1, Right.Update);
+    }).toThrowError(error);
+    expect(() => {
+      state.apply.revokeRight(6, defaultKeyId, did, keyId1, Right.Update);
+    }).toThrowError(error);
+    expect(() => {
+      state.apply.tombstoneDid(6,defaultKeyId,did);
+    }).toThrowError(error);
+
+    expect(() => {
+      state.revert.addKey(6, defaultKeyId, did, keyId1);
+    }).toThrowError(error);
+    expect(() => {
+      state.revert.revokeKey(6, defaultKeyId, did, keyId1);
+    }).toThrowError(error);
+    expect(() => {
+      state.revert.addRight(6, defaultKeyId, did, keyId1, Right.Update);
+    }).toThrowError(error);
+    expect(() => {
+      state.revert.revokeRight(6, defaultKeyId, did, keyId1, Right.Update);
+    }).toThrowError(error);
+  });
+
+  it('keys in a tombstoned did have no rights', () => {
+    state.apply.tombstoneDid(5, defaultKeyId, did);
+    const doc5 = state.query.getDidDocumentAt(did,5);
+    expect(doc5.isTombstoned()).toBeTruthy();
+    expect(doc5.hasRight(defaultKeyId, Right.Update)).toBeFalsy();
+    expect(doc5.hasRight(defaultKeyId, Right.Impersonate)).toBeFalsy();
   });
 });
