@@ -1,4 +1,4 @@
-import {ISignedOperationsData, OperationType, Right, Authentication, IStateChange} from '../src/interfaces';
+import { ISignedOperationsData, OperationType, Right, Authentication, IStateChange } from '../src/interfaces';
 import {
   Interfaces as KvInterfaces,
   KeyId,
@@ -66,10 +66,10 @@ describe('StateHandler', () => {
   ): IStateChange => {
     const stateChange = {
       asset: { operationAttempts: new OperationAttemptsBuilder()
-          .withVault(vault)
-          .revokeKey(did, keyToRevoke)
-          .sign(signWith)
-          .getAttempts(),
+        .withVault(vault)
+        .revokeKey(did, keyToRevoke)
+        .sign(signWith)
+        .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     };
     handler.applyTransactionToState(stateChange);

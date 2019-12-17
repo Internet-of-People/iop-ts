@@ -89,8 +89,16 @@ describe('DidDocumentState', () => {
     ]);
   });
 
-  // TODO: @bartmoss
-  it.todo('can revoke keys');
+  it('can revoke keys', () => {
+    didState.apply.addKey(2, keyId1);
+    didState.apply.revokeKey(5, keyId1);
+
+    const stateAtHeight5 = didState.query.getAt(5);
+    assertEqualAuthEntries(stateAtHeight5.toData().keys, [
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
+      { auth: keyId1.toString(), revoked: false, valid: false },
+    ]);
+  });
 
   it('adding keys can be reverted', () => {
     didState.apply.addKey(2, keyId1);
@@ -134,8 +142,17 @@ describe('DidDocumentState', () => {
     );
   });
 
-  // TODO: @bartmoss
-  it.todo('revoking keys can be reverted');
+  it('revoking keys can be reverted', () => {
+    didState.apply.addKey(2, keyId1);
+    didState.apply.revokeKey(5, keyId1);
+    didState.revert.revokeKey(5, keyId1);
+
+    const stateAtHeight5 = didState.query.getAt(5);
+    assertEqualAuthEntries(stateAtHeight5.toData().keys, [
+      { auth: defaultKeyId.toString(), revoked: false, valid: true },
+      { auth: keyId1.toString(), revoked: false, valid: true },
+    ]);
+  });
 
   it('can add rights', () => {
     didState.apply.addKey(2, keyId1);
