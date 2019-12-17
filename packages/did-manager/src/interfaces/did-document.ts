@@ -46,7 +46,7 @@ export enum Right {
 
 export interface IKeyData {
   auth: AuthenticationData;
-  validFromHeight?: number,
+  validFromHeight?: number;
   validUntilHeight?: number;
   revoked: boolean;
   valid: boolean; // NOTE: contains aggregated information derived from other fields

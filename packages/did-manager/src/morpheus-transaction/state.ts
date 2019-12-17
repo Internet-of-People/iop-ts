@@ -178,7 +178,7 @@ export class MorpheusState implements IMorpheusState {
       this.ensureDifferentAuth(signerAuth, auth);
       state.revert.revokeRight(height, auth, right);
       this.didDocuments.set(did, state);
-    }
+    },
   };
 
   private confirmedTxs: Map<string, boolean> = new Map();

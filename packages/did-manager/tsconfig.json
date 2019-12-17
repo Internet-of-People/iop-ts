@@ -5,7 +5,7 @@
     "skipLibCheck": true // Some dependencies fail with various problems
   },
   "include": [
-    "src/**/**.ts", "__tests__/*.ts",
+    "src/**/**.ts"
     //"src/**/**.json"
   ]
 }

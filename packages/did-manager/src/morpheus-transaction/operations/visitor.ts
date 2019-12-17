@@ -43,6 +43,7 @@ export const visitSignableOperation = <R>(operation: string, visitor: ISignableO
       return visitor.addRight();
     case SignableOperationType.RevokeRight:
       return visitor.revokeRight();
+
     default: {
       throw new Error(`Unknown signable operation type ${operation}`);
     }

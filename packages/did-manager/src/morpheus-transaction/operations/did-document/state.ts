@@ -32,7 +32,7 @@ interface IEntry {
   auth: Authentication;
   validFromHeight?: number;
   validUntilHeight?: number;
-  revoked: boolean,
+  revoked: boolean;
   rights: Map<Right, ITimeSeries>;
 }
 
@@ -57,8 +57,8 @@ export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => {
 
 const entryIsValidAt = (entry: IEntry, height: number): boolean => {
   let valid = !entry.revoked;
-  valid = valid && ( (entry.validFromHeight || 0) <= height );
-  valid = valid && ( !entry.validUntilHeight || entry.validUntilHeight > height );
+  valid = valid && (entry.validFromHeight || 0) <= height ;
+  valid = valid && (!entry.validUntilHeight || entry.validUntilHeight > height);
   return valid;
 };
 
@@ -72,6 +72,7 @@ const entryToKeyData = (entry: IEntry, height: number): IKeyData => {
   if (entry.validFromHeight) {
     data.validFromHeight = entry.validFromHeight;
   }
+
   if (entry.validUntilHeight) {
     data.validUntilHeight = entry.validUntilHeight;
   }
@@ -127,12 +128,14 @@ export class DidDocumentState implements IDidDocumentState {
       this.ensureMinHeight(height);
 
       const indexPresent = this.lastIndexWithAuth(auth);
+
       if (indexPresent < 0) {
         throw new Error(`DID ${this.did} does not have a key matching ${auth}`);
       }
 
       const entryPresent = this.keyEntries[indexPresent];
-      if( ! entryIsValidAt(entryPresent, height)) {
+
+      if (! entryIsValidAt(entryPresent, height)) {
         throw new Error(`DID ${this.did} has a key matching ${auth}, but it's already invalidated`);
       }
 
@@ -183,6 +186,7 @@ export class DidDocumentState implements IDidDocumentState {
       this.ensureMinHeight(height);
 
       const indexPresent = this.lastIndexWithAuth(auth);
+
       if (indexPresent < 0) {
         throw new Error(`Cannot revert revokeKey in DID ${this.did} because it does not have a key matching ${auth}`);
       }
@@ -190,8 +194,10 @@ export class DidDocumentState implements IDidDocumentState {
       const entryPresent = this.keyEntries[indexPresent];
       entryPresent.revoked = false;
 
-      if( ! entryIsValidAt(entryPresent, height)) {
-        throw new Error(`Failed to revert revokeKey in DID ${this.did} for key matching ${auth} because it's still invalid after unrevoking`);
+      if (! entryIsValidAt(entryPresent, height)) {
+        throw new Error(
+          `Failed to revert revokeKey in DID ${this.did} for key matching ${auth}. it's still invalid after unrevoking`,
+        );
       }
     },
 
