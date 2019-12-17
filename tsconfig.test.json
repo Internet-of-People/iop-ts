@@ -3,5 +3,8 @@
   "typeAcquisition": {
     "enable": true,
     "include": ["jest-ts"]
-  }
+  },
+  "include": [
+    "__tests__", "**/**.spec.ts", "**/**.test.ts"
+  ]
 }

@@ -20,11 +20,13 @@ export class MorpheusState implements IMorpheusState {
     isConfirmed: (transactionId: string): Optional<boolean> => {
       return Optional.ofNullable(this.confirmedTxs.get(transactionId));
     },
+
     beforeProofExistsAt: (contentId: string, height?: number): boolean => {
       const beforeProofState = this.beforeProofs.get(contentId);
       /* eslint no-undefined: 0 */
       return beforeProofState !== undefined && beforeProofState.query.existsAt(height);
     },
+
     getDidDocumentAt: (did: Did, height: number): IDidDocument => {
       const didState = this.getOrCreateDidDocument(did);
       return didState.query.getAt(height);
@@ -35,19 +37,23 @@ export class MorpheusState implements IMorpheusState {
     confirmTx: (transactionId: string): void => {
       this.setConfirmTx(transactionId, true);
     },
+
     rejectTx: (transactionId: string): void => {
       this.setConfirmTx(transactionId, false);
     },
+
     registerBeforeProof: (contentId: string, height: number) => {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
       beforeProof.apply.register(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
+
     revokeBeforeProof: (contentId: string, height: number) => {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
       beforeProof.apply.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
+
     addKey: (
       height: number,
       signerAuth: Authentication,
@@ -59,39 +65,31 @@ export class MorpheusState implements IMorpheusState {
       state.apply.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     },
-    revokeKey: (
-      height: number,
-      signerAuth: Authentication,
-      did: Did,
-      revokedAuth: Authentication,
-    ): void => {
+
+    revokeKey: (height: number, signerAuth: Authentication, did: Did, revokedAuth: Authentication): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, revokedAuth);
       state.apply.revokeKey(height, revokedAuth);
       this.didDocuments.set(did, state);
     },
-    addRight: (
-      height: number,
-      signerAuth: Authentication,
-      did: Did,
-      auth: Authentication,
-      right: Right,
-    ): void => {
+
+    addRight: (height: number, signerAuth: Authentication, did: Did, auth: Authentication, right: Right): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.apply.addRight(height, auth, right);
       this.didDocuments.set(did, state);
     },
-    revokeRight: (
-      height: number,
-      signerAuth: Authentication,
-      did: Did,
-      auth: Authentication,
-      right: Right,
-    ): void => {
+
+    revokeRight: (height: number, signerAuth: Authentication, did: Did, auth: Authentication, right: Right): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.apply.revokeRight(height, auth, right);
+      this.didDocuments.set(did, state);
+    },
+
+    tombstoneDid: (height: number, signerAuth: Authentication, did: string): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      state.apply.tombstone(height);
       this.didDocuments.set(did, state);
     },
   };
@@ -110,6 +108,7 @@ export class MorpheusState implements IMorpheusState {
 
       this.confirmedTxs.delete(transactionId);
     },
+
     rejectTx: (transactionId: string): void => {
       const confirmed = this.query.isConfirmed(transactionId);
 
@@ -123,16 +122,19 @@ export class MorpheusState implements IMorpheusState {
 
       this.confirmedTxs.delete(transactionId);
     },
+
     registerBeforeProof: (contentId: string, height: number) => {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
       beforeProof.revert.register(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
+
     revokeBeforeProof: (contentId: string, height: number) => {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
       beforeProof.revert.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
+
     addKey: (
       height: number,
       signerAuth: Authentication,
@@ -144,29 +146,21 @@ export class MorpheusState implements IMorpheusState {
       state.revert.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     },
-    revokeKey: (
-      height: number,
-      signerAuth: Authentication,
-      did: Did,
-      revokedAuth: Authentication,
-    ): void => {
+
+    revokeKey: (height: number, signerAuth: Authentication, did: Did, revokedAuth: Authentication): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, revokedAuth);
       state.revert.revokeKey(height, revokedAuth);
       this.didDocuments.set(did, state);
     },
-    addRight: (
-      height: number,
-      signerAuth: Authentication,
-      did: Did,
-      auth: Authentication,
-      right: Right,
-    ): void => {
+
+    addRight: (height: number, signerAuth: Authentication, did: Did, auth: Authentication, right: Right): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.revert.addRight(height, auth, right);
       this.didDocuments.set(did, state);
     },
+
     revokeRight: (
       height: number,
       signerAuth: Authentication,
@@ -177,6 +171,12 @@ export class MorpheusState implements IMorpheusState {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.revert.revokeRight(height, auth, right);
+      this.didDocuments.set(did, state);
+    },
+
+    tombstoneDid: (height: number, signerAuth: Authentication, did: string): void => {
+      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      state.revert.tombstone(height);
       this.didDocuments.set(did, state);
     },
   };
@@ -231,6 +231,11 @@ export class MorpheusState implements IMorpheusState {
     if (!state.query.getAt(height).hasRight(signerAuth, Right.Update)) {
       throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
     }
+
+    if (state.query.getAt(height).isTombstoned()) {
+      throw new Error(`${did} is tombstoned at height ${height}, cannot be updated anymore`);
+    }
+
     return state;
   }
 

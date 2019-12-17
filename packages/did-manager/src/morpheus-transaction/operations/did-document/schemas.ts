@@ -85,3 +85,18 @@ export const revokeRight = {
     },
   },
 };
+
+export const tombstoneDid = {
+  type: 'object',
+  required: [ 'operation', 'did', 'auth', 'right' ],
+  additionalProperties: false,
+  properties: {
+    operation: {
+      type: 'string',
+      const: SignableOperationType.TombstoneDid,
+    },
+    did: {
+      type: 'string',
+    },
+  },
+};

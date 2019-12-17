@@ -25,7 +25,7 @@ export enum CipherSuite {
   Secp256k1Key = 'Secp256k1',
 }
 
-interface IEntry {
+interface IKeyEntry {
   // TODO probably should be
   // kind: AuthenticationKind;
   // cipherSuite: CipherSuite,
@@ -55,18 +55,18 @@ export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => {
   });
 };
 
-const entryIsValidAt = (entry: IEntry, height: number): boolean => {
+const entryIsValidAt = (entry: IKeyEntry, height: number): boolean => {
   let valid = !entry.revoked;
   valid = valid && (entry.validFromHeight || 0) <= height ;
   valid = valid && (!entry.validUntilHeight || entry.validUntilHeight > height);
   return valid;
 };
 
-const entryToKeyData = (entry: IEntry, height: number): IKeyData => {
+const keyEntryToKeyData = (entry: IKeyEntry, height: number, didTombstoned: boolean): IKeyData => {
   const data: IKeyData = {
     auth: entry.auth.toString(),
     revoked: entry.revoked,
-    valid: entryIsValidAt(entry, height),
+    valid: entryIsValidAt(entry, height) && !didTombstoned,
   };
 
   if (entry.validFromHeight) {
@@ -80,34 +80,42 @@ const entryToKeyData = (entry: IEntry, height: number): IKeyData => {
   return data;
 };
 
+// TODO: what if we rename it to DidDocumentTimeline
 export class DidDocumentState implements IDidDocumentState {
   public readonly query: IDidDocumentQueries = {
     getAt: (height: number): IDidDocument => {
+      const didTombstoned = this.tombstoneHistory.query.get(height);
       const reversedKeys = this.keyEntries.slice(0).reverse();
-      const validKeys = reversedKeys
+
+      const existingKeysAtHeight = reversedKeys
         .filter((key) => {
+          // note:
+          // - all keys that once added will be kept forever.
+          // - It's possible that it will has right for nothing though.
           return (key.validFromHeight || 0) <= height;
         });
-      const keys = validKeys
+
+      const keys = existingKeysAtHeight
         .map((key) => {
-          return entryToKeyData(key, height);
+          return keyEntryToKeyData(key, height, didTombstoned);
         });
 
-      const rights: Map<Right, number[]> = mapAllRights((r) => {
-        const indexesWithRight: number[] = [];
+      const rights: Map<Right, number[]> = mapAllRights((right) => {
+        const keysWithRightIndexes: number[] = [];
 
-        for (let i = 0; i < validKeys.length; i += 1) {
-          const rightTimeSeries = validKeys[i].rights.get(r);
+        for (let i = 0; i < existingKeysAtHeight.length; i += 1) {
+          const rightTimeSeries = existingKeysAtHeight[i].rights.get(right);
 
-          if (!rightTimeSeries || !rightTimeSeries.query.get(height)) {
+          if (didTombstoned || !rightTimeSeries || !rightTimeSeries.query.get(height)) {
             continue;
           }
-          indexesWithRight.push(i);
+          keysWithRightIndexes.push(i);
         }
-        return indexesWithRight;
+
+        return keysWithRightIndexes;
       });
 
-      return new DidDocument({ did: this.did, keys, rights, atHeight: height });
+      return new DidDocument({ did: this.did, keys, rights, atHeight: height, tombstoned: didTombstoned });
     },
   };
 
@@ -120,8 +128,13 @@ export class DidDocumentState implements IDidDocumentState {
         throw new Error(`DID ${this.did} already has a still valid key matching ${auth}`);
       }
       const rights = initialRights(false);
-      this.keyEntries.unshift({ auth, rights, validFromHeight: height,
-        validUntilHeight: expiresAtHeight, revoked: false });
+      this.keyEntries.unshift({
+        auth,
+        rights,
+        validFromHeight: height,
+        validUntilHeight: expiresAtHeight,
+        revoked: false,
+      });
     },
 
     revokeKey: (height: number, auth: Authentication): void => {
@@ -154,6 +167,10 @@ export class DidDocumentState implements IDidDocumentState {
       }
 
       this.getRightHistory(height, auth, right).apply.set(height, false);
+    },
+
+    tombstone: (height: number): void => {
+      this.tombstoneHistory.apply.set(height, true);
     },
   };
 
@@ -208,6 +225,10 @@ export class DidDocumentState implements IDidDocumentState {
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
       this.getRightHistory(height, auth, right).revert.set(height, false);
     },
+
+    tombstone: (height: number): void => {
+      this.tombstoneHistory.revert.set(height, false);
+    },
   };
 
   /**
@@ -215,7 +236,8 @@ export class DidDocumentState implements IDidDocumentState {
    * invalidated, but not deleted, so the index of the entry never expires in other data fields.
    * When a removed key is added again, a new entry is added with a new index.
    */
-  private keyEntries: IEntry[] = [];
+  private keyEntries: IKeyEntry[] = [];
+  private readonly tombstoneHistory: ITimeSeries = new TimeSeries(false);
 
   public constructor(public readonly did: Did) {
     this.keyEntries.unshift({
@@ -259,7 +281,7 @@ export class DidDocumentState implements IDidDocumentState {
     });
   }
 
-  private lastEntryWithAuth(auth: Authentication): IEntry | undefined {
+  private lastEntryWithAuth(auth: Authentication): IKeyEntry | undefined {
     return this.keyEntries.find((entry) => {
       return isSameAuthentication(entry.auth, auth);
     });

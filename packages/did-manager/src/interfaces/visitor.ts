@@ -16,6 +16,7 @@ export interface ISignableOperationVisitor<T> {
   revokeKey(did: Did, auth: Authentication): T;
   addRight(did: Did, auth: Authentication, right: Right): T;
   revokeRight(did: Did, auth: Authentication, right: Right): T;
+  tombstoneDid(did: Did): T;
 }
 
 export interface IOperationTypeVisitor<R> {
@@ -29,4 +30,5 @@ export interface ISignableOperationTypeVisitor<R> {
   revokeKey(): R;
   addRight(): R;
   revokeRight(): R;
+  tombstoneDid(): R;
 }
