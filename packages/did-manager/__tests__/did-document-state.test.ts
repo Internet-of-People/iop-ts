@@ -207,7 +207,9 @@ describe('DidDocumentState', () => {
 
       expect(() => {
         didState.apply.revokeRight(5, keyId1, Right.Update);
-      }).toThrowError(`right ${Right.Update} cannot be revoked with ${keyId1} as it was not yet added at height 5`);
+      }).toThrowError(
+        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 5`
+      );
     });
 
     it('cannot revoke applied right before it was applied', () => {
@@ -216,7 +218,9 @@ describe('DidDocumentState', () => {
 
       expect(() => {
         didState.apply.revokeRight(3, keyId1, Right.Update);
-      }).toThrowError('value was already set at that height'); // by default it's false
+      }).toThrowError(
+        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 3`
+      ); // by default it's false
     });
 
     it('adding rights can be reverted', () => {

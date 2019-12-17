@@ -85,7 +85,7 @@ describe('MorpheusState', () => {
     expect(() => {
       return state.apply.addKey(5, keyId1, did, keyId1);
     })
-      .toThrowError('Iez25N5WZ1Q6TQpgpyYgiu9gTX cannot update did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr at height 5');
+    .toThrowError(`${keyId1} cannot update ${did} at height 5`);
   });
 
   it('revert add key works with valid data', () => {
@@ -102,10 +102,7 @@ describe('MorpheusState', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
     expect(() => {
       state.revert.addKey(5, defaultKeyId, did, defaultKeyId);
-    }).toThrowError(
-      `Cannot revert addKey in DID did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr, 
-      because the key does not match the last added one`,
-    );
+    }).toThrowError(`Cannot revert addKey in DID ${did}, because the key does not match the last added one`);
   });
 
   it('apply add right accepted for different key', () => {
@@ -137,20 +134,89 @@ describe('MorpheusState', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
     expect(() => {
       state.apply.addRight(6, keyId1, did, keyId1, Right.Update);
-    }).toThrowError('Iez25N5WZ1Q6TQpgpyYgiu9gTX cannot update did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr at height 6');
+    }).toThrowError(`${keyId1} cannot update ${did} at height 6`);
   });
 
-  it.todo('apply add right rejected because it existed');
+  it('apply add right rejected because it existed', () => {
+    state.apply.addKey(5, defaultKeyId, did, keyId1);
+    state.apply.addRight(6, defaultKeyId, did, keyId1, Right.Update);
+    expect(() => {
+      state.apply.addRight(7, defaultKeyId, did, keyId1, Right.Update);
+    }).toThrowError('value was already set to true');
+  });
 
-  it.todo('revert add right accepted for different key');
+  it('revert add right accepted for different key', () => {
+    state.apply.addKey(5, defaultKeyId, did, keyId1);
+    state.apply.addRight(7, defaultKeyId, did, keyId1, Right.Update);
+    state.revert.addRight(7, defaultKeyId, did, keyId1, Right.Update);
 
-  it.todo('apply revoke right accepted for different key');
+    const data7 = state.query.getDidDocumentAt(did, 7).toData();
+    const keys7 = data7.keys;
+    expect(keys7).toHaveLength(2);
+    assertStringlyEqual(keys7[0].auth, defaultKeyId);
+    assertStringlyEqual(keys7[1].auth, keyId1);
+    const rights7 = data7.rights;
+    expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
+    expect(rights7.get(Right.Update)).toStrictEqual([0]);
 
-  it.todo('apply revoke right rejected for same key');
+    const data5 = state.query.getDidDocumentAt(did, 5).toData();
+    const keys5 = data5.keys;
+    expect(keys5).toHaveLength(2);
+    assertStringlyEqual(keys5[0].auth, defaultKeyId);
+    assertStringlyEqual(keys5[1].auth, keyId1);
+    const rights5 = data5.rights;
+    expect(rights5.get(Right.Impersonate)).toStrictEqual([0]);
+    expect(rights5.get(Right.Update)).toStrictEqual([0]);
+  });
 
-  it.todo('apply revoke right rejected because it existed');
+  it('apply revoke right accepted for different key', () => {
+    state.apply.addKey(5, defaultKeyId, did, keyId1);
+    state.apply.addRight(6, defaultKeyId, did, keyId1, Right.Update);
+    state.apply.addRight(6, defaultKeyId, did, keyId1, Right.Impersonate);
 
-  it.todo('revert revoke right accepted for different key');
+    state.apply.revokeRight(7, defaultKeyId, did, keyId1, Right.Impersonate);
+    state.apply.revokeRight(7, keyId1, did, defaultKeyId, Right.Update);
+
+    const data7 = state.query.getDidDocumentAt(did, 7).toData();
+    const keys7 = data7.keys;
+    expect(keys7).toHaveLength(2);
+    assertStringlyEqual(keys7[0].auth, defaultKeyId);
+    assertStringlyEqual(keys7[1].auth, keyId1);
+    const rights7 = data7.rights;
+    expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
+    expect(rights7.get(Right.Update)).toStrictEqual([1]);
+  });
+
+  it('apply revoke right rejected for same key', () => {
+    state.apply.addKey(5, defaultKeyId, did, keyId1);
+    state.apply.addRight(6, defaultKeyId, did, keyId1, Right.Update);
+    expect(() => {
+      state.apply.revokeRight(7, keyId1, did, keyId1, Right.Update);
+    }).toThrowError(`${keyId1} cannot modify its own authorization (as ${keyId1})`);
+  });
+
+  it('apply revoke right rejected because it did not exist', () => {
+    state.apply.addKey(5, defaultKeyId, did, keyId1);
+    expect(() => {
+      state.apply.revokeRight(7, defaultKeyId, did, keyId1, Right.Update);
+    }).toThrowError(`right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 7`);
+  });
+
+  it('revert revoke right accepted for different key', () => {
+    state.apply.addKey(5, defaultKeyId, did, keyId1);
+    state.apply.addRight(6, defaultKeyId, did, keyId1, Right.Update);
+    state.apply.revokeRight(7, defaultKeyId, did, keyId1, Right.Update);
+    state.revert.revokeRight(7, defaultKeyId, did, keyId1, Right.Update);
+
+    const data7 = state.query.getDidDocumentAt(did, 7).toData();
+    const keys7 = data7.keys;
+    expect(keys7).toHaveLength(2);
+    assertStringlyEqual(keys7[0].auth, defaultKeyId);
+    assertStringlyEqual(keys7[1].auth, keyId1);
+    const rights7 = data7.rights;
+    expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
+    expect(rights7.get(Right.Update)).toStrictEqual([0, 1]);
+  });
 
   it('apply revoke key works with appropriate rights', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
@@ -176,14 +242,14 @@ describe('MorpheusState', () => {
   it('apply revoke key is rejected trying to revoke the current signer key', () => {
     expect(() => {
       state.apply.revokeKey(5, defaultKeyId, did, defaultKeyId);
-    }).toThrowError('IezbeWGSY2dqcUBqT8K7R14xr cannot modify its own authorization (as IezbeWGSY2dqcUBqT8K7R14xr)');
+    }).toThrowError(`${defaultKeyId} cannot modify its own authorization (as ${defaultKeyId})`);
   });
 
   it('apply revoke key is rejected without proper rights', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
     expect(() => {
       state.apply.revokeKey(6, keyId1, did, defaultKeyId);
-    }).toThrowError('Iez25N5WZ1Q6TQpgpyYgiu9gTX cannot update did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr at height 6');
+    }).toThrowError(`${keyId1} cannot update ${did} at height 6`);
   });
 
   it('revert revoke key works with valid data', () => {
@@ -207,9 +273,6 @@ describe('MorpheusState', () => {
 
     expect(() => {
       state.revert.revokeKey(7, keyId1, did, keyId2);
-    }).toThrowError(
-      `Cannot revert revokeKey in DID did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr 
-      because it does not have a key matching IezkXs7Xd8SDWLaGKUAjEf53W`,
-    );
+    }).toThrowError(`Cannot revert revokeKey in DID ${did} because it does not have a key matching ${keyId2}`);
   });
 });

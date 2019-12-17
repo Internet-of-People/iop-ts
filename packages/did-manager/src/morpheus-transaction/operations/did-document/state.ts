@@ -167,8 +167,8 @@ export class DidDocumentState implements IDidDocumentState {
       this.ensureNotTombstoned(height);
       const history = this.getRightHistory(height, auth, right);
 
-      if (history.query.isEmpty()) {
-        throw new Error(`right ${right} cannot be revoked with ${auth} as it was not yet added at height ${height}`);
+      if (! history.query.get(height)) {
+        throw new Error(`right ${right} cannot be revoked from ${auth} as it was not present at height ${height}`);
       }
 
       this.getRightHistory(height, auth, right).apply.set(height, false);
