@@ -1,4 +1,4 @@
-import { ISignedOperationsData, OperationType, Right, Authentication, IStateChange } from '../src/interfaces';
+import { Authentication, ISignedOperationsData, IStateChange, OperationType, Right } from '../src/interfaces';
 import {
   Interfaces as KvInterfaces,
   KeyId,
@@ -407,8 +407,9 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
 
     revokeRight(9, keyId1, defaultKeyId, 'tx3');
-    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
-    expect(handler.query.getDidDocumentAt(did, 10).hasRight(keyId1, Right.Update)).toBeTruthy();
+    expect(() => {
+      return handler.query.isConfirmed('tx3');
+    }).toThrowError('Layer2 is corrupted.');
   });
 
   it('can revoke right if has right to update', () => {
@@ -492,5 +493,32 @@ describe('StateHandler', () => {
 
     handler.revertTransactionFromState(stateChange);
     expect(handler.query.getDidDocumentAt(did, 15).isTombstoned()).toBeFalsy();
+  });
+
+  it('dry run runs for valid transaction', () => {
+    // we have to emit at least one layer-1 tx to bump the internal lastSeenBlockHeight
+    addKey(5, keyId2, defaultKeyId, transactionId);
+
+    const errors = handler.dryRun(new OperationAttemptsBuilder()
+      .withVault(vault)
+      .addKey(did, keyId1)
+      .sign(defaultKeyId)
+      .getAttempts(),
+    );
+
+    expect(errors).toHaveLength(0);
+  });
+
+  it('dry run returns the same error that we will receive', () => {
+    const attempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .addRight(did, keyId1, Right.Update) // key is not yet added
+      .sign(defaultKeyId)
+      .getAttempts();
+    const errors = handler.dryRun(attempts);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0].message).toBe(`DID ${did} has no valid key matching ${keyId1} at height 0`);
+    expect(errors[0].invalidOperationAttempt).toStrictEqual(attempts[0]);
   });
 });

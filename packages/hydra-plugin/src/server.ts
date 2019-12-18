@@ -37,8 +37,7 @@ export class Server implements IInitializable {
         handler: (request: Request): Lifecycle.ReturnValue => {
           const { params: { did, blockHeight } } = request;
           this.log.debug(`Getting DID document for ${did}`);
-          // TODO missing height should be filled in by latest block seen by layer-1
-          const height = safePathInt(blockHeight) || Number.MAX_SAFE_INTEGER;
+          const height = safePathInt(blockHeight) || this.stateHandler.lastSeenBlockHeight;
           const document = this.stateHandler.query.getDidDocumentAt(did, height);
           return document.toData();
         },
@@ -64,9 +63,10 @@ export class Server implements IInitializable {
       {
         method: 'POST',
         path: '/check-transaction-validity',
-        handler: (_: Request): Lifecycle.ReturnValue => {
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const operationAttempts = (request.payload as unknown) as Interfaces.IOperationData[];
           this.log.debug('Checking tx validity');
-          return false;
+          return this.stateHandler.dryRun(operationAttempts);
         },
       },
       {

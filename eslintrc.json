@@ -99,7 +99,7 @@
     "keyword-spacing": ["error"],
     "max-depth": ["error", { "max": 4 }],
     "max-len": ["error", {"code": 120}],
-    "max-lines": ["error", {"max": 500}],
+    "max-lines": ["error", {"max": 1000}],
     "max-nested-callbacks": ["error", { "max": 4 }],
     "max-params": ["error", { "max": 5 }],
     "new-parens": "error",

@@ -1,6 +1,6 @@
 import Optional from 'optional-js';
 
-import { Authentication, Did, Right, IDidDocument, IState, IMorpheusAsset } from './index';
+import { Authentication, Did, Right, IDidDocument, IState, IMorpheusAsset, IOperationData } from './index';
 
 export interface IStateChange {
   asset: IMorpheusAsset;
@@ -13,6 +13,8 @@ export const MORPHEUS_STATE_HANDLER_COMPONENT_NAME = 'morpheus-state-handler';
 
 export interface IMorpheusStateHandler {
   readonly query: IMorpheusQueries;
+  readonly lastSeenBlockHeight: number;
+  dryRun(operationAttempts: IOperationData[]): IDryRunOperationError[];
   applyTransactionToState(stateChange: IStateChange): void;
   revertTransactionFromState(stateChange: IStateChange): void;
 }
@@ -75,4 +77,10 @@ export type IMorpheusState = IState<IMorpheusQueries, IMorpheusOperations>;
 
 export const enum MorpheusEvents {
   StateCorrupted = 'morpheus.state.corrupted',
+}
+
+export interface IDryRunOperationError {
+  invalidOperationAttempt: IOperationData | undefined;
+  // code: number; TODO: later we need exact error codes
+  message: string;
 }

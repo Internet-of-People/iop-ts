@@ -25,6 +25,8 @@ class Fixture {
     },
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
     revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
+    lastSeenBlockHeight: 0,
+    dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Interfaces.IOperationData[]]>(),
   };
   public stateHandler = this.stateHandlerMock as Interfaces.IMorpheusStateHandler;
 

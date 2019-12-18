@@ -14,6 +14,7 @@ import {
   IStateChange,
   MorpheusEvents,
   Right,
+  IDryRunOperationError, IOperationData,
 } from '../interfaces';
 import { fromData, Signed } from './operations';
 
@@ -25,6 +26,8 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     return this.state.query;
   }
 
+  private static readonly CORRUPTED_ERR_MSG = 'Layer 2 state is corrupt. All incoming transaction will be ignored.';
+  public lastSeenBlockHeight = 0;
   private state: IMorpheusState = new MorpheusState();
   private corrupted = false;
 
@@ -34,15 +37,49 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
   ) {
   }
 
+  public dryRun(operationAttempts: IOperationData[]): IDryRunOperationError[] {
+    if (this.corrupted) {
+      return [{
+        /* eslint no-undefined: 0 */
+        invalidOperationAttempt: undefined,
+        message: MorpheusStateHandler.CORRUPTED_ERR_MSG,
+      }];
+    }
+
+    const errors: IDryRunOperationError[] = [];
+    let lastSuccessIndex = 0;
+
+    try {
+      const tempState = this.state.clone();
+      const apply = this.atHeight(this.lastSeenBlockHeight, tempState.apply, false);
+
+      for (const operationData of operationAttempts) {
+        const operation = fromData(operationData);
+        operation.accept(apply);
+        lastSuccessIndex++;
+      }
+    } catch (e) {
+      // TODO later we need more granular errors, not just one
+      errors.push({
+        invalidOperationAttempt: operationAttempts[lastSuccessIndex],
+        message: e.message,
+      });
+    }
+
+    return errors;
+  }
+
   public applyTransactionToState(stateChange: IStateChange): void {
     if (this.corrupted) {
-      this.logger.error('State is corrupted, not accepting applys anymore');
+      this.logger.error(MorpheusStateHandler.CORRUPTED_ERR_MSG);
       return;
     }
 
     try {
       this.logger.debug(`applyTransactionToState tx: ${stateChange.transactionId}...`);
       this.logger.debug(` contains ${stateChange.asset.operationAttempts.length} operations...`);
+      this.setLastSeenBlock(stateChange.blockHeight, false);
+
       const newState = this.state.clone();
       const apply = this.atHeight(stateChange.blockHeight, newState.apply, false);
 
@@ -62,13 +99,14 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
   public revertTransactionFromState(stateChange: IStateChange): void {
     if (this.corrupted) {
-      this.logger.error('State is corrupted, not accepting applys anymore');
+      this.logger.error(MorpheusStateHandler.CORRUPTED_ERR_MSG);
       return;
     }
 
     try {
       this.logger.debug(`revertTransactionFromState tx: ${stateChange.transactionId}...`);
       this.logger.debug(`contains ${stateChange.asset.operationAttempts.length} operations...`);
+      this.setLastSeenBlock(stateChange.blockHeight, true);
       const confirmed = this.state.query.isConfirmed(stateChange.transactionId);
 
       if (!confirmed.isPresent()) {
@@ -89,10 +127,25 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
         this.state.revert.rejectTx(stateChange.transactionId);
       }
     } catch (e) {
-      this.logger.error(`Layer 2 state is corrupt. All incoming transaction will be ignored. Error: ${e}`);
+      this.logger.error(`${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: ${e}`);
       this.corrupted = true;
       this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
     }
+  }
+
+  private setLastSeenBlock(stateChangeHeight: number, revert: boolean): void {
+    if (
+      !revert && stateChangeHeight < this.lastSeenBlockHeight ||
+      revert && stateChangeHeight > this.lastSeenBlockHeight
+    ) {
+      this.corrupted = true;
+      this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
+      const errDetail = revert ? '>' : '<';
+      throw new Error(
+        `${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: the incoming tx's height is ${errDetail} last seen height.`,
+      );
+    }
+    this.lastSeenBlockHeight = stateChangeHeight;
   }
 
   private atHeightSignable(

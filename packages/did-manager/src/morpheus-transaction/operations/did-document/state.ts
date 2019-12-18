@@ -42,8 +42,8 @@ export const ALL_RIGHTS = [ Right.Impersonate, Right.Update ];
 const mapAllRights = <T>(func: (right: Right) => T): IRightsMap<T> => {
   const map = {} as IRightsMap<T>;
 
-  for(const right in ALL_RIGHTS) {
-    map[right as Right]= func(right as Right);
+  for (const right of ALL_RIGHTS) {
+    map[right] = func(right);
   }
 
   return map;

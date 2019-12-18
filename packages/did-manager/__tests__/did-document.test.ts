@@ -26,11 +26,11 @@ describe('DidDocument', () => {
   });
 
   it('fromData restores data correctly', () => {
-    const doc = new DidDocument.DidDocument({ 
-      did, 
-      keys: [], 
-      rights: {} as IRightsMap<number[]>, 
-      atHeight, 
+    const doc = new DidDocument.DidDocument({
+      did,
+      keys: [],
+      rights: {} as IRightsMap<number[]>,
+      atHeight,
       tombstoned: false,
     });
     expect(doc.toData().keys).toHaveLength(0);
