@@ -52,13 +52,16 @@ export interface IKeyData {
   valid: boolean; // NOTE: contains aggregated information derived from other fields
 }
 
+// Not kidding: https://github.com/Microsoft/TypeScript/issues/24220
+export type IRightsMap<T> = {[right in Right]: T};
+
 // TODO: this will be returned to the user basically. Please then follow the structure defined here:
 // https://iop-stack.gitlab.iop-ventures.com/dids-and-claims/specification/#/glossary?id=did-document
 // or create a DTO for it
 export interface IDidDocumentData {
   did: Did;
   keys: IKeyData[];
-  rights: Map<Right, number[]>; // contains key indexes from the keys property
+  rights: IRightsMap<number[]>; // contains key indexes from the keys property
   atHeight: number;
   tombstoned: boolean;
 }

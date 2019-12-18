@@ -115,8 +115,8 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
     const rights7 = data7.rights;
-    expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights7.get(Right.Update)).toStrictEqual([ 0, 1 ]);
+    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
+    expect(rights7[Right.Update]).toStrictEqual([ 0, 1 ]);
 
     const data5 = state.query.getDidDocumentAt(did, 5).toData();
     const keys5 = data5.keys;
@@ -126,8 +126,8 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys5[1].auth, keyId1);
     expect(keys5[1].valid).toBeTruthy();
     const rights5 = data5.rights;
-    expect(rights5.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights5.get(Right.Update)).toStrictEqual([0]);
+    expect(rights5[Right.Impersonate]).toStrictEqual([0]);
+    expect(rights5[Right.Update]).toStrictEqual([0]);
   });
 
   it('apply add right rejected for same key', () => {
@@ -156,8 +156,8 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
     const rights7 = data7.rights;
-    expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights7.get(Right.Update)).toStrictEqual([0]);
+    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
+    expect(rights7[Right.Update]).toStrictEqual([0]);
 
     const data5 = state.query.getDidDocumentAt(did, 5).toData();
     const keys5 = data5.keys;
@@ -165,8 +165,8 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys5[0].auth, defaultKeyId);
     assertStringlyEqual(keys5[1].auth, keyId1);
     const rights5 = data5.rights;
-    expect(rights5.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights5.get(Right.Update)).toStrictEqual([0]);
+    expect(rights5[Right.Impersonate]).toStrictEqual([0]);
+    expect(rights5[Right.Update]).toStrictEqual([0]);
   });
 
   it('apply revoke right accepted for different key', () => {
@@ -183,8 +183,8 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
     const rights7 = data7.rights;
-    expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights7.get(Right.Update)).toStrictEqual([1]);
+    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
+    expect(rights7[Right.Update]).toStrictEqual([1]);
   });
 
   it('apply revoke right rejected for same key', () => {
@@ -214,8 +214,8 @@ describe('MorpheusState', () => {
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
     const rights7 = data7.rights;
-    expect(rights7.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(rights7.get(Right.Update)).toStrictEqual([ 0, 1 ]);
+    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
+    expect(rights7[Right.Update]).toStrictEqual([ 0, 1 ]);
   });
 
   it('apply revoke key works with appropriate rights', () => {

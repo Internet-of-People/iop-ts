@@ -52,7 +52,7 @@ export class DidDocument implements IDidDocument {
   }
 
   private validKeysWithRight(right: Right): [number, IKeyData][] {
-    const keysWithRight = this.data.rights.get(right) || [];
+    const keysWithRight = this.data.rights[right] || [];
     return keysWithRight
       .map((idx) => {
         return [ idx, this.data.keys[idx] ] as [number, IKeyData];

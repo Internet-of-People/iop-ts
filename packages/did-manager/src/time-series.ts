@@ -13,6 +13,7 @@ export interface ITimeSeriesQueries<T> {
   isEmpty(): boolean;
   latestValue(): T;
   latestHeight(): Optional<number>;
+  dump(): string;
 }
 
 export interface ITimeSeriesOperations<T> {
@@ -79,6 +80,10 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
 
     isEmpty: (): boolean => {
       return this.points.length === 0;
+    },
+
+    dump: (): string => {
+      return JSON.stringify(this.points);
     },
   };
 

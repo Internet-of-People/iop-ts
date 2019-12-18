@@ -1,5 +1,5 @@
 import { KeyId } from '@internet-of-people/keyvault';
-import { IKeyData, Right } from '../src/interfaces';
+import { IKeyData, Right, IRightsMap } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 
 const { DidDocument } = Operations;
@@ -11,10 +11,9 @@ describe('DidDocument', () => {
   const keys: IKeyData[] = [
     { auth: defaultKeyId.toString(), revoked: false, valid: true },
   ];
-  const rights = new Map([
-    [ Right.Impersonate, [0]],
-    [ Right.Update, [0]],
-  ]);
+  const rights = {} as IRightsMap<number[]>;
+  rights[Right.Impersonate] = [0];
+  rights[Right.Update] = [0];
   const atHeight = 1;
 
   it('hasRights answers properly', () => {
@@ -27,11 +26,17 @@ describe('DidDocument', () => {
   });
 
   it('fromData restores data correctly', () => {
-    const doc = new DidDocument.DidDocument({ did, keys: [], rights: new Map(), atHeight, tombstoned: false });
+    const doc = new DidDocument.DidDocument({ 
+      did, 
+      keys: [], 
+      rights: {} as IRightsMap<number[]>, 
+      atHeight, 
+      tombstoned: false,
+    });
     expect(doc.toData().keys).toHaveLength(0);
     expect(doc.toData().did).toBe(did);
     expect(doc.toData().atHeight).toBe(1);
-    expect(doc.toData().rights.size).toBe(0);
+    expect(Object.keys(doc.toData().rights).length).toBe(0);
 
     doc.fromData({ did, keys, rights, atHeight, tombstoned: false });
     expect(doc.toData().keys).toHaveLength(1);
@@ -41,9 +46,9 @@ describe('DidDocument', () => {
     expect(doc.toData().keys[0].validUntilHeight).toBe(undefined);
     expect(doc.toData().did).toBe(did);
     expect(doc.toData().atHeight).toBe(1);
-    expect(doc.toData().rights.size).toBe(2);
-    expect(doc.toData().rights.get(Right.Impersonate)).toStrictEqual([0]);
-    expect(doc.toData().rights.get(Right.Update)).toStrictEqual([0]);
+    expect(Object.keys(doc.toData().rights).length).toBe(2);
+    expect(doc.toData().rights[Right.Impersonate]).toStrictEqual([0]);
+    expect(doc.toData().rights[Right.Update]).toStrictEqual([0]);
   });
 
   it('did can be tombstoned', () => {

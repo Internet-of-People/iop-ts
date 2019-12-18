@@ -10,6 +10,7 @@ import {
   IKeyData,
   isSameAuthentication,
   Right,
+  IRightsMap,
 } from '../../../interfaces';
 import { ITimeSeries, TimeSeries } from '../../../time-series';
 import { DidDocument } from './document';
@@ -33,23 +34,24 @@ interface IKeyEntry {
   validFromHeight?: number;
   validUntilHeight?: number;
   revoked: ITimeSeries;
-  rights: Map<Right, ITimeSeries>;
+  rights: IRightsMap<ITimeSeries>;
 }
 
 export const ALL_RIGHTS = [ Right.Impersonate, Right.Update ];
 
-export const mapAllRights = <T>(func: (right: Right) => T): Map<Right, T> => {
-  const mapTuples = ALL_RIGHTS
-    .map((r: Right) => {
-      const tuple: [Right, T] = [ r, func(r) ];
-      return tuple;
-    });
-  return new Map(mapTuples);
+const mapAllRights = <T>(func: (right: Right) => T): IRightsMap<T> => {
+  const map = {} as IRightsMap<T>;
+
+  for(const right in ALL_RIGHTS) {
+    map[right as Right]= func(right as Right);
+  }
+
+  return map;
 };
 
 // Note: that this only work, because we keep the state in memory, hence every bootstrap the state will be rebuilt
 // Otherwise it would be problematic if we add a new right without "migrating" it.
-export const initialRights = (initial: boolean): Map<Right, ITimeSeries> => {
+export const initialRights = (initial: boolean): IRightsMap<ITimeSeries> => {
   return mapAllRights((_) => {
     return new TimeSeries(initial) as ITimeSeries;
   });
@@ -100,11 +102,11 @@ export class DidDocumentState implements IDidDocumentState {
           return keyEntryToKeyData(key, height, didTombstoned);
         });
 
-      const rights: Map<Right, number[]> = mapAllRights((right) => {
+      const rights: IRightsMap<number[]> = mapAllRights((right) => {
         const keysWithRightIndexes: number[] = [];
 
         for (let i = 0; i < existingKeysAtHeight.length; i += 1) {
-          const rightTimeSeries = existingKeysAtHeight[i].rights.get(right);
+          const rightTimeSeries: ITimeSeries = existingKeysAtHeight[i].rights[right];
 
           if (didTombstoned || !rightTimeSeries || !rightTimeSeries.query.get(height)) {
             continue;
@@ -284,7 +286,7 @@ export class DidDocumentState implements IDidDocumentState {
       throw new Error(`DID ${this.did} has no valid key matching ${auth} at height ${height}`);
     }
 
-    const rightHistory = entry.rights.get(right);
+    const rightHistory = entry.rights[right];
 
     if (!rightHistory) {
       throw new Error(`DID ${this.did} has no right history of right ${right}`);

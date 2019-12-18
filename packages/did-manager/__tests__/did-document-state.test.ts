@@ -264,16 +264,16 @@ describe('DidDocumentState', () => {
       expect(doc4.hasRight(keyId1, Right.Update)).toBeTruthy();
       expect(doc4.hasRight(defaultKeyId, Right.Update)).toBeTruthy();
       expect(doc4.hasRight(defaultKeyId, Right.Impersonate)).toBeTruthy();
-      expect(doc4.toData().rights.get(Right.Update)).toStrictEqual([ 0, 1 ]);
-      expect(doc4.toData().rights.get(Right.Impersonate)).toStrictEqual([0]);
+      expect(doc4.toData().rights[Right.Update]).toStrictEqual([ 0, 1 ]);
+      expect(doc4.toData().rights[Right.Impersonate]).toStrictEqual([0]);
 
       const doc5 = didState.query.getAt(5);
       expect(doc5.toData().tombstoned).toBeTruthy();
       expect(doc5.hasRight(keyId1, Right.Update)).toBeFalsy();
       expect(doc5.hasRight(defaultKeyId, Right.Update)).toBeFalsy();
       expect(doc5.hasRight(defaultKeyId, Right.Impersonate)).toBeFalsy();
-      expect(doc5.toData().rights.get(Right.Update)).toHaveLength(0);
-      expect(doc5.toData().rights.get(Right.Impersonate)).toHaveLength(0);
+      expect(doc5.toData().rights[Right.Update]).toHaveLength(0);
+      expect(doc5.toData().rights[Right.Impersonate]).toHaveLength(0);
     });
 
     it('tombstoned did cannot be updated', () => {
