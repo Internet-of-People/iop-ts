@@ -19,6 +19,9 @@ const addKey = async(): Promise<void> => {
     console.log(id.toString().replace(/^I/, 'did:morpheus:'));
   }
 
+  const operation = 'add';
+  const subject = 'key';
+
   const answers: {
     did: string;
     auth: Interfaces.Authentication;
@@ -28,12 +31,14 @@ const addKey = async(): Promise<void> => {
     {
       type: 'input',
       name: 'did',
-      message: 'Type did to add key to:',
+      message: `Type did to ${operation} ${subject} to:`,
+      default: 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr'
     },
     {
       type: 'input',
       name: 'auth',
-      message: 'Type a public key or key ID to add to that DID',
+      default: 'IezbeWGSY2dqcUBqT8K7R14xr',
+      message: 'Type a public key or key ID to ${operation} to that DID',
       filter: async(value: string): Promise<Interfaces.Authentication> => {
         return Interfaces.authenticationFromData(value);
       },
@@ -41,6 +46,7 @@ const addKey = async(): Promise<void> => {
     {
       type: 'number',
       name: 'expires',
+      default: 0,
       /* eslint @typescript-eslint/require-await: 0 */
       /* eslint no-undefined: 0 */
       filter: async(value: number): Promise<number | undefined> => {
@@ -52,26 +58,14 @@ const addKey = async(): Promise<void> => {
       message: 'Choose id to sign with:',
       type: 'list',
       choices: vault.ids().map((id) => {
-        return id.toString();
+        return { name: id.toString(), value: id };
       }),
-      filter: async(value: string): Promise<KeyId> => {
-        const found = vault.ids().find((id) => {
-          return id.toString() === value;
-        });
-
-        if (!found) {
-          throw new Error('Implementation error: just selected id was not found');
-        }
-        return found;
-      },
     },
   ]);
 
-  console.log(JSON.stringify(answers));
-
   const opAttempts = new OperationAttemptsBuilder()
     .withVault(vault)
-      .addKey(answers.did, answers.auth, answers.expires)
+    .addKey(answers.did, answers.auth, answers.expires)
     .sign(answers.signerKeyId)
     .getAttempts();
 

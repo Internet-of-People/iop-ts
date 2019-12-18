@@ -38,7 +38,7 @@ export class PersistentVault implements Interfaces.IVault {
   }
 
   public ids(): KeyId[] {
-    return this.vault.profiles();
+    return this.vault.profiles().map(id => new KeyId(id));
   }
 
   public sign(message: Uint8Array, id: KeyId): SignedMessage {
