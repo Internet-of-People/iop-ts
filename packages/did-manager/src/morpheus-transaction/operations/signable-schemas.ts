@@ -6,12 +6,15 @@ class SignableSchemaVisitor implements ISignableOperationTypeVisitor<unknown> {
   public addKey(): unknown {
     return DidDocumentSchemas.addKey;
   }
+
   public revokeKey(): unknown {
     return DidDocumentSchemas.revokeKey;
   }
+
   public addRight(): unknown {
     return DidDocumentSchemas.addRight;
   }
+
   public revokeRight(): unknown {
     return DidDocumentSchemas.revokeRight;
   }
@@ -27,7 +30,7 @@ const signableOperationSchemas = (): unknown[] => {
 
 export const getSchema = (): unknown => {
   return {
-    required: [ 'operation', 'publicKey', 'signature', 'signables' ],
+    required: [ 'operation', 'signerPublicKey', 'signature', 'signables' ],
     // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
     properties: {
       operation: {
@@ -40,7 +43,7 @@ export const getSchema = (): unknown => {
           anyOf: signableOperationSchemas(),
         },
       },
-      publicKey: {
+      signerPublicKey: {
         type: 'string',
       },
       signature: {
