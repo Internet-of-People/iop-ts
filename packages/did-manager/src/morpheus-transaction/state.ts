@@ -228,9 +228,15 @@ export class MorpheusState implements IMorpheusState {
     signerAuth: Authentication,
   ): IDidDocumentState {
     const state = this.getOrCreateDidDocument(did);
+    const tombstoned = state.query.getAt(height).isTombstoned();
+    const hasRight = state.query.getAt(height).hasRight(signerAuth, Right.Update);
 
-    if (!state.query.getAt(height).hasRight(signerAuth, Right.Update)) {
-      throw new Error(`${signerAuth} cannot update ${did} at height ${height}`);
+    if (tombstoned) {
+      throw new Error(`${signerAuth} cannot update ${did} at height ${height}. The DID is tombstoned`);
+    }
+
+    if (!hasRight) {
+      throw new Error(`${signerAuth} has no right to update ${did} at height ${height}`);
     }
 
     return state;

@@ -85,7 +85,7 @@ describe('MorpheusState', () => {
     expect(() => {
       return state.apply.addKey(5, keyId1, did, keyId1);
     })
-      .toThrowError(`${keyId1} cannot update ${did} at height 5`);
+      .toThrowError(`${keyId1} has no right to update ${did} at height 5`);
   });
 
   it('revert add key works with valid data', () => {
@@ -134,7 +134,7 @@ describe('MorpheusState', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
     expect(() => {
       state.apply.addRight(6, keyId1, did, keyId1, Right.Update);
-    }).toThrowError(`${keyId1} cannot update ${did} at height 6`);
+    }).toThrowError(`${keyId1} has no right to update ${did} at height 6`);
   });
 
   it('apply add right rejected because it existed', () => {
@@ -249,7 +249,7 @@ describe('MorpheusState', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
     expect(() => {
       state.apply.revokeKey(6, keyId1, did, defaultKeyId);
-    }).toThrowError(`${keyId1} cannot update ${did} at height 6`);
+    }).toThrowError(`${keyId1} has no right to update ${did} at height 6`);
   });
 
   it('revert revoke key works with valid data', () => {
@@ -286,7 +286,7 @@ describe('MorpheusState', () => {
     expect(() => {
       return state.apply.tombstoneDid(5, keyId1, did);
     }).toThrowError(
-      `${keyId1} cannot update ${did} at height ${5}`,
+      `${keyId1} has no right to update ${did} at height ${5}`,
     );
   });
 
@@ -300,7 +300,7 @@ describe('MorpheusState', () => {
 
   it('tombstoned did cannot be updated', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
-    const error = `${defaultKeyId} cannot update ${did} at height 6`;
+    const error = `${defaultKeyId} cannot update ${did} at height 6. The DID is tombstoned`;
     expect(() => {
       state.apply.addKey(6, defaultKeyId, did, keyId1);
     }).toThrowError(error);
