@@ -1,13 +1,15 @@
 import { PublicKey, Signature, SignedMessage } from '@internet-of-people/keyvault';
+import stringify from 'json-stable-stringify';
 import {
   IOperationVisitor,
   ISignedOperationsData,
   Operation,
   OperationType,
   SignableOperation,
+  ISignableOperationData,
 } from '../../interfaces';
-import { toBytes } from '../serde';
 import { fromSignableData } from './from-signable-data';
+import { toBuffer } from '../serde';
 
 export class Signed extends Operation {
   public get type(): OperationType {
@@ -19,7 +21,7 @@ export class Signed extends Operation {
   }
 
   public static getAuthenticatedOperations(data: ISignedOperationsData): SignableOperation[] {
-    const signableBytes = toBytes(data.signables);
+    const signableBytes = Signed.serialize(data.signables);
     const message = new SignedMessage(new PublicKey(data.signerPublicKey),
       signableBytes, new Signature(data.signature));
 
@@ -27,6 +29,13 @@ export class Signed extends Operation {
       throw new Error('Invalid signature');
     }
     return data.signables.map(fromSignableData);
+  }
+
+  public static serialize(ops: ISignableOperationData[]): Uint8Array {
+    const buffer = toBuffer(stringify(ops));
+    buffer.flip();
+    const bytes = Uint8Array.from(buffer.toBuffer());
+    return bytes;
   }
 
   public accept<T>(visitor: IOperationVisitor<T>): T {
