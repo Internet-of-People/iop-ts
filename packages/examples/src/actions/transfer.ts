@@ -1,13 +1,15 @@
 import { Utils } from '@arkecosystem/crypto';
 
-import { sendTransfer } from '../transaction-sender';
+import { sendTransferTx } from '../transaction-sender';
 import { askForPassphrase, askForAddress } from '../utils';
 import { IAction } from '../action';
 
 const run = async(): Promise<void> => {
-  await sendTransfer(
-    await askForPassphrase(), // genesis
-    await askForAddress(),
+  const sender = await askForPassphrase('sender'); // genesis
+  const recipient = await askForAddress('recipient');
+  await sendTransferTx(
+    sender,
+    recipient,
     Utils.BigNumber.make(1000 * 1e8),
   );
 };

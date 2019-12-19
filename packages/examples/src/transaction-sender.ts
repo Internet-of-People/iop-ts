@@ -9,13 +9,19 @@ const {
 
 const { Address } = Identities;
 
-export const sendTransfer = async(
+const nextNonce = async(publicKey: string): Promise<Utils.BigNumber> => {
+  const address = Identities.Address.fromPublicKey(publicKey);
+  const currentNonce = await Api.get().getWalletNonce(address);
+  return currentNonce.plus(1);
+};
+
+export const sendTransferTx = async(
   fromPassphrase: string,
   toAddress: string,
   amountArkToshi: Utils.BigNumber,
 ): Promise<string> => {
   const senderKeys = Identities.Keys.fromPassphrase(fromPassphrase);
-  const nonce = (await Api.get().getWalletNonce(Identities.Address.fromPublicKey(senderKeys.publicKey))).plus(1);
+  const nonce = await nextNonce(senderKeys.publicKey);
 
   const tx = Transactions.BuilderFactory.transfer()
     .amount(amountArkToshi.toFixed())
@@ -38,7 +44,7 @@ export const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Prom
   const unsignedTx = txBuilder.fromOperationAttempts(attempts);
 
   console.log('Signing tx...');
-  const passphrase = await askForPassphrase();
+  const passphrase = await askForPassphrase('gas address');
   // checking balance
   const keys = Identities.Keys.fromPassphrase(passphrase);
   const address = Address.fromPublicKey(keys.publicKey);
@@ -48,7 +54,7 @@ export const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Prom
     throw new Error('Low balance. Send some HYDs to the address you provided.');
   }
 
-  const nonce = (await Api.get().getWalletNonce(Identities.Address.fromPublicKey(keys.publicKey))).plus(1);
+  const nonce = await nextNonce(keys.publicKey);
   unsignedTx.nonce(nonce.toFixed());
 
   const signedTx = unsignedTx.sign(passphrase).build()
