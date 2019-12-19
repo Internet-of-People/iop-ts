@@ -35,7 +35,8 @@
     "p-queue": "6.2.1",
     "socketcluster-client": "^14.2.2",
     "socketcluster": "^14.3.5",
-    "sqlite": "3.0.3"
+    "sqlite": "3.0.3",
+    "xdg-portable": "7.2.1"
   },
   "devDependencies": {
     "@types/axios": "0.14.0",
