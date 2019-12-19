@@ -1,12 +1,12 @@
 import { Managers, Transactions } from '@arkecosystem/crypto';
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { Api } from './api';
-import { BeforeProof, Key, Right, Transfer, Vault } from './actions';
+import { BeforeProof, Key, Right, Tombstone, Transfer, Vault } from './actions';
 import { askForNetwork, chooseAction } from './utils';
 
 const { Transaction } = MorpheusTransaction;
 
-const rootActions = [ BeforeProof, Key, Right, Transfer, Vault ];
+const rootActions = [ BeforeProof, Key, Right, Tombstone, Transfer, Vault ];
 
 const asyncRun = async(): Promise<void> => {
   const rootAction = await chooseAction(rootActions, process.argv[2]);
