@@ -32,13 +32,13 @@ const addKey = async(): Promise<void> => {
       type: 'input',
       name: 'did',
       message: `Type did to ${operation} ${subject} to:`,
-      default: 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr'
+      default: 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
     },
     {
       type: 'input',
       name: 'auth',
       default: 'IezbeWGSY2dqcUBqT8K7R14xr',
-      message: 'Type a public key or key ID to ${operation} to that DID',
+      message: `Type a public key or key ID to ${operation} to that DID`,
       filter: async(value: string): Promise<Interfaces.Authentication> => {
         return Interfaces.authenticationFromData(value);
       },

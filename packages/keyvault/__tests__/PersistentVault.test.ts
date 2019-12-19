@@ -20,7 +20,9 @@ describe('PersistentVault', () => {
 
   it('is persistent', () => {
     expect(vault.ids()).toHaveLength(2);
-    expect(vault.ids().map(id => id.toString())).toStrictEqual(
+    expect(vault.ids().map((id) => {
+      return id.toString();
+    })).toStrictEqual(
       [ 'IezbeWGSY2dqcUBqT8K7R14xr', 'Iez25N5WZ1Q6TQpgpyYgiu9gTX' ],
     );
   });

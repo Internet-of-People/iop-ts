@@ -88,7 +88,7 @@ export const revokeRight = {
 
 export const tombstoneDid = {
   type: 'object',
-  required: [ 'operation', 'did', 'auth', 'right' ],
+  required: [ 'operation', 'did' ],
   // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
