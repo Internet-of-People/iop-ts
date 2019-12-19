@@ -6,7 +6,9 @@
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "",
+  "description": "An example package for the Morpheus's KYC use case",
+  "repository": "https://github.com/internet-of-people/morpheus-ts",
+  "license": "GPL-3.0-or-later",
   "main": "./dist/main.js",
   "typings": "./dist/main.d.ts",
   "private": true,
@@ -19,7 +21,6 @@
     "clean": "rimraf dist && rimraf node_modules",
     "test": "jest --detectOpenHandles --no-cache --passWithNoTests"
   },
-  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@internet-of-people/did-manager": "0.1.0-alpha.1"
   },

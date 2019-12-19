@@ -6,7 +6,9 @@
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "",
+  "description": "A simple logger utility for Morpheus packages",
+  "repository": "https://github.com/internet-of-people/morpheus-ts",
+  "license": "GPL-3.0-or-later",
   "main": "./dist/main.js",
   "typings": "./dist/main.d.ts",
   "private": true,
@@ -18,7 +20,6 @@
     "clean": "rimraf dist && rimraf node_modules",
     "test": "echo ignored"
   },
-  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@arkecosystem/core-interfaces": "^2.6.0-next.6"
   },

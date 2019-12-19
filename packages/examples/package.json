@@ -8,6 +8,8 @@
   },
   "description": "",
   "main": "./dist/main.js",
+  "repository": "https://github.com/internet-of-people/morpheus-ts",
+  "license": "GPL-3.0-or-later",
   "typings": "./dist/main.d.ts",
   "private": true,
   "scripts": {
@@ -21,7 +23,6 @@
     "example:transfer": "npm run build && node dist/main.js transfer",
     "example:before-proof": "npm run build && node dist/main.js before-proof"
   },
-  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@arkecosystem/crypto": "^2.6.0-next.6",
     "@arkecosystem/core-interfaces": "^2.6.0-next.6",

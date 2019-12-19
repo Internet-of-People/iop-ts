@@ -1,30 +1,43 @@
 # Hydra Morpheus Plugin
 
-This is Morpheus plugin for the Hydra Blockchain.
+This is the Morpheus plugin for the Hydra Blockchain.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [Usage](#Usage)
 
 ## Prerequisites
 
 You have a cloned out [hydra-core](https://github.com/Internet-of-People/hydra-core)
 repo, where you've ran `yarn setup`.
 
+Note: until Morpheus is live, you must clone out the `aip29` branch.
+
 ## Installation
 
-1. Clone out this repository to `hydra-core/plugins`.
-2. Run `yarn bootstrap` in the hydra-core's root.
-3. Add `@internet-of-people/morpheus-hydra-plugin` to your used `plugins.js` file.
-4. Fill out the plugin's options:
+There is no such steps you have to follow. The plugin has only one requirement that has to be done.
 
-    ```javascript
-    // Example options
-    "@internet-of-people/morpheus-hydra-plugin": {
-      
-    }
-    ```
+You have to add the following lines into the `plugins.js` file:
+```javascript
+// Example options
+"@internet-of-people/morpheus-hydra-plugin": {
+    
+}
+```
 
-5. Build the plugin with `yarn build` under your plugin's root.
-6. Start the core.
+If you are not sure where is your `plugins.js` file and you **have not modified** it, you can reset it which will put these lines to the right place:
+```bash
+./packages/core/bin/run config:reset --network=[testnet|devnet|mainnet]
+```
+
+## Usage
+
+The plugin provides some endpoints where you can query the Layer 2 consensus.
+Please see the [architecture section in the specification](https://iop-stack.gitlab.iop-ventures.com/dids-and-claims/specification/#/architecture) for the exact endpoints.
+
+**Important Notes:**
+- These endpoints are NOT yet available: `getOperations`, `getOperationAttempts`
+- The API is currently servered at port `4705`. Soon it will use the same wallet API port as used for other APIs. 
+So an example URL you can curl: `curl http://127.0.0.1:4705/before-proof/iop/exists/780`

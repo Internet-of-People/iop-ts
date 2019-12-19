@@ -2,13 +2,14 @@
   "name": "@internet-of-people/morpheus-hydra-plugin",
   "version": "0.1.0-alpha.1",
   "private": true,
-  "license": "GPL-3.0-or-later",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
   "description": "A plugin for Hydra blockchain nodes that add Morpheus specific custom transaction types and a layer 2 consensus with its own state",
+  "repository": "https://github.com/internet-of-people/morpheus-ts",
+  "license": "GPL-3.0-or-later",
   "main": "./dist/main.js",
   "scripts": {
     "build": "npm run build:src && npm run build:test",

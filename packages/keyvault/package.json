@@ -6,7 +6,9 @@
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "",
+  "description": "A webassembly generated keyvault",
+  "repository": "https://github.com/internet-of-people/morpheus-ts",
+  "license": "LGPL-3.0-or-later",
   "main": "dist/index",
   "module": "dist/index",
   "browser": "dist/index",
@@ -24,7 +26,6 @@
     "clean": "rimraf dist && rimraf node_modules",
     "test": "jest --detectOpenHandles --no-cache"
   },
-  "license": "LGPL-3.0-or-later",
   "dependencies": {},
   "devDependencies": {
     "@types/jest": "24.0.23",

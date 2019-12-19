@@ -7,6 +7,7 @@
     "email": "prometheus@iop-ventures.com"
   },
   "private": true,
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "install": "lerna bootstrap --ci",
     "build": "lerna run --stream build",
