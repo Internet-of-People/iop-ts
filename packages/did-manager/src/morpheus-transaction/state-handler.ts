@@ -87,7 +87,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
         this.logger.debug(`Applying operation ${operationData.operation}...`);
         const operation = fromData(operationData);
         operation.accept(apply);
-        this.logger.debug('Operation applied');
+        this.logger.debug(`Operation ${operationData.operation} applied`);
       }
       newState.apply.confirmTx(stateChange.transactionId);
       this.state = newState;
@@ -182,7 +182,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
         for (const signable of reverse ? signableOperations.slice().reverse() : signableOperations) {
           this.logger.debug(`Applying signable operation ${signable.type}...`);
           signable.accept(atHeightSignable);
-          this.logger.debug('Operation applied');
+          this.logger.debug(`Signable operation ${signable.type} applied`);
         }
       },
       registerBeforeProof: (contentId: string): void => {

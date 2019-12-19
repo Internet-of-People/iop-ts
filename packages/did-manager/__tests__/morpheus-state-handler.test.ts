@@ -495,6 +495,26 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(did, 15).isTombstoned()).toBeFalsy();
   });
 
+  it('tombstoned did cannot be updated', () => {
+    tombstoneDid(15, 'tx1');
+    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+
+    addKey(16, keyId1, defaultKeyId, 'tx2');
+    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
+
+    revokeKey(17, keyId1, defaultKeyId, 'tx3');
+    expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
+
+    addRight(18, keyId1, defaultKeyId, 'tx4');
+    expect(handler.query.isConfirmed('tx4')).toStrictEqual(Optional.of(false));
+
+    revokeRight(19, keyId1, defaultKeyId, 'tx5');
+    expect(handler.query.isConfirmed('tx5')).toStrictEqual(Optional.of(false));
+
+    tombstoneDid(20, 'tx6');
+    expect(handler.query.isConfirmed('tx6')).toStrictEqual(Optional.of(false));
+  });
+
   it('dry run runs for valid transaction', () => {
     // we have to emit at least one layer-1 tx to bump the internal lastSeenBlockHeight
     addKey(5, keyId2, defaultKeyId, transactionId);

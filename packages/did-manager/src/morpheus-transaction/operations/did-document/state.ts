@@ -251,7 +251,7 @@ export class DidDocumentState implements IDidDocumentState {
    * When a removed key is added again, a new entry is added with a new index.
    */
   private keyEntries: IKeyEntry[] = [];
-  private readonly tombstoneHistory: ITimeSeries = new TimeSeries(false);
+  private tombstoneHistory: ITimeSeries = new TimeSeries(false);
 
   public constructor(public readonly did: Did) {
     this.keyEntries.unshift({
@@ -264,6 +264,7 @@ export class DidDocumentState implements IDidDocumentState {
   public clone(): IDidDocumentState {
     const result = new DidDocumentState(this.did);
     result.keyEntries = cloneDeep(this.keyEntries);
+    result.tombstoneHistory = this.tombstoneHistory.clone();
     return result;
   }
 
