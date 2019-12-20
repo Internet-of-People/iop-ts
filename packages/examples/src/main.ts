@@ -14,7 +14,14 @@ const asyncRun = async(): Promise<void> => {
   if (rootAction && !rootAction.ignoreNetwork) {
     const network = await askForNetwork();
     Api.create(network);
-    Managers.configManager.setConfig(await Api.get().getNodeCryptoConfig());
+
+    const [ cryptoConfig, height ] = await Promise.all([
+      Api.get().getNodeCryptoConfig(),
+      Api.get().getCurrentHeight(),
+    ]);
+
+    Managers.configManager.setConfig(cryptoConfig);
+    Managers.configManager.setHeight(height);
     Transactions.TransactionRegistry.registerTransactionType(Transaction.MorpheusTransaction);
   }
 

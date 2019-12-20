@@ -84,4 +84,12 @@ export class Api {
     const resp = await this.api.get('/node/configuration/crypto');
     return resp.data.data;
   }
+
+  public async getCurrentHeight(): Promise<number> {
+    console.log('Getting current height...');
+    const resp = await this.api.get('/blockchain');
+    const { height } = resp.data.data.block;
+    console.log(`Height is ${height}`);
+    return height;
+  }
 }
