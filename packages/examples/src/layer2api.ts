@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import Optional from 'optional-js';
 import { Network, schemaAndHost } from './network';
 import { MorpheusTransaction, Interfaces } from '@internet-of-people/did-manager';
 
@@ -27,7 +28,7 @@ export class Layer2Api {
   }
 
   public async getDidDocument(did: Interfaces.Did, height?: number): Promise<Interfaces.IDidDocument> {
-    console.log('Getting Did document...');
+    console.log(`Getting Did document ${did} at ${height || 'now'}...`);
     let url = `/did/${did}/document`;
 
     if (height) {
@@ -37,5 +38,21 @@ export class Layer2Api {
     const documentData: Interfaces.IDidDocumentData = resp.data;
     const result = new DidDocument(documentData);
     return result;
+  }
+
+  public async getTxnStatus(txid: string): Promise<Optional<boolean>> {
+    console.log(`Getting txn status for ${txid}...`);
+
+    const resp = await this.api.get(`/txn-status/${txid}`, {
+      validateStatus: (status) => {
+        return status >= 200 && status < 300 || status === 404;
+      },
+    });
+
+    if (resp.status === 404) {
+      return Optional.empty();
+    } else {
+      return Optional.of(resp.data);
+    }
   }
 }

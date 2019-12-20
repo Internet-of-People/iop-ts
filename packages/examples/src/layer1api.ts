@@ -28,7 +28,7 @@ export class Layer1Api {
     console.log('Sending tx...');
     const resp = await this.api.post('/transactions', JSON.stringify({ transactions: [tx] }));
     const id = resp.data.data.accept;
-    console.log(`Tx send, id: ${id}`);
+    console.log(`Tx sent, id: ${id}`);
     return id;
   }
 

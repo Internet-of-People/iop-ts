@@ -1,6 +1,6 @@
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { IAction } from '../action';
-import { sendMorpheusTx } from '../transaction-sender';
+import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askHeight, askSignerKeyId } from '../utils';
 import { loadVault } from '../vault';
 
@@ -26,8 +26,7 @@ const addKey = async(): Promise<void> => {
     .sign(signerKeyId)
     .getAttempts();
 
-  const id = await sendMorpheusTx(opAttempts);
-  console.log(`Add key tx sent, id: ${id}`);
+  await processMorpheusTx(opAttempts, 'Add key');
 };
 
 const revokeKey = async(): Promise<void> => {
@@ -47,8 +46,7 @@ const revokeKey = async(): Promise<void> => {
     .sign(signerKeyId)
     .getAttempts();
 
-  const id = await sendMorpheusTx(opAttempts);
-  console.log(`Revoke key tx sent, id: ${id}`);
+  await processMorpheusTx(opAttempts, 'Revoke key');
 };
 
 const run = async(): Promise<void> => {

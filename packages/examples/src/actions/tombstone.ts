@@ -2,7 +2,7 @@ import { IAction } from '../action';
 import { loadVault } from '../vault';
 import { dumpDids, askDid, askSignerKeyId } from '../utils';
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
-import { sendMorpheusTx } from '../transaction-sender';
+import { processMorpheusTx } from '../transaction-sender';
 
 const {
   Operations: { OperationAttemptsBuilder },
@@ -22,8 +22,7 @@ const run = async(): Promise<void> => {
     .sign(signerKeyId)
     .getAttempts();
 
-  const id = await sendMorpheusTx(opAttempts);
-  console.log(`Add right tx sent, id: ${id}`);
+  await processMorpheusTx(opAttempts, 'Tombstone did');
 };
 
 const Tombstone: IAction = {

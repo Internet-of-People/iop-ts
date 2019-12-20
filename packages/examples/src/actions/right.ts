@@ -1,7 +1,7 @@
 import inquirer = require('inquirer');
 import { MorpheusTransaction, Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
 import { IAction } from '../action';
-import { sendMorpheusTx } from '../transaction-sender';
+import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askSignerKeyId, askHeight } from '../utils';
 import { loadVault } from '../vault';
 import { Layer2Api } from '../layer2api';
@@ -39,8 +39,7 @@ const addRight = async(): Promise<void> => {
     .sign(signerKeyId)
     .getAttempts();
 
-  const id = await sendMorpheusTx(opAttempts);
-  console.log(`Add right tx sent, id: ${id}`);
+  await processMorpheusTx(opAttempts, 'Add right');
 };
 
 const revokeRight = async(): Promise<void> => {
@@ -61,8 +60,7 @@ const revokeRight = async(): Promise<void> => {
     .sign(signerKeyId)
     .getAttempts();
 
-  const id = await sendMorpheusTx(opAttempts);
-  console.log(`Revoke right tx sent, id: ${id}`);
+  await processMorpheusTx(opAttempts, 'Revoke right');
 };
 
 const queryRight = async(): Promise<void> => {

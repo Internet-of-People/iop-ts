@@ -2,6 +2,8 @@ import { Identities, Transactions, Utils } from '@arkecosystem/crypto';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { Layer1Api } from './layer1api';
 import { askForPassphrase } from './utils';
+import { Layer2Api } from './layer2api';
+import Optional from 'optional-js';
 
 const {
   Builder: { MorpheusTransactionBuilder },
@@ -37,7 +39,14 @@ export const sendTransferTx = async(
   return Layer1Api.get().sendTx(signedTx);
 };
 
-export const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Promise<string> => {
+/* eslint @typescript-eslint/promise-function-async: 0 */
+const delay = (millis: number): Promise<void> => {
+  return new Promise((resolve) => {
+    return setTimeout(resolve, millis);
+  });
+};
+
+const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Promise<string> => {
   const txBuilder = new MorpheusTransactionBuilder();
 
   console.log('Creating tx...');
@@ -60,4 +69,17 @@ export const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Prom
   const signedTx = unsignedTx.sign(passphrase).build()
     .toJson();
   return Layer1Api.get().sendTx(signedTx);
+};
+
+export const processMorpheusTx = async(attempts: Interfaces.IOperationData[], operation: string): Promise<void> => {
+  const id = await sendMorpheusTx(attempts);
+  console.log(`${operation} txn was sent, id: ${id}`);
+  let result: Optional<boolean>;
+
+  do {
+    await delay(1000);
+    result = await Layer2Api.get().getTxnStatus(id);
+  } while (!result.isPresent());
+
+  console.log(`Layer-2 processing of ${id} has ${result.get() ? 'succeeded' : 'failed'}.`);
 };

@@ -1,6 +1,6 @@
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import inquirer from 'inquirer';
-import { sendMorpheusTx } from '../transaction-sender';
+import { processMorpheusTx } from '../transaction-sender';
 import { IAction } from '../action';
 import { chooseAction } from '../utils';
 
@@ -21,8 +21,8 @@ const register = async(): Promise<void> => {
   const opAttempts = new OperationAttemptsBuilder()
     .registerBeforeProof(result.contentId)
     .getAttempts();
-  const id = await sendMorpheusTx(opAttempts);
-  console.log(`Register before proof tx send, id: ${id}`);
+
+  await processMorpheusTx(opAttempts, 'Register before proof');
 };
 
 const revoke = async(): Promise<void> => {
@@ -38,8 +38,8 @@ const revoke = async(): Promise<void> => {
   const opAttempts = new OperationAttemptsBuilder()
     .revokeBeforeProof(result.contentId)
     .getAttempts();
-  const id = await sendMorpheusTx(opAttempts);
-  console.log(`Revoke before proof tx send, id: ${id}`);
+
+  await processMorpheusTx(opAttempts, 'Revoke before proof');
 };
 
 const run = async(): Promise<void> => {
