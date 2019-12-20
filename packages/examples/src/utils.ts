@@ -2,6 +2,7 @@ import inquirer from 'inquirer';
 import { KeyId } from '@internet-of-people/keyvault';
 import { Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
 import { IAction } from './action';
+import { Network, allNetworks } from './network';
 
 const pattern = new RegExp(`^${DidInterfaces.MULTICIPHER_KEYID_PREFIX}`);
 
@@ -46,10 +47,10 @@ export const askAuth = async(operation: string): Promise<DidInterfaces.Authentic
   return auth;
 };
 
-export const askExpires = async(): Promise<number | undefined> => {
-  const { expires }: { expires?: number; } = await inquirer.prompt([{
+export const askHeight = async(): Promise<number | undefined> => {
+  const { height }: { height?: number; } = await inquirer.prompt([{
     type: 'number',
-    name: 'expires',
+    name: 'height',
     default: 0,
     /* eslint @typescript-eslint/require-await: 0 */
     /* eslint no-undefined: 0 */
@@ -57,7 +58,7 @@ export const askExpires = async(): Promise<number | undefined> => {
       return value === 0 ? undefined : value;
     },
   }]);
-  return expires;
+  return height;
 };
 
 export const askSignerKeyId = async(ids: KeyId[]): Promise<KeyId> => {
@@ -97,15 +98,16 @@ export const chooseAction = async(actions: IAction[], id?: string): Promise<IAct
   return action;
 };
 
-
-export const askForNetwork = async(): Promise<'testnet'|'devnet'|'mainnet'> => {
-  const networkResult = await inquirer.prompt([{
+export const askForNetwork = async(): Promise<Network> => {
+  const { network }: { network: Network; } = await inquirer.prompt([{
     name: 'network',
     message: 'Choose network:',
     type: 'list',
-    choices: [ 'local(testnet)', 'testnet', 'devnet', 'mainnet' ],
+    choices: allNetworks.map((n) => {
+      return { name: n.toString(), n };
+    }),
   }]);
-  return networkResult.network;
+  return network;
 };
 
 export const askForPassphrase = async(sender: string): Promise<string> => {

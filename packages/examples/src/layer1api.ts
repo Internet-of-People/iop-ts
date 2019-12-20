@@ -1,30 +1,13 @@
 import { Interfaces, Utils } from '@arkecosystem/crypto';
 import axios, { AxiosInstance } from 'axios';
+import { schemaAndHost, Network } from './network';
 
-export class Api {
-  private static instance: Api;
+export class Layer1Api {
+  private static instance: Layer1Api;
   private readonly api: AxiosInstance;
 
-  private constructor(network: string) {
-    let baseURL: string;
-
-    switch (network) {
-      case 'local(testnet)':
-        baseURL = 'http://127.0.0.1:4703/api/v2';
-        break;
-      case 'testnet':
-        baseURL = 'http://35.187.56.222:4703/api/v2';
-        break;
-      case 'devnet':
-        baseURL = 'http://35.240.62.119:4703/api/v2';
-        break;
-      case 'mainnet':
-        baseURL = 'http://35.195.150.223:4703/api/v2';
-        break;
-      default:
-        throw new Error(`Unknown network ${network}`);
-    }
-
+  private constructor(network: Network) {
+    const baseURL = `${schemaAndHost(network) }:4703/api/v2`;
     this.api = axios.create({
       baseURL,
       headers: {
@@ -33,12 +16,12 @@ export class Api {
     });
   }
 
-  public static create(network: string): void {
-    Api.instance = new Api(network);
+  public static create(network: Network): void {
+    Layer1Api.instance = new Layer1Api(network);
   }
 
-  public static get(): Api {
-    return Api.instance;
+  public static get(): Layer1Api {
+    return Layer1Api.instance;
   }
 
   public async sendTx(tx: Interfaces.ITransactionJson): Promise<string> {

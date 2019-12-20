@@ -2,8 +2,9 @@ import inquirer = require('inquirer');
 import { MorpheusTransaction, Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
 import { IAction } from '../action';
 import { sendMorpheusTx } from '../transaction-sender';
-import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askSignerKeyId } from '../utils';
+import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askSignerKeyId, askHeight } from '../utils';
 import { loadVault } from '../vault';
+import { Layer2Api } from '../layer2api';
 
 const {
   Operations: { OperationAttemptsBuilder, DidDocument: { ALL_RIGHTS } },
@@ -64,6 +65,19 @@ const revokeRight = async(): Promise<void> => {
   console.log(`Revoke right tx sent, id: ${id}`);
 };
 
+const queryRight = async(): Promise<void> => {
+  const vault = loadVault();
+  const vaultIds = vault.ids();
+
+  dumpDids(vaultIds);
+  const did = await askDid('query a right on');
+  // const right = await askRight();
+  const height = await askHeight();
+
+  const document = await Layer2Api.get().getDidDocument(did, height);
+  console.log(JSON.stringify(document.toData(), null, 2));
+};
+
 const run = async(): Promise<void> => {
   const subActions: IAction[] = [
     {
@@ -73,6 +87,10 @@ const run = async(): Promise<void> => {
     {
       id: 'revoke',
       run: revokeRight,
+    },
+    {
+      id: 'query',
+      run: queryRight,
     },
   ];
   const subAction = await chooseAction(subActions, process.argv[3]);

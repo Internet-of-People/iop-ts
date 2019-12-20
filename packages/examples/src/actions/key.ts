@@ -1,7 +1,7 @@
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { IAction } from '../action';
 import { sendMorpheusTx } from '../transaction-sender';
-import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askExpires, askSignerKeyId } from '../utils';
+import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askHeight, askSignerKeyId } from '../utils';
 import { loadVault } from '../vault';
 
 const {
@@ -17,7 +17,7 @@ const addKey = async(): Promise<void> => {
 
   dumpKeyIds(vaultIds);
   const newAuth = await askAuth('add to that DID');
-  const expires = await askExpires();
+  const expires = await askHeight();
   const signerKeyId = await askSignerKeyId(vaultIds);
 
   const opAttempts = new OperationAttemptsBuilder()

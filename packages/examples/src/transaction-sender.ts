@@ -1,6 +1,6 @@
 import { Identities, Transactions, Utils } from '@arkecosystem/crypto';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { Api } from './api';
+import { Layer1Api } from './layer1api';
 import { askForPassphrase } from './utils';
 
 const {
@@ -11,7 +11,7 @@ const { Address } = Identities;
 
 const nextNonce = async(publicKey: string): Promise<Utils.BigNumber> => {
   const address = Identities.Address.fromPublicKey(publicKey);
-  const currentNonce = await Api.get().getWalletNonce(address);
+  const currentNonce = await Layer1Api.get().getWalletNonce(address);
   return currentNonce.plus(1);
 };
 
@@ -34,7 +34,7 @@ export const sendTransferTx = async(
     .build()
     .toJson();
 
-  return Api.get().sendTx(signedTx);
+  return Layer1Api.get().sendTx(signedTx);
 };
 
 export const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Promise<string> => {
@@ -48,7 +48,7 @@ export const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Prom
   // checking balance
   const keys = Identities.Keys.fromPassphrase(passphrase);
   const address = Address.fromPublicKey(keys.publicKey);
-  const balance = await Api.get().getWalletBalance(address);
+  const balance = await Layer1Api.get().getWalletBalance(address);
 
   if (balance.isLessThan(1)) {
     throw new Error('Low balance. Send some HYDs to the address you provided.');
@@ -59,5 +59,5 @@ export const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Prom
 
   const signedTx = unsignedTx.sign(passphrase).build()
     .toJson();
-  return Api.get().sendTx(signedTx);
+  return Layer1Api.get().sendTx(signedTx);
 };
