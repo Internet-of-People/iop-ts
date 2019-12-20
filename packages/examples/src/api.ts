@@ -9,8 +9,11 @@ export class Api {
     let baseURL: string;
 
     switch (network) {
-      case 'testnet':
+      case 'local(testnet)':
         baseURL = 'http://127.0.0.1:4703/api/v2';
+        break;
+      case 'testnet':
+        baseURL = 'http://35.187.56.222:4703/api/v2';
         break;
       case 'devnet':
         baseURL = 'http://35.240.62.119:4703/api/v2';

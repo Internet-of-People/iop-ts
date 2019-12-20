@@ -19,9 +19,7 @@
     "lint": "npm run lint:src",
     "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
     "clean": "rimraf dist && rimraf node_modules",
-    "test": "jest --detectOpenHandles --no-cache --passWithNoTests",
-    "example:transfer": "npm run build && node dist/main.js transfer",
-    "example:before-proof": "npm run build && node dist/main.js before-proof"
+    "test": "jest --detectOpenHandles --no-cache --passWithNoTests"
   },
   "dependencies": {
     "@arkecosystem/client": "1.0.5",

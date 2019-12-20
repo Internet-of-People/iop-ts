@@ -103,7 +103,7 @@ export const askForNetwork = async(): Promise<'testnet'|'devnet'|'mainnet'> => {
     name: 'network',
     message: 'Choose network:',
     type: 'list',
-    choices: [ 'testnet', 'devnet', 'mainnet' ],
+    choices: [ 'local(testnet)', 'testnet', 'devnet', 'mainnet' ],
   }]);
   return networkResult.network;
 };
