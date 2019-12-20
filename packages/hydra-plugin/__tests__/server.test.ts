@@ -221,7 +221,7 @@ describe('Server', () => {
 
   it('can add key to did', async() => {
     addKey(keyId1, 10, transactionId, defaultKeyId);
-    expect(fixture.stateHandler.query.isConfirmed(transactionId)).toBeTruthy();
+    expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
     const res = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${10}` });
     expect(res.statusCode).toBe(200);
@@ -239,10 +239,10 @@ describe('Server', () => {
 
   it('can revoke key from did', async() => {
     addKey(keyId1, 10, 'tx1', defaultKeyId);
-    expect(fixture.stateHandler.query.isConfirmed('tx1')).toBeTruthy();
+    expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
 
     revokeKey(keyId1, 15, 'tx2', defaultKeyId);
-    expect(fixture.stateHandler.query.isConfirmed('tx2')).toBeTruthy();
+    expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
 
     const res10 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${10}` });
     expect(res10.statusCode).toBe(200);
@@ -414,6 +414,35 @@ describe('Server', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0].message).toBe(`DID ${did} has no valid key matching ${keyId1} at height 0`);
     expect(errors[0].invalidOperationAttempt).toStrictEqual(attempts[0]);
+  });
+
+  it('transaction status gives 404 for tx not seen by morpheus', async() => {
+    const txid = 'c18894aa5ffe6f819dc98770d1eb9c4357c4d1ef73221fd5937cc360a54dd77f';
+    expect(fixture.stateHandler.query.isConfirmed(txid)).toStrictEqual(Optional.empty());
+    const res = await hapiServer.inject({ method: 'get', url: `/txn-status/${txid}` });
+    expect(res.statusCode).toBe(404);
+    expect(res.payload).toMatch(txid);
+    expect(res.payload).toMatch('not processed');
+  });
+
+  it('confirmed transaction status gives true', async() => {
+    addKey(keyId1, 10, transactionId, defaultKeyId);
+    expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+
+    const res = await hapiServer.inject({ method: 'get', url: `/txn-status/${transactionId}` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.payload).toBe('true');
+  });
+
+  it('rejected transaction status gives false', async() => {
+    addRight(keyId1, 10, transactionId, defaultKeyId); // key not added yet
+    expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
+
+    const res = await hapiServer.inject({ method: 'get', url: `/txn-status/${transactionId}` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.payload).toBe('false');
   });
 });
 

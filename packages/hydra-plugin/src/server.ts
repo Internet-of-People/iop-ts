@@ -1,5 +1,6 @@
 import { createServer } from '@arkecosystem/core-http-utils';
 import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
+import { notFound } from '@hapi/boom';
 import Optional from 'optional-js';
 import { IAppLog } from '@internet-of-people/logger';
 
@@ -74,10 +75,24 @@ export class Server implements IInitializable {
         path: '/before-proof/{contentId}/exists/{blockHeight?}',
         handler: (request: Request): Lifecycle.ReturnValue => {
           const { params: { contentId, blockHeight } } = request;
+          this.log.debug(`Checking if before-proof ${contentId} exists at ${blockHeight}`);
           return this.stateHandler.query.beforeProofExistsAt(
             contentId,
             safePathInt(blockHeight),
           );
+        },
+      },
+      {
+        method: 'GET',
+        path: '/txn-status/{txid}',
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const { params: { txid } } = request;
+          this.log.debug(`Checking tx status for ${txid}`);
+          const status: boolean = this.stateHandler.query.isConfirmed(txid)
+            .orElseThrow(() => {
+              return notFound(`Transaction ${txid} is not processed by morpheus (yet)`);
+            });
+          return status;
         },
       },
     ]);
