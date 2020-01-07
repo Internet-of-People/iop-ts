@@ -52,7 +52,6 @@ export const askHeight = async(): Promise<number | undefined> => {
     type: 'number',
     name: 'height',
     default: 0,
-    /* eslint @typescript-eslint/require-await: 0 */
     /* eslint no-undefined: 0 */
     filter: async(value: number): Promise<number | undefined> => {
       return value === 0 ? undefined : value;

@@ -13,9 +13,8 @@ export class MorpheusArkConnector implements IInitializable {
     private readonly blockEventSource: IBlockEventSource,
   ) {}
 
-  /* eslint @typescript-eslint/require-await: 0 */
   public async init(): Promise<void> {
-    this.log.info('Starting up');
+    this.log.info('Starting up Morpheus Connector');
 
     this.blockEventSource.subscribe(MorpheusArkConnector.SUBSCRIPTION_ID, this.blockHandler);
 

@@ -10,7 +10,7 @@ export class Layer2Api {
   private readonly api: AxiosInstance;
 
   private constructor(network: Network) {
-    const baseURL = `${schemaAndHost(network) }:4705`;
+    const baseURL = `${schemaAndHost(network) }:4703`;
     this.api = axios.create({
       baseURL,
       headers: {

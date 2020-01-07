@@ -39,5 +39,4 @@ Please see the [architecture section in the specification](https://iop-stack.git
 
 **Important Notes:**
 - These endpoints are NOT yet available: `getOperations`, `getOperationAttempts`
-- The API is currently servered at port `4705`. Soon it will use the same wallet API port as used for other APIs. 
-So an example URL you can curl: `curl http://127.0.0.1:4705/before-proof/iop/exists/780`
+- An example URL you can curl: `curl http://127.0.0.1:4703/before-proof/iop/exists/780`

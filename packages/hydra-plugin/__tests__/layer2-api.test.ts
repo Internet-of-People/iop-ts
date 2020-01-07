@@ -2,6 +2,7 @@
 import { Server as HapiServer } from '@hapi/hapi';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { IAppLog } from '@internet-of-people/logger';
+import { createServer } from '@arkecosystem/core-http-utils';
 import Optional from 'optional-js';
 import {
   Interfaces as KvInterfaces,
@@ -11,7 +12,7 @@ import {
   Vault,
 } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
-import { safePathInt, Server } from '../src/server';
+import { safePathInt, Layer2API } from '../src/layer2-api';
 
 const {
   Operations: { OperationAttemptsBuilder },
@@ -57,7 +58,7 @@ class Fixture {
 let hapiServer: HapiServer;
 let fixture: Fixture;
 
-describe('Server', () => {
+describe('Layer2API', () => {
   const defaultKeyRights = {} as Interfaces.IRightsMap<number[]>;
   defaultKeyRights[Interfaces.Right.Update] = [0];
   defaultKeyRights[Interfaces.Right.Impersonate] = [0];
@@ -154,11 +155,9 @@ describe('Server', () => {
 
   beforeEach(async() => {
     fixture = new Fixture();
-    const server = new Server('0.0.0.0', 4705, fixture.log, fixture.stateHandler);
-    await server.init();
-    hapiServer = server.hapiServer.orElseThrow(() => {
-      return new Error('Could not init HAPI server');
-    });
+    hapiServer = await createServer({ host: '0.0.0.0', port: '4703' });
+    const morpheusServer = new Layer2API(fixture.log, fixture.stateHandler, hapiServer);
+    morpheusServer.init();
   });
 
   afterEach(async() => {

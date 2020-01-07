@@ -122,15 +122,12 @@ describe('BlockEventSource', () => {
     const listener2 = fixture.createListener();
     const listener3 = fixture.createListener();
 
-    /* eslint @typescript-eslint/require-await: 0 */
     jest.spyOn(listener1, 'onBlockApplied').mockImplementation(async() => {
       callOrder.push(1);
     });
-    /* eslint @typescript-eslint/require-await: 0 */
     jest.spyOn(listener2, 'onBlockApplied').mockImplementation(async() => {
       callOrder.push(2);
     });
-    /* eslint @typescript-eslint/require-await: 0 */
     jest.spyOn(listener3, 'onBlockApplied').mockImplementation(async() => {
       callOrder.push(3);
     });

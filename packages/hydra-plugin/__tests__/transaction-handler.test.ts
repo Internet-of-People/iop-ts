@@ -56,7 +56,6 @@ class Fixture {
     this.transactionReaderMock.hasNext.mockImplementationOnce(() => {
       return true;
     });
-    /* eslint @typescript-eslint/require-await: 0 */
     this.transactionReaderMock.read.mockImplementationOnce(async() => {
       return txns;
     });

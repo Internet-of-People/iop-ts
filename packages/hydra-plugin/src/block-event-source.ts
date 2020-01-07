@@ -26,7 +26,6 @@ export class BlockEventSource implements IBlockEventSource {
     this.listeners = [];
   }
 
-  /* eslint @typescript-eslint/require-await: 0 */
   public async init(): Promise<void> {
     this.emitter.on(ApplicationEvents.BlockApplied, (block: CryptoIf.IBlockData) => {
       this.onBlockApplied(block);

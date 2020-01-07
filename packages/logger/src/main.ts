@@ -11,7 +11,7 @@ export interface IAppLog {
 }
 
 export class AppLog implements IAppLog {
-  private readonly PREFIX: string = 'morpheus-hydra-plugin';
+  private readonly PREFIX: string = 'MORPHEUS';
   private readonly logger: Logger.ILogger;
 
   public constructor(logger: Logger.ILogger) {

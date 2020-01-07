@@ -14,7 +14,6 @@ export class BlockHandler implements IBlockListener {
     private readonly log: IAppLog,
   ) {}
 
-  /* eslint @typescript-eslint/require-await:0 */
   public async onBlockApplied(blockData: CryptoIf.IBlockData): Promise<void> {
     if (!blockData.id) {
       this.log.warn(`Block ${blockData.height} does not have id.`);
@@ -35,7 +34,6 @@ export class BlockHandler implements IBlockListener {
     }
   }
 
-  /* eslint @typescript-eslint/require-await:0 */
   public async onBlockReverted(blockData: CryptoIf.IBlockData): Promise<void> {
     if (!blockData.id) {
       this.log.warn(`Block ${blockData.height} does not have id.`);

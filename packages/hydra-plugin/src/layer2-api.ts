@@ -1,11 +1,6 @@
-import { createServer } from '@arkecosystem/core-http-utils';
 import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
 import { notFound } from '@hapi/boom';
-import Optional from 'optional-js';
 import { IAppLog } from '@internet-of-people/logger';
-
-// TODO break circular dependency
-import { IInitializable } from './main';
 import { Interfaces } from '@internet-of-people/did-manager';
 
 export const safePathInt = (pathHeightString: string|undefined|null): number|undefined => {
@@ -16,22 +11,15 @@ export const safePathInt = (pathHeightString: string|undefined|null): number|und
     Number.parseInt(pathHeightString!);
 };
 
-export class Server implements IInitializable {
-  private server: HapiServer|undefined;
-
+export class Layer2API {
   public constructor(
-    private readonly host: string,
-    private readonly port: number,
     private readonly log: IAppLog,
     private readonly stateHandler: Interfaces.IMorpheusStateHandler,
+    private readonly hapi: HapiServer,
   ) {}
 
-  public async init(): Promise<void> {
-    this.server = await createServer({
-      host: this.host,
-      port: this.port,
-    });
-    this.server.route([
+  public init(): void {
+    this.hapi.route([
       {
         method: 'GET',
         path: '/did/{did}/document/{blockHeight?}',
@@ -96,12 +84,5 @@ export class Server implements IInitializable {
         },
       },
     ]);
-
-    // mountServer depends on logger inside ark's container
-    await this.server.start();
-  }
-
-  public get hapiServer(): Optional<HapiServer> {
-    return Optional.ofNullable(this.server);
   }
 }
