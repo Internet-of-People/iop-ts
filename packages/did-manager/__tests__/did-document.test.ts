@@ -6,8 +6,8 @@ const { DidDocument } = Operations;
 
 describe('DidDocument', () => {
   const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-  const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
-  const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
+  const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+  const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
   const keys: IKeyData[] = [
     { auth: defaultKeyId.toString(), revoked: false, valid: true },
   ];

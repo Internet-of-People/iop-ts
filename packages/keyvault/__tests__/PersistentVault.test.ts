@@ -23,7 +23,7 @@ describe('PersistentVault', () => {
     expect(vault.ids().map((id) => {
       return id.toString();
     })).toStrictEqual(
-      [ 'IezbeWGSY2dqcUBqT8K7R14xr', 'Iez25N5WZ1Q6TQpgpyYgiu9gTX' ],
+      [ 'iezbeWGSY2dqcUBqT8K7R14xr', 'iez25N5WZ1Q6TQpgpyYgiu9gTX' ],
     );
   });
 
@@ -32,7 +32,7 @@ describe('PersistentVault', () => {
     const idOpt = vault.activeId();
     expect(idOpt).toBeTruthy();
     const id = idOpt as KeyId;
-    expect(id.toString()).toStrictEqual('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
+    expect(id.toString()).toStrictEqual('iez25N5WZ1Q6TQpgpyYgiu9gTX');
     const signedMessage = vault.sign(message, id);
     expect(signedMessage).toBeTruthy();
     expect(signedMessage.validateWithId(id)).toBe(true);

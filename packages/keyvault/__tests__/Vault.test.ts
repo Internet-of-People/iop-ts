@@ -12,7 +12,7 @@ describe('Vault', () => {
     vault.createId();
     expect(vault.profiles()).toHaveLength(2);
     expect(vault.profiles()).toStrictEqual(
-      [ 'IezbeWGSY2dqcUBqT8K7R14xr', 'Iez25N5WZ1Q6TQpgpyYgiu9gTX' ],
+      [ 'iezbeWGSY2dqcUBqT8K7R14xr', 'iez25N5WZ1Q6TQpgpyYgiu9gTX' ],
     );
 
     const vaultSerStr = vault.serialize();

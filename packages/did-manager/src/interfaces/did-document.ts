@@ -23,7 +23,7 @@ export const isSameAuthentication = (left: Authentication, right: Authentication
 };
 
 export const MORPHEUS_DID_PREFIX = 'did:morpheus:';
-export const MULTICIPHER_KEYID_PREFIX = 'I';
+export const MULTICIPHER_KEYID_PREFIX = KeyId.prefix();
 
 export const didToAuth = (did: Did): Authentication => {
   const keyId = did.replace(new RegExp(`^${MORPHEUS_DID_PREFIX}`), MULTICIPHER_KEYID_PREFIX);

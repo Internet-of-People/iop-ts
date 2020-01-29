@@ -6,9 +6,9 @@ import { assertStringlyEqual } from './utils';
 const { DidDocument } = Operations;
 
 const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
-const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
-const keyId2 = new KeyId('IezkXs7Xd8SDWLaGKUAjEf53W');
+const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+const keyId2 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
 
 export const assertEqualAuthEntries = (actual: IKeyData[], expected: IKeyData[]): void => {
   expect(actual).toHaveLength(expected.length);

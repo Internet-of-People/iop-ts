@@ -11,6 +11,10 @@ export class KeyId {
 /**
 * @returns {string} 
 */
+  static prefix(): string;
+/**
+* @returns {string} 
+*/
   toString(): string;
 }
 /**
@@ -22,6 +26,10 @@ export class PublicKey {
 * @returns {PublicKey} 
 */
   constructor(pub_key_str: string);
+/**
+* @returns {string} 
+*/
+  static prefix(): string;
 /**
 * @returns {KeyId} 
 */
@@ -45,6 +53,10 @@ export class Signature {
 * @returns {Signature} 
 */
   constructor(sign_str: string);
+/**
+* @returns {string} 
+*/
+  static prefix(): string;
 /**
 * @returns {string} 
 */

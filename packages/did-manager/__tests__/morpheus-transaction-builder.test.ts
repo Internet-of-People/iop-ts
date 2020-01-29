@@ -14,8 +14,8 @@ afterAll(() => {
 });
 
 const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
-const newKeyId = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
+const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+const newKeyId = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
 rustVault.createId();
 const vault: KvInterfaces.IVault = {

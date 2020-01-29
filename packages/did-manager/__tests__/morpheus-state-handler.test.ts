@@ -12,9 +12,9 @@ import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler'
 import { OperationAttemptsBuilder } from '../src/morpheus-transaction/operations';
 
 export const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-export const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
-export const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
-export const keyId2 = new KeyId('IezkXs7Xd8SDWLaGKUAjEf53W');
+export const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+export const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+export const keyId2 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
 
 export interface IToString {
   toString(): string;
@@ -234,7 +234,7 @@ describe('StateHandler', () => {
       .getAttempts();
     const signed = attempts[0] as ISignedOperationsData;
     /* eslint max-len: 0 */
-    const invalidSignature = 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4';
+    const invalidSignature = 'sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4';
     signed.signature = invalidSignature;
     handler.applyTransactionToState({
       asset: { operationAttempts: attempts },

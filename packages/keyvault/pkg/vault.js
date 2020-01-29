@@ -138,6 +138,17 @@ class KeyId {
     /**
     * @returns {string}
     */
+    static prefix() {
+        const retptr = 8;
+        const ret = wasm.keyid_prefix(retptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
+    }
+    /**
+    * @returns {string}
+    */
     toString() {
         const retptr = 8;
         const ret = wasm.keyid_toString(retptr, this.ptr);
@@ -172,6 +183,17 @@ class PublicKey {
     constructor(pub_key_str) {
         const ret = wasm.publickey_new(passStringToWasm(pub_key_str), WASM_VECTOR_LEN);
         return PublicKey.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    static prefix() {
+        const retptr = 8;
+        const ret = wasm.publickey_prefix(retptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
     }
     /**
     * @returns {KeyId}
@@ -226,6 +248,17 @@ class Signature {
     constructor(sign_str) {
         const ret = wasm.signature_new(passStringToWasm(sign_str), WASM_VECTOR_LEN);
         return Signature.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    static prefix() {
+        const retptr = 8;
+        const ret = wasm.signature_prefix(retptr);
+        const memi32 = getInt32Memory();
+        const v0 = getStringFromWasm(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1]).slice();
+        wasm.__wbindgen_free(memi32[retptr / 4 + 0], memi32[retptr / 4 + 1] * 1);
+        return v0;
     }
     /**
     * @returns {string}

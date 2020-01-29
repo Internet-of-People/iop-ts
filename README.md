@@ -5,28 +5,28 @@ web-of-trust way. See the [specification](https://iop-stack.gitlab.iop-ventures.
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Morpheus and DIDs](#Morpheus-and-DIDs)
-- [Current and Future Features](#Current-and-Future-Features)
-- [How to Use](#How-to-Use)
-  - [Install](#Install)
-    - [Prerequisites](#Prerequisites)
-    - [NodeJS Scripts](#NodeJS-Scripts)
-  - [Usage](#Usage)
+- [Morpheus and DIDs](#morpheus-and-dids)
+- [Current and Future Features](#current-and-future-features)
+- [How to Use](#how-to-use)
+  - [Install](#install)
+    - [Prerequisites](#prerequisites)
+    - [NodeJS Scripts](#nodejs-scripts)
+  - [Usage](#usage)
     - [examples](#examples)
     - [did-manager](#did-manager)
     - [hydra-plugin](#hydra-plugin)
     - [keyvault](#keyvault)
     - [kyc-user](#kyc-user)
     - [logger](#logger)
-- [Maintainers](#Maintainers)
-- [Contributing](#Contributing)
-- [License](#License)
+- [Maintainers](#maintainers)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Morpheus and DIDs
 
 Morpheus relies on the Hydra Blockchain and custom transactions to build a repository of DID documents.
 These documents establish the identity of an entity even when using different cryptographic keys over time, and contain no personal identifiable information.
-Personal data will be stored elsewhere (decided by the users and service providers), using the Morpheus DB for establishing validity of information. 
+Personal data will be stored elsewhere (decided by the users and service providers), using the Morpheus DB for establishing validity of information.
 
 **This way, Morpheus far exceeds the [GDPR](https://gdpr-info.eu/) requirements.**
 
@@ -34,6 +34,7 @@ Additionally, Morpheus DID Documents allow referencing other web locations that 
 allowing for publicly claiming DIDs.
 
 Morpheus forms the basis of secure transmission and validation of personal information in the IOP ecosystem and will enable a multitude of use-cases, such as the ones described below:
+
 - separating personal and business roles
 - digitalized ID documents
 - digital tickets for public transport, cinemas, concerts, etc. (both personalized and non-personalized)
@@ -41,7 +42,6 @@ Morpheus forms the basis of secure transmission and validation of personal infor
 - reusing verification with different service providers
 - offline verification of ID ownership
 - and many more
-
 
 ## Current and Future Features
 
@@ -64,6 +64,7 @@ Under the examples package you will see example codes for all available API.
 #### Prerequisites
 
 - Node v12.13.1
+
   ```bash
   # Install nvm to easily switch between node versions
   $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
@@ -75,6 +76,7 @@ Under the examples package you will see example codes for all available API.
   $ node --version
   v12.13.1
   ```
+
 - npm 6.13.4
 
 #### NodeJS Scripts
@@ -84,24 +86,31 @@ We use [Lerna](https://lerna.js.org/) for this multipackage project. We have the
 ```bash
 # Installs all dependencies
 $ npm install
+...
 ```
+
 ```bash
 # Cleans all packages' node_modules and dist directory including the root itself
 $ npm run clean
+...
 ```
+
 ```bash
 # Builds all packages
 $ npm run build
+...
 ```
 
 ```bash
 # Runs all packages' tests
 $ npm run test
+...
 ```
 
 ```bash
 # Runs EsLint on all packages' code
 $ npm run lint
+...
 ```
 
 ### Usage
@@ -110,8 +119,7 @@ Here we describe how can the packages be used and what responsbility a package h
 
 #### examples
 
-This package contains a command line NodeJS application where you can try out the available endpoints. 
-There you can also observe the code to see how the components (like did-manager) are used. For more details how to use it, please check its [README](packages/examples/README.md).
+This package contains a command line NodeJS application where you can try out the available endpoints. There you can also observe the code to see how the components (like did-manager) are used. For more details how to use it, please check its [README](packages/examples/README.md).
 
 Note: it requires a node running that supports Morpheus.
 
@@ -137,9 +145,9 @@ A simple logging utility used by multitple packages. Uses Hydra's built in chain
 
 ## Maintainers
 
-* [@izolyomi](https://github.com/izolyomi)
-* [@mudlee](https://github.com/mudlee)
-* [@wigy_opensource_developer](https://github.com/wigy_opensource_developer)
+- [@izolyomi](https://github.com/izolyomi)
+- [@mudlee](https://github.com/mudlee)
+- [@wigy_opensource_developer](https://github.com/wigy_opensource_developer)
 
 ## Contributing
 

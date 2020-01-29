@@ -23,8 +23,8 @@ const assertSignedOperationsEqual = (actual: ISignedOperationsData, expected: IS
 
 describe('OperationAttemptsBuilder', () => {
   const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-  const defaultKeyId = new KeyId('IezbeWGSY2dqcUBqT8K7R14xr');
-  const keyId1 = new KeyId('Iez25N5WZ1Q6TQpgpyYgiu9gTX');
+  const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+  const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 
   let builder: OperationAttemptsBuilder;
   beforeEach(() => {
@@ -57,8 +57,8 @@ describe('OperationAttemptsBuilder', () => {
       signables: [
         expectedAddKeyData,
       ],
-      signerPublicKey: 'Pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6',
-      signature: 'Sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4',
+      signerPublicKey: 'pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6',
+      signature: 'sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4',
     };
     signMock.mockImplementationOnce((msg, _) => {
       return new SignedMessage(
