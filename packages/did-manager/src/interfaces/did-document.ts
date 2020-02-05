@@ -45,33 +45,47 @@ export enum Right {
 }
 
 export interface IKeyData {
+  // TODO an additional "type" property should return something
+  // like "KeyId-ed25519-Base58" for auth that starts with "iez"
+  index: number;
   auth: AuthenticationData;
-  validFromHeight?: number;
-  validUntilHeight?: number;
-  revoked: boolean;
-  valid: boolean; // NOTE: contains aggregated information derived from other fields
+  validFromHeight: number | null;
+  validUntilHeight: number | null;
+  valid: boolean; // NOTE: contains derived information based on other fields and `atHeight`
 }
 
 // Not kidding: https://github.com/Microsoft/TypeScript/issues/24220
 export type IRightsMap<T> = {[right in Right]: T};
 
-// TODO: this will be returned to the user basically. Please then follow the structure defined here:
+export interface IKeyRightHistoryPoint {
+  height: number | null;
+  valid: boolean;
+}
+
+export interface IKeyRightHistory {
+  keyLink: string;
+  history: IKeyRightHistoryPoint[];
+  valid: boolean; // NOTE: contains derived information based on other fields and `atHeight`
+}
+
+// TODO: this will be returned to the user by the layer-2. Please then follow the structure defined here:
 // https://iop-stack.gitlab.iop-ventures.com/dids-and-claims/specification/#/glossary?id=did-document
 // or create a DTO for it
 export interface IDidDocumentData {
   did: Did;
   keys: IKeyData[];
-  rights: IRightsMap<number[]>; // contains key indexes from the keys property
+  rights: IRightsMap<IKeyRightHistory[]>; // contains key indexes from the keys property
   atHeight: number;
-  tombstoned: boolean;
+  tombstonedAtHeight: number | null;
+  tombstoned: boolean; // NOTE: contains derived information based on other fields and `atHeight`
 }
 
 export interface IDidDocument {
   readonly height: number;
   readonly did: Did;
 
-  hasRight(auth: Authentication, right: Right): boolean;
-  isTombstoned(): boolean;
+  hasRightAt(auth: Authentication, right: Right, height: number): boolean;
+  isTombstonedAt(height: number): boolean;
 
   toData(): IDidDocumentData;
   fromData(data: IDidDocumentData): void;

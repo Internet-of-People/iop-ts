@@ -2,6 +2,7 @@ import { MorpheusState } from '../src/morpheus-transaction/state';
 import { IMorpheusState, Right } from '../src/interfaces';
 
 import { assertStringlyEqual, defaultKeyId, did, keyId1, keyId2 } from './morpheus-state-handler.test';
+import { DidDocument } from '../src/morpheus-transaction/operations';
 
 describe('Cloneable', () => {
   it('actually works', () => {
@@ -110,24 +111,28 @@ describe('MorpheusState', () => {
     state.apply.addRight(7, defaultKeyId, did, keyId1, Right.Update);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
+    const doc7 = new DidDocument.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
-    const rights7 = data7.rights;
-    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
-    expect(rights7[Right.Update]).toStrictEqual([ 0, 1 ]);
+    expect(doc7.hasRightAt(defaultKeyId, Right.Impersonate, 7)).toBeTruthy();
+    expect(doc7.hasRightAt(keyId1, Right.Impersonate, 7)).toBeFalsy();
+    expect(doc7.hasRightAt(defaultKeyId, Right.Update, 7)).toBeTruthy();
+    expect(doc7.hasRightAt(keyId1, Right.Update, 7)).toBeTruthy();
 
     const data5 = state.query.getDidDocumentAt(did, 5).toData();
+    const doc5 = new DidDocument.DidDocument(data5);
     const keys5 = data5.keys;
     expect(keys5).toHaveLength(2);
     assertStringlyEqual(keys5[0].auth, defaultKeyId);
     expect(keys5[0].valid).toBeTruthy();
     assertStringlyEqual(keys5[1].auth, keyId1);
     expect(keys5[1].valid).toBeTruthy();
-    const rights5 = data5.rights;
-    expect(rights5[Right.Impersonate]).toStrictEqual([0]);
-    expect(rights5[Right.Update]).toStrictEqual([0]);
+    expect(doc5.hasRightAt(defaultKeyId, Right.Impersonate, 5)).toBeTruthy();
+    expect(doc5.hasRightAt(keyId1, Right.Impersonate, 5)).toBeFalsy();
+    expect(doc5.hasRightAt(defaultKeyId, Right.Update, 5)).toBeTruthy();
+    expect(doc5.hasRightAt(keyId1, Right.Update, 5)).toBeFalsy();
   });
 
   it('apply add right rejected for same key', () => {
@@ -142,7 +147,9 @@ describe('MorpheusState', () => {
     state.apply.addRight(6, defaultKeyId, did, keyId1, Right.Update);
     expect(() => {
       state.apply.addRight(7, defaultKeyId, did, keyId1, Right.Update);
-    }).toThrowError('value was already set to true');
+    }).toThrowError(
+      `right update was already granted to ${keyId1} on DID ${did} at height 7`,
+    );
   });
 
   it('revert add right accepted for different key', () => {
@@ -151,22 +158,26 @@ describe('MorpheusState', () => {
     state.revert.addRight(7, defaultKeyId, did, keyId1, Right.Update);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
+    const doc7 = new DidDocument.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
-    const rights7 = data7.rights;
-    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
-    expect(rights7[Right.Update]).toStrictEqual([0]);
+    expect(doc7.hasRightAt(defaultKeyId, Right.Impersonate, 7)).toBeTruthy();
+    expect(doc7.hasRightAt(keyId1, Right.Impersonate, 7)).toBeFalsy();
+    expect(doc7.hasRightAt(defaultKeyId, Right.Update, 7)).toBeTruthy();
+    expect(doc7.hasRightAt(keyId1, Right.Update, 7)).toBeFalsy();
 
     const data5 = state.query.getDidDocumentAt(did, 5).toData();
+    const doc5 = new DidDocument.DidDocument(data5);
     const keys5 = data5.keys;
     expect(keys5).toHaveLength(2);
     assertStringlyEqual(keys5[0].auth, defaultKeyId);
     assertStringlyEqual(keys5[1].auth, keyId1);
-    const rights5 = data5.rights;
-    expect(rights5[Right.Impersonate]).toStrictEqual([0]);
-    expect(rights5[Right.Update]).toStrictEqual([0]);
+    expect(doc5.hasRightAt(defaultKeyId, Right.Impersonate, 5)).toBeTruthy();
+    expect(doc5.hasRightAt(keyId1, Right.Impersonate, 5)).toBeFalsy();
+    expect(doc5.hasRightAt(defaultKeyId, Right.Update, 5)).toBeTruthy();
+    expect(doc5.hasRightAt(keyId1, Right.Update, 5)).toBeFalsy();
   });
 
   it('apply revoke right accepted for different key', () => {
@@ -178,13 +189,15 @@ describe('MorpheusState', () => {
     state.apply.revokeRight(7, keyId1, did, defaultKeyId, Right.Update);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
+    const doc7 = new DidDocument.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
-    const rights7 = data7.rights;
-    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
-    expect(rights7[Right.Update]).toStrictEqual([1]);
+    expect(doc7.hasRightAt(defaultKeyId, Right.Impersonate, 7)).toBeTruthy();
+    expect(doc7.hasRightAt(keyId1, Right.Impersonate, 7)).toBeFalsy();
+    expect(doc7.hasRightAt(defaultKeyId, Right.Update, 7)).toBeFalsy();
+    expect(doc7.hasRightAt(keyId1, Right.Update, 7)).toBeTruthy();
   });
 
   it('apply revoke right rejected for same key', () => {
@@ -199,7 +212,9 @@ describe('MorpheusState', () => {
     state.apply.addKey(5, defaultKeyId, did, keyId1);
     expect(() => {
       state.apply.revokeRight(7, defaultKeyId, did, keyId1, Right.Update);
-    }).toThrowError(`right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 7`);
+    }).toThrowError(
+      `right ${Right.Update} cannot be revoked from ${keyId1} on DID ${did} as it was not present at height 7`,
+    );
   });
 
   it('revert revoke right accepted for different key', () => {
@@ -209,13 +224,15 @@ describe('MorpheusState', () => {
     state.revert.revokeRight(7, defaultKeyId, did, keyId1, Right.Update);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
+    const doc7 = new DidDocument.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
     assertStringlyEqual(keys7[1].auth, keyId1);
-    const rights7 = data7.rights;
-    expect(rights7[Right.Impersonate]).toStrictEqual([0]);
-    expect(rights7[Right.Update]).toStrictEqual([ 0, 1 ]);
+    expect(doc7.hasRightAt(defaultKeyId, Right.Impersonate, 7)).toBeTruthy();
+    expect(doc7.hasRightAt(keyId1, Right.Impersonate, 7)).toBeFalsy();
+    expect(doc7.hasRightAt(defaultKeyId, Right.Update, 7)).toBeTruthy();
+    expect(doc7.hasRightAt(keyId1, Right.Update, 7)).toBeTruthy();
   });
 
   it('apply revoke key works with appropriate rights', () => {
@@ -233,7 +250,6 @@ describe('MorpheusState', () => {
     const keys7 = state.query.getDidDocumentAt(did, 7).toData().keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys6[0].auth, defaultKeyId);
-    expect(keys7[0].revoked).toBeTruthy();
     expect(keys7[0].valid).toBeFalsy();
     assertStringlyEqual(keys7[1].auth, keyId1);
     expect(keys7[1].valid).toBeTruthy();
@@ -278,8 +294,10 @@ describe('MorpheusState', () => {
 
   it('did can be tombstoned', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
-    expect(state.query.getDidDocumentAt(did, 4).isTombstoned()).toBeFalsy();
-    expect(state.query.getDidDocumentAt(did, 5).isTombstoned()).toBeTruthy();
+
+    const doc5 = state.query.getDidDocumentAt(did, 5);
+    expect(doc5.isTombstonedAt(4)).toBeFalsy();
+    expect(doc5.isTombstonedAt(5)).toBeTruthy();
   });
 
   it('did can only be tombstoned with key that has update right', () => {
@@ -292,10 +310,10 @@ describe('MorpheusState', () => {
 
   it('tombstoned did can be reverted', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
-    expect(state.query.getDidDocumentAt(did, 5).isTombstoned()).toBeTruthy();
+    expect(state.query.getDidDocumentAt(did, 5).isTombstonedAt(5)).toBeTruthy();
 
     state.revert.tombstoneDid(5, defaultKeyId, did);
-    expect(state.query.getDidDocumentAt(did, 5).isTombstoned()).toBeFalsy();
+    expect(state.query.getDidDocumentAt(did, 5).isTombstonedAt(5)).toBeFalsy();
   });
 
   it('tombstoned did cannot be updated', () => {
@@ -333,9 +351,10 @@ describe('MorpheusState', () => {
 
   it('keys in a tombstoned did have no rights', () => {
     state.apply.tombstoneDid(5, defaultKeyId, did);
+
     const doc5 = state.query.getDidDocumentAt(did, 5);
-    expect(doc5.isTombstoned()).toBeTruthy();
-    expect(doc5.hasRight(defaultKeyId, Right.Update)).toBeFalsy();
-    expect(doc5.hasRight(defaultKeyId, Right.Impersonate)).toBeFalsy();
+    expect(doc5.isTombstonedAt(5)).toBeTruthy();
+    expect(doc5.hasRightAt(defaultKeyId, Right.Update, 5)).toBeFalsy();
+    expect(doc5.hasRightAt(defaultKeyId, Right.Impersonate, 5)).toBeFalsy();
   });
 });

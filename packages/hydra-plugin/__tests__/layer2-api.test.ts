@@ -13,6 +13,8 @@ import {
 } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import { safePathInt, Layer2API } from '../src/layer2-api';
+import { DidDocument } from '@internet-of-people/did-manager/dist/morpheus-transaction/operations';
+import { Right } from '@internet-of-people/did-manager/dist/interfaces';
 
 const {
   Operations: { OperationAttemptsBuilder },
@@ -59,10 +61,6 @@ let hapiServer: HapiServer;
 let fixture: Fixture;
 
 describe('Layer2API', () => {
-  const defaultKeyRights = {} as Interfaces.IRightsMap<number[]>;
-  defaultKeyRights[Interfaces.Right.Update] = [0];
-  defaultKeyRights[Interfaces.Right.Impersonate] = [0];
-
   const addKey = (
     key: Interfaces.Authentication,
     height: number,
@@ -209,13 +207,16 @@ describe('Layer2API', () => {
   it('can query implicit did', async() => {
     const res = await hapiServer.inject({ method: 'get', url: `/did/${did}/document` });
     expect(res.statusCode).toBe(200);
-    const doc = JSON.parse(res.payload) as Interfaces.IDidDocumentData;
+    const data = JSON.parse(res.payload) as Interfaces.IDidDocumentData;
+    const doc = new DidDocument.DidDocument(data);
+
+    expect(data.keys).toHaveLength(1);
+    expect(data.keys[0].auth).toStrictEqual(defaultKeyId.toString());
+    expect(doc.height).toBe(0);
     expect(doc.did).toBe(did);
-    expect(doc.atHeight).toBe(0);
-    expect(doc.keys).toHaveLength(1);
-    expect(doc.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc.rights).toStrictEqual(defaultKeyRights);
-    expect(doc.tombstoned).toBeFalsy();
+    expect(doc.hasRightAt(defaultKeyId, Right.Impersonate, 0)).toBeTruthy();
+    expect(doc.hasRightAt(defaultKeyId, Right.Update, 0)).toBeTruthy();
+    expect(doc.isTombstonedAt(0)).toBeFalsy();
   });
 
   it('can add key to did', async() => {
@@ -224,16 +225,19 @@ describe('Layer2API', () => {
 
     const res = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${10}` });
     expect(res.statusCode).toBe(200);
-    const doc = JSON.parse(res.payload) as Interfaces.IDidDocumentData;
+    const data = JSON.parse(res.payload) as Interfaces.IDidDocumentData;
+    const doc = new DidDocument.DidDocument(data);
+
+    expect(data.keys).toHaveLength(2);
+    expect(data.keys[0].auth).toStrictEqual(defaultKeyId.toString());
+    expect(data.keys[1].auth).toStrictEqual(keyId1.toString());
+    expect(data.keys[0].valid).toBeTruthy();
+    expect(data.keys[1].valid).toBeTruthy();
     expect(doc.did).toBe(did);
-    expect(doc.atHeight).toBe(10);
-    expect(doc.keys).toHaveLength(2);
-    expect(doc.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
-    expect(doc.keys[0].valid).toBeTruthy();
-    expect(doc.keys[1].valid).toBeTruthy();
-    expect(doc.rights).toStrictEqual(defaultKeyRights);
-    expect(doc.tombstoned).toBeFalsy();
+    expect(doc.height).toBe(10);
+    expect(doc.hasRightAt(defaultKeyId, Right.Impersonate, 10)).toBeTruthy();
+    expect(doc.hasRightAt(defaultKeyId, Right.Update, 10)).toBeTruthy();
+    expect(doc.isTombstonedAt(10)).toBeFalsy();
   });
 
   it('can revoke key from did', async() => {
@@ -273,15 +277,18 @@ describe('Layer2API', () => {
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const doc15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
-    expect(doc15.atHeight).toBe(15);
-    expect(doc15.keys).toHaveLength(2);
-    expect(doc15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc15.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
-    expect(doc15.keys[0].valid).toBeTruthy();
-    expect(doc15.keys[1].valid).toBeTruthy();
-    expect(doc15.rights[Interfaces.Right.Impersonate]).toStrictEqual([0]);
-    expect(doc15.rights[Interfaces.Right.Update]).toStrictEqual([ 0, 1 ]);
+    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const doc15 = new DidDocument.DidDocument(data15);
+    expect(data15.keys).toHaveLength(2);
+    expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data15.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
+    expect(data15.keys[0].valid).toBeTruthy();
+    expect(data15.keys[1].valid).toBeTruthy();
+    expect(doc15.height).toBe(15);
+    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeTruthy();
   });
 
   it('cannot add right to a non-existent key', async() => {
@@ -290,12 +297,13 @@ describe('Layer2API', () => {
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const doc15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
-    expect(doc15.atHeight).toBe(15);
-    expect(doc15.keys).toHaveLength(1);
-    expect(doc15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc15.keys[0].valid).toBeTruthy();
-    expect(doc15.rights[Interfaces.Right.Impersonate]).toStrictEqual([0]);
+    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const doc15 = new DidDocument.DidDocument(data15);
+    expect(data15.keys).toHaveLength(1);
+    expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data15.keys[0].valid).toBeTruthy();
+    expect(doc15.height).toBe(15);
+    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
   });
 
   it('can revoke right from a key', async() => {
@@ -310,26 +318,32 @@ describe('Layer2API', () => {
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const doc15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
-    expect(doc15.atHeight).toBe(15);
-    expect(doc15.keys).toHaveLength(2);
-    expect(doc15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc15.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
-    expect(doc15.keys[0].valid).toBeTruthy();
-    expect(doc15.keys[1].valid).toBeTruthy();
-    expect(doc15.rights[Interfaces.Right.Impersonate]).toStrictEqual([0]);
-    expect(doc15.rights[Interfaces.Right.Update]).toStrictEqual([ 0, 1 ]);
+    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const doc15 = new DidDocument.DidDocument(data15);
+    expect(data15.keys).toHaveLength(2);
+    expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data15.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
+    expect(data15.keys[0].valid).toBeTruthy();
+    expect(data15.keys[1].valid).toBeTruthy();
+    expect(doc15.height).toBe(15);
+    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeTruthy();
 
     const res20 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${20}` });
     expect(res20.statusCode).toBe(200);
-    const doc20 = JSON.parse(res20.payload) as Interfaces.IDidDocumentData;
-    expect(doc20.keys).toHaveLength(2);
-    expect(doc20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc20.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
-    expect(doc20.keys[0].valid).toBeTruthy();
-    expect(doc20.keys[1].valid).toBeTruthy();
-    expect(doc20.rights[Interfaces.Right.Impersonate]).toStrictEqual([0]);
-    expect(doc20.rights[Interfaces.Right.Update]).toStrictEqual([0]);
+    const data20 = JSON.parse(res20.payload) as Interfaces.IDidDocumentData;
+    const doc20 = new DidDocument.DidDocument(data20);
+    expect(data20.keys).toHaveLength(2);
+    expect(data20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data20.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
+    expect(data20.keys[0].valid).toBeTruthy();
+    expect(data20.keys[1].valid).toBeTruthy();
+    expect(doc20.hasRightAt(defaultKeyId, Right.Impersonate, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(defaultKeyId, Right.Update, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(keyId1, Right.Impersonate, 20)).toBeFalsy();
+    expect(doc20.hasRightAt(keyId1, Right.Update, 20)).toBeFalsy();
   });
 
   it('cannot revoke right from a non-existent key', async() => {
@@ -341,12 +355,15 @@ describe('Layer2API', () => {
 
     const res20 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${20}` });
     expect(res20.statusCode).toBe(200);
-    const doc20 = JSON.parse(res20.payload) as Interfaces.IDidDocumentData;
-    expect(doc20.keys).toHaveLength(1);
-    expect(doc20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc20.keys[0].valid).toBeTruthy();
-    expect(doc20.rights[Interfaces.Right.Impersonate]).toStrictEqual([0]);
-    expect(doc20.rights[Interfaces.Right.Update]).toStrictEqual([0]);
+    const data20 = JSON.parse(res20.payload) as Interfaces.IDidDocumentData;
+    const doc20 = new DidDocument.DidDocument(data20);
+    expect(data20.keys).toHaveLength(1);
+    expect(data20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data20.keys[0].valid).toBeTruthy();
+    expect(doc20.hasRightAt(defaultKeyId, Right.Impersonate, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(defaultKeyId, Right.Update, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(keyId1, Right.Impersonate, 20)).toBeFalsy();
+    expect(doc20.hasRightAt(keyId1, Right.Update, 20)).toBeFalsy();
   });
 
   it('cannot update did if has no update right', async() => {
@@ -360,17 +377,20 @@ describe('Layer2API', () => {
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const doc15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
-    expect(doc15.atHeight).toBe(15);
-    expect(doc15.keys).toHaveLength(3);
-    expect(doc15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc15.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
-    expect(doc15.keys[2].auth.toString()).toStrictEqual(keyId2.toString());
-    expect(doc15.keys[0].valid).toBeTruthy();
-    expect(doc15.keys[1].valid).toBeTruthy();
-    expect(doc15.keys[2].valid).toBeTruthy();
-    expect(doc15.rights[Interfaces.Right.Impersonate]).toStrictEqual([0]);
-    expect(doc15.rights[Interfaces.Right.Update]).toStrictEqual([0]);
+    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const doc15 = new DidDocument.DidDocument(data15);
+    expect(data15.keys).toHaveLength(3);
+    expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data15.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
+    expect(data15.keys[2].auth.toString()).toStrictEqual(keyId2.toString());
+    expect(data15.keys[0].valid).toBeTruthy();
+    expect(data15.keys[1].valid).toBeTruthy();
+    expect(data15.keys[2].valid).toBeTruthy();
+    expect(doc15.height).toBe(15);
+    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeFalsy();
   });
 
   it('can tombstone did', async() => {
@@ -379,23 +399,29 @@ describe('Layer2API', () => {
 
     const res14 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${14}` });
     expect(res14.statusCode).toBe(200);
-    const doc14 = JSON.parse(res14.payload) as Interfaces.IDidDocumentData;
-    expect(doc14.tombstoned).toBeFalsy();
-    expect(doc14.keys).toHaveLength(1);
-    expect(doc14.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc14.keys[0].valid).toBeTruthy();
-    expect(doc14.rights[Interfaces.Right.Impersonate]).toStrictEqual([0]);
-    expect(doc14.rights[Interfaces.Right.Update]).toStrictEqual([0]);
+    const data14 = JSON.parse(res14.payload) as Interfaces.IDidDocumentData;
+    const doc14 = new DidDocument.DidDocument(data14);
+    expect(data14.keys).toHaveLength(1);
+    expect(data14.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data14.keys[0].valid).toBeTruthy();
+    expect(doc14.isTombstonedAt(14)).toBeFalsy();
+    expect(doc14.hasRightAt(defaultKeyId, Right.Impersonate, 14)).toBeTruthy();
+    expect(doc14.hasRightAt(defaultKeyId, Right.Update, 14)).toBeTruthy();
+    expect(doc14.hasRightAt(keyId1, Right.Impersonate, 14)).toBeFalsy();
+    expect(doc14.hasRightAt(keyId1, Right.Update, 14)).toBeFalsy();
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const doc15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
-    expect(doc15.tombstoned).toBeTruthy();
-    expect(doc15.keys).toHaveLength(1);
-    expect(doc15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
-    expect(doc15.keys[0].valid).toBeFalsy();
-    expect(doc15.rights[Interfaces.Right.Impersonate]).toStrictEqual([]);
-    expect(doc15.rights[Interfaces.Right.Update]).toStrictEqual([]);
+    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const doc15 = new DidDocument.DidDocument(data15);
+    expect(data15.keys).toHaveLength(1);
+    expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
+    expect(data15.keys[0].valid).toBeFalsy();
+    expect(doc15.isTombstonedAt(15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeFalsy();
   });
 
   it.todo('can query operations');
@@ -468,7 +494,7 @@ describe('safePathInt', () => {
   });
 
   it('handles null', () => {
-    expect(safePathInt(null)).toBe(undefined); // tslint:disable-line no-null-keyword
+    expect(safePathInt(null)).toBe(undefined);
   });
 
   it('handles string undefined', () => {

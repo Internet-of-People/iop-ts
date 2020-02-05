@@ -11,9 +11,12 @@ import {
   isSameAuthentication,
   Right,
   IRightsMap,
+  IKeyRightHistory,
+  IKeyRightHistoryPoint,
 } from '../../../interfaces';
 import { ITimeSeries, TimeSeries } from '../../../time-series';
 import { DidDocument } from './document';
+import Optional from 'optional-js';
 
 // TODO these might needed to be moved somewhere else
 export enum AuthenticationKind {
@@ -27,12 +30,9 @@ export enum CipherSuite {
 }
 
 interface IKeyEntry {
-  // TODO probably should be
-  // kind: AuthenticationKind;
-  // cipherSuite: CipherSuite,
   auth: Authentication;
-  validFromHeight?: number;
-  validUntilHeight?: number;
+  addedAtHeight?: number;
+  expiresAtHeight?: number;
   revoked: ITimeSeries;
   rights: IRightsMap<ITimeSeries>;
 }
@@ -57,67 +57,112 @@ export const initialRights = (initial: boolean): IRightsMap<ITimeSeries> => {
   });
 };
 
-const entryIsValidAt = (entry: IKeyEntry, height: number): boolean => {
-  let valid = !entry.revoked.query.get(height);
-  valid = valid && (entry.validFromHeight || 0) <= height ;
-  valid = valid && (!entry.validUntilHeight || entry.validUntilHeight > height);
-  return valid;
+export const isHeightInRange = (
+  height: number, fromHeightInc: Optional<number>, untilHeightExc: Optional<number>,
+): boolean => {
+  if (fromHeightInc.isPresent() && height < fromHeightInc.get()) {
+    return false;
+  }
+
+  if (untilHeightExc.isPresent() && height >= untilHeightExc.get()) {
+    return false;
+  }
+  return true;
 };
 
-const keyEntryToKeyData = (entry: IKeyEntry, height: number, didTombstoned: boolean): IKeyData => {
+export const aggregateOptionals = <T>(
+  aggregate: (...presents: T[]) => T, ...optionals: Optional<T>[]
+): Optional<T> => {
+  const presents = optionals.filter((opt) => {
+    return opt.isPresent();
+  });
+
+  if (presents.length) {
+    return Optional.of(aggregate(...presents.map((opt) => {
+      return opt.get();
+    })));
+  } else {
+    return Optional.empty();
+  }
+};
+
+/**
+ * Calculates the last height when the key entry is valid, based on auto-expiration, manual revocation of
+ * the key and the tombstoning of the did that contains the key.
+ */
+const keyEntryValidUntil = (entry: IKeyEntry, tombstone: ITimeSeries): Optional<number> => {
+  return aggregateOptionals(
+    /* eslint @typescript-eslint/unbound-method: 0 */
+    Math.min,
+    Optional.ofNullable(entry.expiresAtHeight),
+    entry.revoked.query.latestHeight(),
+    tombstone.query.latestHeight(),
+  );
+};
+
+const optionalToNullable = <T>(optional: Optional<T>): T | null => {
+  return optional.isPresent() ? optional.get() : null;
+};
+
+const keyEntryToKeyData = (entry: IKeyEntry, index: number, height: number, tombstone: ITimeSeries): IKeyData => {
+  const validUntil = keyEntryValidUntil(entry, tombstone);
+  const validFromHeight = entry.addedAtHeight ?? null;
+  const validUntilHeight = optionalToNullable(validUntil);
+  const valid = isHeightInRange(height, Optional.ofNullable(validFromHeight), validUntil);
   const data: IKeyData = {
+    index,
     auth: entry.auth.toString(),
-    revoked: entry.revoked.query.get(height),
-    valid: entryIsValidAt(entry, height) && !didTombstoned,
+    validFromHeight,
+    validUntilHeight,
+    valid,
   };
-
-  if (entry.validFromHeight) {
-    data.validFromHeight = entry.validFromHeight;
-  }
-
-  if (entry.validUntilHeight) {
-    data.validUntilHeight = entry.validUntilHeight;
-  }
-
   return data;
+};
+
+const keyEntryIsValidAt = (entry: IKeyEntry, tombstone: ITimeSeries, height: number): boolean => {
+  const validUntil = keyEntryValidUntil(entry, tombstone);
+  return isHeightInRange(height, Optional.ofNullable(entry.addedAtHeight), validUntil);
 };
 
 // TODO: what if we rename it to DidDocumentTimeline
 export class DidDocumentState implements IDidDocumentState {
   public readonly query: IDidDocumentQueries = {
     getAt: (height: number): IDidDocument => {
-      const didTombstoned = this.tombstoneHistory.query.get(height);
-      const reversedKeys = this.keyEntries.slice(0).reverse();
+      const reversedKeys = this.keyStack.slice(0).reverse();
 
       const existingKeysAtHeight = reversedKeys
         .filter((key) => {
           // note:
           // - all keys that once added will be kept forever.
           // - It's possible that it will has right for nothing though.
-          return (key.validFromHeight || 0) <= height;
+          return (key.addedAtHeight || 0) <= height;
         });
 
       const keys = existingKeysAtHeight
-        .map((key) => {
-          return keyEntryToKeyData(key, height, didTombstoned);
+        .map((key, index) => {
+          return keyEntryToKeyData(key, index, height, this.tombstoneHistory);
         });
 
-      const rights: IRightsMap<number[]> = mapAllRights((right) => {
-        const keysWithRightIndexes: number[] = [];
+      const rights: IRightsMap<IKeyRightHistory[]> = mapAllRights((right) => {
+        return existingKeysAtHeight.map((key, idx) => {
+          const state = key.rights[right];
 
-        for (let i = 0; i < existingKeysAtHeight.length; i += 1) {
-          const rightTimeSeries: ITimeSeries = existingKeysAtHeight[i].rights[right];
+          const keyLink = `#${idx}`;
+          const history: IKeyRightHistoryPoint[] = [];
 
-          if (didTombstoned || !rightTimeSeries || !rightTimeSeries.query.get(height)) {
-            continue;
+          for (const point of state.query) {
+            history.push({ height: point.height, valid: point.value });
           }
-          keysWithRightIndexes.push(i);
-        }
+          const valid = state.query.get(height);
 
-        return keysWithRightIndexes;
+          return { keyLink, history, valid };
+        });
       });
 
-      return new DidDocument({ did: this.did, keys, rights, atHeight: height, tombstoned: didTombstoned });
+      const tombstoned = this.tombstoneHistory.query.get(height);
+      const tombstonedAtHeight = optionalToNullable(this.tombstoneHistory.query.latestHeight());
+
+      return new DidDocument({ did: this.did, keys, rights, atHeight: height, tombstoned, tombstonedAtHeight });
     },
   };
 
@@ -125,18 +170,17 @@ export class DidDocumentState implements IDidDocumentState {
     addKey: (height: number, auth: Authentication, expiresAtHeight?: number): void => {
       this.ensureMinHeight(height);
       this.ensureNotTombstoned(height);
-      const entryPresent = this.lastEntryWithAuth(auth);
+      const existingKeyEntry = this.lastKeyEntryWithAuth(auth);
 
-      if (entryPresent && entryIsValidAt(entryPresent, height)) {
+      if (existingKeyEntry && keyEntryIsValidAt(existingKeyEntry, this.tombstoneHistory, height)) {
         throw new Error(`DID ${this.did} already has a still valid key matching ${auth}`);
       }
       const rights = initialRights(false);
-      this.keyEntries.unshift({
+      this.keyStack.unshift({
         auth,
         rights,
-        validFromHeight:
-        height,
-        validUntilHeight: expiresAtHeight,
+        addedAtHeight: height,
+        expiresAtHeight,
         revoked: new TimeSeries(false),
       });
     },
@@ -145,35 +189,43 @@ export class DidDocumentState implements IDidDocumentState {
       this.ensureMinHeight(height);
       this.ensureNotTombstoned(height);
 
-      const indexPresent = this.lastIndexWithAuth(auth);
+      const existingKeyIndex = this.lastKeyIndexWithAuth(auth);
 
-      if (indexPresent < 0) {
+      if (existingKeyIndex < 0) {
         throw new Error(`DID ${this.did} does not have a key matching ${auth}`);
       }
 
-      const entryPresent = this.keyEntries[indexPresent];
+      const existingKeyEntry = this.keyStack[existingKeyIndex];
 
-      if (! entryIsValidAt(entryPresent, height)) {
+      if (!keyEntryIsValidAt(existingKeyEntry, this.tombstoneHistory, height)) {
         throw new Error(`DID ${this.did} has a key matching ${auth}, but it's already invalidated`);
       }
 
-      this.keyEntries[indexPresent].revoked.apply.set(height, true);
+      existingKeyEntry.revoked.apply.set(height, true);
     },
 
     addRight: (height: number, auth: Authentication, right: Right): void => {
       this.ensureNotTombstoned(height);
-      this.getRightHistory(height, auth, right).apply.set(height, true);
+      const rightHistory = this.getRightHistory(height, auth, right);
+
+      try {
+        rightHistory.apply.set(height, true);
+      } catch {
+        throw new Error(`right ${right} was already granted to ${auth} on DID ${this.did} at height ${height}`);
+      }
     },
 
     revokeRight: (height: number, auth: Authentication, right: Right): void => {
       this.ensureNotTombstoned(height);
       const history = this.getRightHistory(height, auth, right);
 
-      if (! history.query.get(height)) {
-        throw new Error(`right ${right} cannot be revoked from ${auth} as it was not present at height ${height}`);
+      try {
+        history.apply.set(height, false);
+      } catch {
+        throw new Error(
+          `right ${right} cannot be revoked from ${auth} on DID ${this.did} as it was not present at height ${height}`,
+        );
       }
-
-      this.getRightHistory(height, auth, right).apply.set(height, false);
     },
 
     tombstone: (height: number): void => {
@@ -187,10 +239,10 @@ export class DidDocumentState implements IDidDocumentState {
       this.ensureNotTombstoned(height);
       this.ensureMinHeight(height);
 
-      if (!this.keyEntries.length) {
+      if (!this.keyStack.length) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because there are no keys`);
       }
-      const [lastKey] = this.keyEntries;
+      const [lastKey] = this.keyStack;
 
       // NOTE intentionally does not use isSameAuthentication() and entryIsValidAt() because
       //      exact types and values are already known here
@@ -198,32 +250,33 @@ export class DidDocumentState implements IDidDocumentState {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because the key does not match the last added one.`);
       }
 
-      if (lastKey.validFromHeight !== height) {
+      if (lastKey.addedAtHeight !== height) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because it was not added at the specified height.`);
       }
 
-      if (lastKey.validUntilHeight !== expiresAtHeight) {
+      if (lastKey.expiresAtHeight !== expiresAtHeight) {
         throw new Error(`Cannot revert addKey in DID ${this.did}, because it was not added with the same expiration.`);
       }
-      this.keyEntries.shift();
+      this.keyStack.shift();
     },
 
     revokeKey: (height: number, auth: Authentication): void => {
       this.ensureNotTombstoned(height);
       this.ensureMinHeight(height);
 
-      const indexPresent = this.lastIndexWithAuth(auth);
+      const existingKeyIndex = this.lastKeyIndexWithAuth(auth);
 
-      if (indexPresent < 0) {
+      if (existingKeyIndex < 0) {
         throw new Error(`Cannot revert revokeKey in DID ${this.did} because it does not have a key matching ${auth}`);
       }
 
-      const entryPresent = this.keyEntries[indexPresent];
-      entryPresent.revoked.revert.set(height, true);
+      const existingKeyEntry = this.keyStack[existingKeyIndex];
+      existingKeyEntry.revoked.revert.set(height, true);
 
-      if (! entryIsValidAt(entryPresent, height)) {
+      if (!keyEntryIsValidAt(existingKeyEntry, this.tombstoneHistory, height)) {
         throw new Error(
-          `Failed to revert revokeKey in DID ${this.did} for key matching ${auth}. it's still invalid after unrevoking`,
+          `Failed to revert revokeKey in DID ${this.did} for key matching ${auth}.\
+           It's still invalid after reverted revoking`,
         );
       }
     },
@@ -250,22 +303,23 @@ export class DidDocumentState implements IDidDocumentState {
    * invalidated, but not deleted, so the index of the entry never expires in other data fields.
    * When a removed key is added again, a new entry is added with a new index.
    */
-  private keyEntries: IKeyEntry[] = [];
-  private tombstoneHistory: ITimeSeries = new TimeSeries(false);
+  private readonly keyStack: Readonly<IKeyEntry>[];
+  private readonly tombstoneHistory: ITimeSeries;
 
-  public constructor(public readonly did: Did) {
-    this.keyEntries.unshift({
+  public constructor(
+    public readonly did: Did,
+    keyStack?: Readonly<IKeyEntry>[],
+    tombstoneHistory?: ITimeSeries) {
+    this.keyStack = keyStack ?? [{
       auth: didToAuth(did),
       revoked: new TimeSeries(false),
       rights: initialRights(true),
-    });
+    }];
+    this.tombstoneHistory = tombstoneHistory ?? new TimeSeries(false);
   }
 
   public clone(): IDidDocumentState {
-    const result = new DidDocumentState(this.did);
-    result.keyEntries = cloneDeep(this.keyEntries);
-    result.tombstoneHistory = this.tombstoneHistory.clone();
-    return result;
+    return new DidDocumentState(this.did, cloneDeep(this.keyStack), this.tombstoneHistory.clone());
   }
 
   private ensureMinHeight(height: number): void {
@@ -281,9 +335,10 @@ export class DidDocumentState implements IDidDocumentState {
   }
 
   private getRightHistory(height: number, auth: Authentication, right: Right): ITimeSeries {
-    const entry = this.lastEntryWithAuth(auth);
+    const entry = this.lastKeyEntryWithAuth(auth);
 
-    if (!entry || !entryIsValidAt(entry, height)) {
+
+    if (!entry || !keyEntryIsValidAt(entry, this.tombstoneHistory, height)) {
       throw new Error(`DID ${this.did} has no valid key matching ${auth} at height ${height}`);
     }
 
@@ -296,14 +351,14 @@ export class DidDocumentState implements IDidDocumentState {
     return rightHistory;
   }
 
-  private lastIndexWithAuth(auth: Authentication): number {
-    return this.keyEntries.findIndex((entry) => {
+  private lastKeyIndexWithAuth(auth: Authentication): number {
+    return this.keyStack.findIndex((entry) => {
       return isSameAuthentication(entry.auth, auth);
     });
   }
 
-  private lastEntryWithAuth(auth: Authentication): IKeyEntry | undefined {
-    return this.keyEntries.find((entry) => {
+  private lastKeyEntryWithAuth(auth: Authentication): IKeyEntry | undefined {
+    return this.keyStack.find((entry) => {
       return isSameAuthentication(entry.auth, auth);
     });
   }

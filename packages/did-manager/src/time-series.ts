@@ -3,12 +3,12 @@ import Optional from 'optional-js';
 
 import { IState } from './interfaces';
 
-interface IPoint<T> {
+export interface IPoint<T> {
   height: number;
   value: T;
 }
 
-export interface ITimeSeriesQueries<T> {
+export interface ITimeSeriesQueries<T> extends Iterable<{height: number | null; value: T;}> {
   get(height: number): T;
   isEmpty(): boolean;
   latestValue(): T;
@@ -31,7 +31,7 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
         throw new Error('value was already set at that height');
       }
 
-      if (this.points.length && this.points[0].value === value) {
+      if (this.query.latestValue() === value) {
         throw new Error(`value was already set to ${value}`);
       }
 
@@ -59,6 +59,10 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
   };
 
   public readonly query: ITimeSeriesQueries<T> = {
+    [Symbol.iterator]: (): Iterator<{height: number | null; value: T;}> => {
+      return this.history();
+    },
+
     get: (height: number): T => {
       TimeSeries.checkHeight(height);
 
@@ -101,5 +105,13 @@ export class TimeSeries<T = boolean> implements ITimeSeries<T> {
     const cloned = new TimeSeries<T>(this.initialValue);
     cloned.points = deepClone(this.points);
     return cloned;
+  }
+
+  private *history(): Iterator<{height: number | null; value: T;}> {
+    yield { height: null, value: this.initialValue };
+
+    for (const point of this.points.slice(0).reverse()) {
+      yield point;
+    }
   }
 }

@@ -10,13 +10,15 @@ const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
 const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const keyId2 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
 
-export const assertEqualAuthEntries = (actual: IKeyData[], expected: IKeyData[]): void => {
+export const assertEqualAuthEntries = (actual: IKeyData[], expected: Partial<IKeyData>[]): void => {
   expect(actual).toHaveLength(expected.length);
 
   for (let i = 0; i < actual.length; i += 1) {
-    assertStringlyEqual(actual[i].auth, expected[i].auth);
+    expect(actual[i].index).toBe(expected[i].index ?? -1);
+    assertStringlyEqual(actual[i].auth, expected[i].auth ?? 'nomatch');
+    expect(actual[i].validFromHeight).toBe(expected[i].validFromHeight ?? null);
+    expect(actual[i].validUntilHeight).toBe(expected[i].validUntilHeight ?? null);
     expect(actual[i].valid).toBe(expected[i].valid);
-    expect(actual[i].validUntilHeight).toBe(expected[i].validUntilHeight);
   }
 };
 
@@ -40,7 +42,7 @@ describe('DidDocumentState', () => {
 
     const didData = didDoc.toData();
     assertEqualAuthEntries(didData.keys, [
-      { auth: defaultKeyId.toString(), revoked: false, valid: true },
+      { index: 0, auth: defaultKeyId.toString(), valid: true },
     ]);
   });
 
@@ -55,19 +57,17 @@ describe('DidDocumentState', () => {
       const stateAtHeight1 = didState.query.getAt(1);
       expect(stateAtHeight1.height).toBe(1);
       expect(stateAtHeight1.did).toBe(did);
-      assertEqualAuthEntries(stateAtHeight1.toData().keys, [{
-        auth: defaultKeyId.toString(),
-        revoked: false,
-        valid: true,
-      }]);
+      assertEqualAuthEntries(stateAtHeight1.toData().keys, [
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
+      ]);
 
       didState.apply.addKey(2, keyId1);
       const stateAtHeight2 = didState.query.getAt(2);
       expect(stateAtHeight2.height).toBe(2);
       expect(stateAtHeight2.did).toBe(did);
       assertEqualAuthEntries(stateAtHeight2.toData().keys, [
-        { auth: defaultKeyId.toString(), revoked: false, valid: true },
-        { auth: keyId1.toString(), revoked: false, valid: true },
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
+        { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },
       ]);
 
       didState.apply.addKey(5, keyId2, 10);
@@ -75,18 +75,18 @@ describe('DidDocumentState', () => {
       expect(stateAtHeight5.height).toBe(5);
       expect(stateAtHeight5.did).toBe(did);
       assertEqualAuthEntries(stateAtHeight5.toData().keys, [
-        { auth: defaultKeyId.toString(), revoked: false, valid: true },
-        { auth: keyId1.toString(), revoked: false, valid: true },
-        { auth: keyId2.toString(), revoked: false, valid: true, validUntilHeight: 10 },
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
+        { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },
+        { index: 2, auth: keyId2.toString(), validFromHeight: 5, validUntilHeight: 10, valid: true },
       ]);
 
       const stateAtHeight10 = didState.query.getAt(10);
       expect(stateAtHeight10.height).toBe(10);
       expect(stateAtHeight10.did).toBe(did);
       assertEqualAuthEntries(stateAtHeight10.toData().keys, [
-        { auth: defaultKeyId.toString(), revoked: false, valid: true },
-        { auth: keyId1.toString(), revoked: false, valid: true },
-        { auth: keyId2.toString(), revoked: false, valid: false, validUntilHeight: 10 },
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
+        { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },
+        { index: 2, auth: keyId2.toString(), validFromHeight: 5, validUntilHeight: 10, valid: false },
       ]);
     });
 
@@ -97,35 +97,36 @@ describe('DidDocumentState', () => {
 
       const stateAtHeight5 = didState.query.getAt(5);
       assertEqualAuthEntries(stateAtHeight5.toData().keys, [
-        { auth: defaultKeyId.toString(), revoked: false, valid: true },
-        { auth: keyId1.toString(), revoked: false, valid: false },
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
+        { index: 1, auth: keyId1.toString(), validFromHeight: 2, validUntilHeight: 5, valid: false },
       ]);
     });
 
     it('revoked keys has no rights', () => {
       didState.apply.addKey(2, keyId1);
       didState.apply.addRight(3, keyId1, Right.Update);
+
       didState.apply.revokeKey(5, keyId1);
 
-      const stateAtHeight4 = didState.query.getAt(4);
-      expect(stateAtHeight4.hasRight(keyId1, Right.Update)).toBeTruthy();
-
-      const stateAtHeight5 = didState.query.getAt(5);
-      expect(stateAtHeight5.hasRight(keyId1, Right.Update)).toBeFalsy();
+      const doc4 = didState.query.getAt(4);
+      expect(doc4.hasRightAt(keyId1, Right.Update, 4)).toBeTruthy();
+      const doc5 = didState.query.getAt(5);
+      expect(doc5.hasRightAt(keyId1, Right.Update, 4)).toBeTruthy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 5)).toBeFalsy();
     });
 
     it('adding keys can be reverted', () => {
       didState.apply.addKey(2, keyId1);
       const stateAtHeight2 = didState.query.getAt(2);
       assertEqualAuthEntries(stateAtHeight2.toData().keys, [
-        { auth: defaultKeyId.toString(), revoked: false, valid: true },
-        { auth: keyId1.toString(), revoked: false, valid: true },
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
+        { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },
       ]);
 
       didState.revert.addKey(2, keyId1);
       const stateAtHeight5 = didState.query.getAt(2);
       assertEqualAuthEntries(stateAtHeight5.toData().keys, [
-        { auth: defaultKeyId.toString(), revoked: false, valid: true },
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
       ]);
     });
 
@@ -163,8 +164,8 @@ describe('DidDocumentState', () => {
 
       const stateAtHeight5 = didState.query.getAt(5);
       assertEqualAuthEntries(stateAtHeight5.toData().keys, [
-        { auth: defaultKeyId.toString(), revoked: false, valid: true },
-        { auth: keyId1.toString(), revoked: false, valid: true },
+        { index: 0, auth: defaultKeyId.toString(), valid: true },
+        { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },
       ]);
     });
   });
@@ -172,9 +173,25 @@ describe('DidDocumentState', () => {
   describe('Right Management', () => {
     it('can add rights', () => {
       didState.apply.addKey(2, keyId1);
+
       didState.apply.addRight(5, keyId1, Right.Update);
-      expect(didState.query.getAt(2).hasRight(keyId1, Right.Update)).toBeFalsy();
-      expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeTruthy();
+
+      const doc5 = didState.query.getAt(5);
+      expect(doc5.hasRightAt(keyId1, Right.Update, 1)).toBeFalsy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 2)).toBeFalsy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 3)).toBeFalsy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 4)).toBeFalsy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 5)).toBeTruthy();
+    });
+
+    it('cannot add existing right to a key', () => {
+      didState.apply.addKey(2, keyId1);
+      didState.apply.addRight(5, keyId1, Right.Update);
+
+      expect(() => {
+        return didState.apply.addRight(7, keyId1, Right.Update);
+      })
+        .toThrowError(`right ${Right.Update} was already granted to ${keyId1} on DID ${did} at height 7`);
     });
 
     it('cannot add right to a key that has not been added', () => {
@@ -186,13 +203,17 @@ describe('DidDocumentState', () => {
 
     it('can revoke rights', () => {
       didState.apply.addKey(2, keyId1);
-
       didState.apply.addRight(3, keyId1, Right.Update);
-      expect(didState.query.getAt(3).hasRight(keyId1, Right.Update)).toBeTruthy();
+      expect(didState.query.getAt(3).hasRightAt(keyId1, Right.Update, 3)).toBeTruthy();
 
       didState.apply.revokeRight(5, keyId1, Right.Update);
-      expect(didState.query.getAt(4).hasRight(keyId1, Right.Update)).toBeTruthy();
-      expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeFalsy();
+
+      const doc5 = didState.query.getAt(5);
+      expect(doc5.hasRightAt(keyId1, Right.Update, 1)).toBeFalsy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 2)).toBeFalsy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 3)).toBeTruthy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 4)).toBeTruthy();
+      expect(doc5.hasRightAt(keyId1, Right.Update, 5)).toBeFalsy();
     });
 
     it('cannot revoke right to a key that has not been added', () => {
@@ -208,7 +229,7 @@ describe('DidDocumentState', () => {
       expect(() => {
         didState.apply.revokeRight(5, keyId1, Right.Update);
       }).toThrowError(
-        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 5`,
+        `right ${Right.Update} cannot be revoked from ${keyId1} on DID ${did} as it was not present at height 5`,
       );
     });
 
@@ -219,39 +240,44 @@ describe('DidDocumentState', () => {
       expect(() => {
         didState.apply.revokeRight(3, keyId1, Right.Update);
       }).toThrowError(
-        `right ${Right.Update} cannot be revoked from ${keyId1} as it was not present at height 3`,
-      ); // by default it's false
+        `right ${Right.Update} cannot be revoked from ${keyId1} on DID ${did} as it was not present at height 3`,
+      ); // by default the just added key does not have any rights
     });
 
     it('adding rights can be reverted', () => {
       didState.apply.addKey(2, keyId1);
-
       didState.apply.addRight(5, keyId1, Right.Update);
-      expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeTruthy();
+      expect(didState.query.getAt(5).hasRightAt(keyId1, Right.Update, 5)).toBeTruthy();
 
       didState.revert.addRight(5, keyId1, Right.Update);
-      expect(didState.query.getAt(5).hasRight(keyId1, Right.Update)).toBeFalsy();
+
+      expect(didState.query.getAt(5).hasRightAt(keyId1, Right.Update, 5)).toBeFalsy();
     });
 
     it('revoking rights can be reverted', () => {
       didState.apply.addKey(2, keyId1);
-
       didState.apply.addRight(5, keyId1, Right.Update);
       didState.apply.revokeRight(6, keyId1, Right.Update);
-      expect(didState.query.getAt(6).hasRight(keyId1, Right.Update)).toBeFalsy();
+      expect(didState.query.getAt(6).hasRightAt(keyId1, Right.Update, 6)).toBeFalsy();
 
       didState.revert.revokeRight(6, keyId1, Right.Update);
-      expect(didState.query.getAt(6).hasRight(keyId1, Right.Update)).toBeTruthy();
+
+      expect(didState.query.getAt(6).hasRightAt(keyId1, Right.Update, 6)).toBeTruthy();
     });
   });
 
   describe('Tombstoning', () => {
     it('did can be tombstoned', () => {
       didState.apply.tombstone(5);
+
       const doc4 = didState.query.getAt(4);
-      const doc5 = didState.query.getAt(5);
       expect(doc4.toData().tombstoned).toBeFalsy();
+      expect(doc4.isTombstonedAt(4)).toBeFalsy();
+
+      const doc5 = didState.query.getAt(5);
       expect(doc5.toData().tombstoned).toBeTruthy();
+      expect(doc5.isTombstonedAt(4)).toBeFalsy();
+      expect(doc5.isTombstonedAt(5)).toBeTruthy();
     });
 
     it('keys in a tombstoned did have no rights', () => {
@@ -259,21 +285,27 @@ describe('DidDocumentState', () => {
       didState.apply.addRight(4, keyId1, Right.Update);
 
       didState.apply.tombstone(5);
+
+      const checkHistoryAt4 = (doc: Operations.OperationData.IDidDocument): void => {
+        expect(doc.isTombstonedAt(4)).toBeFalsy();
+        expect(doc.hasRightAt(keyId1, Right.Update, 4)).toBeTruthy();
+        expect(doc.hasRightAt(defaultKeyId, Right.Update, 4)).toBeTruthy();
+        expect(doc.hasRightAt(defaultKeyId, Right.Impersonate, 4)).toBeTruthy();
+      };
+
+      const checkHistoryAt5 = (doc: Operations.OperationData.IDidDocument): void => {
+        expect(doc.isTombstonedAt(5)).toBeTruthy();
+        expect(doc.hasRightAt(keyId1, Right.Update, 5)).toBeFalsy();
+        expect(doc.hasRightAt(defaultKeyId, Right.Update, 5)).toBeFalsy();
+        expect(doc.hasRightAt(defaultKeyId, Right.Impersonate, 5)).toBeFalsy();
+      };
+
       const doc4 = didState.query.getAt(4);
-      expect(doc4.toData().tombstoned).toBeFalsy();
-      expect(doc4.hasRight(keyId1, Right.Update)).toBeTruthy();
-      expect(doc4.hasRight(defaultKeyId, Right.Update)).toBeTruthy();
-      expect(doc4.hasRight(defaultKeyId, Right.Impersonate)).toBeTruthy();
-      expect(doc4.toData().rights[Right.Update]).toStrictEqual([ 0, 1 ]);
-      expect(doc4.toData().rights[Right.Impersonate]).toStrictEqual([0]);
+      checkHistoryAt4(doc4);
 
       const doc5 = didState.query.getAt(5);
-      expect(doc5.toData().tombstoned).toBeTruthy();
-      expect(doc5.hasRight(keyId1, Right.Update)).toBeFalsy();
-      expect(doc5.hasRight(defaultKeyId, Right.Update)).toBeFalsy();
-      expect(doc5.hasRight(defaultKeyId, Right.Impersonate)).toBeFalsy();
-      expect(doc5.toData().rights[Right.Update]).toHaveLength(0);
-      expect(doc5.toData().rights[Right.Impersonate]).toHaveLength(0);
+      checkHistoryAt4(doc5);
+      checkHistoryAt5(doc5);
     });
 
     it('tombstoned did cannot be updated', () => {
@@ -311,10 +343,10 @@ describe('DidDocumentState', () => {
 
     it('tombstoned did can be reverted', () => {
       didState.apply.tombstone(5);
-      expect(didState.query.getAt(5).isTombstoned()).toBeTruthy();
+      expect(didState.query.getAt(5).isTombstonedAt(5)).toBeTruthy();
 
       didState.revert.tombstone(5);
-      expect(didState.query.getAt(5).isTombstoned()).toBeFalsy();
+      expect(didState.query.getAt(5).isTombstonedAt(5)).toBeFalsy();
     });
   });
 });

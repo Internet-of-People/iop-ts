@@ -40,6 +40,12 @@ describe('empty series', () => {
     series = new TimeSeries(false);
   });
 
+  it('set to initial value throws', () => {
+    expect(() => {
+      return series.apply.set(2, false);
+    }).toThrowError('value was already set to false');
+  });
+
   it('returns initial value for valid heights', () => {
     const seriesInitiallyFalse: ITimeSeries = new TimeSeries(false);
     expect(seriesInitiallyFalse.query.get(0)).toBeFalsy();
