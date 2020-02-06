@@ -22,11 +22,11 @@ describe('DidDocument', () => {
   rights[Right.Update] = [
     { keyLink: '#0', history: [{ height: null, valid: true }], valid: true },
   ];
-  const atHeight = 1;
+  const queriedAtHeight = 1;
 
   it('hasRight trivial', () => {
     const doc1 = new DidDocument.DidDocument(
-      { did, keys, rights, atHeight, tombstonedAtHeight: null, tombstoned: false },
+      { did, keys, rights, queriedAtHeight, tombstonedAtHeight: null, tombstoned: false },
     );
 
     expect(doc1.hasRightAt(defaultKeyId, Right.Impersonate, 1)).toBeTruthy();
@@ -88,9 +88,14 @@ describe('DidDocument', () => {
         valid: true,
       },
     ];
-    const doc10 = new DidDocument.DidDocument(
-      { did, keys: keys2, rights: rights2, atHeight: 10, tombstonedAtHeight: null, tombstoned: false },
-    );
+    const doc10 = new DidDocument.DidDocument({
+      did,
+      keys: keys2,
+      rights: rights2,
+      queriedAtHeight: 10,
+      tombstonedAtHeight: null,
+      tombstoned: false,
+    });
 
     expect(doc10.hasRightAt(defaultKeyId, Right.Impersonate, 1)).toBeTruthy();
     expect(doc10.hasRightAt(defaultKeyId, Right.Impersonate, 3)).toBeFalsy();
@@ -112,16 +117,23 @@ describe('DidDocument', () => {
       did,
       keys: [],
       rights: {} as IRightsMap<IKeyRightHistory[]>,
-      atHeight,
+      queriedAtHeight,
       tombstonedAtHeight: null,
       tombstoned: false,
     });
     expect(doc.toData().keys).toHaveLength(0);
     expect(doc.toData().did).toBe(did);
-    expect(doc.toData().atHeight).toBe(1);
+    expect(doc.toData().queriedAtHeight).toBe(1);
     expect(Object.keys(doc.toData().rights).length).toBe(0);
 
-    doc.fromData({ did, keys, rights, atHeight, tombstonedAtHeight: null, tombstoned: false });
+    doc.fromData({
+      did,
+      keys,
+      rights,
+      queriedAtHeight,
+      tombstonedAtHeight: null,
+      tombstoned: false,
+    });
 
     expect(doc.toData().did).toBe(did);
     expect(doc.toData().keys).toHaveLength(1);
@@ -138,20 +150,35 @@ describe('DidDocument', () => {
     expect(doc.toData().rights[Right.Update][0]).toStrictEqual(
       { keyLink: '#0', history: [{ height: null, valid: true }], valid: true },
     );
-    expect(doc.toData().atHeight).toBe(1);
+    expect(doc.toData().queriedAtHeight).toBe(1);
     expect(doc.toData().tombstonedAtHeight).toBe(null);
     expect(doc.toData().tombstoned).toBeFalsy();
   });
 
   it('did can be tombstoned', () => {
     const doc = new DidDocument.DidDocument(
-      { did, keys, rights, atHeight: 3, tombstonedAtHeight: 2, tombstoned: true },
+      { did, keys, rights, queriedAtHeight: 3, tombstonedAtHeight: 2, tombstoned: true },
     );
 
     expect(doc.isTombstonedAt(1)).toBeFalsy();
     expect(doc.isTombstonedAt(2)).toBeTruthy();
-    expect(doc.toData().atHeight).toBe(3);
+    expect(doc.toData().queriedAtHeight).toBe(3);
     expect(doc.toData().tombstonedAtHeight).toBe(2);
     expect(doc.toData().tombstoned).toBeTruthy();
+  });
+
+  it('throws if rights or tombstone state is queried ', () => {
+    const doc = new DidDocument.DidDocument(
+      { did, keys, rights, queriedAtHeight: 3, tombstonedAtHeight: null, tombstoned: false },
+    );
+
+    expect(() => {
+      return doc.hasRightAt(defaultKeyId, Right.Impersonate, 10);
+    }).toThrowError(
+      'Cannot query at 10, latest block seen was 3',
+    );
+    expect(() => {
+      return doc.isTombstonedAt(10);
+    }).toThrowError('Cannot query at 10, latest block seen was 3');
   });
 });

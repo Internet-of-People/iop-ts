@@ -2,10 +2,13 @@ import Optional from 'optional-js';
 
 import { Authentication, Did, Right, IDidDocument, IState, IMorpheusAsset, IOperationData } from './index';
 
-export interface IStateChange {
-  asset: IMorpheusAsset;
+export interface IBlockHeightChange {
   blockHeight: number;
   blockId: string;
+}
+
+export interface IStateChange extends IBlockHeightChange {
+  asset: IMorpheusAsset;
   transactionId: string;
 }
 
@@ -13,13 +16,16 @@ export const MORPHEUS_STATE_HANDLER_COMPONENT_NAME = 'morpheus-state-handler';
 
 export interface IMorpheusStateHandler {
   readonly query: IMorpheusQueries;
-  readonly lastSeenBlockHeight: number;
   dryRun(operationAttempts: IOperationData[]): IDryRunOperationError[];
+  applyEmptyBlockToState(change: IBlockHeightChange): void;
   applyTransactionToState(stateChange: IStateChange): void;
+  revertEmptyBlockFromState(change: IBlockHeightChange): void;
   revertTransactionFromState(stateChange: IStateChange): void;
 }
 
 export interface IMorpheusOperations {
+  setLastSeenBlockHeight(height: number): void;
+
   registerBeforeProof(contentId: string, height: number): void;
   revokeBeforeProof(contentId: string, height: number): void;
 
@@ -68,6 +74,7 @@ export interface IMorpheusOperations {
 }
 
 export interface IMorpheusQueries {
+  lastSeenBlockHeight(): number;
   beforeProofExistsAt(contentId: string, height?: number): boolean;
   isConfirmed(transactionId: string): Optional<boolean>;
   getDidDocumentAt(did: Did, height: number): IDidDocument;

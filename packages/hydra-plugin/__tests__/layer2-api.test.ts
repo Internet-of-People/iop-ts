@@ -205,6 +205,7 @@ describe('Layer2API', () => {
   });
 
   it('can query implicit did', async() => {
+    fixture.stateHandler.applyEmptyBlockToState({ blockHeight: 100, blockId: 'SomeBlockId' });
     const res = await hapiServer.inject({ method: 'get', url: `/did/${did}/document` });
     expect(res.statusCode).toBe(200);
     const data = JSON.parse(res.payload) as Interfaces.IDidDocumentData;
@@ -212,7 +213,7 @@ describe('Layer2API', () => {
 
     expect(data.keys).toHaveLength(1);
     expect(data.keys[0].auth).toStrictEqual(defaultKeyId.toString());
-    expect(doc.height).toBe(0);
+    expect(doc.height).toBe(100); // the current chain height
     expect(doc.did).toBe(did);
     expect(doc.hasRightAt(defaultKeyId, Right.Impersonate, 0)).toBeTruthy();
     expect(doc.hasRightAt(defaultKeyId, Right.Update, 0)).toBeTruthy();
@@ -250,7 +251,7 @@ describe('Layer2API', () => {
     const res10 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${10}` });
     expect(res10.statusCode).toBe(200);
     const doc10 = JSON.parse(res10.payload) as Interfaces.IDidDocumentData;
-    expect(doc10.atHeight).toBe(10);
+    expect(doc10.queriedAtHeight).toBe(10);
     expect(doc10.keys).toHaveLength(2);
     expect(doc10.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(doc10.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
@@ -260,7 +261,7 @@ describe('Layer2API', () => {
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${15}` });
     expect(res15.statusCode).toBe(200);
     const doc15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
-    expect(doc15.atHeight).toBe(15);
+    expect(doc15.queriedAtHeight).toBe(15);
     expect(doc15.keys).toHaveLength(2);
     expect(doc15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(doc15.keys[1].auth.toString()).toStrictEqual(keyId1.toString());

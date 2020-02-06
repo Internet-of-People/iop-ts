@@ -68,7 +68,7 @@ export class DidDocument implements IDidDocument {
   }
 
   public get height(): number {
-    return this.data.atHeight;
+    return this.data.queriedAtHeight;
   }
 
   public get did(): Did {

@@ -25,9 +25,13 @@ export class Layer2API {
         path: '/did/{did}/document/{blockHeight?}',
         handler: (request: Request): Lifecycle.ReturnValue => {
           const { params: { did, blockHeight } } = request;
-          this.log.debug(`Getting DID document for ${did}`);
-          const height = safePathInt(blockHeight) || this.stateHandler.lastSeenBlockHeight;
-          const document = this.stateHandler.query.getDidDocumentAt(did, height);
+          // Note: StateStore is notified about new blocks so it's impossible to get an undefined back
+          const lastSeenBlockHeight: number = this.stateHandler.query.lastSeenBlockHeight();
+          const queryAtHeight = safePathInt(blockHeight) || lastSeenBlockHeight;
+          this.log.debug(
+            `Getting DID document for ${did} at height ${queryAtHeight}, blockchain height is ${lastSeenBlockHeight}`,
+          );
+          const document = this.stateHandler.query.getDidDocumentAt(did, queryAtHeight);
           return document.toData();
         },
       },

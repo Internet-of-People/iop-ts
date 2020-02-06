@@ -14,9 +14,14 @@ import {
 } from '../interfaces';
 import { BeforeProofState } from './operations/before-proof';
 import { DidDocumentState } from './operations/did-document';
+import { MorpheusStateHandler } from './state-handler';
 
 export class MorpheusState implements IMorpheusState {
   public readonly query: IMorpheusQueries = {
+    lastSeenBlockHeight: (): number => {
+      return this.lastSeenBlockHeight;
+    },
+
     isConfirmed: (transactionId: string): Optional<boolean> => {
       return Optional.ofNullable(this.confirmedTxs.get(transactionId));
     },
@@ -34,6 +39,15 @@ export class MorpheusState implements IMorpheusState {
   };
 
   public readonly apply: IMorpheusOperations = {
+    setLastSeenBlockHeight: (height: number): void => {
+      if (height < this.lastSeenBlockHeight) {
+        throw new Error(
+          `${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: the applied height is < last seen height.`,
+        );
+      }
+      this.lastSeenBlockHeight = height;
+    },
+
     confirmTx: (transactionId: string): void => {
       this.setConfirmTx(transactionId, true);
     },
@@ -95,6 +109,15 @@ export class MorpheusState implements IMorpheusState {
   };
 
   public readonly revert: IMorpheusOperations = {
+    setLastSeenBlockHeight: (height: number): void => {
+      if (height > this.lastSeenBlockHeight) {
+        throw new Error(
+          `${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: the reverted height is > last seen height.`,
+        );
+      }
+      this.lastSeenBlockHeight = height;
+    },
+
     confirmTx: (transactionId: string): void => {
       const confirmed = this.query.isConfirmed(transactionId);
 
@@ -185,6 +208,7 @@ export class MorpheusState implements IMorpheusState {
   private confirmedTxs: Map<string, boolean> = new Map();
   private beforeProofs: Map<string, IBeforeProofState> = new Map();
   private didDocuments: Map<Did, IDidDocumentState> = new Map();
+  private lastSeenBlockHeight = 0;
 
   public clone(): IMorpheusState {
     const cloned = new MorpheusState();
@@ -203,6 +227,7 @@ export class MorpheusState implements IMorpheusState {
       clonedDidDocuments.set(key, value.clone());
     }
     cloned.didDocuments = clonedDidDocuments;
+    cloned.lastSeenBlockHeight = this.lastSeenBlockHeight;
 
     return cloned;
   }

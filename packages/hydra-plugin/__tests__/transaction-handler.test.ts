@@ -19,13 +19,15 @@ class Fixture {
 
   public stateHandlerMock = {
     query: {
+      lastSeenBlockHeight: jest.fn<number, []>(),
       beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
       getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Interfaces.Did, number]>(),
     },
+    applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
+    revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
-    lastSeenBlockHeight: 0,
     dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Interfaces.IOperationData[]]>(),
   };
   public stateHandler = this.stateHandlerMock as Interfaces.IMorpheusStateHandler;

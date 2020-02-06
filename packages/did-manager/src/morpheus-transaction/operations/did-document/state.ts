@@ -162,7 +162,14 @@ export class DidDocumentState implements IDidDocumentState {
       const tombstoned = this.tombstoneHistory.query.get(height);
       const tombstonedAtHeight = optionalToNullable(this.tombstoneHistory.query.latestHeight());
 
-      return new DidDocument({ did: this.did, keys, rights, atHeight: height, tombstoned, tombstonedAtHeight });
+      return new DidDocument({
+        did: this.did,
+        keys,
+        rights,
+        tombstoned,
+        tombstonedAtHeight,
+        queriedAtHeight: height,
+      });
     },
   };
 

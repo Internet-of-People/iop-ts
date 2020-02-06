@@ -68,16 +68,14 @@ export interface IKeyRightHistory {
   valid: boolean; // NOTE: contains derived information based on other fields and `atHeight`
 }
 
-// TODO: this will be returned to the user by the layer-2. Please then follow the structure defined here:
-// https://iop-stack.gitlab.iop-ventures.com/dids-and-claims/specification/#/glossary?id=did-document
-// or create a DTO for it
+// The interface that the Layer-2 will return to clients
 export interface IDidDocumentData {
   did: Did;
   keys: IKeyData[];
   rights: IRightsMap<IKeyRightHistory[]>; // contains key indexes from the keys property
-  atHeight: number;
   tombstonedAtHeight: number | null;
   tombstoned: boolean; // NOTE: contains derived information based on other fields and `atHeight`
+  queriedAtHeight: number;
 }
 
 export interface IDidDocument {
