@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.test.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true // Some @arkecosystem dependencies fail with strictNullChecks
+  },
+  "include": [
+    "__tests__", "**/**.spec.ts", "**/**.test.ts"
+  ],
+  "exclude": [
+    "node_modules", "dist"
+  ]
+}

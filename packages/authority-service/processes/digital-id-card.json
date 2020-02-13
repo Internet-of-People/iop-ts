@@ -1,0 +1,55 @@
+{
+  "name": "Digitalize ID card",
+  "version": 1,
+  "description": "Using a selfie with your ID card we make that piece of plastic obsolete.",
+  "claimSchema": {
+    "type": "object",
+    "required": [ "address", "placeOfBirth", "dateOfBirth" ],
+    "description": "We need you to provide some personal data presented on your ID card.",
+    "properties": {
+      "address": {
+        "type": "string",
+        "maskable": true,
+        "description": "Eg. Berlin, Germany"
+      },
+      "placeOfBirth": {
+        "type": "object",
+        "required": [ "country", "city" ],
+        "maskable": true,
+        "properties": {
+          "country": {
+            "type": "string",
+            "maskable": true,
+            "description": "Eg. Germany"
+          },
+          "city": {
+            "type": "string",
+            "maskable": true,
+            "description": "Eg. Berlin",
+            "minLength": 2,
+            "maxLength": 50
+          }
+        }
+      },
+      "dateOfBirth": {
+        "type": "string",
+        "subtype": "date",
+        "pattern": "^(0[1-9]|1[0-9]|2[0-9]|3[0-1])\\\/(0[1-9]|1[0-2])\\\/(\\d{4})$",
+        "maskable": true
+      }
+    }
+  },
+  "evidenceSchema": {
+    "type": "object",
+    "required": ["photo"],
+    "description": "We need a selfie of you while holding your ID card that contains your address, place of birth, date of birth and your photo.",
+    "properties": {
+      "photo": {
+        "type": "string",
+        "subtype": "photo",
+        "description": "A Base64 encoded photo blob"
+      }
+    }
+  },
+  "constraintsSchema": null
+}

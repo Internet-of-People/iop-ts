@@ -1,0 +1,25 @@
+{
+  "content": {
+    "claim": {
+      "subject": "did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr",
+      "content": {
+        "address": "address",
+        "dateOfBirth": "15/02/2002",
+        "placeOfBirth": {
+          "city": "city ",
+          "country": "country "
+        }
+      }
+    },
+    "claimant": "did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr#0",
+    "processId": "cjunI8lB1BEtampkcvotOpF-zr1XmsCRNvntciGl3puOkg",
+    "evidence": {
+      "photo": "HOSSZU VMI"
+    },
+    "nonce": "u1U9fIy/AE2sIA1Xi3523NzSsMnJrVU3Tv+q4rlGyhluQ"
+  },
+  "signature": {
+    "publicKey": "pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6",
+    "bytes": "sezAL1K1pPmXeEe3bjMCSgDtqJujcKQN1kecWizdPzRnhsZqtgC59gmHqR4D4VaQbC9KuiCmjhQw876NcQDBbYV8tEx"
+  }
+}

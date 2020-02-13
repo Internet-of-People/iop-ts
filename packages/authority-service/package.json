@@ -1,21 +1,17 @@
 {
-  "name": "@internet-of-people/did-manager",
+  "name": "@internet-of-people/authority-service",
   "version": "0.1.0-alpha.1",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "Business model and a Hydra transaction type for managing DIDs on chain",
+  "description": "A simplistic authority service for Morpheus",
   "repository": "https://github.com/internet-of-people/morpheus-ts",
-  "license": "LGPL-3.0-or-later",
-  "main": "dist/index",
-  "module": "dist/index",
-  "browser": "dist/index",
-  "types": "dist/index",
-  "files": [
-    "dist"
-  ],
+  "license": "AGPL-1.0-or-later",
+  "main": "./dist/src/main.js",
+  "typings": "./dist/src/main.d.ts",
+  "private": true,
   "scripts": {
     "build": "npm run build:src && npm run build:test",
     "build:src": "tsc -p . ",
@@ -25,40 +21,44 @@
     "lint:test": "eslint -c ../../eslintrc.test.json --fix \"./__tests__/**\"",
     "clean": "rimraf dist && rimraf node_modules",
     "test": "jest --detectOpenHandles --no-cache",
-    "test:watch": "jest --detectOpenHandles --no-cache --watch"
+    "test:watch": "jest --detectOpenHandles --no-cache --watch",
+    "serve": "npm run build:src && node ."
   },
   "jest": {
     "preset": "ts-jest",
     "verbose": true,
-    "testPathIgnorePatterns": ["__tests__/utils.ts"]
+    "testPathIgnorePatterns": [
+      "__tests__/utils.ts"
+    ]
   },
   "dependencies": {
-    "@arkecosystem/core-interfaces": "^2.6.0-next.6",
-    "@arkecosystem/crypto": "^2.6.0-next.6",
-    "@internet-of-people/keyvault": "0.1.0-alpha.1",
-    "@internet-of-people/logger": "0.1.0-alpha.1",
-    "bytebuffer": "5.0.1",
+    "body-parser": "1.19.0",
+    "express": "4.17.1",
     "json-stable-stringify": "1.0.1",
-    "lodash.clonedeep": "4.5.0",
-    "optional-js": "2.1.1",
-    "socketcluster": "^14.3.5",
-    "socketcluster-client": "^14.2.2"
+    "bigint-hash": "0.2.2",
+    "multibase": "0.6.0",
+    "moment": "2.24.0",
+    "sqlite": "3.0.3",
+    "sql-template-strings": "2.2.2"
   },
   "devDependencies": {
-    "@types/bytebuffer": "5.0.40",
+    "@types/multibase": "0.6.0",
+    "@types/express": "4.17.1",
     "@types/jest": "24.0.23",
-    "@types/lodash.clonedeep": "4.5.6",
-    "@types/socketcluster": "^14.0.2",
-    "@types/socketcluster-client": "^13.0.3",
     "@types/json-stable-stringify": "1.0.32",
+    "@types/supertest": "2.0.4",
     "@typescript-eslint/eslint-plugin": "2.11.0",
     "@typescript-eslint/parser": "2.11.0",
-    "eslint": "6.7.2",
     "eslint-plugin-import": "2.19.1",
-    "jest": "24.9.0",
+    "eslint": "6.7.2",
+    "husky": "3.1.0",
     "jest-extended": "0.11.2",
+    "jest": "24.9.0",
+    "lerna": "3.18.5",
     "rimraf": "3.0.0",
+    "supertest": "4.0.2",
     "ts-jest": "24.1.0",
+    "typedoc": "0.15.0",
     "typescript": "3.7.2"
   }
 }
