@@ -5,14 +5,16 @@ import { SqliteStorage } from '../src/storage-sqlite';
 import { Service } from '../src/service';
 import { Server } from '../src/server';
 import { addProcesses } from '../src/config';
-import { IProcess } from '../src/sdk';
+import { IProcess, nonce264, ISigned, IWitnessRequest } from '../src/sdk';
 import { CapabilityLink, IRequestStatus } from '../src/api';
 
 import req1 from './signedWitnessRequest1.json';
+import stmt2 from './signedWitnessStatement1.json';
 
 describe('Service', () => {
   const dbFilename = 'db/test.sqlite';
   let cap1: CapabilityLink | null = null;
+  let cap2: CapabilityLink | null = null;
 
   const createStorage = async(): Promise<SqliteStorage> => {
     return SqliteStorage.open(dbFilename);
@@ -124,5 +126,42 @@ describe('Service', () => {
         expect(body.signedStatement).toBeNull();
         expect(body.rejectionReason).toBe('Just because');
       });
+  });
+
+  it('sending in the request with a different nonce', async() => {
+    const server = await createServer();
+    expect(cap1).not.toBeNull();
+    const req2: ISigned<IWitnessRequest> = { ...req1 };
+    (req2.content as IWitnessRequest).nonce = nonce264();
+    await request(server.app)
+      .post('/requests')
+      .send(req1)
+      .expect((res: request.Response) => {
+        expect(res.status).toBe(202);
+        const { body } = res;
+        expect(body.capabilityLink).toMatch(/^u[A-Za-z0-9\-_]+$/);
+        expect(body.capabilityLink).not.toBe(cap1);
+        cap2 = body.capabilityLink;
+      });
+  });
+
+  it('approving request 2', async() => {
+    const server = await createServer();
+    expect(cap2).not.toBeNull();
+    await request(server.app)
+      .post(`/requests/${cap2}/approve`)
+      .send(stmt2)
+      .expect((res: request.Response) => {
+        expect(res.status).toBe(200);
+      });
+  });
+
+  it('rejecting approved request fails', async() => {
+    const server = await createServer();
+    expect(cap2).not.toBeNull();
+    await request(server.app)
+      .post(`/requests/${cap2}/reject`)
+      .send({ rejectionReason: 'Cause I can' })
+      .expect(400);
   });
 });

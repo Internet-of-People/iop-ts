@@ -1,5 +1,5 @@
 import { readdirSync, Dirent, readFileSync } from 'fs';
-import path from "path";
+import path from 'path';
 
 import { IProcess } from './sdk';
 import { addProcessSchemas } from './storage';

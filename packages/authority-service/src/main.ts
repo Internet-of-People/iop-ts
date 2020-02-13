@@ -1,4 +1,4 @@
-import process from "process";
+import process from 'process';
 
 import { Server } from './server';
 import { Service } from './service';
