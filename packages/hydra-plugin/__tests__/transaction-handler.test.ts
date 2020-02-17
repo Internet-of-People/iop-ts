@@ -25,6 +25,7 @@ class Fixture {
       beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
       getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Interfaces.Did, number]>(),
+      getDidTransactionIds: jest.fn<Interfaces.TransactionId[], [Interfaces.Did, boolean, number, number]>(),
     },
     applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),

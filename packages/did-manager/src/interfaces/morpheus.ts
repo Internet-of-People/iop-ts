@@ -1,6 +1,9 @@
 import Optional from 'optional-js';
-
-import { Authentication, Did, Right, IDidDocument, IState, IMorpheusAsset, IOperationData } from './index';
+import { IMorpheusAsset } from './asset';
+import { Authentication, Did, Right, IDidDocument, TransactionId } from './did-document';
+import { Operation } from './operation';
+import { IOperationData } from './operation-data';
+import { IState } from './state';
 
 export interface IBlockHeightChange {
   blockHeight: number;
@@ -25,6 +28,7 @@ export interface IMorpheusStateHandler {
 
 export interface IMorpheusOperations {
   setLastSeenBlockHeight(height: number): void;
+  registerOperationAttempt(height: number, transactionId: string, operation: Operation): void;
 
   registerBeforeProof(contentId: string, height: number): void;
   revokeBeforeProof(contentId: string, height: number): void;
@@ -78,6 +82,8 @@ export interface IMorpheusQueries {
   beforeProofExistsAt(contentId: string, height?: number): boolean;
   isConfirmed(transactionId: string): Optional<boolean>;
   getDidDocumentAt(did: Did, height: number): IDidDocument;
+  getDidTransactionIds(did: Did, includeAttempts: boolean,
+    fromHeightInc: number, untilHeightExc?: number): TransactionId[];
 }
 
 export type IMorpheusState = IState<IMorpheusQueries, IMorpheusOperations>;

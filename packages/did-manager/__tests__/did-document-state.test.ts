@@ -1,5 +1,6 @@
 import { KeyId } from '@internet-of-people/keyvault';
-import { didToAuth, IDidDocumentState, IKeyData } from '../src/interfaces';
+
+import { didToAuth, IDidDocumentState, IKeyData, IDidDocument } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 import { assertStringlyEqual } from './utils';
 
@@ -288,14 +289,14 @@ describe('DidDocumentState', () => {
 
       didState.apply.tombstone(5);
 
-      const checkHistoryAt4 = (doc: Operations.OperationData.IDidDocument): void => {
+      const checkHistoryAt4 = (doc: IDidDocument): void => {
         expect(doc.isTombstonedAt(4)).toBeFalsy();
         expect(doc.hasRightAt(keyId1, updateRight, 4)).toBeTruthy();
         expect(doc.hasRightAt(defaultKeyId, updateRight, 4)).toBeTruthy();
         expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 4)).toBeTruthy();
       };
 
-      const checkHistoryAt5 = (doc: Operations.OperationData.IDidDocument): void => {
+      const checkHistoryAt5 = (doc: IDidDocument): void => {
         expect(doc.isTombstonedAt(5)).toBeTruthy();
         expect(doc.hasRightAt(keyId1, updateRight, 5)).toBeFalsy();
         expect(doc.hasRightAt(defaultKeyId, updateRight, 5)).toBeFalsy();

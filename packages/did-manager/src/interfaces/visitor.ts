@@ -1,10 +1,11 @@
+import { ISignedOperationsData } from './operation-data';
+import { Authentication, Did, Right } from './did-document';
+
 /**
  * Most of the time we have a heterogenous collection of
  * operations. The visitor pattern allows us to implement many
  * algorithms that work on the limited set of operation types.
  */
-import { Authentication, Did, ISignedOperationsData, Right } from '.';
-
 export interface IOperationVisitor<T> {
   signed(operations: ISignedOperationsData): T;
   registerBeforeProof(contentId: string): T;

@@ -1,6 +1,7 @@
 import { KeyId, PublicKey } from '@internet-of-people/keyvault';
 import { IState } from './state';
 
+export type TransactionId = string;
 export type Did = string;
 export type Authentication = KeyId | PublicKey;
 export type AuthenticationData = string;
@@ -98,3 +99,14 @@ export interface IDidDocumentOperations {
 }
 
 export type IDidDocumentState = IState<IDidDocumentQueries, IDidDocumentOperations>;
+
+
+export interface IDidTransactionsQueries {
+  getBetween(did: Did, fromHeightInc: number, untilHeightExc?: number): TransactionId[];
+}
+
+export interface IDidTransactionsOperations {
+  registerOperationAttempt(height: number, did: Did, transactionId: TransactionId): void;
+}
+
+export type IDidTransactionsState = IState<IDidTransactionsQueries, IDidTransactionsOperations>;

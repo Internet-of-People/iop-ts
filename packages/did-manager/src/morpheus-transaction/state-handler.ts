@@ -50,11 +50,12 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
     try {
       const tempState = this.state.clone();
-      const apply = this.atHeight(this.state.query.lastSeenBlockHeight(), tempState.apply, false);
+      const applyVisitor = this.visitorPerformOperationAtHeight(
+        this.state.query.lastSeenBlockHeight(), tempState.apply, false);
 
       for (const operationData of operationAttempts) {
         const operation = fromData(operationData);
-        operation.accept(apply);
+        operation.accept(applyVisitor);
         lastSuccessIndex++;
       }
     } catch (e) {
@@ -88,13 +89,20 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       this.logger.debug(` contains ${change.asset.operationAttempts.length} operations...`);
       this.setLastSeenBlock(change.blockHeight, this.state.apply);
 
+      for (const operationData of change.asset.operationAttempts) {
+        this.logger.debug(`Registering operation attempt ${operationData.operation}...`);
+        const operation = fromData(operationData);
+        this.state.apply.registerOperationAttempt(change.blockHeight, change.transactionId, operation);
+      }
+
       const newState = this.state.clone();
-      const apply = this.atHeight(change.blockHeight, newState.apply, false);
+      const applyVisitor = this.visitorPerformOperationAtHeight(
+        change.blockHeight, newState.apply, false);
 
       for (const operationData of change.asset.operationAttempts) {
         this.logger.debug(`Applying operation ${operationData.operation}...`);
         const operation = fromData(operationData);
-        operation.accept(apply);
+        operation.accept(applyVisitor);
         this.logger.debug(`Operation ${operationData.operation} applied`);
       }
       newState.apply.confirmTx(change.transactionId);
@@ -132,16 +140,22 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
       if (confirmed.get()) {
         this.state.revert.confirmTx(change.transactionId);
-        const revert = this.atHeight(change.blockHeight, this.state.revert, true);
+        const revertVisitor = this.visitorPerformOperationAtHeight(change.blockHeight, this.state.revert, true);
 
         for (const operationData of change.asset.operationAttempts.slice().reverse()) {
           this.logger.debug(`Reverting operation ${operationData.operation}...`);
           const operation = fromData(operationData);
-          operation.accept(revert);
+          operation.accept(revertVisitor);
           this.logger.debug('Operation reverted');
         }
       } else {
         this.state.revert.rejectTx(change.transactionId);
+      }
+
+      for (const operationData of change.asset.operationAttempts.slice().reverse()) {
+        this.logger.debug(`Reverting operation attempt ${operationData.operation}...`);
+        const operation = fromData(operationData);
+        this.state.revert.registerOperationAttempt(change.blockHeight, change.transactionId, operation);
       }
     } catch (e) {
       this.logger.error(`${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: ${e}`);
@@ -160,7 +174,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     }
   }
 
-  private atHeightSignable(
+  private visitorPerformSignedOperationAtHeight(
     height: number,
     signerAuth: Authentication,
     state: IMorpheusOperations,
@@ -184,16 +198,17 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     };
   }
 
-  private atHeight(height: number, state: IMorpheusOperations, reverse: boolean): IOperationVisitor<void> {
+  private visitorPerformOperationAtHeight(height: number, state: IMorpheusOperations,
+    reverse: boolean): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
         const signableOperations = Signed.getAuthenticatedOperations(operations);
         const signerAuth = authenticationFromData(operations.signerPublicKey);
-        const atHeightSignable = this.atHeightSignable(height, signerAuth, state);
+        const performSignableAtHeight = this.visitorPerformSignedOperationAtHeight(height, signerAuth, state);
 
         for (const signable of reverse ? signableOperations.slice().reverse() : signableOperations) {
           this.logger.debug(`Applying signable operation ${signable.type}...`);
-          signable.accept(atHeightSignable);
+          signable.accept(performSignableAtHeight);
           this.logger.debug(`Signable operation ${signable.type} applied`);
         }
       },

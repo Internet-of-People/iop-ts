@@ -1,20 +1,29 @@
 import cloneDeep from 'lodash.clonedeep';
 import Optional from 'optional-js';
 import {
+  Authentication,
+  Did,
+  IBeforeProofState,
+  IDidDocument,
+  IDidDocumentState,
+  IDidTransactionsState,
+  IDidTransactionsOperations,
   IMorpheusOperations,
   IMorpheusQueries,
   IMorpheusState,
-  Did,
-  IDidDocument,
-  Authentication,
-  Right,
-  IBeforeProofState,
-  IDidDocumentState,
   isSameAuthentication,
+  IOperationVisitor,
+  ISignableOperationVisitor,
+  ISignedOperationsData,
+  Operation,
+  Right,
+  TransactionId,
 } from '../interfaces';
 import { BeforeProofState } from './operations/before-proof';
 import { DidDocumentState, RightRegistry } from './operations/did-document';
 import { MorpheusStateHandler } from './state-handler';
+import { Signed } from './operations';
+import { DidTransactionsState } from './operations/did-document/did-transactions-state';
 
 export class MorpheusState implements IMorpheusState {
   public readonly query: IMorpheusQueries = {
@@ -36,6 +45,19 @@ export class MorpheusState implements IMorpheusState {
       const didState = this.getOrCreateDidDocument(did);
       return didState.query.getAt(height);
     },
+
+    getDidTransactionIds: (did: string, includeAttempts: boolean,
+      fromHeightInc: number, untilHeightExc?: number): TransactionId[] => {
+      let transactionIds = this.didTransactions.query.getBetween(did, fromHeightInc, untilHeightExc);
+
+      if (!includeAttempts) {
+        transactionIds = transactionIds.filter(
+          (trId) => {
+            return this.query.isConfirmed(trId).orElse(false);
+          });
+      }
+      return transactionIds;
+    },
   };
 
   public readonly apply: IMorpheusOperations = {
@@ -46,6 +68,11 @@ export class MorpheusState implements IMorpheusState {
         );
       }
       this.lastSeenBlockHeight = height;
+    },
+
+    registerOperationAttempt: (height: number, transactionId: string, operation: Operation): void => {
+      const visitor = this.visitorRegisterOperationAttemptAtHeight(height, this.didTransactions.apply, transactionId);
+      operation.accept(visitor);
     },
 
     confirmTx: (transactionId: string): void => {
@@ -122,6 +149,11 @@ export class MorpheusState implements IMorpheusState {
         );
       }
       this.lastSeenBlockHeight = height;
+    },
+
+    registerOperationAttempt: (height: number, transactionId: string, operation: Operation): void => {
+      const visitor = this.visitorRegisterOperationAttemptAtHeight(height, this.didTransactions.revert, transactionId);
+      operation.accept(visitor);
     },
 
     confirmTx: (transactionId: string): void => {
@@ -214,11 +246,13 @@ export class MorpheusState implements IMorpheusState {
   private confirmedTxs: Map<string, boolean> = new Map();
   private beforeProofs: Map<string, IBeforeProofState> = new Map();
   private didDocuments: Map<Did, IDidDocumentState> = new Map();
+  private didTransactions: IDidTransactionsState = new DidTransactionsState();
   private lastSeenBlockHeight = 0;
 
   public clone(): IMorpheusState {
     const cloned = new MorpheusState();
     cloned.confirmedTxs = cloneDeep(this.confirmedTxs);
+    cloned.didTransactions = this.didTransactions.clone();
 
     const clonedBeforeProofs = new Map<string, IBeforeProofState>();
 
@@ -233,8 +267,8 @@ export class MorpheusState implements IMorpheusState {
       clonedDidDocuments.set(key, value.clone());
     }
     cloned.didDocuments = clonedDidDocuments;
-    cloned.lastSeenBlockHeight = this.lastSeenBlockHeight;
 
+    cloned.lastSeenBlockHeight = this.lastSeenBlockHeight;
     return cloned;
   }
 
@@ -277,5 +311,48 @@ export class MorpheusState implements IMorpheusState {
     if (isSameAuthentication(signerAuth, auth)) {
       throw new Error(`${signerAuth} cannot modify its own authorization (as ${auth})`);
     }
+  }
+
+
+  private visitorRegisterSignedOperationAttemptAtHeight(height: number,
+    state: IDidTransactionsOperations, transactionId: string): ISignableOperationVisitor<void> {
+    return {
+      addKey: (did: Did, _newAuth: Authentication, _expiresAtHeight?: number): void => {
+        state.registerOperationAttempt(height, did, transactionId);
+      },
+      revokeKey: (did: Did, _auth: Authentication): void => {
+        state.registerOperationAttempt(height, did, transactionId);
+      },
+      addRight: (did: Did, _auth: Authentication, _right: Right): void => {
+        state.registerOperationAttempt(height, did, transactionId);
+      },
+      revokeRight: (did: Did, _auth: Authentication, _right: Right): void => {
+        state.registerOperationAttempt(height, did, transactionId);
+      },
+      tombstoneDid(did: Did): void {
+        state.registerOperationAttempt(height, did, transactionId);
+      },
+    };
+  }
+
+  private visitorRegisterOperationAttemptAtHeight(height: number,
+    state: IDidTransactionsOperations, transactionId: string): IOperationVisitor<void> {
+    return {
+      signed: (operations: ISignedOperationsData): void => {
+        const signableOperations = Signed.getAuthenticatedOperations(operations);
+        const registerAttemptAtHeight = this.visitorRegisterSignedOperationAttemptAtHeight(
+          height, state, transactionId);
+
+        for (const signable of signableOperations) {
+          signable.accept(registerAttemptAtHeight);
+        }
+      },
+      registerBeforeProof: (_contentId: string): void => {
+        /* eslint no-empty-function: 0 */
+      },
+      revokeBeforeProof: (_contentId: string): void => {
+        /* eslint no-empty-function: 0 */
+      },
+    };
   }
 }

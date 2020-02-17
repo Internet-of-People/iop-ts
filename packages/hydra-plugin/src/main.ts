@@ -1,5 +1,6 @@
-import { Container } from '@arkecosystem/core-interfaces';
+import { Container, Database } from '@arkecosystem/core-interfaces';
 import { Handlers } from '@arkecosystem/core-transactions';
+import Optional from 'optional-js';
 import { AppLog, COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '@internet-of-people/logger';
 import { asValue } from 'awilix';
 import { Server as HapiServer } from '@hapi/hapi';
@@ -14,6 +15,7 @@ import {
   COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME,
   transactionReaderFactory,
 } from './transaction-reader-factory';
+import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
 const { MorpheusStateHandler: { MorpheusStateHandler } } = MorpheusTransaction;
 
@@ -62,8 +64,18 @@ const attachHTTPApi = (
     return;
   }
 
+  const database: Database.IDatabaseService = container.resolvePlugin('database');
+  const transactionRepository: Database.ITransactionsBusinessRepository = database.transactionsBusinessRepository;
+  const txDb = {
+    getMorpheusTransaction: async(txId: Interfaces.TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>> => {
+      const txDetails: CryptoIf.ITransactionData = await transactionRepository.findById(txId);
+      const morpheusTx = txDetails as Interfaces.IMorpheusData;
+      return Optional.ofNullable(morpheusTx?.asset);
+    },
+  };
+
   const http: HapiServer = api.instance('http');
-  const layer2API = new Layer2API(log, stateHandler, http);
+  const layer2API = new Layer2API(log, stateHandler, http, txDb);
   layer2API.init();
   log.info('HTTP API READY');
 };

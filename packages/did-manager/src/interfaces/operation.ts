@@ -1,4 +1,5 @@
-import { IOperationVisitor, OperationType } from '.';
+import { IOperationVisitor } from './visitor';
+import { OperationType } from './operation-type';
 
 export abstract class Operation {
   public abstract get type(): OperationType;
