@@ -1,4 +1,4 @@
-import { AuthenticationData, Did, Right } from './did-document';
+import { AuthenticationData, Did, Right, TransactionId } from './did-document';
 import { OperationType, SignableOperationType } from './operation-type';
 
 /**
@@ -9,6 +9,8 @@ export interface IOperationData {
 }
 
 export interface ISignableOperationData {
+  did: Did;
+  lastTxId: TransactionId | null;
   operation: SignableOperationType;
 }
 
@@ -39,7 +41,6 @@ export interface IRevokeBeforeProofData extends IOperationData {
  * Data transfer object of AddKey.
  */
 export interface IAddKeyData extends ISignableOperationData {
-  did: Did;
   auth: AuthenticationData;
   expiresAtHeight?: number;
 }
@@ -48,7 +49,6 @@ export interface IAddKeyData extends ISignableOperationData {
  * Data transfer object of RevokeKey.
  */
 export interface IRevokeKeyData extends ISignableOperationData {
-  did: Did;
   auth: AuthenticationData;
 }
 
@@ -56,7 +56,6 @@ export interface IRevokeKeyData extends ISignableOperationData {
  * Data transfer object of AddRight.
  */
 export interface IAddRightData extends ISignableOperationData {
-  did: Did;
   auth: AuthenticationData;
   right: Right;
 }
@@ -65,7 +64,6 @@ export interface IAddRightData extends ISignableOperationData {
  * Data transfer object of RevokeRight.
  */
 export interface IRevokeRightData extends ISignableOperationData {
-  did: Did;
   auth: AuthenticationData;
   right: Right;
 }
@@ -73,6 +71,6 @@ export interface IRevokeRightData extends ISignableOperationData {
 /**
  * Data transfer object of Tombstone.
  */
+/* eslint @typescript-eslint/no-empty-interface:0 */
 export interface ITombstoneDidData extends ISignableOperationData {
-  did: Did;
 }

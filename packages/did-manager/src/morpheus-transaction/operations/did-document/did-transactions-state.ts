@@ -38,7 +38,7 @@ export class DidTransactionsState implements IDidTransactionsState {
   };
 
   public readonly revert: IDidTransactionsOperations = {
-    registerOperationAttempt: (height: number, did: Did, transactionId: TransactionId): void => {
+    registerOperationAttempt: (_height: number, did: Did, transactionId: TransactionId): void => {
       const transactions = this.getOrCreateDidTransactionEntries(did);
       const index = transactions.findIndex((entry) => {
         return entry.transactionId === transactionId;
@@ -75,7 +75,7 @@ export class DidTransactionsState implements IDidTransactionsState {
 
     /* eslint no-undefined: 0 */
     if (transactionEntries === undefined) {
-      transactionEntries = new Array<ITransactionIdHeight>();
+      transactionEntries = [];
       this.didTransactions.set(did, transactionEntries);
     }
     return transactionEntries;

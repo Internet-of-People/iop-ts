@@ -1,7 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
-import { Network, schemaAndHost } from './network';
+
 import { MorpheusTransaction, Interfaces } from '@internet-of-people/did-manager';
+import { TransactionId } from '@internet-of-people/did-manager/dist/interfaces';
+
+import { Network, schemaAndHost } from './network';
 
 const { Operations: { DidDocument: { DidDocument } } } = MorpheusTransaction;
 
@@ -53,6 +56,21 @@ export class Layer2Api {
       return Optional.empty();
     } else {
       return Optional.of(resp.data);
+    }
+  }
+
+  public async getLastTxId(did: string): Promise<TransactionId | null> {
+    console.log(`Getting last txn id for ${did}...`);
+    const resp = await this.api.get(`/did/${did}/transactions/last`, {
+      validateStatus: (status) => {
+        return status >= 200 && status < 300 || status === 404;
+      },
+    });
+
+    if (resp.status === 404) {
+      return null;
+    } else {
+      return resp.data;
     }
   }
 }

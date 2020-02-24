@@ -1,5 +1,7 @@
 import inquirer = require('inquirer');
+
 import { MorpheusTransaction, Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
+
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askSignerKeyId, askHeight } from '../utils';
@@ -33,9 +35,11 @@ const addRight = async(): Promise<void> => {
   const right = await askRight();
   const signerKeyId = await askSignerKeyId(vaultIds);
 
+  const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
     .withVault(vault)
-    .addRight(did, auth, right)
+    .on(did, lastTxId)
+    .addRight(auth, right)
     .sign(signerKeyId)
     .getAttempts();
 
@@ -54,9 +58,11 @@ const revokeRight = async(): Promise<void> => {
   const right = await askRight();
   const signerKeyId = await askSignerKeyId(vaultIds);
 
+  const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
     .withVault(vault)
-    .revokeRight(did, auth, right)
+    .on(did, lastTxId)
+    .revokeRight(auth, right)
     .sign(signerKeyId)
     .getAttempts();
 

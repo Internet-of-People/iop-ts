@@ -1,8 +1,10 @@
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
+
 import { IAction } from '../action';
 import { loadVault } from '../vault';
 import { dumpDids, askDid, askSignerKeyId } from '../utils';
-import { MorpheusTransaction } from '@internet-of-people/did-manager';
 import { processMorpheusTx } from '../transaction-sender';
+import { Layer2Api } from '../layer2api';
 
 const {
   Operations: { OperationAttemptsBuilder },
@@ -16,9 +18,11 @@ const run = async(): Promise<void> => {
   const did = await askDid('tombstone');
   const signerKeyId = await askSignerKeyId(vaultIds);
 
+  const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
     .withVault(vault)
-    .tombstoneDid(did)
+    .on(did, lastTxId)
+    .tombstoneDid()
     .sign(signerKeyId)
     .getAttempts();
 

@@ -1,6 +1,7 @@
 import Optional from 'optional-js';
+
 import { IMorpheusAsset } from './asset';
-import { Authentication, Did, Right, IDidDocument, ITransactionIdHeight } from './did-document';
+import { Authentication, Did, Right, IDidDocument, TransactionId, ITransactionIdHeight } from './did-document';
 import { Operation } from './operation';
 import { IOperationData } from './operation-data';
 import { IState } from './state';
@@ -37,6 +38,7 @@ export interface IMorpheusOperations {
     height: number,
     signerAuth: Authentication,
     did: Did,
+    lastTxId: TransactionId | null,
     newAuth: Authentication,
     expiresAtHeight?: number,
   ): void;
@@ -45,6 +47,7 @@ export interface IMorpheusOperations {
     height: number,
     signerAuth: Authentication,
     did: Did,
+    lastTxId: TransactionId | null,
     revokedAuth: Authentication,
   ): void;
 
@@ -52,6 +55,7 @@ export interface IMorpheusOperations {
     height: number,
     signerAuth: Authentication,
     did: Did,
+    lastTxId: TransactionId | null,
     auth: Authentication,
     right: Right,
   ): void;
@@ -60,6 +64,7 @@ export interface IMorpheusOperations {
     height: number,
     signerAuth: Authentication,
     did: Did,
+    lastTxId: TransactionId | null,
     auth: Authentication,
     right: Right,
   ): void;
@@ -68,6 +73,7 @@ export interface IMorpheusOperations {
     height: number,
     signerAuth: Authentication,
     did: Did,
+    lastTxId: TransactionId | null,
   ): void;
 
   /**

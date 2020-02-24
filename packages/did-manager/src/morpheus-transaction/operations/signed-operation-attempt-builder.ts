@@ -6,19 +6,68 @@ import {
   OperationType,
   Right,
   SignableOperation,
+  TransactionId,
 } from '../../interfaces';
 import { AddKey, AddRight, RevokeKey, RevokeRight, TombstoneDid } from './did-document';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';
 import { toSignableData } from './to-signable-data';
 import { Signed } from './signed';
 
-export class SignedOperationAttemptsBuilder {
+export interface ISignedOperationBuilderNeedsDid {
+  on(did: Did, lastTxId: TransactionId | null): ISignedOperationBuilder;
+}
+
+export interface ISignedOperationBuilder extends ISignedOperationBuilderNeedsDid {
+  addKey(auth: Authentication, expiresAtHeight?: number): ISignedOperationBuilder;
+  revokeKey(auth: Authentication): ISignedOperationBuilder;
+  addRight(auth: Authentication, right: Right): ISignedOperationBuilder;
+  revokeRight(auth: Authentication, right: Right): ISignedOperationBuilder;
+  tombstoneDid(): ISignedOperationBuilder;
+
+  sign(keyId: KeyId): OperationAttemptsBuilder;
+}
+
+export class SignedOperationAttemptsBuilder implements ISignedOperationBuilder {
   private readonly signableOperations: SignableOperation[] = [];
+  private did: Did | null = null;
+  private lastTxId: TransactionId | null = null;
 
   public constructor(
     private readonly finish: (operation: ISignedOperationsData) => OperationAttemptsBuilder,
     private readonly vault: Interfaces.IVault,
   ) {
+  }
+
+  public on(did: Did, lastTxId: TransactionId): ISignedOperationBuilder {
+    this.did = did;
+    this.lastTxId = lastTxId;
+    return this;
+  }
+
+  /* eslint @typescript-eslint/no-non-null-assertion:0 */
+  public addKey(auth: Authentication, expiresAtHeight?: number): ISignedOperationBuilder {
+    this.signableOperations.push(new AddKey(this.did!, this.lastTxId, auth, expiresAtHeight));
+    return this;
+  }
+
+  public revokeKey(auth: Authentication): ISignedOperationBuilder {
+    this.signableOperations.push(new RevokeKey(this.did!, this.lastTxId, auth));
+    return this;
+  }
+
+  public addRight(auth: Authentication, right: Right): ISignedOperationBuilder {
+    this.signableOperations.push(new AddRight(this.did!, this.lastTxId, auth, right));
+    return this;
+  }
+
+  public revokeRight(auth: Authentication, right: Right): ISignedOperationBuilder {
+    this.signableOperations.push(new RevokeRight(this.did!, this.lastTxId, auth, right));
+    return this;
+  }
+
+  public tombstoneDid(): ISignedOperationBuilder {
+    this.signableOperations.push(new TombstoneDid(this.did!, this.lastTxId));
+    return this;
   }
 
   public sign(keyId: KeyId): OperationAttemptsBuilder {
@@ -32,30 +81,5 @@ export class SignedOperationAttemptsBuilder {
       signature: signedMessage.signature.toString(),
     };
     return this.finish(signedOperationData);
-  }
-
-  public addKey(did: Did, auth: Authentication, expiresAtHeight?: number): SignedOperationAttemptsBuilder {
-    this.signableOperations.push(new AddKey(did, auth, expiresAtHeight));
-    return this;
-  }
-
-  public revokeKey(did: Did, auth: Authentication): SignedOperationAttemptsBuilder {
-    this.signableOperations.push(new RevokeKey(did, auth));
-    return this;
-  }
-
-  public addRight(did: Did, auth: Authentication, right: Right): SignedOperationAttemptsBuilder {
-    this.signableOperations.push(new AddRight(did, auth, right));
-    return this;
-  }
-
-  public revokeRight(did: Did, auth: Authentication, right: Right): SignedOperationAttemptsBuilder {
-    this.signableOperations.push(new RevokeRight(did, auth, right));
-    return this;
-  }
-
-  public tombstoneDid(did: Did): SignedOperationAttemptsBuilder {
-    this.signableOperations.push(new TombstoneDid(did));
-    return this;
   }
 }

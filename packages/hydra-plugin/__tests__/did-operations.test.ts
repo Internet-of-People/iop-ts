@@ -64,9 +64,10 @@ describe('DidOperationExtractor', () => {
     const txAsset = {
       operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .addKey(defaultDid, keyId2)
-        .addRight(defaultDid, keyId2, RightRegistry.systemRights.impersonate)
-        .addRight(defaultDid, keyId2, RightRegistry.systemRights.update)
+        .on(defaultDid, null)
+        .addKey(keyId2)
+        .addRight(keyId2, RightRegistry.systemRights.impersonate)
+        .addRight(keyId2, RightRegistry.systemRights.update)
         .sign(defaultKeyId)
         .getAttempts(),
     };

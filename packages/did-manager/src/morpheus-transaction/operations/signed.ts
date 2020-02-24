@@ -20,7 +20,11 @@ export class Signed extends Operation {
     super();
   }
 
-  public static getAuthenticatedOperations(data: ISignedOperationsData): SignableOperation[] {
+  public static getOperationsUnsafeWithoutSignatureChecking(data: ISignedOperationsData): SignableOperation[] {
+    return data.signables.map(fromSignableData);
+  }
+
+  public static getOperations(data: ISignedOperationsData): SignableOperation[] {
     const signableBytes = Signed.serialize(data.signables);
     const message = new SignedMessage(new PublicKey(data.signerPublicKey),
       signableBytes, new Signature(data.signature));
@@ -28,7 +32,7 @@ export class Signed extends Operation {
     if (!message.validate()) {
       throw new Error('Invalid signature');
     }
-    return data.signables.map(fromSignableData);
+    return Signed.getOperationsUnsafeWithoutSignatureChecking(data);
   }
 
   public static serialize(ops: ISignableOperationData[]): Uint8Array {

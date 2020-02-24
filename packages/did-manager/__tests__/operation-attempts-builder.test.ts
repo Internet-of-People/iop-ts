@@ -5,6 +5,7 @@ import {
   ISignedOperationsData,
   OperationType,
   SignableOperationType,
+  TransactionId,
 } from '../src/interfaces';
 import { OperationAttemptsBuilder } from '../src/morpheus-transaction/operations';
 import { assertStringlyEqual } from './utils';
@@ -25,6 +26,8 @@ describe('OperationAttemptsBuilder', () => {
   const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
   const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
   const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+
+  const lastTxId: TransactionId | null = null;
 
   let builder: OperationAttemptsBuilder;
   beforeEach(() => {
@@ -49,6 +52,7 @@ describe('OperationAttemptsBuilder', () => {
     const expectedAddKeyData: IAddKeyData = {
       operation: SignableOperationType.AddKey,
       did,
+      lastTxId,
       auth: keyId1.toString(),
       expiresAtHeight: 69,
     };
@@ -69,7 +73,8 @@ describe('OperationAttemptsBuilder', () => {
     });
     const attempts = builder
       .withVault(vault)
-      .addKey(did, keyId1, expectedAddKeyData.expiresAtHeight)
+      .on(did, lastTxId)
+      .addKey(keyId1, expectedAddKeyData.expiresAtHeight)
       .sign(defaultKeyId)
       .getAttempts();
     expect(attempts).toHaveLength(1);

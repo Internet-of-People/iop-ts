@@ -4,11 +4,13 @@ import {
   ISignableOperationVisitor,
   SignableOperation,
   SignableOperationType,
+  TransactionId,
 } from '../../../interfaces';
 
 export class RevokeKey extends SignableOperation {
   public constructor(
     private readonly did: Did,
+    private readonly lastTxId: TransactionId | null,
     private readonly auth: Authentication,
   ) {
     super();
@@ -19,6 +21,6 @@ export class RevokeKey extends SignableOperation {
   }
 
   public accept<T>(visitor: ISignableOperationVisitor<T>): T {
-    return visitor.revokeKey(this.did, this.auth);
+    return visitor.revokeKey(this.did, this.lastTxId, this.auth);
   }
 }

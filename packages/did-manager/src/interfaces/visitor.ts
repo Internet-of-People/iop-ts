@@ -1,5 +1,5 @@
 import { ISignedOperationsData } from './operation-data';
-import { Authentication, Did, Right } from './did-document';
+import { TransactionId, Authentication, Did, Right } from './did-document';
 
 /**
  * Most of the time we have a heterogenous collection of
@@ -13,11 +13,11 @@ export interface IOperationVisitor<T> {
 }
 
 export interface ISignableOperationVisitor<T> {
-  addKey(did: Did, auth: Authentication, expiresAtHeight?: number): T;
-  revokeKey(did: Did, auth: Authentication): T;
-  addRight(did: Did, auth: Authentication, right: Right): T;
-  revokeRight(did: Did, auth: Authentication, right: Right): T;
-  tombstoneDid(did: Did): T;
+  addKey(did: Did, lastTxId: TransactionId | null, auth: Authentication, expiresAtHeight?: number): T;
+  revokeKey(did: Did, lastTxId: TransactionId | null, auth: Authentication): T;
+  addRight(did: Did, lastTxId: TransactionId | null, auth: Authentication, right: Right): T;
+  revokeRight(did: Did, lastTxId: TransactionId | null, auth: Authentication, right: Right): T;
+  tombstoneDid(did: Did, lastTxId: TransactionId | null): T;
 }
 
 export interface IOperationTypeVisitor<R> {

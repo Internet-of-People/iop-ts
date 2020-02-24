@@ -14,6 +14,10 @@ const {
   Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry }, DidDocument },
   MorpheusStateHandler: { MorpheusStateHandler },
 } = MorpheusTransaction;
+type TransactionId = Interfaces.TransactionId;
+type Authentication = Interfaces.Authentication;
+type IDidDocumentData = Interfaces.IDidDocumentData;
+type Did = Interfaces.Did;
 
 const defaultDid = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 const did2 = 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX';
@@ -59,16 +63,19 @@ let hapiServer: HapiServer;
 let fixture: Fixture;
 
 describe('Layer2API', () => {
+  let lastTxId: TransactionId | null = null;
+
   const addKey = (
-    key: Interfaces.Authentication,
+    key: Authentication,
     height: number,
     txId: string,
-    signer: Interfaces.Authentication,
+    signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .addKey(defaultDid, key)
+        .on(defaultDid, lastTxId)
+        .addKey(key)
         .sign(signer)
         .getAttempts(),
       },
@@ -79,15 +86,16 @@ describe('Layer2API', () => {
   };
 
   const revokeKey = (
-    key: Interfaces.Authentication,
+    key: Authentication,
     height: number,
     txId: string,
-    signer: Interfaces.Authentication,
+    signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .revokeKey(defaultDid, key)
+        .on(defaultDid, lastTxId)
+        .revokeKey(key)
         .sign(signer)
         .getAttempts(),
       },
@@ -98,15 +106,16 @@ describe('Layer2API', () => {
   };
 
   const addRight = (
-    key: Interfaces.Authentication,
+    key: Authentication,
     height: number,
     txId: string,
-    signer: Interfaces.Authentication,
+    signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .addRight(defaultDid, key, RightRegistry.systemRights.update)
+        .on(defaultDid, lastTxId)
+        .addRight(key, RightRegistry.systemRights.update)
         .sign(signer)
         .getAttempts(),
       },
@@ -117,15 +126,16 @@ describe('Layer2API', () => {
   };
 
   const revokeRight = (
-    key: Interfaces.Authentication,
+    key: Authentication,
     height: number,
     txId: string,
-    signer: Interfaces.Authentication,
+    signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .revokeRight(defaultDid, key, RightRegistry.systemRights.update)
+        .on(defaultDid, lastTxId)
+        .revokeRight(key, RightRegistry.systemRights.update)
         .sign(signer)
         .getAttempts(),
       },
@@ -135,11 +145,12 @@ describe('Layer2API', () => {
     });
   };
 
-  const tombstoneDid = (height: number, txId: string, signer: Interfaces.Authentication): void => {
+  const tombstoneDid = (height: number, txId: string, signer: Authentication): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .tombstoneDid(defaultDid)
+        .on(defaultDid, lastTxId)
+        .tombstoneDid()
         .sign(signer)
         .getAttempts(),
       },
@@ -151,6 +162,7 @@ describe('Layer2API', () => {
 
   beforeEach(async() => {
     fixture = new Fixture();
+    lastTxId = null;
     hapiServer = await createServer({ host: '0.0.0.0', port: '4703' });
     const morpheusServer = new Layer2API(fixture.log, fixture.stateHandler, hapiServer, fixture.transactionRepo);
     morpheusServer.init();
@@ -206,7 +218,7 @@ describe('Layer2API', () => {
     fixture.stateHandler.applyEmptyBlockToState({ blockHeight: 100, blockId: 'SomeBlockId' });
     const res = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document` });
     expect(res.statusCode).toBe(200);
-    const data = JSON.parse(res.payload) as Interfaces.IDidDocumentData;
+    const data = JSON.parse(res.payload) as IDidDocumentData;
     const doc = new DidDocument.DidDocument(data);
 
     expect(data.keys).toHaveLength(1);
@@ -224,7 +236,7 @@ describe('Layer2API', () => {
 
     const res = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${10}` });
     expect(res.statusCode).toBe(200);
-    const data = JSON.parse(res.payload) as Interfaces.IDidDocumentData;
+    const data = JSON.parse(res.payload) as IDidDocumentData;
     const doc = new DidDocument.DidDocument(data);
 
     expect(data.keys).toHaveLength(2);
@@ -242,13 +254,14 @@ describe('Layer2API', () => {
   it('can revoke key from did', async() => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    lastTxId = 'tx1';
 
     revokeKey(keyId2, 15, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
 
     const res10 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${10}` });
     expect(res10.statusCode).toBe(200);
-    const doc10 = JSON.parse(res10.payload) as Interfaces.IDidDocumentData;
+    const doc10 = JSON.parse(res10.payload) as IDidDocumentData;
     expect(doc10.queriedAtHeight).toBe(10);
     expect(doc10.keys).toHaveLength(2);
     expect(doc10.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -258,7 +271,7 @@ describe('Layer2API', () => {
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const doc15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const doc15 = JSON.parse(res15.payload) as IDidDocumentData;
     expect(doc15.queriedAtHeight).toBe(15);
     expect(doc15.keys).toHaveLength(2);
     expect(doc15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -270,13 +283,14 @@ describe('Layer2API', () => {
   it('can add right to a key', async() => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    lastTxId = 'tx1';
 
     addRight(keyId2, 15, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
     expect(data15.keys).toHaveLength(2);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -296,7 +310,7 @@ describe('Layer2API', () => {
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
     expect(data15.keys).toHaveLength(1);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -308,16 +322,17 @@ describe('Layer2API', () => {
   it('can revoke right from a key', async() => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
-
+    lastTxId = 'tx1';
     addRight(keyId2, 15, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    lastTxId = 'tx2';
 
     revokeRight(keyId2, 20, 'tx3', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
     expect(data15.keys).toHaveLength(2);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -332,7 +347,7 @@ describe('Layer2API', () => {
 
     const res20 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${20}` });
     expect(res20.statusCode).toBe(200);
-    const data20 = JSON.parse(res20.payload) as Interfaces.IDidDocumentData;
+    const data20 = JSON.parse(res20.payload) as IDidDocumentData;
     const doc20 = new DidDocument.DidDocument(data20);
     expect(data20.keys).toHaveLength(2);
     expect(data20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -354,7 +369,7 @@ describe('Layer2API', () => {
 
     const res20 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${20}` });
     expect(res20.statusCode).toBe(200);
-    const data20 = JSON.parse(res20.payload) as Interfaces.IDidDocumentData;
+    const data20 = JSON.parse(res20.payload) as IDidDocumentData;
     const doc20 = new DidDocument.DidDocument(data20);
     expect(data20.keys).toHaveLength(1);
     expect(data20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -367,16 +382,18 @@ describe('Layer2API', () => {
 
   it('cannot update did if has no update right', async() => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
-    addKey(keyId3, 10, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+    lastTxId = 'tx1';
+    addKey(keyId3, 10, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
+    lastTxId = 'tx2';
 
     addRight(keyId3, 15, 'tx3', keyId2);
     expect(fixture.stateHandler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
     expect(data15.keys).toHaveLength(3);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -398,7 +415,7 @@ describe('Layer2API', () => {
 
     const res14 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${14}` });
     expect(res14.statusCode).toBe(200);
-    const data14 = JSON.parse(res14.payload) as Interfaces.IDidDocumentData;
+    const data14 = JSON.parse(res14.payload) as IDidDocumentData;
     const doc14 = new DidDocument.DidDocument(data14);
     expect(data14.keys).toHaveLength(1);
     expect(data14.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -411,7 +428,7 @@ describe('Layer2API', () => {
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
     expect(res15.statusCode).toBe(200);
-    const data15 = JSON.parse(res15.payload) as Interfaces.IDidDocumentData;
+    const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
     expect(data15.keys).toHaveLength(1);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
@@ -423,8 +440,8 @@ describe('Layer2API', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
-  const getDidTransactions = async(includeAttempts: boolean, did: Interfaces.Did,
-    fromHeight: number, untilHeight?: number): Promise<Interfaces.TransactionId[]> => {
+  const getDidTransactions = async(includeAttempts: boolean, did: Did,
+    fromHeight: number, untilHeight?: number): Promise<TransactionId[]> => {
     const endpoint = includeAttempts ? 'transaction-attempts' : 'transactions';
     let url = `/did/${did}/${endpoint}/${fromHeight}/`;
 
@@ -433,11 +450,11 @@ describe('Layer2API', () => {
     }
     const res = await hapiServer.inject({ method: 'get', url });
     expect(res.statusCode).toBe(200);
-    const data = JSON.parse(res.payload) as Interfaces.TransactionId[];
+    const data = JSON.parse(res.payload) as TransactionId[];
     return data;
   };
 
-  const getDidOperations = async(includeAttempts: boolean, did: Interfaces.Did,
+  const getDidOperations = async(includeAttempts: boolean, did: Did,
     fromHeight: number, untilHeight?: number): Promise<IDidOperation[]> => {
     const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
     let url = `/did/${did}/${endpoint}/${fromHeight}/`;
@@ -457,56 +474,61 @@ describe('Layer2API', () => {
     expect(defaultDidData).toHaveLength(0);
   });
 
-  const firstTxAttempts = new OperationAttemptsBuilder()
-    .withVault(vault)
-    .addKey(defaultDid, keyId2)
-    .addRight(defaultDid, keyId2, RightRegistry.systemRights.impersonate)
-    .addRight(defaultDid, keyId2, RightRegistry.systemRights.update)
-    .sign(defaultKeyId)
-    .getAttempts();
-
-  const secondTxAttempts = new OperationAttemptsBuilder()
-    .withVault(vault)
-    .revokeKey(defaultDid, defaultKeyId)
-    .addKey(did2, defaultKeyId)
-    .sign(keyId2)
-    .getAttempts();
-
-  const thirdTxAttempts = new OperationAttemptsBuilder()
-    .withVault(vault)
-    .addKey(did2, keyId3)
-    .addKey(did3, keyId2)
-    .sign(keyId3)
-    .getAttempts();
-
   const applyComplexTransactionSequence = (
   ): number => {
+    const firstTxAttempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .on(defaultDid, null)
+      .addKey(keyId2)
+      .addRight(keyId2, RightRegistry.systemRights.impersonate)
+      .addRight(keyId2, RightRegistry.systemRights.update)
+      .sign(defaultKeyId)
+      .getAttempts();
     const firstTransaction = {
       asset: { operationAttempts: firstTxAttempts },
       blockHeight: 100,
       blockId: 'firstBlockId',
       transactionId: 'firstTransactionId',
     };
-    fixture.transactionRepo.pushTransaction(firstTransaction.transactionId, firstTransaction.asset);
     fixture.stateHandler.applyTransactionToState(firstTransaction);
+    fixture.transactionRepo.pushTransaction(firstTransaction.transactionId, firstTransaction.asset);
+    lastTxId = firstTransaction.transactionId;
 
+    const secondTxAttempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .on(defaultDid, 'firstTransactionId')
+      .revokeKey(defaultKeyId)
+      .on(did2, null)
+      .addKey(defaultKeyId)
+      .sign(keyId2)
+      .getAttempts();
     const secondTransaction = {
       asset: { operationAttempts: secondTxAttempts },
       blockHeight: 101,
-      blockId: 'SecondBlockId',
+      blockId: 'secondBlockId',
       transactionId: 'secondTransactionId',
     };
-    fixture.transactionRepo.pushTransaction(secondTransaction.transactionId, secondTransaction.asset);
     fixture.stateHandler.applyTransactionToState(secondTransaction);
+    fixture.transactionRepo.pushTransaction(secondTransaction.transactionId, secondTransaction.asset);
+    lastTxId = secondTransaction.transactionId;
 
+    const thirdTxAttempts = new OperationAttemptsBuilder()
+      .withVault(vault)
+      .on(did2, 'secondTransactionId')
+      .addKey(keyId3)
+      .on(did3, null)
+      .addKey(keyId2)
+      .sign(keyId3)
+      .getAttempts();
     const thirdTransaction = {
       asset: { operationAttempts: thirdTxAttempts },
       blockHeight: 102,
       blockId: 'thirdBlockId',
       transactionId: 'thirdTransactionId',
     };
-    fixture.transactionRepo.pushTransaction(thirdTransaction.transactionId, thirdTransaction.asset);
     fixture.stateHandler.applyTransactionToState(thirdTransaction);
+    fixture.transactionRepo.pushTransaction(thirdTransaction.transactionId, thirdTransaction.asset);
+    lastTxId = thirdTransaction.transactionId;
 
     return 103;
   };
@@ -518,6 +540,7 @@ describe('Layer2API', () => {
       'data': {
         'operation': 'addKey',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'lastTxId': null,
         'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
       },
       'valid': true,
@@ -528,6 +551,7 @@ describe('Layer2API', () => {
       'data': {
         'operation': 'addRight',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'lastTxId': null,
         'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
         'right': 'impersonate',
       },
@@ -539,6 +563,7 @@ describe('Layer2API', () => {
       'data': {
         'operation': 'addRight',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'lastTxId': null,
         'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
         'right': 'update',
       },
@@ -550,6 +575,7 @@ describe('Layer2API', () => {
       'data': {
         'operation': 'revokeKey',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'lastTxId': 'firstTransactionId',
         'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
       },
       'valid': true,
@@ -585,6 +611,7 @@ describe('Layer2API', () => {
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'lastTxId': null,
           'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
         },
         'valid': true,
@@ -632,6 +659,7 @@ describe('Layer2API', () => {
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'lastTxId': null,
           'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
         },
         'valid': true,
@@ -642,6 +670,7 @@ describe('Layer2API', () => {
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'lastTxId': 'secondTransactionId',
           'auth': 'iezkXs7Xd8SDWLaGKUAjEf53W',
         },
         'valid': false,
@@ -656,6 +685,7 @@ describe('Layer2API', () => {
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W',
+          'lastTxId': null,
           'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
         },
         'valid': false,
@@ -666,7 +696,8 @@ describe('Layer2API', () => {
   it('can check transaction validity', async() => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
-      .addRight(defaultDid, keyId2, RightRegistry.systemRights.update) // key is not yet added
+      .on(defaultDid, null)
+      .addRight(keyId2, RightRegistry.systemRights.update) // key is not yet added
       .sign(defaultKeyId)
       .getAttempts();
     const res = await hapiServer.inject({ method: 'post', url: `/check-transaction-validity`, payload: attempts });

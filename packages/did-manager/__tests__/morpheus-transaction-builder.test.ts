@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
 import { KeyId, Vault, PersistentVault, Interfaces as KvInterfaces, SignedMessage } from '@internet-of-people/keyvault';
-import { IOperationData } from '../src/interfaces';
+import { IOperationData, TransactionId } from '../src/interfaces';
 import { Builder, Operations, Transaction } from '../src/morpheus-transaction';
 
 const { DidDocument: { RightRegistry } } = Operations;
@@ -26,6 +26,8 @@ const vault: KvInterfaces.IVault = {
     return rustVault.sign(signerDid, message);
   },
 };
+
+const lastTxId: TransactionId | null = null;
 
 const verifyTransaction = (ops: IOperationData[]): void => {
   const builder = new Builder.MorpheusTransactionBuilder();
@@ -56,7 +58,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('addKey verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .addKey(did, newKeyId)
+      .on(did, lastTxId)
+      .addKey(newKeyId)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -65,7 +68,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('revokeKey verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .revokeKey(did, newKeyId)
+      .on(did, lastTxId)
+      .revokeKey(newKeyId)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -74,7 +78,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('addRight verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .addRight(did, newKeyId, RightRegistry.systemRights.update)
+      .on(did, lastTxId)
+      .addRight(newKeyId, RightRegistry.systemRights.update)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -83,7 +88,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('revokeright verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .revokeRight(did, newKeyId, RightRegistry.systemRights.update)
+      .on(did, lastTxId)
+      .revokeRight(newKeyId, RightRegistry.systemRights.update)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -92,7 +98,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('tombstoneDid verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .tombstoneDid(did)
+      .on(did, lastTxId)
+      .tombstoneDid()
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -101,11 +108,12 @@ describe('MorpheusTransactionBuilder', () => {
   it('multiple operations verify correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .addKey(did, newKeyId)
-      .addRight(did, newKeyId, RightRegistry.systemRights.update)
-      .revokeRight(did, newKeyId, RightRegistry.systemRights.update)
-      .revokeKey(did, newKeyId)
-      .tombstoneDid(did)
+      .on(did, lastTxId)
+      .addKey(newKeyId)
+      .addRight(newKeyId, RightRegistry.systemRights.update)
+      .revokeRight(newKeyId, RightRegistry.systemRights.update)
+      .revokeKey(newKeyId)
+      .tombstoneDid()
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);

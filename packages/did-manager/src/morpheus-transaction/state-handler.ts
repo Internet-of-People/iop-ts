@@ -14,7 +14,7 @@ import {
   IStateChange,
   MorpheusEvents,
   Right,
-  IDryRunOperationError, IOperationData, IBlockHeightChange,
+  IDryRunOperationError, IOperationData, IBlockHeightChange, TransactionId,
 } from '../interfaces';
 import { fromData, Signed } from './operations';
 
@@ -97,7 +97,10 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
       const newState = this.state.clone();
       const applyVisitor = this.visitorPerformOperationAtHeight(
-        change.blockHeight, newState.apply, false);
+        change.blockHeight,
+        newState.apply,
+        false,
+      );
 
       for (const operationData of change.asset.operationAttempts) {
         this.logger.debug(`Applying operation ${operationData.operation}...`);
@@ -105,6 +108,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
         operation.accept(applyVisitor);
         this.logger.debug(`Operation ${operationData.operation} applied`);
       }
+
       newState.apply.confirmTx(change.transactionId);
       this.state = newState;
     } catch (e) {
@@ -180,20 +184,20 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     state: IMorpheusOperations,
   ): ISignableOperationVisitor<void> {
     return {
-      addKey: (did: Did, newAuth: Authentication, expiresAtHeight?: number): void => {
-        state.addKey(height, signerAuth, did, newAuth, expiresAtHeight);
+      addKey: (did: Did, lastTxId: TransactionId | null, newAuth: Authentication, expiresAtHeight?: number): void => {
+        state.addKey(height, signerAuth, did, lastTxId, newAuth, expiresAtHeight);
       },
-      revokeKey: (did: Did, auth: Authentication): void => {
-        state.revokeKey(height, signerAuth, did, auth);
+      revokeKey: (did: Did, lastTxId: TransactionId | null, auth: Authentication): void => {
+        state.revokeKey(height, signerAuth, did, lastTxId, auth);
       },
-      addRight: (did: Did, auth: Authentication, right: Right): void => {
-        state.addRight(height, signerAuth, did, auth, right);
+      addRight: (did: Did, lastTxId: TransactionId | null, auth: Authentication, right: Right): void => {
+        state.addRight(height, signerAuth, did, lastTxId, auth, right);
       },
-      revokeRight: (did: Did, auth: Authentication, right: Right): void => {
-        state.revokeRight(height, signerAuth, did, auth, right);
+      revokeRight: (did: Did, lastTxId: TransactionId | null, auth: Authentication, right: Right): void => {
+        state.revokeRight(height, signerAuth, did, lastTxId, auth, right);
       },
-      tombstoneDid(did: string): void {
-        state.tombstoneDid(height, signerAuth, did);
+      tombstoneDid(did: string, lastTxId: TransactionId | null): void {
+        state.tombstoneDid(height, signerAuth, did, lastTxId);
       },
     };
   }
@@ -202,7 +206,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     reverse: boolean): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
-        const signableOperations = Signed.getAuthenticatedOperations(operations);
+        const signableOperations = Signed.getOperationsUnsafeWithoutSignatureChecking(operations);
         const signerAuth = authenticationFromData(operations.signerPublicKey);
         const performSignableAtHeight = this.visitorPerformSignedOperationAtHeight(height, signerAuth, state);
 

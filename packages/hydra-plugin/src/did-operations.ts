@@ -21,8 +21,12 @@ export class DidOperationExtractor {
     private readonly stateHandler: Interfaces.IMorpheusStateHandler) {
   }
 
-  public async didOperationsOf(did: Interfaces.Did, includeAttempts: boolean,
-    fromHeightInc: number, untilHeightExc?: number): Promise<IDidOperation[]> {
+  public async didOperationsOf(
+    did: Interfaces.Did,
+    includeAttempts: boolean,
+    fromHeightInc: number,
+    untilHeightExc?: number,
+  ): Promise<IDidOperation[]> {
     const transactionIdHeights = this.stateHandler.query.getDidTransactionIds(did,
       includeAttempts, fromHeightInc, untilHeightExc);
 

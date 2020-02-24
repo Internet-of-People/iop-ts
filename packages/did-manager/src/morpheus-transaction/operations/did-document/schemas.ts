@@ -2,7 +2,7 @@ import { SignableOperationType } from '../../../interfaces';
 
 export const addKey = {
   type: 'object',
-  required: [ 'operation', 'did', 'auth' ],
+  required: [ 'operation', 'did', 'lastTxId', 'auth' ],
   // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
@@ -11,6 +11,9 @@ export const addKey = {
     },
     did: {
       type: 'string',
+    },
+    lastTxId: {
+      type: [ 'string', 'null' ],
     },
     auth: {
       type: 'string',
@@ -24,7 +27,7 @@ export const addKey = {
 
 export const revokeKey = {
   type: 'object',
-  required: [ 'operation', 'did', 'auth' ],
+  required: [ 'operation', 'did', 'lastTxId', 'auth' ],
   // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
@@ -34,6 +37,9 @@ export const revokeKey = {
     did: {
       type: 'string',
     },
+    lastTxId: {
+      type: [ 'string', 'null' ],
+    },
     auth: {
       type: 'string',
     },
@@ -42,7 +48,7 @@ export const revokeKey = {
 
 export const addRight = {
   type: 'object',
-  required: [ 'operation', 'did', 'auth', 'right' ],
+  required: [ 'operation', 'did', 'lastTxId', 'auth', 'right' ],
   // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
@@ -51,6 +57,9 @@ export const addRight = {
     },
     did: {
       type: 'string',
+    },
+    lastTxId: {
+      type: [ 'string', 'null' ],
     },
     auth: {
       type: 'string',
@@ -63,7 +72,7 @@ export const addRight = {
 
 export const revokeRight = {
   type: 'object',
-  required: [ 'operation', 'did', 'auth', 'right' ],
+  required: [ 'operation', 'did', 'lastTxId', 'auth', 'right' ],
   // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
@@ -72,6 +81,9 @@ export const revokeRight = {
     },
     did: {
       type: 'string',
+    },
+    lastTxId: {
+      type: [ 'string', 'null' ],
     },
     auth: {
       type: 'string',
@@ -84,7 +96,7 @@ export const revokeRight = {
 
 export const tombstoneDid = {
   type: 'object',
-  required: [ 'operation', 'did' ],
+  required: [ 'operation', 'did', 'lastTxId' ],
   // additionalProperties: false, // TODO: https://github.com/ArkEcosystem/core/issues/3340
   properties: {
     operation: {
@@ -93,6 +105,9 @@ export const tombstoneDid = {
     },
     did: {
       type: 'string',
+    },
+    lastTxId: {
+      type: [ 'string', 'null' ],
     },
   },
 };

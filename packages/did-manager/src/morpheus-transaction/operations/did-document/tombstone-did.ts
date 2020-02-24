@@ -3,11 +3,13 @@ import {
   ISignableOperationVisitor,
   SignableOperation,
   SignableOperationType,
+  TransactionId,
 } from '../../../interfaces';
 
 export class TombstoneDid extends SignableOperation {
   public constructor(
     private readonly did: Did,
+    private readonly lastTxId: TransactionId | null,
   ) {
     super();
   }
@@ -17,6 +19,6 @@ export class TombstoneDid extends SignableOperation {
   }
 
   public accept<T>(visitor: ISignableOperationVisitor<T>): T {
-    return visitor.tombstoneDid(this.did);
+    return visitor.tombstoneDid(this.did, this.lastTxId);
   }
 }

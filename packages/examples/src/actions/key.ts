@@ -1,8 +1,10 @@
 import { MorpheusTransaction } from '@internet-of-people/did-manager';
+
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askHeight, askSignerKeyId } from '../utils';
 import { loadVault } from '../vault';
+import { Layer2Api } from '../layer2api';
 
 const {
   Operations: { OperationAttemptsBuilder },
@@ -20,9 +22,11 @@ const addKey = async(): Promise<void> => {
   const expires = await askHeight();
   const signerKeyId = await askSignerKeyId(vaultIds);
 
+  const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
     .withVault(vault)
-    .addKey(did, newAuth, expires)
+    .on(did, lastTxId)
+    .addKey(newAuth, expires)
     .sign(signerKeyId)
     .getAttempts();
 
@@ -40,9 +44,11 @@ const revokeKey = async(): Promise<void> => {
   const newAuth = await askAuth('revoke from that DID');
   const signerKeyId = await askSignerKeyId(vaultIds);
 
+  const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
     .withVault(vault)
-    .revokeKey(did, newAuth)
+    .on(did, lastTxId)
+    .revokeKey(newAuth)
     .sign(signerKeyId)
     .getAttempts();
 

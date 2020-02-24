@@ -17,6 +17,7 @@ import {
   ISignedOperationsData,
   Operation,
   Right,
+  TransactionId,
   ITransactionIdHeight,
 } from '../interfaces';
 import { BeforeProofState } from './operations/before-proof';
@@ -46,8 +47,12 @@ export class MorpheusState implements IMorpheusState {
       return didState.query.getAt(height);
     },
 
-    getDidTransactionIds: (did: string, includeAttempts: boolean,
-      fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[] => {
+    getDidTransactionIds: (
+      did: string,
+      includeAttempts: boolean,
+      fromHeightInc: number,
+      untilHeightExc?: number,
+    ): ITransactionIdHeight[] => {
       let transactionIdHeights = this.didTransactions.query.getBetween(did, fromHeightInc, untilHeightExc);
 
       if (!includeAttempts) {
@@ -59,6 +64,8 @@ export class MorpheusState implements IMorpheusState {
       return transactionIdHeights;
     },
   };
+
+  /* eslint max-params:0 */
 
   public readonly apply: IMorpheusOperations = {
     setLastSeenBlockHeight: (height: number): void => {
@@ -99,23 +106,37 @@ export class MorpheusState implements IMorpheusState {
       height: number,
       signerAuth: Authentication,
       did: Did,
+      lastTxId: TransactionId | null,
       newAuth: Authentication,
       expiresAtHeight?: number,
     ): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       state.apply.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     },
 
-    revokeKey: (height: number, signerAuth: Authentication, did: Did, revokedAuth: Authentication): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+    revokeKey: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      lastTxId: TransactionId | null,
+      revokedAuth: Authentication,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, revokedAuth);
       state.apply.revokeKey(height, revokedAuth);
       this.didDocuments.set(did, state);
     },
 
-    addRight: (height: number, signerAuth: Authentication, did: Did, auth: Authentication, right: Right): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+    addRight: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      lastTxId: TransactionId | null,
+      auth: Authentication,
+      right: Right,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.apply.addRight(height, auth, right);
       this.didDocuments.set(did, state);
@@ -125,17 +146,23 @@ export class MorpheusState implements IMorpheusState {
       height: number,
       signerAuth: Authentication,
       did: Did,
+      lastTxId: TransactionId | null,
       auth: Authentication,
       right: Right,
     ): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.apply.revokeRight(height, auth, right);
       this.didDocuments.set(did, state);
     },
 
-    tombstoneDid: (height: number, signerAuth: Authentication, did: string): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+    tombstoneDid: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      lastTxId: TransactionId | null,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       state.apply.tombstone(height);
       this.didDocuments.set(did, state);
     },
@@ -200,23 +227,37 @@ export class MorpheusState implements IMorpheusState {
       height: number,
       signerAuth: Authentication,
       did: Did,
+      lastTxId: TransactionId | null,
       newAuth: Authentication,
       expiresAtHeight?: number,
     ): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       state.revert.addKey(height, newAuth, expiresAtHeight);
       this.didDocuments.set(did, state);
     },
 
-    revokeKey: (height: number, signerAuth: Authentication, did: Did, revokedAuth: Authentication): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+    revokeKey: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      lastTxId: TransactionId | null,
+      revokedAuth: Authentication,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, revokedAuth);
       state.revert.revokeKey(height, revokedAuth);
       this.didDocuments.set(did, state);
     },
 
-    addRight: (height: number, signerAuth: Authentication, did: Did, auth: Authentication, right: Right): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+    addRight: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      lastTxId: TransactionId | null,
+      auth: Authentication,
+      right: Right,
+    ): void => {
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.revert.addRight(height, auth, right);
       this.didDocuments.set(did, state);
@@ -226,16 +267,22 @@ export class MorpheusState implements IMorpheusState {
       height: number,
       signerAuth: Authentication,
       did: string,
+      lastTxId: TransactionId | null,
       auth: Authentication,
       right: Right,
     ): void => {
-      const state = this.beginUpdateDidDocument(did, height, signerAuth);
+      const state = this.beginUpdateDidDocument(did, lastTxId, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.revert.revokeRight(height, auth, right);
       this.didDocuments.set(did, state);
     },
 
-    tombstoneDid: (height: number, _: Authentication, did: string): void => {
+    tombstoneDid: (
+      height: number,
+      _: Authentication,
+      did: string,
+      _lastTxId: TransactionId | null,
+    ): void => {
       // note: checking for right in this case is not needed
       const state = this.getOrCreateDidDocument(did);
       state.revert.tombstone(height);
@@ -289,9 +336,28 @@ export class MorpheusState implements IMorpheusState {
 
   private beginUpdateDidDocument(
     did: Did,
+    lastTxId: TransactionId | null,
     height: number,
     signerAuth: Authentication,
   ): IDidDocumentState {
+    const validTxIds = this.didTransactions.query.getBetween(did, 0).filter(
+      (entry) => {
+        return this.query.isConfirmed(entry.transactionId).orElse(false);
+      },
+    );
+    const lastEntry = validTxIds.length > 0 ? validTxIds[validTxIds.length - 1] : null;
+    const expectedTxId = lastEntry === null ? null : lastEntry.transactionId;
+
+    if (lastTxId !== expectedTxId) {
+      const opPrevState = lastTxId === null ?
+        'on an implicit document' :
+        `after txn ${lastTxId}`;
+      const chainPrevState = lastEntry === null ?
+        'but it never changed yet' :
+        `but it last changed at height ${lastEntry.height} by txn ${lastEntry.transactionId}`;
+      throw new Error(`Operation on ${did} at height ${height} was attempted ${opPrevState}, ${chainPrevState}`);
+    }
+
     const state = this.getOrCreateDidDocument(did);
     const tombstoned = state.query.getAt(height).isTombstonedAt(height);
     const hasRight = state.query.getAt(height).hasRightAt(signerAuth, RightRegistry.systemRights.update, height);
@@ -313,23 +379,44 @@ export class MorpheusState implements IMorpheusState {
     }
   }
 
-
   private visitorRegisterSignedOperationAttemptAtHeight(height: number,
     state: IDidTransactionsOperations, transactionId: string): ISignableOperationVisitor<void> {
     return {
-      addKey: (did: Did, _newAuth: Authentication, _expiresAtHeight?: number): void => {
+      addKey: (
+        did: Did,
+        _lastTxId: TransactionId | null,
+        _newAuth: Authentication,
+        _expiresAtHeight?: number,
+      ): void => {
         state.registerOperationAttempt(height, did, transactionId);
       },
-      revokeKey: (did: Did, _auth: Authentication): void => {
+      revokeKey: (
+        did: Did,
+        _lastTxId: TransactionId | null,
+        _auth: Authentication,
+      ): void => {
         state.registerOperationAttempt(height, did, transactionId);
       },
-      addRight: (did: Did, _auth: Authentication, _right: Right): void => {
+      addRight: (
+        did: Did,
+        _lastTxId: TransactionId | null,
+        _auth: Authentication,
+        _right: Right,
+      ): void => {
         state.registerOperationAttempt(height, did, transactionId);
       },
-      revokeRight: (did: Did, _auth: Authentication, _right: Right): void => {
+      revokeRight: (
+        did: Did,
+        _lastTxId: TransactionId | null,
+        _auth: Authentication,
+        _right: Right,
+      ): void => {
         state.registerOperationAttempt(height, did, transactionId);
       },
-      tombstoneDid(did: Did): void {
+      tombstoneDid(
+        did: Did,
+        _lastTxId: TransactionId | null,
+      ): void {
         state.registerOperationAttempt(height, did, transactionId);
       },
     };
@@ -339,7 +426,7 @@ export class MorpheusState implements IMorpheusState {
     state: IDidTransactionsOperations, transactionId: string): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
-        const signableOperations = Signed.getAuthenticatedOperations(operations);
+        const signableOperations = Signed.getOperations(operations);
         const registerAttemptAtHeight = this.visitorRegisterSignedOperationAttemptAtHeight(
           height, state, transactionId);
 

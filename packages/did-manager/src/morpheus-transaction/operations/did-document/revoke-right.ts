@@ -5,11 +5,13 @@ import {
   Right,
   SignableOperation,
   SignableOperationType,
+  TransactionId,
 } from '../../../interfaces';
 
 export class RevokeRight extends SignableOperation {
   public constructor(
     private readonly did: Did,
+    private readonly lastTxId: TransactionId | null,
     private readonly auth: Authentication,
     private readonly right: Right,
   ) {
@@ -21,6 +23,6 @@ export class RevokeRight extends SignableOperation {
   }
 
   public accept<T>(visitor: ISignableOperationVisitor<T>): T {
-    return visitor.revokeRight(this.did, this.auth, this.right);
+    return visitor.revokeRight(this.did, this.lastTxId, this.auth, this.right);
   }
 }
