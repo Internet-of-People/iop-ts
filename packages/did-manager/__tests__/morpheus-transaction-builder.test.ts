@@ -6,6 +6,7 @@ import { Builder, Operations, Transaction } from '../src/morpheus-transaction';
 
 beforeAll(() => {
   Managers.configManager.setFromPreset('testnet');
+  Managers.configManager.setHeight(2);
   Transactions.TransactionRegistry.registerTransactionType(Transaction.MorpheusTransaction);
 });
 

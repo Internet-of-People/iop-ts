@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/kyc-user",
-  "version": "0.1.0-alpha.1",
+  "version": "1.0.0",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -22,7 +22,7 @@
     "test": "jest --detectOpenHandles --no-cache --passWithNoTests"
   },
   "dependencies": {
-    "@internet-of-people/did-manager": "0.1.0-alpha.1"
+    "@internet-of-people/did-manager": "1.0.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "2.11.0",

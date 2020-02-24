@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/logger",
-  "version": "0.1.0-alpha.1",
+  "version": "1.0.0",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -21,7 +21,7 @@
     "test": "echo ignored"
   },
   "dependencies": {
-    "@arkecosystem/core-interfaces": "^2.6.0-next.6"
+    "@arkecosystem/core-interfaces": "^2.6.10"
   },
   "devDependencies": {
     "typescript": "3.7.2"

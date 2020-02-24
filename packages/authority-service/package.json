@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/authority-service",
-  "version": "0.1.0-alpha.1",
+  "version": "1.0.0",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -9,8 +9,8 @@
   "description": "A simplistic authority service for Morpheus",
   "repository": "https://github.com/internet-of-people/morpheus-ts",
   "license": "AGPL-1.0-or-later",
-  "main": "./dist/src/main.js",
-  "typings": "./dist/src/main.d.ts",
+  "main": "./dist/main.js",
+  "typings": "./dist/main.d.ts",
   "private": true,
   "scripts": {
     "build": "npm run build:src && npm run build:test",

@@ -61,9 +61,9 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
     _data: CryptoIf.ITransactionData,
     _pool: TransactionPool.IConnection,
     _processor: TransactionPool.IProcessor,
-  ): Promise<boolean> {
+  ): Promise<{ type: string; message: string; } | null> {
     // TODO: check if the fee is at least the calculated fee
-    return Promise.resolve(true);
+    return Promise.resolve(null);
   }
 
   public async isActivated(): Promise<boolean> {
