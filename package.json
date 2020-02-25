@@ -21,6 +21,7 @@
     "@arkecosystem/core-http-utils": "^2.6.10",
     "@arkecosystem/core-interfaces": "^2.6.10",
     "@arkecosystem/core-transactions": "^2.6.10",
+    "@arkecosystem/core-state": "^2.6.10",
     "@arkecosystem/crypto": "^2.6.10",
     "@hapi/boom": "^8.0.0",
     "@hapi/hapi": "^18.3.1",

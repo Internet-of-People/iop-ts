@@ -17,19 +17,21 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
     this.typedData.asset = { operationAttempts: [] };
   }
 
+  private get typedData(): IMorpheusData {
+    return this.data as IMorpheusData;
+  }
+
   /**
    * Read more here:
    * https://blog.ark.io/towards-flexible-marketplace-with-ark-dynamic-fees-running-on-new-core-31f1aaf1e867
    * @param attempts
    */
-  private static calculateFee(attempts: IOperationData[]): Utils.BigNumber {
+  public static calculateFee(attempts: IOperationData[]): Utils.BigNumber {
     const txLength = JSON.stringify(attempts).length;
-    return Utils.BigNumber.make(this.OFFSET_BYTES).plus(txLength)
+    return Utils.BigNumber
+      .make(this.OFFSET_BYTES)
+      .plus(txLength)
       .times(this.FLAKES_PER_BYTES);
-  }
-
-  private get typedData(): IMorpheusData {
-    return this.data as IMorpheusData;
   }
 
   public fromOperationAttempts(attempts: IOperationData[]): MorpheusTransactionBuilder {

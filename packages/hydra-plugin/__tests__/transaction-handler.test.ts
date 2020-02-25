@@ -1,6 +1,8 @@
 import { app } from '@arkecosystem/core-container';
-import { Database, State } from '@arkecosystem/core-interfaces';
-import { Interfaces } from '@internet-of-people/did-manager';
+import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces';
+import { Managers, Transactions, Interfaces as CryptoIf } from '@arkecosystem/crypto';
+import { Wallets } from '@arkecosystem/core-state';
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '@internet-of-people/logger';
 import { asValue } from 'awilix';
 import Optional from 'optional-js';
@@ -89,14 +91,21 @@ class Fixture {
   }
 }
 
+beforeAll(() => {
+  Managers.configManager.setFromPreset('testnet');
+  Managers.configManager.setHeight(2);
+  Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction.Transaction.MorpheusTransaction);
+});
+
 describe('TransactionHandler', () => {
   let fixture: Fixture;
+  let txHandler: MorpheusTransactionHandler;
   beforeEach(() => {
     fixture = new Fixture();
+    txHandler = fixture.createSut();
   });
 
-  it('container stuff', async() => {
-    const txHandler = fixture.createSut();
+  it('bootstrap', async() => {
     fixture.mockTransactionReader([
       fixture.createBootstrapTx({}, []),
     ]);
@@ -108,4 +117,54 @@ describe('TransactionHandler', () => {
     /* eslint @typescript-eslint/unbound-method: 0 */
     expect(fixture.stateHandler.applyTransactionToState).toBeCalledTimes(1);
   });
+
+  describe('canEnterTransactionPool', () => {
+    const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
+    const pool: Partial<TransactionPool.IConnection> = {
+      walletManager: new Wallets.WalletManager(),
+      getTransactionsByType: async(): Promise<Set<CryptoIf.ITransaction>> => {
+        return new Set();
+      },
+    };
+
+    it('should not throw if the transaction is correct', async() => {
+      const ops = new MorpheusTransaction.Operations.OperationAttemptsBuilder()
+        .registerBeforeProof('my content id')
+        .getAttempts();
+      const transaction = new MorpheusTransaction.Builder.MorpheusTransactionBuilder()
+        .fromOperationAttempts(ops)
+        .nonce('42')
+        .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire')
+        .getStruct();
+
+      await expect(txHandler.canEnterTransactionPool(
+        transaction,
+        pool as TransactionPool.IConnection,
+        processor as TransactionPool.IProcessor,
+      )).resolves.toBeNull();
+    });
+
+    it('should throw if the transaction was sent with low fee set', async() => {
+      const ops = new MorpheusTransaction.Operations.OperationAttemptsBuilder()
+        .registerBeforeProof('my content id')
+        .getAttempts();
+      const expectedFee = MorpheusTransaction.Builder.MorpheusTransactionBuilder.calculateFee(ops);
+      const transaction = new MorpheusTransaction.Builder.MorpheusTransactionBuilder()
+        .fromOperationAttempts(ops)
+        .fee('42')
+        .nonce('42')
+        .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire')
+        .getStruct();
+
+      await expect(txHandler.canEnterTransactionPool(
+        transaction,
+        pool as TransactionPool.IConnection,
+        processor as TransactionPool.IProcessor,
+      )).resolves.toStrictEqual({
+        type: 'ERR_LOW_FEE',
+        message: `The fee for this transaction must be at least ${expectedFee}`,
+      });
+    });
+  });
 });
+

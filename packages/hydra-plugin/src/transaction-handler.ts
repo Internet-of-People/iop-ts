@@ -62,8 +62,24 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
     _pool: TransactionPool.IConnection,
     _processor: TransactionPool.IProcessor,
   ): Promise<{ type: string; message: string; } | null> {
-    // TODO: check if the fee is at least the calculated fee
-    return Promise.resolve(null);
+    try {
+      const asset = _data.asset as Interfaces.IMorpheusAsset;
+      const expectedFee = MorpheusTransaction.Builder.MorpheusTransactionBuilder.calculateFee(asset.operationAttempts);
+
+      if (_data.fee < expectedFee) {
+        return {
+          type: 'ERR_LOW_FEE',
+          message: `The fee for this transaction must be at least ${expectedFee}`,
+        };
+      }
+
+      return null;
+    } catch (e) {
+      return {
+        type: 'ERR_INVALID_TX',
+        message: e.message,
+      };
+    }
   }
 
   public async isActivated(): Promise<boolean> {
