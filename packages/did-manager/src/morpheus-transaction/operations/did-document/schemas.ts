@@ -1,6 +1,4 @@
-import { ALL_RIGHTS } from '.';
 import { SignableOperationType } from '../../../interfaces';
-
 
 export const addKey = {
   type: 'object',
@@ -59,7 +57,6 @@ export const addRight = {
     },
     right: {
       type: 'string',
-      enum: ALL_RIGHTS,
     },
   },
 };
@@ -81,7 +78,6 @@ export const revokeRight = {
     },
     right: {
       type: 'string',
-      enum: ALL_RIGHTS,
     },
   },
 };

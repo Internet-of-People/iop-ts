@@ -1,8 +1,10 @@
 import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
 import { KeyId, Vault, PersistentVault, Interfaces as KvInterfaces, SignedMessage } from '@internet-of-people/keyvault';
-import { IOperationData, Right } from '../src/interfaces';
+import { IOperationData } from '../src/interfaces';
 import { Builder, Operations, Transaction } from '../src/morpheus-transaction';
+
+const { DidDocument: { RightRegistry } } = Operations;
 
 beforeAll(() => {
   Managers.configManager.setFromPreset('testnet');
@@ -72,7 +74,7 @@ describe('MorpheusTransactionBuilder', () => {
   it('addRight verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .addRight(did, newKeyId, Right.Update)
+      .addRight(did, newKeyId, RightRegistry.systemRights.update)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -81,7 +83,7 @@ describe('MorpheusTransactionBuilder', () => {
   it('revokeright verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
-      .revokeRight(did, newKeyId, Right.Update)
+      .revokeRight(did, newKeyId, RightRegistry.systemRights.update)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -100,8 +102,8 @@ describe('MorpheusTransactionBuilder', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)
       .addKey(did, newKeyId)
-      .addRight(did, newKeyId, Right.Update)
-      .revokeRight(did, newKeyId, Right.Update)
+      .addRight(did, newKeyId, RightRegistry.systemRights.update)
+      .revokeRight(did, newKeyId, RightRegistry.systemRights.update)
       .revokeKey(did, newKeyId)
       .tombstoneDid(did)
       .sign(defaultKeyId)

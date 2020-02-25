@@ -1,5 +1,12 @@
 import { Interfaces, KeyId } from '@internet-of-people/keyvault';
-import { Authentication, Did, ISignedOperationsData, OperationType, Right, SignableOperation } from '../../interfaces';
+import {
+  Authentication,
+  Did,
+  ISignedOperationsData,
+  OperationType,
+  Right,
+  SignableOperation,
+} from '../../interfaces';
 import { AddKey, AddRight, RevokeKey, RevokeRight, TombstoneDid } from './did-document';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';
 import { toSignableData } from './to-signable-data';

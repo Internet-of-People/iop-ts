@@ -13,11 +13,9 @@ import {
 } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
 import { safePathInt, Layer2API } from '../src/layer2-api';
-import { DidDocument } from '@internet-of-people/did-manager/dist/morpheus-transaction/operations';
-import { Right } from '@internet-of-people/did-manager/dist/interfaces';
 
 const {
-  Operations: { OperationAttemptsBuilder },
+  Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry }, DidDocument },
   MorpheusStateHandler: { MorpheusStateHandler },
 } = MorpheusTransaction;
 
@@ -108,7 +106,7 @@ describe('Layer2API', () => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .addRight(did, key, Interfaces.Right.Update)
+        .addRight(did, key, RightRegistry.systemRights.update)
         .sign(signer)
         .getAttempts(),
       },
@@ -127,7 +125,7 @@ describe('Layer2API', () => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new OperationAttemptsBuilder()
         .withVault(vault)
-        .revokeRight(did, key, Interfaces.Right.Update)
+        .revokeRight(did, key, RightRegistry.systemRights.update)
         .sign(signer)
         .getAttempts(),
       },
@@ -215,8 +213,8 @@ describe('Layer2API', () => {
     expect(data.keys[0].auth).toStrictEqual(defaultKeyId.toString());
     expect(doc.height).toBe(100); // the current chain height
     expect(doc.did).toBe(did);
-    expect(doc.hasRightAt(defaultKeyId, Right.Impersonate, 0)).toBeTruthy();
-    expect(doc.hasRightAt(defaultKeyId, Right.Update, 0)).toBeTruthy();
+    expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 0)).toBeTruthy();
+    expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 0)).toBeTruthy();
     expect(doc.isTombstonedAt(0)).toBeFalsy();
   });
 
@@ -236,8 +234,8 @@ describe('Layer2API', () => {
     expect(data.keys[1].valid).toBeTruthy();
     expect(doc.did).toBe(did);
     expect(doc.height).toBe(10);
-    expect(doc.hasRightAt(defaultKeyId, Right.Impersonate, 10)).toBeTruthy();
-    expect(doc.hasRightAt(defaultKeyId, Right.Update, 10)).toBeTruthy();
+    expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 10)).toBeTruthy();
+    expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 10)).toBeTruthy();
     expect(doc.isTombstonedAt(10)).toBeFalsy();
   });
 
@@ -286,10 +284,29 @@ describe('Layer2API', () => {
     expect(data15.keys[0].valid).toBeTruthy();
     expect(data15.keys[1].valid).toBeTruthy();
     expect(doc15.height).toBe(15);
-    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeTruthy();
-    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeTruthy();
-    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
-    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.update, 15)).toBeTruthy();
+  });
+
+  it('not registered rights cannot be added to a key', async() => {
+    addKey(keyId1, 10, 'tx1', defaultKeyId);
+    expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
+
+    fixture.stateHandler.applyTransactionToState({
+      asset: { operationAttempts: new OperationAttemptsBuilder()
+        .withVault(vault)
+        .addRight(did, keyId1, 'custom-right')
+        .sign(defaultKeyId)
+        .getAttempts(),
+      },
+      blockHeight: 15,
+      blockId,
+      transactionId: 'tx2',
+    });
+
+    expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
   });
 
   it('cannot add right to a non-existent key', async() => {
@@ -304,7 +321,7 @@ describe('Layer2API', () => {
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data15.keys[0].valid).toBeTruthy();
     expect(doc15.height).toBe(15);
-    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
   });
 
   it('can revoke right from a key', async() => {
@@ -327,10 +344,10 @@ describe('Layer2API', () => {
     expect(data15.keys[0].valid).toBeTruthy();
     expect(data15.keys[1].valid).toBeTruthy();
     expect(doc15.height).toBe(15);
-    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeTruthy();
-    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeTruthy();
-    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
-    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.update, 15)).toBeTruthy();
 
     const res20 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${20}` });
     expect(res20.statusCode).toBe(200);
@@ -341,10 +358,10 @@ describe('Layer2API', () => {
     expect(data20.keys[1].auth.toString()).toStrictEqual(keyId1.toString());
     expect(data20.keys[0].valid).toBeTruthy();
     expect(data20.keys[1].valid).toBeTruthy();
-    expect(doc20.hasRightAt(defaultKeyId, Right.Impersonate, 20)).toBeTruthy();
-    expect(doc20.hasRightAt(defaultKeyId, Right.Update, 20)).toBeTruthy();
-    expect(doc20.hasRightAt(keyId1, Right.Impersonate, 20)).toBeFalsy();
-    expect(doc20.hasRightAt(keyId1, Right.Update, 20)).toBeFalsy();
+    expect(doc20.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 20)).toBeFalsy();
+    expect(doc20.hasRightAt(keyId1, RightRegistry.systemRights.update, 20)).toBeFalsy();
   });
 
   it('cannot revoke right from a non-existent key', async() => {
@@ -361,10 +378,10 @@ describe('Layer2API', () => {
     expect(data20.keys).toHaveLength(1);
     expect(data20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data20.keys[0].valid).toBeTruthy();
-    expect(doc20.hasRightAt(defaultKeyId, Right.Impersonate, 20)).toBeTruthy();
-    expect(doc20.hasRightAt(defaultKeyId, Right.Update, 20)).toBeTruthy();
-    expect(doc20.hasRightAt(keyId1, Right.Impersonate, 20)).toBeFalsy();
-    expect(doc20.hasRightAt(keyId1, Right.Update, 20)).toBeFalsy();
+    expect(doc20.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 20)).toBeTruthy();
+    expect(doc20.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 20)).toBeFalsy();
+    expect(doc20.hasRightAt(keyId1, RightRegistry.systemRights.update, 20)).toBeFalsy();
   });
 
   it('cannot update did if has no update right', async() => {
@@ -388,10 +405,10 @@ describe('Layer2API', () => {
     expect(data15.keys[1].valid).toBeTruthy();
     expect(data15.keys[2].valid).toBeTruthy();
     expect(doc15.height).toBe(15);
-    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeTruthy();
-    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeTruthy();
-    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
-    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 15)).toBeTruthy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
   it('can tombstone did', async() => {
@@ -406,10 +423,10 @@ describe('Layer2API', () => {
     expect(data14.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data14.keys[0].valid).toBeTruthy();
     expect(doc14.isTombstonedAt(14)).toBeFalsy();
-    expect(doc14.hasRightAt(defaultKeyId, Right.Impersonate, 14)).toBeTruthy();
-    expect(doc14.hasRightAt(defaultKeyId, Right.Update, 14)).toBeTruthy();
-    expect(doc14.hasRightAt(keyId1, Right.Impersonate, 14)).toBeFalsy();
-    expect(doc14.hasRightAt(keyId1, Right.Update, 14)).toBeFalsy();
+    expect(doc14.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 14)).toBeTruthy();
+    expect(doc14.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 14)).toBeTruthy();
+    expect(doc14.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 14)).toBeFalsy();
+    expect(doc14.hasRightAt(keyId1, RightRegistry.systemRights.update, 14)).toBeFalsy();
 
     const res15 = await hapiServer.inject({ method: 'get', url: `/did/${did}/document/${15}` });
     expect(res15.statusCode).toBe(200);
@@ -419,10 +436,10 @@ describe('Layer2API', () => {
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data15.keys[0].valid).toBeFalsy();
     expect(doc15.isTombstonedAt(15)).toBeTruthy();
-    expect(doc15.hasRightAt(defaultKeyId, Right.Impersonate, 15)).toBeFalsy();
-    expect(doc15.hasRightAt(defaultKeyId, Right.Update, 15)).toBeFalsy();
-    expect(doc15.hasRightAt(keyId1, Right.Impersonate, 15)).toBeFalsy();
-    expect(doc15.hasRightAt(keyId1, Right.Update, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
+    expect(doc15.hasRightAt(keyId1, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
   it.todo('can query operations');
@@ -432,7 +449,7 @@ describe('Layer2API', () => {
   it('can check transaction validity', async() => {
     const attempts = new OperationAttemptsBuilder()
       .withVault(vault)
-      .addRight(did, keyId1, Interfaces.Right.Update) // key is not yet added
+      .addRight(did, keyId1, RightRegistry.systemRights.update) // key is not yet added
       .sign(defaultKeyId)
       .getAttempts();
     const res = await hapiServer.inject({ method: 'post', url: `/check-transaction-validity`, payload: attempts });

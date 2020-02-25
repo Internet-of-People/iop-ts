@@ -7,14 +7,14 @@ import { loadVault } from '../vault';
 import { Layer2Api } from '../layer2api';
 
 const {
-  Operations: { OperationAttemptsBuilder, DidDocument: { ALL_RIGHTS } },
+  Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } },
 } = MorpheusTransaction;
 
 const askRight = async(): Promise<DidInterfaces.Right> => {
   const { right }: { right: DidInterfaces.Right; } = await inquirer.prompt([{
     type: 'list',
     name: 'right',
-    choices: ALL_RIGHTS.map((r) => {
+    choices: RightRegistry.systemRights.all.map((r) => {
       return { name: r.toString(), value: r };
     }),
   }]);

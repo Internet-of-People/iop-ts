@@ -17,6 +17,7 @@ import {
 import { ITimeSeries, TimeSeries } from '../../../time-series';
 import { DidDocument } from './document';
 import Optional from 'optional-js';
+import { RightRegistry } from './right-registry';
 
 // TODO these might needed to be moved somewhere else
 export enum AuthenticationKind {
@@ -37,12 +38,10 @@ interface IKeyEntry {
   rights: IRightsMap<ITimeSeries>;
 }
 
-export const ALL_RIGHTS = [ Right.Impersonate, Right.Update ];
-
 const mapAllRights = <T>(func: (right: Right) => T): IRightsMap<T> => {
   const map = {} as IRightsMap<T>;
 
-  for (const right of ALL_RIGHTS) {
+  for (const right of RightRegistry.systemRights.all) {
     map[right] = func(right);
   }
 
@@ -342,8 +341,11 @@ export class DidDocumentState implements IDidDocumentState {
   }
 
   private getRightHistory(height: number, auth: Authentication, right: Right): ITimeSeries {
-    const entry = this.lastKeyEntryWithAuth(auth);
+    if (!RightRegistry.isRightRegistered(right)) {
+      throw new Error(`Right ${right} is not registered`);
+    }
 
+    const entry = this.lastKeyEntryWithAuth(auth);
 
     if (!entry || !keyEntryIsValidAt(entry, this.tombstoneHistory, height)) {
       throw new Error(`DID ${this.did} has no valid key matching ${auth} at height ${height}`);

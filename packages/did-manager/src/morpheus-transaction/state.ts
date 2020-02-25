@@ -13,7 +13,7 @@ import {
   isSameAuthentication,
 } from '../interfaces';
 import { BeforeProofState } from './operations/before-proof';
-import { DidDocumentState } from './operations/did-document';
+import { DidDocumentState, RightRegistry } from './operations/did-document';
 import { MorpheusStateHandler } from './state-handler';
 
 export class MorpheusState implements IMorpheusState {
@@ -94,7 +94,13 @@ export class MorpheusState implements IMorpheusState {
       this.didDocuments.set(did, state);
     },
 
-    revokeRight: (height: number, signerAuth: Authentication, did: Did, auth: Authentication, right: Right): void => {
+    revokeRight: (
+      height: number,
+      signerAuth: Authentication,
+      did: Did,
+      auth: Authentication,
+      right: Right,
+    ): void => {
       const state = this.beginUpdateDidDocument(did, height, signerAuth);
       this.ensureDifferentAuth(signerAuth, auth);
       state.apply.revokeRight(height, auth, right);
@@ -254,7 +260,7 @@ export class MorpheusState implements IMorpheusState {
   ): IDidDocumentState {
     const state = this.getOrCreateDidDocument(did);
     const tombstoned = state.query.getAt(height).isTombstonedAt(height);
-    const hasRight = state.query.getAt(height).hasRightAt(signerAuth, Right.Update, height);
+    const hasRight = state.query.getAt(height).hasRightAt(signerAuth, RightRegistry.systemRights.update, height);
 
     if (tombstoned) {
       throw new Error(`${signerAuth} cannot update ${did} at height ${height}. The DID is tombstoned`);
