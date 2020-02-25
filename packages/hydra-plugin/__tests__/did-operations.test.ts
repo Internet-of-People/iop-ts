@@ -45,7 +45,8 @@ describe('DidOperationExtractor', () => {
     isConfirmed: jest.fn<Optional<boolean>, [string]>(),
     beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
     getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Interfaces.Did, number]>(),
-    getDidTransactionIds: jest.fn<Interfaces.TransactionId[], [Interfaces.Did, boolean, number, number | undefined]>(),
+    getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[],
+    [Interfaces.Did, boolean, number, number | undefined]>(),
   };
 
   const stateHandler = {
@@ -75,7 +76,7 @@ describe('DidOperationExtractor', () => {
 
   it('can filter operations for a specific DID', async() => {
     stateHandlerQueryMock.getDidTransactionIds.mockImplementationOnce(() => {
-      return [transactionId];
+      return [{ transactionId, height: 1 }];
     });
     stateHandlerQueryMock.isConfirmed.mockImplementation(() => {
       return Optional.of(true);

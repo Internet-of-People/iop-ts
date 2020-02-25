@@ -6,28 +6,21 @@ import {
   IDidTransactionsOperations,
   IDidTransactionsQueries,
   IDidTransactionsState,
+  ITransactionIdHeight,
   TransactionId,
 } from '../../../interfaces';
 import { isHeightInRange } from './state';
 
 
-interface IDidTransactionsEntry {
-  height: number;
-  transactionId: TransactionId;
-}
-
 export class DidTransactionsState implements IDidTransactionsState {
   public readonly query: IDidTransactionsQueries = {
-    getBetween: (did: Did, fromHeightInc: number, untilHeightExc?: number): TransactionId[] => {
+    getBetween: (did: Did, fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[] => {
       const transactions = this.getOrCreateDidTransactionEntries(did);
       const entriesInRange = transactions.filter((entry) => {
         return isHeightInRange(entry.height,
           Optional.of(fromHeightInc), Optional.ofNullable(untilHeightExc));
       });
-      const result = entriesInRange.map((entry) => {
-        return entry.transactionId;
-      });
-      return result;
+      return entriesInRange;
     },
   };
 
@@ -61,14 +54,14 @@ export class DidTransactionsState implements IDidTransactionsState {
     },
   };
 
-  private readonly didTransactions: Map<Did, IDidTransactionsEntry[]>;
+  private readonly didTransactions: Map<Did, ITransactionIdHeight[]>;
 
-  public constructor(didTransactions?: Map<Did, IDidTransactionsEntry[]>) {
+  public constructor(didTransactions?: Map<Did, ITransactionIdHeight[]>) {
     this.didTransactions = didTransactions ?? new Map();
   }
 
   public clone(): IDidTransactionsState {
-    const clonedDidTransactions = new Map<Did, IDidTransactionsEntry[]>();
+    const clonedDidTransactions = new Map<Did, ITransactionIdHeight[]>();
 
     for (const [ key, value ] of this.didTransactions.entries()) {
       clonedDidTransactions.set(key, cloneDeep(value));
@@ -77,12 +70,12 @@ export class DidTransactionsState implements IDidTransactionsState {
   }
 
 
-  private getOrCreateDidTransactionEntries(did: Did): IDidTransactionsEntry[] {
+  private getOrCreateDidTransactionEntries(did: Did): ITransactionIdHeight[] {
     let transactionEntries = this.didTransactions.get(did);
 
     /* eslint no-undefined: 0 */
     if (transactionEntries === undefined) {
-      transactionEntries = new Array<IDidTransactionsEntry>();
+      transactionEntries = new Array<ITransactionIdHeight>();
       this.didTransactions.set(did, transactionEntries);
     }
     return transactionEntries;

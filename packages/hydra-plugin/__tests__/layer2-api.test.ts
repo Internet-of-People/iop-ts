@@ -480,11 +480,10 @@ describe('Layer2API', () => {
     .getAttempts();
 
   const applyComplexTransactionSequence = (
-    startHeight: number,
   ): number => {
     const firstTransaction = {
       asset: { operationAttempts: firstTxAttempts },
-      blockHeight: startHeight,
+      blockHeight: 100,
       blockId: 'firstBlockId',
       transactionId: 'firstTransactionId',
     };
@@ -493,7 +492,7 @@ describe('Layer2API', () => {
 
     const secondTransaction = {
       asset: { operationAttempts: secondTxAttempts },
-      blockHeight: startHeight + 1,
+      blockHeight: 101,
       blockId: 'SecondBlockId',
       transactionId: 'secondTransactionId',
     };
@@ -502,19 +501,20 @@ describe('Layer2API', () => {
 
     const thirdTransaction = {
       asset: { operationAttempts: thirdTxAttempts },
-      blockHeight: startHeight + 2,
+      blockHeight: 102,
       blockId: 'thirdBlockId',
       transactionId: 'thirdTransactionId',
     };
     fixture.transactionRepo.pushTransaction(thirdTransaction.transactionId, thirdTransaction.asset);
     fixture.stateHandler.applyTransactionToState(thirdTransaction);
 
-    return startHeight + 3;
+    return 103;
   };
 
   const defaultDidExpectedOps = [
     {
       'transactionId': 'firstTransactionId',
+      'blockHeight': 100,
       'data': {
         'operation': 'addKey',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
@@ -524,6 +524,7 @@ describe('Layer2API', () => {
     },
     {
       'transactionId': 'firstTransactionId',
+      'blockHeight': 100,
       'data': {
         'operation': 'addRight',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
@@ -534,6 +535,7 @@ describe('Layer2API', () => {
     },
     {
       'transactionId': 'firstTransactionId',
+      'blockHeight': 100,
       'data': {
         'operation': 'addRight',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
@@ -544,6 +546,7 @@ describe('Layer2API', () => {
     },
     {
       'transactionId': 'secondTransactionId',
+      'blockHeight': 101,
       'data': {
         'operation': 'revokeKey',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
@@ -554,22 +557,22 @@ describe('Layer2API', () => {
   ];
 
   it('can query multiple valid complex transactions', async() => {
-    const startHeight = 100;
-    const endHeight = applyComplexTransactionSequence(startHeight);
+    const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidTransactions(false, defaultDid, blockHeight, endHeight);
-    expect(defaultDidData).toStrictEqual([ 'firstTransactionId', 'secondTransactionId' ]);
+    expect(defaultDidData).toStrictEqual([
+      { transactionId: 'firstTransactionId', height: 100 },
+      { transactionId: 'secondTransactionId', height: 101 }]);
 
     const did2Data = await getDidTransactions(false, did2, blockHeight, endHeight);
-    expect(did2Data).toStrictEqual(['secondTransactionId']);
+    expect(did2Data).toStrictEqual([{ transactionId: 'secondTransactionId', height: 101 }]);
 
     const did3Data = await getDidTransactions(false, did3, blockHeight, endHeight);
     expect(did3Data).toStrictEqual([]);
   });
 
   it('can query multiple valid complex operations', async() => {
-    const startHeight = 100;
-    const endHeight = applyComplexTransactionSequence(startHeight);
+    const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidOperations(false, defaultDid, blockHeight, endHeight);
     expect(defaultDidData).toStrictEqual(defaultDidExpectedOps);
@@ -578,6 +581,7 @@ describe('Layer2API', () => {
     expect(did2Data).toStrictEqual([
       {
         'transactionId': 'secondTransactionId',
+        'blockHeight': 101,
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
@@ -598,22 +602,24 @@ describe('Layer2API', () => {
   });
 
   it('can query multiple complex transaction attempts, including both valid and invalid ones', async() => {
-    const startHeight = 100;
-    const endHeight = applyComplexTransactionSequence(startHeight);
+    const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidTransactions(true, defaultDid, blockHeight, endHeight);
-    expect(defaultDidData).toStrictEqual([ 'firstTransactionId', 'secondTransactionId' ]);
+    expect(defaultDidData).toStrictEqual([
+      { transactionId: 'firstTransactionId', height: 100 },
+      { transactionId: 'secondTransactionId', height: 101 }]);
 
     const did2Data = await getDidTransactions(true, did2, blockHeight, endHeight);
-    expect(did2Data).toStrictEqual([ 'secondTransactionId', 'thirdTransactionId' ]);
+    expect(did2Data).toStrictEqual([
+      { transactionId: 'secondTransactionId', height: 101 },
+      { transactionId: 'thirdTransactionId', height: 102 }]);
 
     const did3Data = await getDidTransactions(true, did3, blockHeight, endHeight);
-    expect(did3Data).toStrictEqual(['thirdTransactionId']);
+    expect(did3Data).toStrictEqual([{ transactionId: 'thirdTransactionId', height: 102 }]);
   });
 
   it('can query multiple complex operation attempts, including both valid and invalid ones', async() => {
-    const startHeight = 100;
-    const endHeight = applyComplexTransactionSequence(startHeight);
+    const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidOperations(true, defaultDid, blockHeight, endHeight);
     expect(defaultDidData).toStrictEqual(defaultDidExpectedOps);
@@ -622,6 +628,7 @@ describe('Layer2API', () => {
     expect(did2Data).toStrictEqual([
       {
         'transactionId': 'secondTransactionId',
+        'blockHeight': 101,
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
@@ -631,6 +638,7 @@ describe('Layer2API', () => {
       },
       {
         'transactionId': 'thirdTransactionId',
+        'blockHeight': 102,
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
@@ -644,6 +652,7 @@ describe('Layer2API', () => {
     expect(did3Data).toStrictEqual([
       {
         'transactionId': 'thirdTransactionId',
+        'blockHeight': 102,
         'data': {
           'operation': 'addKey',
           'did': 'did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W',

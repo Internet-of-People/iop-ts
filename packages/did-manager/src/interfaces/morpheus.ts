@@ -1,6 +1,6 @@
 import Optional from 'optional-js';
 import { IMorpheusAsset } from './asset';
-import { Authentication, Did, Right, IDidDocument, TransactionId } from './did-document';
+import { Authentication, Did, Right, IDidDocument, ITransactionIdHeight } from './did-document';
 import { Operation } from './operation';
 import { IOperationData } from './operation-data';
 import { IState } from './state';
@@ -83,7 +83,7 @@ export interface IMorpheusQueries {
   isConfirmed(transactionId: string): Optional<boolean>;
   getDidDocumentAt(did: Did, height: number): IDidDocument;
   getDidTransactionIds(did: Did, includeAttempts: boolean,
-    fromHeightInc: number, untilHeightExc?: number): TransactionId[];
+    fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[];
 }
 
 export type IMorpheusState = IState<IMorpheusQueries, IMorpheusOperations>;

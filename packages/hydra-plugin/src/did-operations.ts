@@ -6,6 +6,7 @@ const { Operations: { fromData, toSignableData, visitorFilterDid } } = MorpheusT
 
 export interface IDidOperation {
   transactionId: Interfaces.TransactionId;
+  blockHeight: number;
   data: Interfaces.ISignableOperationData;
   valid: boolean;
 }
@@ -22,38 +23,35 @@ export class DidOperationExtractor {
 
   public async didOperationsOf(did: Interfaces.Did, includeAttempts: boolean,
     fromHeightInc: number, untilHeightExc?: number): Promise<IDidOperation[]> {
-    try {
-      const transactionIds = this.stateHandler.query.getDidTransactionIds(did,
-        includeAttempts, fromHeightInc, untilHeightExc);
+    const transactionIdHeights = this.stateHandler.query.getDidTransactionIds(did,
+      includeAttempts, fromHeightInc, untilHeightExc);
 
-      const result = new Array<IDidOperation>();
+    const result = new Array<IDidOperation>();
 
-      for (const transactionId of transactionIds) {
-        const morpheusTx = await this.transactions.getMorpheusTransaction(transactionId);
-        const txOperations = morpheusTx
-          .orElseThrow(() => {
-            return new Error(`Implementation error: cached morpheus transaction ${transactionId} not found`);
-          })
-          .operationAttempts;
+    for (const transactionIdHeight of transactionIdHeights) {
+      const { transactionId } = transactionIdHeight;
+      const morpheusTx = await this.transactions.getMorpheusTransaction(transactionId);
+      const txOperations = morpheusTx
+        .orElseThrow(() => {
+          return new Error(`Implementation error: cached morpheus transaction ${transactionId} not found`);
+        })
+        .operationAttempts;
 
-        const visitor = visitorFilterDid(did);
-        const signedOperationsHierarchy = txOperations.map((item) => {
-          return fromData(item).accept(visitor);
-        });
-        const signedOpsFlattened = new Array<Interfaces.SignableOperation>().concat(...signedOperationsHierarchy);
-        const didOperations: IDidOperation[] = signedOpsFlattened.map((attempt) => {
-          return {
-            transactionId: transactionId,
-            data: toSignableData(attempt),
-            valid: this.stateHandler.query.isConfirmed(transactionId).orElse(false),
-          };
-        });
-        result.push(...didOperations);
-      }
-      return result;
-    } catch (err) {
-      console.log(err); // TODO remove?
-      throw err;
+      const visitor = visitorFilterDid(did);
+      const signedOperationsHierarchy = txOperations.map((item) => {
+        return fromData(item).accept(visitor);
+      });
+      const signedOpsFlattened = new Array<Interfaces.SignableOperation>().concat(...signedOperationsHierarchy);
+      const didOperations: IDidOperation[] = signedOpsFlattened.map((attempt) => {
+        return {
+          transactionId,
+          blockHeight: transactionIdHeight.height,
+          data: toSignableData(attempt),
+          valid: this.stateHandler.query.isConfirmed(transactionId).orElse(false),
+        };
+      });
+      result.push(...didOperations);
     }
+    return result;
   }
 }

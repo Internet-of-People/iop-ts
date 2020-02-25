@@ -7,6 +7,11 @@ export type Authentication = KeyId | PublicKey;
 export type AuthenticationData = string;
 export type Right = string;
 
+export interface ITransactionIdHeight {
+  transactionId: TransactionId;
+  height: number;
+}
+
 export const isSameAuthentication = (left: Authentication, right: Authentication): boolean => {
   // NOTE ugly implementation of double dispatch for both params
   if (left instanceof PublicKey) {
@@ -102,7 +107,7 @@ export type IDidDocumentState = IState<IDidDocumentQueries, IDidDocumentOperatio
 
 
 export interface IDidTransactionsQueries {
-  getBetween(did: Did, fromHeightInc: number, untilHeightExc?: number): TransactionId[];
+  getBetween(did: Did, fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[];
 }
 
 export interface IDidTransactionsOperations {

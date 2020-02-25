@@ -17,7 +17,7 @@ import {
   ISignedOperationsData,
   Operation,
   Right,
-  TransactionId,
+  ITransactionIdHeight,
 } from '../interfaces';
 import { BeforeProofState } from './operations/before-proof';
 import { DidDocumentState, RightRegistry } from './operations/did-document';
@@ -47,16 +47,16 @@ export class MorpheusState implements IMorpheusState {
     },
 
     getDidTransactionIds: (did: string, includeAttempts: boolean,
-      fromHeightInc: number, untilHeightExc?: number): TransactionId[] => {
-      let transactionIds = this.didTransactions.query.getBetween(did, fromHeightInc, untilHeightExc);
+      fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[] => {
+      let transactionIdHeights = this.didTransactions.query.getBetween(did, fromHeightInc, untilHeightExc);
 
       if (!includeAttempts) {
-        transactionIds = transactionIds.filter(
-          (trId) => {
-            return this.query.isConfirmed(trId).orElse(false);
+        transactionIdHeights = transactionIdHeights.filter(
+          (trIdHeight) => {
+            return this.query.isConfirmed(trIdHeight.transactionId).orElse(false);
           });
       }
-      return transactionIds;
+      return transactionIdHeights;
     },
   };
 
