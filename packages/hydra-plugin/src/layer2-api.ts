@@ -13,6 +13,16 @@ export const safePathInt = (pathHeightString: string|undefined|null): number|und
     Number.parseInt(pathHeightString!);
 };
 
+export const safePathRange = (fromHeight: string|undefined|null, untilHeight: string|undefined|null):
+[number, number|undefined] => {
+  const fromHeightInc = safePathInt(fromHeight);
+  const untilHeightExc = safePathInt(untilHeight);
+
+  if (fromHeightInc === undefined) {
+    throw new Error(`Invalid starting block height: ${fromHeightInc}`);
+  }
+  return [ fromHeightInc, untilHeightExc ];
+};
 
 export class Layer2API {
   private readonly didOperations: DidOperationExtractor;
@@ -46,16 +56,40 @@ export class Layer2API {
       },
       {
         method: 'GET',
+        path: '/did/{did}/transactions/last',
+        handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
+          const { params: { did } } = request;
+          this.log.debug(`Getting last DID transactions for ${did}`);
+          const transactionIds = this.stateHandler.query.getDidTransactionIds(did, false, 0);
+          return transactionIds[transactionIds.length - 1];
+        },
+      },
+      {
+        method: 'GET',
+        path: '/did/{did}/transactions/{fromHeight}/{untilHeight?}',
+        handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
+          const { params: { did, fromHeight, untilHeight } } = request;
+          const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
+          this.log.debug(`Getting DID transactions for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
+          return this.stateHandler.query.getDidTransactionIds(did, false, fromHeightInc, untilHeightExc);
+        },
+      },
+      {
+        method: 'GET',
+        path: '/did/{did}/transaction-attempts/{fromHeight}/{untilHeight?}',
+        handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
+          const { params: { did, fromHeight, untilHeight } } = request;
+          const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
+          this.log.debug(`Getting DID transaction attempts for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
+          return this.stateHandler.query.getDidTransactionIds(did, true, fromHeightInc, untilHeightExc);
+        },
+      },
+      {
+        method: 'GET',
         path: '/did/{did}/operations/{fromHeight}/{untilHeight?}',
         handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: { did, fromHeight, untilHeight } } = request;
-          const untilHeightExc = safePathInt(untilHeight);
-          const fromHeightInc = safePathInt(fromHeight);
-
-          if (fromHeightInc === undefined) {
-            throw new Error(`Invalid starting block height: ${fromHeightInc}`);
-          }
-
+          const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID operations for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
           return this.didOperations.didOperationsOf(did, false, fromHeightInc, untilHeightExc);
         },
@@ -65,13 +99,7 @@ export class Layer2API {
         path: '/did/{did}/operation-attempts/{fromHeight}/{untilHeight?}',
         handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: { did, fromHeight, untilHeight } } = request;
-          const untilHeightExc = safePathInt(untilHeight);
-          const fromHeightInc = safePathInt(fromHeight);
-
-          if (fromHeightInc === undefined) {
-            throw new Error(`Invalid starting block height: ${fromHeightInc}`);
-          }
-
+          const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID operation attempts for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
           return this.didOperations.didOperationsOf(did, true, fromHeightInc, untilHeightExc);
         },

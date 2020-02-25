@@ -8,6 +8,7 @@ import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vaul
 import { EventEmitter } from 'events';
 import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
+import { IDidOperation } from '../src/did-operations';
 
 const {
   Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry }, DidDocument },
@@ -422,9 +423,9 @@ describe('Layer2API', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
-  const getDidOperations = async(includeAttempts: boolean, did: Interfaces.Did,
+  const getDidTransactions = async(includeAttempts: boolean, did: Interfaces.Did,
     fromHeight: number, untilHeight?: number): Promise<Interfaces.TransactionId[]> => {
-    const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
+    const endpoint = includeAttempts ? 'transaction-attempts' : 'transactions';
     let url = `/did/${did}/${endpoint}/${fromHeight}/`;
 
     if (untilHeight) {
@@ -433,6 +434,20 @@ describe('Layer2API', () => {
     const res = await hapiServer.inject({ method: 'get', url });
     expect(res.statusCode).toBe(200);
     const data = JSON.parse(res.payload) as Interfaces.TransactionId[];
+    return data;
+  };
+
+  const getDidOperations = async(includeAttempts: boolean, did: Interfaces.Did,
+    fromHeight: number, untilHeight?: number): Promise<IDidOperation[]> => {
+    const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
+    let url = `/did/${did}/${endpoint}/${fromHeight}/`;
+
+    if (untilHeight) {
+      url = url + untilHeight;
+    }
+    const res = await hapiServer.inject({ method: 'get', url });
+    expect(res.statusCode).toBe(200);
+    const data = JSON.parse(res.payload) as IDidOperation[];
     return data;
   };
 
@@ -538,6 +553,20 @@ describe('Layer2API', () => {
     },
   ];
 
+  it('can query multiple valid complex transactions', async() => {
+    const startHeight = 100;
+    const endHeight = applyComplexTransactionSequence(startHeight);
+
+    const defaultDidData = await getDidTransactions(false, defaultDid, blockHeight, endHeight);
+    expect(defaultDidData).toStrictEqual([ 'firstTransactionId', 'secondTransactionId' ]);
+
+    const did2Data = await getDidTransactions(false, did2, blockHeight, endHeight);
+    expect(did2Data).toStrictEqual(['secondTransactionId']);
+
+    const did3Data = await getDidTransactions(false, did3, blockHeight, endHeight);
+    expect(did3Data).toStrictEqual([]);
+  });
+
   it('can query multiple valid complex operations', async() => {
     const startHeight = 100;
     const endHeight = applyComplexTransactionSequence(startHeight);
@@ -566,6 +595,20 @@ describe('Layer2API', () => {
     fixture.stateHandler.applyEmptyBlockToState({ blockHeight: 100, blockId: 'SomeBlockId' });
     const defaultDidData = await getDidOperations(true, defaultDid, blockHeight);
     expect(defaultDidData).toHaveLength(0);
+  });
+
+  it('can query multiple complex transaction attempts, including both valid and invalid ones', async() => {
+    const startHeight = 100;
+    const endHeight = applyComplexTransactionSequence(startHeight);
+
+    const defaultDidData = await getDidTransactions(true, defaultDid, blockHeight, endHeight);
+    expect(defaultDidData).toStrictEqual([ 'firstTransactionId', 'secondTransactionId' ]);
+
+    const did2Data = await getDidTransactions(true, did2, blockHeight, endHeight);
+    expect(did2Data).toStrictEqual([ 'secondTransactionId', 'thirdTransactionId' ]);
+
+    const did3Data = await getDidTransactions(true, did3, blockHeight, endHeight);
+    expect(did3Data).toStrictEqual(['thirdTransactionId']);
   });
 
   it('can query multiple complex operation attempts, including both valid and invalid ones', async() => {
