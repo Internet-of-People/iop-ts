@@ -9,7 +9,7 @@ This repository contains example codes how can Morpheus be used.  Also, you can 
 
 ## Install
 
-Run in the root of the `morpheus-ts` project.
+Run in the root of the [morpheus-ts](https://github.com/Internet-of-People/morpheus-ts) project.
 
 ```bash
 $ npm install
@@ -75,14 +75,13 @@ $ node . tombstone
 $ node . before-proof register
 ```
 
-```bash
-# Revoke a Content Id
-$ node . before-proof revoke
-```
-
 ### Transfer
 
 ```bash
 # Transfer Hydra from the Genesis Wallet
 $ node . transfer
 ```
+
+## Check also
+
+Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/morpheus-ts>

@@ -13,7 +13,7 @@ This is the Morpheus plugin for the Hydra Blockchain.
 You have a cloned out [hydra-core](https://github.com/Internet-of-People/hydra-core)
 repo, where you've ran `yarn setup`.
 
-Note: until Morpheus is live, you must clone out the `aip29` branch.
+Note: until Morpheus is live on the mainnet, you must clone out the `develop` branch.
 
 ## Installation
 
@@ -23,9 +23,7 @@ You have to add the following lines into the `plugins.js` file:
 
 ```javascript
 // Example options
-"@internet-of-people/morpheus-hydra-plugin": {
-    
-}
+"@internet-of-people/morpheus-hydra-plugin": {}
 ```
 
 If you are not sure where is your `plugins.js` file and you **have not modified** it, you can reset it which will put these lines to the right place:
@@ -37,9 +35,10 @@ If you are not sure where is your `plugins.js` file and you **have not modified*
 ## Usage
 
 The plugin provides some endpoints where you can query the Layer 2 consensus.
-Please see the [architecture section in the specification](https://iop-stack.gitlab.iop-ventures.com/dids-and-claims/specification/#/architecture) for the exact endpoints.
+Please see the [architecture section in the specification](https://iop-stack.iop.rocks/dids-and-claims/specification/#/architecture) for the exact endpoints.
 
-**Important Notes:**
+An example URL you can curl: `curl http://127.0.0.1:4703/before-proof/iop/exists/780`
 
-- These endpoints are NOT yet available: `getOperations`, `getOperationAttempts`
-- An example URL you can curl: `curl http://127.0.0.1:4703/before-proof/iop/exists/780`
+## Check also
+
+Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/morpheus-ts>

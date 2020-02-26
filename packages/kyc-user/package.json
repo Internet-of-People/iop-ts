@@ -1,6 +1,7 @@
 {
   "name": "@internet-of-people/kyc-user",
   "version": "1.0.0",
+  "private": true,
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -11,7 +12,6 @@
   "license": "GPL-3.0-or-later",
   "main": "./dist/main.js",
   "typings": "./dist/main.d.ts",
-  "private": true,
   "scripts": {
     "build": "npm run build:src && npm run build:test",
     "build:src": "tsc -p . ",

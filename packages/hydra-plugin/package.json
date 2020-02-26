@@ -1,7 +1,7 @@
 {
   "name": "@internet-of-people/morpheus-hydra-plugin",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",

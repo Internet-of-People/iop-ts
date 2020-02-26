@@ -13,7 +13,9 @@
     "build": "lerna run --stream build",
     "clean": "lerna run clean && rimraf node_modules",
     "lint": "lerna run --stream lint",
-    "test": "npm run build && lerna run --stream test"
+    "test": "npm run build && lerna run --stream test",
+    "publish:nightly": "./scripts/publish/nightly.sh",
+    "publish:stable": "./scripts/publish/stable.sh"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^2.6.10",
