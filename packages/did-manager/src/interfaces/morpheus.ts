@@ -32,7 +32,6 @@ export interface IMorpheusOperations {
   registerOperationAttempt(height: number, transactionId: string, operation: Operation): void;
 
   registerBeforeProof(contentId: string, height: number): void;
-  revokeBeforeProof(contentId: string, height: number): void;
 
   addKey(
     height: number,

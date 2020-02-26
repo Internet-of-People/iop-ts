@@ -9,7 +9,6 @@ import { TransactionId, Authentication, Did, Right } from './did-document';
 export interface IOperationVisitor<T> {
   signed(operations: ISignedOperationsData): T;
   registerBeforeProof(contentId: string): T;
-  revokeBeforeProof(contentId: string): T;
 }
 
 export interface ISignableOperationVisitor<T> {
@@ -23,7 +22,6 @@ export interface ISignableOperationVisitor<T> {
 export interface IOperationTypeVisitor<R> {
   signed(): R;
   registerBeforeProof(): R;
-  revokeBeforeProof(): R;
 }
 
 export interface ISignableOperationTypeVisitor<R> {

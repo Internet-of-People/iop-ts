@@ -31,13 +31,6 @@ export interface IRegisterBeforeProofData extends IOperationData {
 }
 
 /**
- * Data transfer object of RevokeBeforeProof.
- */
-export interface IRevokeBeforeProofData extends IOperationData {
-  contentId: string;
-}
-
-/**
  * Data transfer object of AddKey.
  */
 export interface IAddKeyData extends ISignableOperationData {

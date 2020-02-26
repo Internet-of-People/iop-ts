@@ -13,17 +13,3 @@ export const registerBeforeProofSchema = {
     },
   },
 };
-
-export const revokeBeforeProofSchema = {
-  required: [ 'operation', 'contentId' ],
-  // additionalProperties: false, TODO: https://github.com/ArkEcosystem/core/issues/3340
-  properties: {
-    operation: {
-      type: 'string',
-      const: OperationType.RevokeBeforeProof,
-    },
-    contentId: {
-      type: 'string',
-    },
-  },
-};

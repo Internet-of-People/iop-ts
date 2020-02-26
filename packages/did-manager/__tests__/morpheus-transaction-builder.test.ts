@@ -48,13 +48,6 @@ describe('MorpheusTransactionBuilder', () => {
     verifyTransaction(ops);
   });
 
-  it('revokeBeforeProof verifies correctly', () => {
-    const ops = new Operations.OperationAttemptsBuilder()
-      .revokeBeforeProof('old content id')
-      .getAttempts();
-    verifyTransaction(ops);
-  });
-
   it('addKey verifies correctly', () => {
     const ops = new Operations.OperationAttemptsBuilder()
       .withVault(vault)

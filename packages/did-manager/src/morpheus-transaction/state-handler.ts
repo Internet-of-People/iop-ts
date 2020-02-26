@@ -4,17 +4,20 @@ import {
   Authentication,
   authenticationFromData,
   Did,
+  IBlockHeightChange,
+  IDryRunOperationError,
   IMorpheusOperations,
   IMorpheusQueries,
   IMorpheusState,
   IMorpheusStateHandler,
+  IOperationData,
   IOperationVisitor,
   ISignableOperationVisitor,
   ISignedOperationsData,
   IStateChange,
   MorpheusEvents,
   Right,
-  IDryRunOperationError, IOperationData, IBlockHeightChange, TransactionId,
+  TransactionId,
 } from '../interfaces';
 import { fromData, Signed } from './operations';
 
@@ -218,9 +221,6 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       },
       registerBeforeProof: (contentId: string): void => {
         state.registerBeforeProof(contentId, height);
-      },
-      revokeBeforeProof: (contentId: string): void => {
-        state.revokeBeforeProof(contentId, height);
       },
     };
   }

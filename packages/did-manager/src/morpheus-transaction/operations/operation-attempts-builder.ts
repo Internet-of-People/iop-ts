@@ -1,6 +1,6 @@
 import { Interfaces } from '@internet-of-people/keyvault';
 import { IOperationData, ISignedOperationsData, Operation } from '../../interfaces';
-import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
+import { RegisterBeforeProof } from './before-proof';
 import { Signed } from './signed';
 import { SignedOperationAttemptsBuilder, ISignedOperationBuilderNeedsDid } from './signed-operation-attempt-builder';
 import { toData } from './to-data';
@@ -14,11 +14,6 @@ export class OperationAttemptsBuilder {
 
   public registerBeforeProof(contentId: string): OperationAttemptsBuilder {
     this.attempts.push(new RegisterBeforeProof(contentId));
-    return this;
-  }
-
-  public revokeBeforeProof(contentId: string): OperationAttemptsBuilder {
-    this.attempts.push(new RevokeBeforeProof(contentId));
     return this;
   }
 

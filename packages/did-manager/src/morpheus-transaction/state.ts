@@ -96,12 +96,6 @@ export class MorpheusState implements IMorpheusState {
       this.beforeProofs.set(contentId, beforeProof);
     },
 
-    revokeBeforeProof: (contentId: string, height: number) => {
-      const beforeProof = this.getOrCreateBeforeProof(contentId);
-      beforeProof.apply.revoke(height);
-      this.beforeProofs.set(contentId, beforeProof);
-    },
-
     addKey: (
       height: number,
       signerAuth: Authentication,
@@ -214,12 +208,6 @@ export class MorpheusState implements IMorpheusState {
     registerBeforeProof: (contentId: string, height: number) => {
       const beforeProof = this.getOrCreateBeforeProof(contentId);
       beforeProof.revert.register(height);
-      this.beforeProofs.set(contentId, beforeProof);
-    },
-
-    revokeBeforeProof: (contentId: string, height: number) => {
-      const beforeProof = this.getOrCreateBeforeProof(contentId);
-      beforeProof.revert.revoke(height);
       this.beforeProofs.set(contentId, beforeProof);
     },
 
@@ -435,10 +423,7 @@ export class MorpheusState implements IMorpheusState {
         }
       },
       registerBeforeProof: (_contentId: string): void => {
-        /* eslint no-empty-function: 0 */
-      },
-      revokeBeforeProof: (_contentId: string): void => {
-        /* eslint no-empty-function: 0 */
+        // Not DID related
       },
     };
   }

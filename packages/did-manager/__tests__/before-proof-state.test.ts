@@ -25,12 +25,6 @@ describe('Cloning BeforeProofState', () => {
     expect(newProof.query.existsAt(5)).toBeFalsy();
     expect(oldProof.query.existsAt(5)).toBeTruthy();
   });
-
-  it('revoking proof does not affect old one', () => {
-    newProof.apply.revoke(7);
-    expect(newProof.query.existsAt(7)).toBeFalsy();
-    expect(oldProof.query.existsAt(7)).toBeTruthy();
-  });
 });
 
 

@@ -2,7 +2,6 @@ import {
   IOperationData,
   IOperationVisitor,
   IRegisterBeforeProofData,
-  IRevokeBeforeProofData,
   ISignedOperationsData,
   Operation,
   OperationType,
@@ -19,14 +18,6 @@ class ToDataVisitor implements IOperationVisitor<IOperationData> {
   public registerBeforeProof(contentId: string): IOperationData {
     const result: IRegisterBeforeProofData = {
       operation: OperationType.RegisterBeforeProof,
-      contentId,
-    };
-    return result;
-  }
-
-  public revokeBeforeProof(contentId: string): IOperationData {
-    const result: IRevokeBeforeProofData = {
-      operation: OperationType.RevokeBeforeProof,
       contentId,
     };
     return result;

@@ -2,8 +2,8 @@ import { Transaction } from '../src/morpheus-transaction';
 
 describe('MorpheusTransaction', () => {
   const operationAttempts1 = [
-    { operation: 'registerBeforeProof', contentId: 'PROOF' },
-    { operation: 'revokeBeforeProof', contentId: 'OLD_PROOF' },
+    { operation: 'registerBeforeProof', contentId: 'PROOF1' },
+    { operation: 'registerBeforeProof', contentId: 'PROOF2' },
   ];
   const operationAttempts2 = [
     'this', 'could be', 'anything', 'really', 5, 'not sure if that is good',

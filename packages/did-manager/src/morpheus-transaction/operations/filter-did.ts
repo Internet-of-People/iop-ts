@@ -63,8 +63,5 @@ export const visitorFilterDid = (expectedDid: Did): IOperationVisitor<SignableOp
     registerBeforeProof: (_contentId: string): SignableOperation[] => {
       return [];
     },
-    revokeBeforeProof: (_contentId: string): SignableOperation[] => {
-      return [];
-    },
   };
 };

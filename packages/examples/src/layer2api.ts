@@ -30,12 +30,24 @@ export class Layer2Api {
     return Layer2Api.instance;
   }
 
+  public async beforeProofExists(contentId: string, height?: number): Promise<boolean> {
+    console.log(`Getting if content ${contentId} exists at ${height || 'now'}...`);
+    let url = `/before-proof/${contentId}/exists`;
+
+    if (height) {
+      url = `${url}/${height}`;
+    }
+    const resp = await this.api.get(url);
+    const exists: boolean = resp.data;
+    return exists;
+  }
+
   public async getDidDocument(did: Interfaces.Did, height?: number): Promise<Interfaces.IDidDocument> {
     console.log(`Getting Did document ${did} at ${height || 'now'}...`);
     let url = `/did/${did}/document`;
 
     if (height) {
-      url = `${url }/${height}`;
+      url = `${url}/${height}`;
     }
     const resp = await this.api.get(url);
     const documentData: Interfaces.IDidDocumentData = resp.data;

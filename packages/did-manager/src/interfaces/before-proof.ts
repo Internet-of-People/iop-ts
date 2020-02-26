@@ -6,7 +6,6 @@ export interface IBeforeProofQueries {
 
 export interface IBeforeProofOperations {
   register(height: number): void;
-  revoke(height: number): void;
 }
 
 export type IBeforeProofState = IState<IBeforeProofQueries, IBeforeProofOperations>;

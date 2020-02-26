@@ -23,16 +23,7 @@ export class MorpheusTransaction extends Transactions.Transaction {
   };
 
   /**
-   * Returns a transaction's (a collection of operation attempts) schema, like:
-   * {
-   *  operationAttempts: [{
-   *    operation: 'registerBeforeProof',
-   *    contentId: 'my content id'
-   *  },{
-   *    operation: 'revokeBeforeProof',
-   *    contentId: 'old content id'
-   *  }]
-   * }
+   * Returns the schema of the Morpheus transaction. The asset consists of a collection of operation attempts.
    */
   public static getSchema(): Transactions.schemas.TransactionSchema {
     // noinspection TypeScriptValidateJSTypes

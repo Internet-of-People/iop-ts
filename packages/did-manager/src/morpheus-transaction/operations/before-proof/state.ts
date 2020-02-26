@@ -17,20 +17,11 @@ export class BeforeProofState implements IBeforeProofState {
       }
       this.periods.apply.set(height, true);
     },
-    revoke: (height: number) => {
-      if (!this.periods.query.get(height)) {
-        throw new Error(`Before proof ${this.contentId} is not registered at ${height}`);
-      }
-      this.periods.apply.set(height, false);
-    },
   };
 
   public readonly revert: IBeforeProofOperations = {
     register: (height: number) => {
       this.periods.revert.set(height, true);
-    },
-    revoke: (height: number) => {
-      this.periods.revert.set(height, false);
     },
   };
 

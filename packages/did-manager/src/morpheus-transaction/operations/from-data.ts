@@ -2,11 +2,10 @@ import {
   IOperationData,
   IOperationTypeVisitor,
   IRegisterBeforeProofData,
-  IRevokeBeforeProofData,
   ISignedOperationsData,
   Operation,
 } from '../../interfaces';
-import { RegisterBeforeProof, RevokeBeforeProof } from './before-proof';
+import { RegisterBeforeProof } from './before-proof';
 import { Signed } from './signed';
 import { visitOperation } from './visitor';
 
@@ -24,11 +23,6 @@ class FromData implements IOperationTypeVisitor<Operation> {
   public registerBeforeProof(): Operation {
     const params = this.data as IRegisterBeforeProofData;
     return new RegisterBeforeProof(params.contentId);
-  }
-
-  public revokeBeforeProof(): Operation {
-    const params = this.data as IRevokeBeforeProofData;
-    return new RevokeBeforeProof(params.contentId);
   }
 }
 

@@ -11,10 +11,6 @@ class SchemaVisitor implements IOperationTypeVisitor<unknown> {
   public registerBeforeProof(): unknown {
     return BeforeProofSchemas.registerBeforeProofSchema;
   }
-
-  public revokeBeforeProof(): unknown {
-    return BeforeProofSchemas.revokeBeforeProofSchema;
-  }
 }
 
 export const operationSchemas = (): unknown[] => {
