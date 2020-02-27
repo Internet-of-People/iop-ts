@@ -82,7 +82,7 @@ export class Layer2Api {
     if (resp.status === 404) {
       return null;
     } else {
-      return resp.data;
+      return resp.data.transactionId;
     }
   }
 }

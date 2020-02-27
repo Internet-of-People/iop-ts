@@ -87,8 +87,12 @@ export interface IMorpheusQueries {
   beforeProofExistsAt(contentId: string, height?: number): boolean;
   isConfirmed(transactionId: string): Optional<boolean>;
   getDidDocumentAt(did: Did, height: number): IDidDocument;
-  getDidTransactionIds(did: Did, includeAttempts: boolean,
-    fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[];
+  getDidTransactionIds(
+    did: Did,
+    includeAttempts: boolean,
+    fromHeightInc: number,
+    untilHeightExc?: number,
+  ): ITransactionIdHeight[];
 }
 
 export type IMorpheusState = IState<IMorpheusQueries, IMorpheusOperations>;

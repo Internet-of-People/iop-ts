@@ -61,6 +61,11 @@ export class Layer2API {
           const { params: { did } } = request;
           this.log.debug(`Getting last DID transactions for ${did}`);
           const transactionIds = this.stateHandler.query.getDidTransactionIds(did, false, 0);
+
+          if (!transactionIds.length) {
+            throw notFound(`DID ${did} has no transactions yet`);
+          }
+
           return transactionIds[transactionIds.length - 1];
         },
       },
