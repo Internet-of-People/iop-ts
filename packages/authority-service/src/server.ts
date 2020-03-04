@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-
-import { IApi } from './api';
+import { AuthorityAPI } from '@internet-of-people/sdk';
 
 type AsyncRequestHandler = (req: express.Request, res: express.Response) => Promise<void>;
 
@@ -24,9 +23,9 @@ const jsonBody = bodyParser.json({});
 
 export class Server {
   public readonly app: express.Application;
-  private readonly api: IApi;
+  private readonly api: AuthorityAPI.IApi;
 
-  public constructor(api: IApi) {
+  public constructor(api: AuthorityAPI.IApi) {
     this.api = api;
     this.app = express();
     this.app.use(handleError);

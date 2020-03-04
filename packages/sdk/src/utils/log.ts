@@ -1,6 +1,6 @@
 import { Logger } from '@arkecosystem/core-interfaces';
 
-export const COMPONENT_NAME = 'morpheus-logger';
+export const LOGGER_COMPONENT_NAME = 'morpheus-logger';
 
 export interface IAppLog {
   readonly appName: string;

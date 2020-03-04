@@ -1,9 +1,3 @@
-import { HashType, hashAsBuffer } from 'bigint-hash';
-import multibase from 'multibase';
-import { randomBytes } from 'crypto';
-
-import { canonicalJson } from './canonicalJson';
-
 export interface IContent {
   nonce?: Nonce;
 }
@@ -80,28 +74,3 @@ export interface ISigned<T extends IContent> extends IContent {
   signature: ISignature;
   content: Content<T>;
 }
-
-export const defaultDigest = (json: string): string => {
-  const hash = hashAsBuffer(HashType.SHA3_256, Buffer.from(json, 'utf8'));
-  return `cj${ multibase.encode('base64url', hash)}`;
-};
-
-/**
- * Calculates the ContentId of any content representible as a JSON object.
- * The calculation collapses complex structures by recursively replacing
- * leaf object values with their ContentId. When it finds a cycle among the
- * objects, it throws an exception.
- *
- * @param content Any object, but not an array or a string
- */
-export const jsonDigest = <T extends IContent>(content: T): ContentId => {
-  return JSON.parse(canonicalJson(content, defaultDigest));
-};
-
-/**
- * Produces a 45 character string with 264 bits of entropy to be used as a nonce.
- */
-export const nonce264 = (): Nonce => {
-  const buf = randomBytes(33); // produces 44 full symbols of base64
-  return multibase.encode('base64url', buf).toString('ascii');
-};

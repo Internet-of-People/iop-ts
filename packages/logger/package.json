@@ -1,29 +1,21 @@
 {
   "name": "@internet-of-people/logger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "A simple logger utility for Morpheus packages",
+  "description": "DEPRECATED, see the README",
   "repository": "https://github.com/internet-of-people/morpheus-ts",
   "license": "GPL-3.0-or-later",
-  "main": "./dist/main.js",
-  "typings": "./dist/main.d.ts",
   "scripts": {
-    "build": "npm run build:src",
-    "build:src": "tsc -p . ",
-    "lint": "npm run lint:src",
-    "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
+    "build": "echo ignored",
+    "build:src": "echo ignored",
+    "lint": "echo ignored",
+    "lint:src": "echo ignored",
     "clean": "rimraf dist && rimraf node_modules",
     "test": "echo ignored"
-  },
-  "dependencies": {
-    "@arkecosystem/core-interfaces": "^2.6.10"
-  },
-  "devDependencies": {
-    "typescript": "3.7.2"
   }
 }

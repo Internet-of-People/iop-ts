@@ -122,6 +122,14 @@ Here we describe how can the packages be used and what responsbility a package h
 
 This package contains a WIP PoC for the Authority entity described in the specification.
 
+#### inspector-service
+
+This package contains a WIP PoC for the Inspector/Verifier entity described in the specification.
+
+#### sdk
+
+Contains all interfaces and tool needed for communication with Morpheus, Authorities or Inspectors.
+
 #### examples
 
 This package contains a command line NodeJS application where you can try out the available endpoints. There you can also observe the code to see how the components (like did-manager) are used. For more details how to use it, please check its [README](packages/examples/README.md).

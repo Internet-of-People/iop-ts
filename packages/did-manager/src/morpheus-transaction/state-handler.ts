@@ -1,4 +1,4 @@
-import { IAppLog } from '@internet-of-people/logger';
+import { Utils } from '@internet-of-people/sdk';
 import { MorpheusState } from './state';
 import {
   Authentication,
@@ -34,7 +34,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
   private corrupted = false;
 
   public constructor(
-    private readonly logger: IAppLog,
+    private readonly logger: Utils.IAppLog,
     private readonly eventEmitter: NodeJS.EventEmitter,
   ) {
   }

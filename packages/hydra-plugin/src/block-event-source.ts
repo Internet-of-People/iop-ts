@@ -1,6 +1,6 @@
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { IAppLog } from '@internet-of-people/logger';
+import { Utils } from '@internet-of-people/sdk';
 
 import { IInitializable } from './main';
 import { Scheduler } from './scheduler';
@@ -19,7 +19,7 @@ export class BlockEventSource implements IBlockEventSource {
   private listeners: [string, IBlockListener][];
 
   public constructor(
-    private readonly log: IAppLog,
+    private readonly log: Utils.IAppLog,
     private readonly emitter: NodeJS.EventEmitter,
     private readonly schedule: Scheduler,
   ) {

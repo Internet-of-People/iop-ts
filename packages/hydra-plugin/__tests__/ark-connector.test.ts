@@ -1,6 +1,6 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { IAppLog } from '@internet-of-people/logger';
 import { Interfaces } from '@internet-of-people/did-manager';
+import { Utils } from '@internet-of-people/sdk';
 import { EventEmitter } from 'events';
 import { MorpheusArkConnector } from '../src/ark-connector';
 import { IBlockEventSource, IBlockListener } from '../src/block-event-source';
@@ -15,7 +15,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as IAppLog;
+  public log = this.logMock as Utils.IAppLog;
 
   public blockEventSourceMock = {
     init: jest.fn<Promise<void>, []>(),

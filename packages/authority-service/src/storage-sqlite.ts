@@ -4,10 +4,9 @@
 import sqlite from 'sqlite';
 import { SQL } from 'sql-template-strings';
 import moment from 'moment';
+import { AuthorityAPI, IO } from '@internet-of-people/sdk';
 
 import { IStorage, IRequestData } from './storage';
-import { ContentId } from './sdk';
-import { Status } from './api';
 
 export class SqliteStorage implements IStorage {
   private constructor(private readonly db: sqlite.Database) {}
@@ -25,13 +24,13 @@ export class SqliteStorage implements IStorage {
     await this.db.migrate({ migrationsPath });
   }
 
-  public async addProcess(contentId: ContentId): Promise<boolean> {
+  public async addProcess(contentId: IO.ContentId): Promise<boolean> {
     const query = SQL`INSERT INTO Process (contentId) VALUES (${contentId});`;
     const result: sqlite.Statement = await this.db.run(query);
     return result.changes !== 1;
   }
 
-  public async getProcesses(): Promise<ContentId[]> {
+  public async getProcesses(): Promise<IO.ContentId[]> {
     const query = SQL`SELECT contentId FROM Process;`;
     /* eslint @typescript-eslint/no-explicit-any: 0 */
     const rows: any[] = await this.db.all(query);
@@ -169,17 +168,17 @@ export class SqliteStorage implements IStorage {
     return moment(iso, moment.ISO_8601).unix();
   }
 
-  private statusToNumber(status: Status): number {
+  private statusToNumber(status: AuthorityAPI.Status): number {
     switch (status) {
-      case Status.Pending: return 0;
-      case Status.Approved: return 1;
-      case Status.Rejected: return 2;
+      case AuthorityAPI.Status.Pending: return 0;
+      case AuthorityAPI.Status.Approved: return 1;
+      case AuthorityAPI.Status.Rejected: return 2;
       default: throw new Error(`Unknown status ${status}`);
     }
   }
 
-  private numberToStatus(status: number): Status {
-    const result = [ Status.Pending, Status.Approved, Status.Rejected ][status];
+  private numberToStatus(status: number): AuthorityAPI.Status {
+    const result = [ AuthorityAPI.Status.Pending, AuthorityAPI.Status.Approved, AuthorityAPI.Status.Rejected ][status];
 
     if (!result) {
       throw new Error(`Unknown status code ${status}`);

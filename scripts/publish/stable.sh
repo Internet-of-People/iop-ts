@@ -2,7 +2,7 @@
 
 git checkout master
 
-declare -a packages=("did-manager" "examples" "hydra-plugin" "keyvault" "logger")
+declare -a packages=("did-manager" "examples" "hydra-plugin" "keyvault" "logger","sdk")
 
 for package in "${packages[@]}"; do
     cd packages/$package

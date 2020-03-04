@@ -1,6 +1,6 @@
 import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
 import { notFound } from '@hapi/boom';
-import { IAppLog } from '@internet-of-people/logger';
+import { Utils } from '@internet-of-people/sdk';
 import { Interfaces } from '@internet-of-people/did-manager';
 import { DidOperationExtractor, ITransactionRepository } from './did-operations';
 
@@ -28,7 +28,7 @@ export class Layer2API {
   private readonly didOperations: DidOperationExtractor;
 
   public constructor(
-    private readonly log: IAppLog,
+    private readonly log: Utils.IAppLog,
     private readonly stateHandler: Interfaces.IMorpheusStateHandler,
     private readonly hapi: HapiServer,
     transactionRepo: ITransactionRepository,

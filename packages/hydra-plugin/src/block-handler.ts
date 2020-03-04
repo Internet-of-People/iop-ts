@@ -1,6 +1,6 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { IAppLog } from '@internet-of-people/logger';
+import { Utils } from '@internet-of-people/sdk';
 import { IBlockListener } from './block-event-source';
 
 const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTransaction;
@@ -11,7 +11,7 @@ const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTr
 export class BlockHandler implements IBlockListener {
   public constructor(
     private readonly stateHandler: Interfaces.IMorpheusStateHandler,
-    private readonly log: IAppLog,
+    private readonly log: Utils.IAppLog,
   ) {}
 
   public async onBlockApplied(blockData: CryptoIf.IBlockData): Promise<void> {

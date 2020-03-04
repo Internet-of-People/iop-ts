@@ -5,16 +5,15 @@ import { SqliteStorage } from '../src/storage-sqlite';
 import { Service } from '../src/service';
 import { Server } from '../src/server';
 import { addProcesses } from '../src/config';
-import { IProcess, nonce264, ISigned, IWitnessRequest } from '../src/sdk';
-import { CapabilityLink, IRequestStatus } from '../src/api';
+import { AuthorityAPI, IO, Utils } from '@internet-of-people/sdk';
 
 import req1 from './signedWitnessRequest1.json';
 import stmt2 from './signedWitnessStatement1.json';
 
 describe('Service', () => {
   const dbFilename = 'db/test.sqlite';
-  let cap1: CapabilityLink | null = null;
-  let cap2: CapabilityLink | null = null;
+  let cap1: AuthorityAPI.CapabilityLink | null = null;
+  let cap2: AuthorityAPI.CapabilityLink | null = null;
 
   const createStorage = async(): Promise<SqliteStorage> => {
     return SqliteStorage.open(dbFilename);
@@ -55,7 +54,7 @@ describe('Service', () => {
       .get('/blob/cjuc1fS3_nrxuK0bRr3P3jZeFeT51naOCMXDPekX8rPqho')
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const process: IProcess = res.body;
+        const process: IO.IProcess = res.body;
         expect(process.name).toBe('Age-over based on digitalized ID');
         expect(process.version).toBe(1);
         expect(process.description).toBe('Using a digitalized ID card you can prove you are over an age');
@@ -85,7 +84,7 @@ describe('Service', () => {
       .get(`/requests/${cap1}/status`)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const { body }: { body: IRequestStatus; } = res;
+        const { body }: { body: AuthorityAPI.IRequestStatus; } = res;
         expect(body.status).toBe('pending');
         expect(body.signedStatement).toBeNull();
         expect(body.rejectionReason).toBeNull();
@@ -121,7 +120,7 @@ describe('Service', () => {
       .get(`/requests/${cap1}/status`)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const { body }: { body: IRequestStatus; } = res;
+        const { body }: { body: AuthorityAPI.IRequestStatus; } = res;
         expect(body.status).toBe('rejected');
         expect(body.signedStatement).toBeNull();
         expect(body.rejectionReason).toBe('Just because');
@@ -131,8 +130,8 @@ describe('Service', () => {
   it('sending in the request with a different nonce', async() => {
     const server = await createServer();
     expect(cap1).not.toBeNull();
-    const req2: ISigned<IWitnessRequest> = { ...req1 };
-    (req2.content as IWitnessRequest).nonce = nonce264();
+    const req2: IO.ISigned<IO.IWitnessRequest> = { ...req1 };
+    (req2.content as IO.IWitnessRequest).nonce = Utils.nonce264();
     await request(server.app)
       .post('/requests')
       .send(req1)

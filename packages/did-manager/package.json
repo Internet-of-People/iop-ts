@@ -37,7 +37,7 @@
     "@arkecosystem/core-interfaces": "^2.6.10",
     "@arkecosystem/crypto": "^2.6.10",
     "@internet-of-people/keyvault": "1.0.0",
-    "@internet-of-people/logger": "1.0.0",
+    "@internet-of-people/sdk": "1.0.0",
     "bytebuffer": "5.0.1",
     "json-stable-stringify": "1.0.1",
     "lodash.clonedeep": "4.5.0",

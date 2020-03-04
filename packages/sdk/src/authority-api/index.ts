@@ -1,10 +1,4 @@
-import {
-  ContentId,
-  DateTime,
-  ISigned,
-  IWitnessRequest,
-  IWitnessStatement,
-} from './sdk';
+import { ISigned, IWitnessStatement, ContentId, DateTime, IWitnessRequest } from '../interfaces/io';
 
 export type CapabilityLink = string; // Example "uFoobar"
 

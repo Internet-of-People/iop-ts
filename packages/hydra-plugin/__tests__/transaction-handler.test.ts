@@ -3,7 +3,7 @@ import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces'
 import { Managers, Transactions, Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Wallets } from '@arkecosystem/core-state';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '@internet-of-people/logger';
+import { Utils } from '@internet-of-people/sdk';
 import { asValue } from 'awilix';
 import Optional from 'optional-js';
 import { MorpheusTransactionHandler } from '../src/transaction-handler';
@@ -17,7 +17,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as IAppLog;
+  public log = this.logMock as Utils.IAppLog;
 
   public stateHandlerMock = {
     query: {
@@ -47,7 +47,7 @@ class Fixture {
       app.register(READER_FACTORY_COMPONENT, asValue(() => {
         return this.transactionReader;
       }));
-      app.register(LOGGER_COMPONENT, asValue(this.log));
+      app.register(Utils.LOGGER_COMPONENT_NAME, asValue(this.log));
     } catch (e) {
       console.log(`Error in fixture setup: ${e}`);
     }

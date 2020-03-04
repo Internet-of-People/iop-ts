@@ -1,7 +1,6 @@
 import { Container, Database } from '@arkecosystem/core-interfaces';
 import { Handlers } from '@arkecosystem/core-transactions';
 import Optional from 'optional-js';
-import { AppLog, COMPONENT_NAME as LOGGER_COMPONENT, IAppLog } from '@internet-of-people/logger';
 import { asValue } from 'awilix';
 import { Server as HapiServer } from '@hapi/hapi';
 import { MorpheusArkConnector } from './ark-connector';
@@ -10,6 +9,7 @@ import { BlockHandler } from './block-handler';
 import { schedule } from './scheduler';
 import { Layer2API } from './layer2-api';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { Utils } from '@internet-of-people/sdk';
 import { MorpheusTransactionHandler } from './transaction-handler';
 import {
   COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME,
@@ -26,10 +26,10 @@ export interface IInitializable {
 }
 
 export class Composite implements IInitializable {
-  private readonly log: IAppLog;
+  private readonly log: Utils.IAppLog;
   private readonly subcomponents: IInitializable[];
 
-  public constructor(log: IAppLog, ...subcomponents: IInitializable[]) {
+  public constructor(log: Utils.IAppLog, ...subcomponents: IInitializable[]) {
     this.log = log;
     this.subcomponents = subcomponents;
   }
@@ -51,7 +51,7 @@ export class Composite implements IInitializable {
 const attachHTTPApi = (
   container: Container.IContainer,
   stateHandler: Interfaces.IMorpheusStateHandler,
-  log: IAppLog,
+  log: Utils.IAppLog,
 ): void => {
   log.info('Trying to attach Morpheus HTTP API...');
 
@@ -82,7 +82,7 @@ const attachHTTPApi = (
 
 // TODO: separate register's content into a container, hence it can be tested
 const register = async(container: Container.IContainer): Promise<Composite> => {
-  const log = new AppLog(container.resolvePlugin('logger'));
+  const log = new Utils.AppLog(container.resolvePlugin('logger'));
 
   log.info('Starting up Morpheus');
   const eventEmitter: NodeJS.EventEmitter = container.resolvePlugin('event-emitter');
@@ -99,7 +99,7 @@ const register = async(container: Container.IContainer): Promise<Composite> => {
   const stateHandler = new MorpheusStateHandler(log, eventEmitter);
   container.register(READER_FACTORY_COMPONENT_NAME, asValue(transactionReaderFactory));
   container.register(Interfaces.MORPHEUS_STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
-  container.register(LOGGER_COMPONENT, asValue(log));
+  container.register(Utils.LOGGER_COMPONENT_NAME, asValue(log));
 
   const blockHandler = new BlockHandler(stateHandler, log);
 

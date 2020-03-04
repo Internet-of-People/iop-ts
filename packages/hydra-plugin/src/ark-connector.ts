@@ -1,14 +1,14 @@
-import { IAppLog } from '@internet-of-people/logger';
+import { Utils } from '@internet-of-people/sdk';
+import { Interfaces } from '@internet-of-people/did-manager';
 import { IBlockEventSource, IBlockListener } from './block-event-source';
 import { IInitializable } from './main';
-import { Interfaces } from '@internet-of-people/did-manager';
 
 export class MorpheusArkConnector implements IInitializable {
   public static readonly SUBSCRIPTION_ID: string = 'Morpheus block-handler';
 
   public constructor(
     private readonly eventEmitter: NodeJS.EventEmitter,
-    private readonly log: IAppLog,
+    private readonly log: Utils.IAppLog,
     private readonly blockHandler: IBlockListener,
     private readonly blockEventSource: IBlockEventSource,
   ) {}

@@ -1,7 +1,7 @@
 /* eslint no-undefined: 0 */
 import { Server as HapiServer } from '@hapi/hapi';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { IAppLog } from '@internet-of-people/logger';
+import { Utils } from '@internet-of-people/sdk';
 import { createServer } from '@arkecosystem/core-http-utils';
 import Optional from 'optional-js';
 import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
@@ -53,7 +53,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as IAppLog;
+  public log = this.logMock as Utils.IAppLog;
   public transactionRepo = new TransactionTestRepo();
 
   public stateHandler = new MorpheusStateHandler(this.log, this.emitter);
