@@ -27,12 +27,13 @@ export class DidOperationExtractor {
     fromHeightInc: number,
     untilHeightExc?: number,
   ): Promise<IDidOperation[]> {
-    const transactionIdHeights = this.stateHandler.query.getDidTransactionIds(did,
+    const transactionIdHeightsDesc = this.stateHandler.query.getDidTransactionIds(did,
       includeAttempts, fromHeightInc, untilHeightExc);
+    const transactionIdHeightsAsc = transactionIdHeightsDesc.reverse();
 
-    const result = new Array<IDidOperation>();
+    const resultAsc = new Array<IDidOperation>();
 
-    for (const transactionIdHeight of transactionIdHeights) {
+    for (const transactionIdHeight of transactionIdHeightsAsc) {
       const { transactionId } = transactionIdHeight;
       const morpheusTx = await this.transactions.getMorpheusTransaction(transactionId);
       const txOperations = morpheusTx
@@ -54,8 +55,8 @@ export class DidOperationExtractor {
           valid: this.stateHandler.query.isConfirmed(transactionId).orElse(false),
         };
       });
-      result.push(...didOperations);
+      resultAsc.push(...didOperations);
     }
-    return result;
+    return resultAsc.reverse();
   }
 }

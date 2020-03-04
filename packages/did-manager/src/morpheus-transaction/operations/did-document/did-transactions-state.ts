@@ -32,7 +32,7 @@ export class DidTransactionsState implements IDidTransactionsState {
         return entry.transactionId === transactionId;
       }) < 0) {
         // TODO keep invariant that transactions are ordered by height
-        transactions.push({ transactionId, height });
+        transactions.unshift({ transactionId, height });
       }
     },
   };

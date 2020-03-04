@@ -333,7 +333,7 @@ export class MorpheusState implements IMorpheusState {
         return this.query.isConfirmed(entry.transactionId).orElse(false);
       },
     );
-    const lastEntry = validTxIds.length > 0 ? validTxIds[validTxIds.length - 1] : null;
+    const lastEntry = validTxIds.length > 0 ? validTxIds[0] : null;
     const expectedTxId = lastEntry === null ? null : lastEntry.transactionId;
 
     if (lastTxId !== expectedTxId) {

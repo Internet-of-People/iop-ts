@@ -535,13 +535,25 @@ describe('Layer2API', () => {
 
   const defaultDidExpectedOps = [
     {
+      'transactionId': 'secondTransactionId',
+      'blockHeight': 101,
+      'data': {
+        'operation': 'revokeKey',
+        'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'lastTxId': 'firstTransactionId',
+        'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
+      },
+      'valid': true,
+    },
+    {
       'transactionId': 'firstTransactionId',
       'blockHeight': 100,
       'data': {
-        'operation': 'addKey',
+        'operation': 'addRight',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
         'lastTxId': null,
         'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
+        'right': 'update',
       },
       'valid': true,
     },
@@ -561,22 +573,10 @@ describe('Layer2API', () => {
       'transactionId': 'firstTransactionId',
       'blockHeight': 100,
       'data': {
-        'operation': 'addRight',
+        'operation': 'addKey',
         'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
         'lastTxId': null,
         'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
-        'right': 'update',
-      },
-      'valid': true,
-    },
-    {
-      'transactionId': 'secondTransactionId',
-      'blockHeight': 101,
-      'data': {
-        'operation': 'revokeKey',
-        'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
-        'lastTxId': 'firstTransactionId',
-        'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
       },
       'valid': true,
     },
@@ -587,8 +587,9 @@ describe('Layer2API', () => {
 
     const defaultDidData = await getDidTransactions(false, defaultDid, blockHeight, endHeight);
     expect(defaultDidData).toStrictEqual([
+      { transactionId: 'secondTransactionId', height: 101 },
       { transactionId: 'firstTransactionId', height: 100 },
-      { transactionId: 'secondTransactionId', height: 101 }]);
+    ]);
 
     const did2Data = await getDidTransactions(false, did2, blockHeight, endHeight);
     expect(did2Data).toStrictEqual([{ transactionId: 'secondTransactionId', height: 101 }]);
@@ -633,13 +634,15 @@ describe('Layer2API', () => {
 
     const defaultDidData = await getDidTransactions(true, defaultDid, blockHeight, endHeight);
     expect(defaultDidData).toStrictEqual([
+      { transactionId: 'secondTransactionId', height: 101 },
       { transactionId: 'firstTransactionId', height: 100 },
-      { transactionId: 'secondTransactionId', height: 101 }]);
+    ]);
 
     const did2Data = await getDidTransactions(true, did2, blockHeight, endHeight);
     expect(did2Data).toStrictEqual([
+      { transactionId: 'thirdTransactionId', height: 102 },
       { transactionId: 'secondTransactionId', height: 101 },
-      { transactionId: 'thirdTransactionId', height: 102 }]);
+    ]);
 
     const did3Data = await getDidTransactions(true, did3, blockHeight, endHeight);
     expect(did3Data).toStrictEqual([{ transactionId: 'thirdTransactionId', height: 102 }]);
@@ -654,17 +657,6 @@ describe('Layer2API', () => {
     const did2Data = await getDidOperations(true, did2, blockHeight, endHeight);
     expect(did2Data).toStrictEqual([
       {
-        'transactionId': 'secondTransactionId',
-        'blockHeight': 101,
-        'data': {
-          'operation': 'addKey',
-          'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
-          'lastTxId': null,
-          'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
-        },
-        'valid': true,
-      },
-      {
         'transactionId': 'thirdTransactionId',
         'blockHeight': 102,
         'data': {
@@ -674,6 +666,17 @@ describe('Layer2API', () => {
           'auth': 'iezkXs7Xd8SDWLaGKUAjEf53W',
         },
         'valid': false,
+      },
+      {
+        'transactionId': 'secondTransactionId',
+        'blockHeight': 101,
+        'data': {
+          'operation': 'addKey',
+          'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'lastTxId': null,
+          'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
+        },
+        'valid': true,
       },
     ]);
 

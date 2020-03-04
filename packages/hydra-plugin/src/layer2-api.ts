@@ -66,7 +66,7 @@ export class Layer2API {
             throw notFound(`DID ${did} has no transactions yet`);
           }
 
-          return transactionIds[transactionIds.length - 1];
+          return transactionIds[0];
         },
       },
       {
