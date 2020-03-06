@@ -31,11 +31,11 @@ export interface IPublicApi {
   getRequestStatus(capabilityLink: CapabilityLink): Promise<IRequestStatus>;
 }
 
-export interface IClerkApi {
+export interface IPrivateApi {
   listRequests(): Promise<IRequestEntry[]>;
   getPrivateBlob(contentId: ContentId): Promise<unknown>; // ISigned<IWitnessRequest> download
   approveRequest(capabilityLink: CapabilityLink, signedStatement: ISigned<IWitnessStatement>): Promise<void>;
   rejectRequest(capabilityLink: CapabilityLink, rejectionReason: string): Promise<void>;
 }
 
-export interface IApi extends IPublicApi, IClerkApi {}
+export interface IApi extends IPublicApi, IPrivateApi {}

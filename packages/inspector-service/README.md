@@ -1,6 +1,6 @@
-# Morpheus Authority Service
+# Morpheus Inspector / Verifier Service
 
-A simplistic authority service for Morpheus.
+A simplistic inspector/verifier service for Morpheus.
 
 ## Table of Contents <!-- omit in toc -->
 

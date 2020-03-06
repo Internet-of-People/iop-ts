@@ -41,8 +41,12 @@ export class SqliteStorage implements IStorage {
 
   public async getPublicBlob(contentId: string): Promise<unknown> {
     const query = SQL`SELECT content FROM PublicBlob WHERE contentId = ${contentId};`;
-    const { content } = await this.db.get(query);
-    return JSON.parse(content);
+    const row = await this.db.get(query);
+
+    if (!row) {
+      return null;
+    }
+    return JSON.parse(row.content);
   }
 
   public async setPublicBlob(contentId: string, content: unknown): Promise<void> {
@@ -56,8 +60,12 @@ export class SqliteStorage implements IStorage {
 
   public async getPrivateBlob(contentId: string): Promise<unknown> {
     const query = SQL`SELECT content FROM PrivateBlob WHERE contentId = ${contentId};`;
-    const { content } = await this.db.get(query);
-    return JSON.parse(content);
+    const row = await this.db.get(query);
+
+    if (!row) {
+      return null;
+    }
+    return JSON.parse(row.content);
   }
 
   public async setPrivateBlob(contentId: string, content: unknown): Promise<void> {

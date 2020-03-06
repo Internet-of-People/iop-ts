@@ -15,6 +15,7 @@ export type Signature = string; // Example "sezBar"
 export type Nonce = string; // Example "zSomething"
 export type KeyLink = string; // Example "did:morpheus:ezBlah#1"
 export type DateTime = string; // ISO8601-datetime like "20200206T130419Z"
+export type Duration = string; // ISO8601-duration like "P5M"
 
 export interface IProcess extends IContent {
   name: string;
@@ -43,7 +44,7 @@ export interface IWitnessRequest extends IContent {
 }
 
 export interface IWitnessStatement extends IContent {
-  claim: IClaim;
+  claim: Content<IClaim>;
   processId: ContentId; // IProcess
   constraints: {
     after: DateTime | null;
@@ -55,22 +56,36 @@ export interface IWitnessStatement extends IContent {
 }
 
 export interface IProvenClaim {
-  claim: Content<IClaim>;
+  claim: IClaim;
   statements: ISigned<IWitnessStatement>[];
 }
 
 export interface ILicense {
   issuedTo: Did;
   purpose: string;
-  expiry: DateTime;
+  expiry: Duration;
 }
 
 export interface IPresentation extends IContent {
-  claims: IProvenClaim[];
+  provenClaims: IProvenClaim[];
   licenses: ILicense[];
 }
 
 export interface ISigned<T extends IContent> extends IContent {
   signature: ISignature;
   content: Content<T>;
+}
+
+export interface IPrerequisite {
+  process: Content<IProcess>;
+  claimFields: string[];
+}
+
+export interface IScenario extends IContent {
+  name: string;
+  version: number;
+  description: string;
+  prerequisites: IPrerequisite[];
+  requiredLicenses: ILicense[];
+  resultSchema: Content<IDynamicContent> | null;
 }

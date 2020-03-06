@@ -44,6 +44,7 @@ export class Server {
         const blob = await this.api.getPublicBlob(contentId);
         res.status(200).json(blob);
       } catch (err) {
+        console.log(err);
         res.status(404).json(err.message);
       }
     }));
@@ -53,6 +54,7 @@ export class Server {
         const capabilityLink = await this.api.sendRequest(req.body);
         res.status(202).json({ capabilityLink });
       } catch (err) {
+        console.log(err);
         res.status(400).json(err.message);
       }
     }));
@@ -64,6 +66,7 @@ export class Server {
         const status = await this.api.getRequestStatus(capabilityLink);
         res.status(200).json(status);
       } catch (err) {
+        console.log(err);
         res.status(404).json(err.message);
       }
     }));
@@ -108,6 +111,7 @@ export class Server {
         const blob = await this.api.getPrivateBlob(contentId);
         res.status(200).json(blob);
       } catch (err) {
+        console.log(err);
         res.status(404).json({ error: err.message });
       }
     }));

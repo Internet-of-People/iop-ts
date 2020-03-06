@@ -1,0 +1,29 @@
+{
+  "name": "Swimming discount",
+  "version": 1,
+  "description": "Reduced prices based on your resident address",
+  "prerequisites": [
+    {
+      "process": "cjunI8lB1BEtampkcvotOpF-zr1XmsCRNvntciGl3puOkg",
+      "claimFields": ["."]
+    }
+  ],
+  "requiredLicenses": [
+    {
+      "issuedTo": "did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr",
+      "purpose": "Inspection by gate-keeper",
+      "expiry": "P5M"
+    }
+  ],
+  "resultSchema": {
+    "type": "object",
+    "required": ["discountPercentage"],
+    "properties": {
+      "discountPercentage": {
+        "type": "number",
+        "enum": [0, 5, 10],
+        "description": "Same district gets 10%, same city 5%, otherwise full price"
+      }
+    }
+  }
+}
