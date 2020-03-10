@@ -1,5 +1,5 @@
 import { KeyId, SignedMessage } from '../pkg';
 
 export interface IVault {
-  sign(message: Uint8Array, did: KeyId): SignedMessage;
+  sign(message: Uint8Array, id: KeyId): SignedMessage;
 }

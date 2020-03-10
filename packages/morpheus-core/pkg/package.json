@@ -1,0 +1,17 @@
+{
+  "name": "morpheus-core-wasm",
+  "collaborators": [
+    "IoP Ventures LLC <info@iop-ventures.com>",
+    "Rache Bartmoss <bartmoss@tutanota.com>",
+    "wigy <wigy_opensource_developer@yahoo.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "morpheus-core_bg.wasm",
+    "morpheus-core.js",
+    "morpheus-core_bg.js",
+    "morpheus-core.d.ts"
+  ],
+  "main": "morpheus-core.js",
+  "types": "morpheus-core.d.ts"
+}
