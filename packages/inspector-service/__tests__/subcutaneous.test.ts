@@ -39,7 +39,7 @@ describe('Service', () => {
       .get('/scenarios')
       .expect(200, {
         scenarios: [
-          'cjuacWXCijLpQ9vQvrCumkoSO5XqcWVuJN7jI938kImbCc',
+          'cjuvYCC8uF_K4hkAbTtaGhQH75r7K5w92Ao9iPZ3h3tI-Y',
         ],
       });
   });
@@ -47,7 +47,7 @@ describe('Service', () => {
   it('has scenario blob', async() => {
     const server = await createServer();
     await request(server.app)
-      .get('/blob/cjuacWXCijLpQ9vQvrCumkoSO5XqcWVuJN7jI938kImbCc')
+      .get('/blob/cjuvYCC8uF_K4hkAbTtaGhQH75r7K5w92Ao9iPZ3h3tI-Y')
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
         const scenario: IO.IScenario = res.body;
