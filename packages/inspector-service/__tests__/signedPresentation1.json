@@ -45,7 +45,14 @@
         ]
       }
     ],
-    "licenses": [],
+    "licenses": [
+      {
+        "issuedTo": "did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr",
+        "purpose": "Inspection by gate-keeper",
+        "validFrom": "2020-03-14T15:26:27.0",
+        "validUntil": "2020-03-14T15:45:0.0"
+      }
+    ],
     "nonce": "u1U9fIy/AE2sIA1Xi3523NzSsMnJrVU3Tv+q4rlGyhluQ"
   },
   "signature": {

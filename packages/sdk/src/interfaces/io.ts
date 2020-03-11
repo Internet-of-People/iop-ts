@@ -63,7 +63,8 @@ export interface IProvenClaim {
 export interface ILicense {
   issuedTo: Did;
   purpose: string;
-  expiry: Duration;
+  validFrom: DateTime;
+  validUntil: DateTime;
 }
 
 export interface IPresentation extends IContent {
@@ -81,11 +82,17 @@ export interface IPrerequisite {
   claimFields: string[];
 }
 
+export interface ILicenseSpecification {
+  issuedTo: Did;
+  purpose: string;
+  expiry: Duration;
+}
+
 export interface IScenario extends IContent {
   name: string;
   version: number;
   description: string;
   prerequisites: IPrerequisite[];
-  requiredLicenses: ILicense[];
+  requiredLicenses: ILicenseSpecification[];
   resultSchema: Content<IDynamicContent> | null;
 }
