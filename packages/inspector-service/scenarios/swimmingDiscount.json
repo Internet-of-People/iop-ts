@@ -59,7 +59,7 @@
         },
         "constraintsSchema": null
       },
-      "claimFields": ["address"]
+      "claimFields": [".address"]
     }
   ],
   "requiredLicenses": [
