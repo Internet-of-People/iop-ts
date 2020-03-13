@@ -1,4 +1,5 @@
-import { Right } from '../../../interfaces';
+import { IO } from '@internet-of-people/sdk';
+type Right = IO.Right;
 
 /* eslint max-classes-per-file: 0 */
 export class SystemRights {

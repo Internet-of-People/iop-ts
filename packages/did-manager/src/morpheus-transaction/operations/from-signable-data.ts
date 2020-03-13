@@ -1,5 +1,6 @@
+import { IO } from '@internet-of-people/sdk';
+
 import {
-  authenticationFromData,
   IAddKeyData,
   IAddRightData,
   IRevokeKeyData,
@@ -17,22 +18,22 @@ class FromSignableData implements ISignableOperationTypeVisitor<SignableOperatio
 
   public addKey(): SignableOperation {
     const params = this.data as IAddKeyData;
-    return new AddKey(params.did, params.lastTxId, authenticationFromData(params.auth), params.expiresAtHeight);
+    return new AddKey(params.did, params.lastTxId, IO.authenticationFromData(params.auth), params.expiresAtHeight);
   }
 
   public revokeKey(): SignableOperation {
     const params = this.data as IRevokeKeyData;
-    return new RevokeKey(params.did, params.lastTxId, authenticationFromData(params.auth));
+    return new RevokeKey(params.did, params.lastTxId, IO.authenticationFromData(params.auth));
   }
 
   public addRight(): SignableOperation {
     const params = this.data as IAddRightData;
-    return new AddRight(params.did, params.lastTxId, authenticationFromData(params.auth), params.right);
+    return new AddRight(params.did, params.lastTxId, IO.authenticationFromData(params.auth), params.right);
   }
 
   public revokeRight(): SignableOperation {
     const params = this.data as IRevokeRightData;
-    return new RevokeRight(params.did, params.lastTxId, authenticationFromData(params.auth), params.right);
+    return new RevokeRight(params.did, params.lastTxId, IO.authenticationFromData(params.auth), params.right);
   }
 
   public tombstoneDid(): SignableOperation {

@@ -3,19 +3,22 @@ import { Handlers } from '@arkecosystem/core-transactions';
 import Optional from 'optional-js';
 import { asValue } from 'awilix';
 import { Server as HapiServer } from '@hapi/hapi';
+
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
+import { IO, Utils } from '@internet-of-people/sdk';
+type TransactionId = IO.TransactionId;
+
 import { MorpheusArkConnector } from './ark-connector';
 import { BlockEventSource } from './block-event-source';
 import { BlockHandler } from './block-handler';
 import { schedule } from './scheduler';
 import { Layer2API } from './layer2-api';
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { Utils } from '@internet-of-people/sdk';
 import { MorpheusTransactionHandler } from './transaction-handler';
 import {
   COMPONENT_NAME as READER_FACTORY_COMPONENT_NAME,
   transactionReaderFactory,
 } from './transaction-reader-factory';
-import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
 const { MorpheusStateHandler: { MorpheusStateHandler } } = MorpheusTransaction;
 
@@ -67,7 +70,7 @@ const attachHTTPApi = (
   const database: Database.IDatabaseService = container.resolvePlugin('database');
   const transactionRepository: Database.ITransactionsBusinessRepository = database.transactionsBusinessRepository;
   const txDb = {
-    getMorpheusTransaction: async(txId: Interfaces.TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>> => {
+    getMorpheusTransaction: async(txId: TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>> => {
       const txDetails: CryptoIf.ITransactionData = await transactionRepository.findById(txId);
       const morpheusTx = txDetails as Interfaces.IMorpheusData;
       return Optional.ofNullable(morpheusTx?.asset);

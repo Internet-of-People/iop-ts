@@ -1,11 +1,14 @@
+import { asValue } from 'awilix';
+import Optional from 'optional-js';
 import { app } from '@arkecosystem/core-container';
 import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces';
 import { Managers, Transactions, Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Wallets } from '@arkecosystem/core-state';
+
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { Utils } from '@internet-of-people/sdk';
-import { asValue } from 'awilix';
-import Optional from 'optional-js';
+import { IO, Utils } from '@internet-of-people/sdk';
+type Did = IO.Did;
+
 import { MorpheusTransactionHandler } from '../src/transaction-handler';
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader } from '../src/transaction-reader-factory';
 
@@ -24,8 +27,8 @@ class Fixture {
       lastSeenBlockHeight: jest.fn<number, []>(),
       beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
-      getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Interfaces.Did, number]>(),
-      getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[], [Interfaces.Did, boolean, number, number]>(),
+      getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Did, number]>(),
+      getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[], [Did, boolean, number, number]>(),
     },
     applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),

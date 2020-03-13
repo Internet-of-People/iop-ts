@@ -1,9 +1,11 @@
-import { Utils } from '@internet-of-people/sdk';
+import { IO, Utils } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+
 import { MorpheusState } from './state';
 import {
-  Authentication,
-  authenticationFromData,
-  Did,
   IBlockHeightChange,
   IDryRunOperationError,
   IMorpheusOperations,
@@ -16,8 +18,6 @@ import {
   ISignedOperationsData,
   IStateChange,
   MorpheusEvents,
-  Right,
-  TransactionId,
 } from '../interfaces';
 import { fromData, Signed } from './operations';
 
@@ -210,7 +210,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     return {
       signed: (operations: ISignedOperationsData): void => {
         const signableOperations = Signed.getOperationsUnsafeWithoutSignatureChecking(operations);
-        const signerAuth = authenticationFromData(operations.signerPublicKey);
+        const signerAuth = IO.authenticationFromData(operations.signerPublicKey);
         const performSignableAtHeight = this.visitorPerformSignedOperationAtHeight(height, signerAuth, state);
 
         for (const signable of reverse ? signableOperations.slice().reverse() : signableOperations) {

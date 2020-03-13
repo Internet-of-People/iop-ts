@@ -1,12 +1,13 @@
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+
 import {
-  Authentication,
-  authenticationFromData,
-  Did,
   IDidDocument,
   IDidDocumentData,
   IKeyData,
   isSameAuthentication,
-  Right,
   IKeyRightHistory,
   IKeyRightHistoryPoint,
 } from '../../../interfaces';
@@ -59,7 +60,7 @@ export class DidDocument implements IDidDocument {
   public fromData(data: IDidDocumentData): void {
     this.data = data; // TODO consider if we should clone here or is this OK
     this.keys = data.keys.map((keyData) => {
-      return authenticationFromData(keyData.auth);
+      return IO.authenticationFromData(keyData.auth);
     });
   }
 

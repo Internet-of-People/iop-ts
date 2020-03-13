@@ -1,4 +1,3 @@
-import { Authentication, ISignedOperationsData, IStateChange, OperationType, TransactionId } from '../src/interfaces';
 import {
   Interfaces as KvInterfaces,
   KeyId,
@@ -6,6 +5,11 @@ import {
   SignedMessage,
   Vault,
 } from '@internet-of-people/keyvault';
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type TransactionId = IO.TransactionId;
+
+import { ISignedOperationsData, IStateChange, OperationType } from '../src/interfaces';
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';

@@ -1,15 +1,17 @@
 import cloneDeep from 'lodash.clonedeep';
+
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+
 import {
-  Authentication,
-  Did,
-  didToAuth,
   IDidDocument,
   IDidDocumentOperations,
   IDidDocumentQueries,
   IDidDocumentState,
   IKeyData,
   isSameAuthentication,
-  Right,
   IRightsMap,
   IKeyRightHistory,
   IKeyRightHistoryPoint,
@@ -317,7 +319,7 @@ export class DidDocumentState implements IDidDocumentState {
     keyStack?: Readonly<IKeyEntry>[],
     tombstoneHistory?: ITimeSeries) {
     this.keyStack = keyStack ?? [{
-      auth: didToAuth(did),
+      auth: IO.didToAuth(did),
       revoked: new TimeSeries(false),
       rights: initialRights(true),
     }];

@@ -1,11 +1,13 @@
 import { Interfaces, KeyId, PublicKey, Signature, SignedMessage } from '@internet-of-people/keyvault';
+import { IO } from '@internet-of-people/sdk';
+type TransactionId = IO.TransactionId;
+
 import {
   IAddKeyData,
   IRegisterBeforeProofData,
   ISignedOperationsData,
   OperationType,
   SignableOperationType,
-  TransactionId,
 } from '../src/interfaces';
 import { OperationAttemptsBuilder } from '../src/morpheus-transaction/operations';
 import { assertStringlyEqual } from './utils';

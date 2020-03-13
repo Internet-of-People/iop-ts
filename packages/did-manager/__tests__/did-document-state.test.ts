@@ -1,6 +1,7 @@
 import { KeyId } from '@internet-of-people/keyvault';
+import { IO } from '@internet-of-people/sdk';
 
-import { didToAuth, IDidDocumentState, IKeyData, IDidDocument } from '../src/interfaces';
+import { IDidDocumentState, IKeyData, IDidDocument } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 import { assertStringlyEqual } from './utils';
 
@@ -27,7 +28,7 @@ export const assertEqualAuthEntries = (actual: IKeyData[], expected: Partial<IKe
 
 describe('Relation of DID and KeyId', () => {
   it('did can be converted to auth string', () => {
-    assertStringlyEqual(didToAuth(did), defaultKeyId);
+    assertStringlyEqual(IO.didToAuth(did), defaultKeyId);
   });
 });
 

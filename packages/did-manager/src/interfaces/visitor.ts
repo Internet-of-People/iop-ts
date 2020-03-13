@@ -1,5 +1,10 @@
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+
 import { ISignedOperationsData } from './operation-data';
-import { TransactionId, Authentication, Did, Right } from './did-document';
 
 /**
  * Most of the time we have a heterogenous collection of

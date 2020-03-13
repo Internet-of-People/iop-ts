@@ -1,14 +1,16 @@
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+
 import {
-  Authentication,
-  Did,
   IAddKeyData,
   IAddRightData, IRevokeKeyData, IRevokeRightData,
   ISignableOperationData,
   ISignableOperationVisitor, ITombstoneDidData,
-  Right,
   SignableOperation,
   SignableOperationType,
-  TransactionId,
 } from '../../interfaces';
 
 class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperationData> {

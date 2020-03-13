@@ -1,8 +1,13 @@
 import cloneDeep from 'lodash.clonedeep';
 import Optional from 'optional-js';
+
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+
 import {
-  Authentication,
-  Did,
   IBeforeProofState,
   IDidDocument,
   IDidDocumentState,
@@ -16,8 +21,6 @@ import {
   ISignableOperationVisitor,
   ISignedOperationsData,
   Operation,
-  Right,
-  TransactionId,
   ITransactionIdHeight,
 } from '../interfaces';
 import { BeforeProofState } from './operations/before-proof';

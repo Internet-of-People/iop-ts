@@ -1,4 +1,11 @@
-import { AuthenticationData, Did, Right, TransactionId } from './did-document';
+import { IO } from '@internet-of-people/sdk';
+type AuthenticationData = IO.AuthenticationData;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+type PublicKeyData = IO.PublicKeyData;
+type SignatureData = IO.SignatureData;
+
 import { OperationType, SignableOperationType } from './operation-type';
 
 /**
@@ -13,9 +20,6 @@ export interface ISignableOperationData {
   lastTxId: TransactionId | null;
   operation: SignableOperationType;
 }
-
-export type PublicKeyData = string;
-export type SignatureData = string;
 
 export interface ISignedOperationsData extends IOperationData {
   signables: ISignableOperationData[];

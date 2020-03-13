@@ -1,6 +1,8 @@
 import inquirer = require('inquirer');
 
-import { MorpheusTransaction, Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
+import { IO } from '@internet-of-people/sdk';
+type Right = IO.Right;
 
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
@@ -12,8 +14,8 @@ const {
   Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } },
 } = MorpheusTransaction;
 
-const askRight = async(): Promise<DidInterfaces.Right> => {
-  const { right }: { right: DidInterfaces.Right; } = await inquirer.prompt([{
+const askRight = async(): Promise<IO.Right> => {
+  const { right }: { right: IO.Right; } = await inquirer.prompt([{
     type: 'list',
     name: 'right',
     choices: RightRegistry.systemRights.all.map((r) => {

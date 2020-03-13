@@ -2,7 +2,9 @@ import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
 
 import { MorpheusTransaction, Interfaces } from '@internet-of-people/did-manager';
-import { TransactionId } from '@internet-of-people/did-manager/dist/interfaces';
+import { IO } from '@internet-of-people/sdk';
+type TransactionId = IO.TransactionId;
+type Did = IO.Did;
 
 import { Network, schemaAndHost } from './network';
 
@@ -42,7 +44,7 @@ export class Layer2Api {
     return exists;
   }
 
-  public async getDidDocument(did: Interfaces.Did, height?: number): Promise<Interfaces.IDidDocument> {
+  public async getDidDocument(did: Did, height?: number): Promise<Interfaces.IDidDocument> {
     console.log(`Getting Did document ${did} at ${height || 'now'}...`);
     let url = `/did/${did}/document`;
 

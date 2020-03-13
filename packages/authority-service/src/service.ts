@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { AuthorityAPI, IO, JsonUtils, Utils } from '@internet-of-people/sdk';
+import { AuthorityAPI, IO, JsonUtils, Utils, Signed } from '@internet-of-people/sdk';
 import { IStorage, IRequestData } from './storage';
 
 export class Service implements AuthorityAPI.IApi {
@@ -25,13 +25,15 @@ export class Service implements AuthorityAPI.IApi {
     const existingRequestData = await this.storage.getRequestById(requestId);
 
     if (existingRequestData) {
+      console.log(`Signed witness request ${requestId} already existed`);
       return existingRequestData.capabilityLink;
     }
 
-    if (witnessRequest.content === null || typeof witnessRequest.content !== 'object') {
-      throw new Error('Signed witness request is missing its content!');
-    }
+    const model = new Signed(witnessRequest, 'witness request');
 
+    if (!model.checkSignature()) {
+      throw Error(`Signed witness request ${requestId} has invalid signature`);
+    }
     await this.storage.setPrivateBlob(requestId, witnessRequest);
 
     const capabilityLink = Utils.nonce264();
@@ -40,12 +42,13 @@ export class Service implements AuthorityAPI.IApi {
       requestId,
       dateOfRequest: moment.utc().toISOString(),
       status: AuthorityAPI.Status.Pending,
-      processId: witnessRequest.content.processId,
+      processId: model.payloadObject.processId,
       notes: null,
       statementId: null,
       rejectionReason: null,
     };
     await this.storage.createRequest(data);
+    console.log(`Signed witness request ${requestId} succesfully uploaded as ${capabilityLink}`);
     return capabilityLink;
   }
 
@@ -108,7 +111,14 @@ export class Service implements AuthorityAPI.IApi {
     if (data.status !== AuthorityAPI.Status.Pending) {
       throw new Error(`Request '${data.requestId}' cannot be approved in state ${data.status}`);
     }
-    const statementId = JsonUtils.digest(signedStatement);
+
+    const model = new Signed(signedStatement, 'witness statement');
+    const statementId = model.contentId;
+
+    if (!model.checkSignature()) {
+      throw Error(`Signed presentation ${statementId} has invalid signature`);
+    }
+
     await this.storage.setPrivateBlob(statementId, signedStatement);
     data.status = AuthorityAPI.Status.Approved;
     data.statementId = statementId;

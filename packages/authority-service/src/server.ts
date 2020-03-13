@@ -19,7 +19,7 @@ const handleError = (err: Error, _req: express.Request, res: express.Response, _
   res.status(500).json(err.message);
 };
 
-const jsonBody = bodyParser.json({});
+const jsonBody = bodyParser.json({ limit: '1mb', type: '*/*' });
 
 export class Server {
   public readonly app: express.Application;

@@ -1,12 +1,14 @@
 import { Interfaces, KeyId } from '@internet-of-people/keyvault';
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+
 import {
-  Authentication,
-  Did,
   ISignedOperationsData,
   OperationType,
-  Right,
   SignableOperation,
-  TransactionId,
 } from '../../interfaces';
 import { AddKey, AddRight, RevokeKey, RevokeRight, TombstoneDid } from './did-document';
 import { OperationAttemptsBuilder } from './operation-attempts-builder';

@@ -1,11 +1,13 @@
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+
 import {
-  Authentication,
-  Did,
   ISignableOperationVisitor,
-  Right,
   SignableOperation,
   SignableOperationType,
-  TransactionId,
 } from '../../../interfaces';
 
 export class RevokeRight extends SignableOperation {

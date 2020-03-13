@@ -1,11 +1,13 @@
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type Right = IO.Right;
+type TransactionId = IO.TransactionId;
+
 import {
-  Authentication,
-  Did,
   IOperationVisitor,
   ISignableOperationVisitor, ISignedOperationsData,
-  Right,
   SignableOperation,
-  TransactionId,
 } from '../../interfaces';
 import { Signed } from './signed';
 

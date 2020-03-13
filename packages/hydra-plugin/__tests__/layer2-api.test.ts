@@ -1,23 +1,24 @@
 /* eslint no-undefined: 0 */
-import { Server as HapiServer } from '@hapi/hapi';
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { Utils } from '@internet-of-people/sdk';
 import { createServer } from '@arkecosystem/core-http-utils';
 import Optional from 'optional-js';
-import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
 import { EventEmitter } from 'events';
-import { Layer2API, safePathInt } from '../src/layer2-api';
-import { TransactionTestRepo } from './did-operations.test';
-import { IDidOperation } from '../src/did-operations';
+import { Server as HapiServer } from '@hapi/hapi';
 
+import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
+import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 const {
   Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry }, DidDocument },
   MorpheusStateHandler: { MorpheusStateHandler },
 } = MorpheusTransaction;
-type TransactionId = Interfaces.TransactionId;
-type Authentication = Interfaces.Authentication;
 type IDidDocumentData = Interfaces.IDidDocumentData;
-type Did = Interfaces.Did;
+import { IO, Utils } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type TransactionId = IO.TransactionId;
+
+import { Layer2API, safePathInt } from '../src/layer2-api';
+import { TransactionTestRepo } from './did-operations.test';
+import { IDidOperation } from '../src/did-operations';
 
 const defaultDid = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 const did2 = 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX';

@@ -1,10 +1,12 @@
+import { IO } from '@internet-of-people/sdk';
+type Authentication = IO.Authentication;
+type Did = IO.Did;
+type TransactionId = IO.TransactionId;
+
 import {
-  Authentication,
-  Did,
   ISignableOperationVisitor,
   SignableOperation,
   SignableOperationType,
-  TransactionId,
 } from '../../../interfaces';
 
 export class AddKey extends SignableOperation {

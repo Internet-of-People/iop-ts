@@ -1,5 +1,10 @@
 {
+  "signature": {
+    "publicKey": "pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6",
+    "bytes": "sez7wdTBDCUdAPuRLifRC3TRxctDcdbABM25iMmz4xiVsdbgFf84fyUDhoPrrWmNbqLYmfCqtM8tAtycW9Dq7yjY3bK"
+  },
   "content": {
+    "processId": "cjunI8lB1BEtampkcvotOpF-zr1XmsCRNvntciGl3puOkg",
     "claim": {
       "subject": "did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr",
       "content": {
@@ -11,7 +16,6 @@
         }
       }
     },
-    "processId": "cjunI8lB1BEtampkcvotOpF-zr1XmsCRNvntciGl3puOkg",
     "constraints": {
       "after": "2020-02-13T14:02:25.959532",
       "before": "2021-02-13T00:00:00.000",
@@ -20,9 +24,5 @@
       "content": null
     },
     "nonce": "uI6/zmtfF37W9ZzbZAj6trQJoUtTNnJyKCkhPox+wC7DO"
-  },
-  "signature": {
-    "publicKey": "pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6",
-    "bytes": "sez7wdTBDCUdAPuRLifRC3TRxctDcdbABM25iMmz4xiVsdbgFf84fyUDhoPrrWmNbqLYmfCqtM8tAtycW9Dq7yjY3bK"
   }
 }

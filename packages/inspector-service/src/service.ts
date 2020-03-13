@@ -1,8 +1,10 @@
-import { InspectorAPI, IO, JsonUtils } from '@internet-of-people/sdk';
+import { InspectorAPI, VerifierAPI, IO, JsonUtils, Signed } from '@internet-of-people/sdk';
+
 import { IStorage } from './storage';
+import { IHydraApi } from './hydra-api';
 
 export class Service implements InspectorAPI.IApi {
-  public constructor(private readonly storage: IStorage) {
+  public constructor(private readonly storage: IStorage, private readonly hydra: IHydraApi) {
   }
 
   public async listScenarios(): Promise<IO.ContentId[]> {
@@ -20,20 +22,38 @@ export class Service implements InspectorAPI.IApi {
 
   public async uploadPresentation(presentation: IO.ISigned<IO.IPresentation>): Promise<IO.ContentId> {
     const contentId = JsonUtils.digest(presentation);
-
     const existingContent = await this.storage.getPublicBlob(contentId);
 
     if (existingContent) {
+      console.log(`Signed presentation ${contentId} already existed`);
       return contentId;
     }
 
-    if (presentation.content === null || typeof presentation.content !== 'object') {
-      throw new Error('Signed witness request is missing its content!');
-    }
+    const model = new Signed(presentation, 'presentation');
 
-    // TODO add more checks before reporting success
+    if (!model.checkSignature()) {
+      throw Error(`Signed presentation ${contentId} has invalid signature`);
+    }
+    // TODO add the checks that need some lookups on the blockchain before reporting success
 
     await this.storage.setPublicBlob(contentId, presentation);
+    console.log(`Signed presentation ${contentId} succesfully uploaded`);
     return contentId;
+  }
+
+  public async getAfterProof(): Promise<IO.IAfterProof> {
+    const afterProof = await this.hydra.getBlockIdAtHeight();
+
+    if (!afterProof) {
+      throw new Error('Could not get block height or hash from Hydra');
+    }
+    return afterProof;
+  }
+
+  public async validate(_request: VerifierAPI.IValidationRequest): Promise<VerifierAPI.IValidationResult> {
+    return {
+      errors: [],
+      warnings: ['Validation not implemented yet'],
+    };
   }
 }

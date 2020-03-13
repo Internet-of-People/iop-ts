@@ -1,13 +1,15 @@
 import cloneDeep from 'lodash.clonedeep';
 import Optional from 'optional-js';
 
+import { IO } from '@internet-of-people/sdk';
+type Did = IO.Did;
+type TransactionId = IO.TransactionId;
+
 import {
-  Did,
   IDidTransactionsOperations,
   IDidTransactionsQueries,
   IDidTransactionsState,
   ITransactionIdHeight,
-  TransactionId,
 } from '../../../interfaces';
 import { isHeightInRange } from './state';
 

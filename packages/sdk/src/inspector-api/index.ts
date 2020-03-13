@@ -1,4 +1,5 @@
 import { ISigned, ContentId, IPresentation } from '../interfaces/io';
+import { IVerifierApi } from '../verifier-api';
 
 // export interface IAuthorityRecommendation {
 //   did: Did;
@@ -11,6 +12,7 @@ import { ISigned, ContentId, IPresentation } from '../interfaces/io';
 //   reason: string;
 // }
 
+
 export interface IPublicApi {
   listScenarios(): Promise<ContentId[]>;
   // listRecommendedAuthorities(): Promise<IAuthorityRecommendation>;
@@ -21,7 +23,6 @@ export interface IPublicApi {
 
 export interface IPrivateApi {
   getPublicBlob(contentId: ContentId): Promise<unknown>; // presentation downloads
-  // verifySignature(): Promise<any>;
 }
 
-export interface IApi extends IPublicApi, IPrivateApi {}
+export interface IApi extends IPublicApi, IPrivateApi, IVerifierApi {}

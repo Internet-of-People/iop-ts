@@ -1,3 +1,4 @@
+import deepClone from 'lodash.clonedeep';
 import request from 'supertest';
 import { unlinkSync } from 'fs';
 
@@ -8,6 +9,7 @@ import { addProcesses } from '../src/config';
 import { AuthorityAPI, IO, Utils } from '@internet-of-people/sdk';
 
 import req1 from './signedWitnessRequest1.json';
+import req2 from './signedWitnessRequest2.json';
 import stmt2 from './signedWitnessStatement1.json';
 
 describe('Service', () => {
@@ -127,14 +129,25 @@ describe('Service', () => {
       });
   });
 
-  it('sending in the request with a different nonce', async() => {
+  it('tampering the request after signing is rejected', async() => {
     const server = await createServer();
-    expect(cap1).not.toBeNull();
-    const req2: IO.ISigned<IO.IWitnessRequest> = { ...req1 };
-    (req2.content as IO.IWitnessRequest).nonce = Utils.nonce264();
+    const req1mod: IO.ISigned<IO.IWitnessRequest> = deepClone(req1);
+    (req1mod.content as IO.IWitnessRequest).nonce = Utils.nonce264();
     await request(server.app)
       .post('/requests')
-      .send(req1)
+      .send(req1mod)
+      .expect((res: request.Response) => {
+        expect(res.status).toBe(400);
+        expect(res.body).toContain('invalid signature');
+      });
+  });
+
+  it('request is accepted again signed with a different nonce', async() => {
+    const server = await createServer();
+    expect(cap1).not.toBeNull();
+    await request(server.app)
+      .post('/requests')
+      .send(req2)
       .expect((res: request.Response) => {
         expect(res.status).toBe(202);
         const { body } = res;

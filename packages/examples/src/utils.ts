@@ -1,13 +1,17 @@
 import inquirer from 'inquirer';
+
 import { KeyId } from '@internet-of-people/keyvault';
-import { Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
+import { IO } from '@internet-of-people/sdk';
+type Did = IO.Did;
+type Authentication = IO.Authentication;
+
 import { IAction } from './action';
 import { Network, allNetworks } from './network';
 
-const pattern = new RegExp(`^${DidInterfaces.MULTICIPHER_KEYID_PREFIX}`);
+const pattern = new RegExp(`^${IO.MULTICIPHER_KEYID_PREFIX}`);
 
-export const authToDid = (id: KeyId): DidInterfaces.Did => {
-  return id.toString().replace(pattern, DidInterfaces.MORPHEUS_DID_PREFIX);
+export const authToDid = (id: KeyId): Did => {
+  return id.toString().replace(pattern, IO.MORPHEUS_DID_PREFIX);
 };
 
 export const dumpDids = (vaultIds: KeyId[]): void => {
@@ -26,7 +30,7 @@ export const dumpKeyIds = (vaultIds: KeyId[]): void => {
   }
 };
 
-export const askDid = async(operation: string): Promise<DidInterfaces.Did> => {
+export const askDid = async(operation: string): Promise<Did> => {
   const { did }: { did: string; } = await inquirer.prompt([{
     type: 'input',
     name: 'did',
@@ -35,13 +39,13 @@ export const askDid = async(operation: string): Promise<DidInterfaces.Did> => {
   return did;
 };
 
-export const askAuth = async(operation: string): Promise<DidInterfaces.Authentication> => {
-  const { auth }: { auth: DidInterfaces.Authentication; } = await inquirer.prompt([{
+export const askAuth = async(operation: string): Promise<Authentication> => {
+  const { auth }: { auth: Authentication; } = await inquirer.prompt([{
     type: 'input',
     name: 'auth',
     message: `Type a public key or key ID to ${operation}:`,
-    filter: async(value: string): Promise<DidInterfaces.Authentication> => {
-      return DidInterfaces.authenticationFromData(value);
+    filter: async(value: string): Promise<Authentication> => {
+      return IO.authenticationFromData(value);
     },
   }]);
   return auth;

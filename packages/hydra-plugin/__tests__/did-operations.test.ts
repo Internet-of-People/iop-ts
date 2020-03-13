@@ -2,10 +2,13 @@ import Optional from 'optional-js';
 
 import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+const { Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } } } = MorpheusTransaction;
+import { IO } from '@internet-of-people/sdk';
+type Did = IO.Did;
+type TransactionId = IO.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 
-const { Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } } } = MorpheusTransaction;
 
 const defaultDid = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
@@ -27,10 +30,10 @@ const vault: KvInterfaces.IVault = {
 export class TransactionTestRepo implements ITransactionRepository {
   private transactions: { [txid: string]: Interfaces.IMorpheusAsset; } = {};
 
-  public pushTransaction(txId: Interfaces.TransactionId, tx: Interfaces.IMorpheusAsset): void {
+  public pushTransaction(txId: TransactionId, tx: Interfaces.IMorpheusAsset): void {
     this.transactions[txId] = tx;
   }
-  public async getMorpheusTransaction(txId: Interfaces.TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>> {
+  public async getMorpheusTransaction(txId: TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>> {
     const result = this.transactions[txId];
     return Optional.ofNullable(result);
   }
@@ -44,9 +47,11 @@ describe('DidOperationExtractor', () => {
     lastSeenBlockHeight: jest.fn<number, []>(),
     isConfirmed: jest.fn<Optional<boolean>, [string]>(),
     beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
-    getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Interfaces.Did, number]>(),
-    getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[],
-    [Interfaces.Did, boolean, number, number | undefined]>(),
+    getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Did, number]>(),
+    getDidTransactionIds: jest.fn<
+    Interfaces.ITransactionIdHeight[],
+    [Did, boolean, number, number | undefined]
+    >(),
   };
 
   const stateHandler = {

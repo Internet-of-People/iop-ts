@@ -1,11 +1,14 @@
 import Optional from 'optional-js';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { IO } from '@internet-of-people/sdk';
+type Did = IO.Did;
+type TransactionId = IO.TransactionId;
 
 const { Operations: { fromData, toSignableData, visitorFilterDid } } = MorpheusTransaction;
 
 
 export interface IDidOperation {
-  transactionId: Interfaces.TransactionId;
+  transactionId: TransactionId;
   blockHeight: number;
   data: Interfaces.ISignableOperationData;
   valid: boolean;
@@ -13,7 +16,7 @@ export interface IDidOperation {
 
 
 export interface ITransactionRepository {
-  getMorpheusTransaction(txId: Interfaces.TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>>;
+  getMorpheusTransaction(txId: TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>>;
 }
 
 export class DidOperationExtractor {
@@ -22,7 +25,7 @@ export class DidOperationExtractor {
   }
 
   public async didOperationsOf(
-    did: Interfaces.Did,
+    did: Did,
     includeAttempts: boolean,
     fromHeightInc: number,
     untilHeightExc?: number,

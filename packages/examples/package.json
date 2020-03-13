@@ -25,6 +25,7 @@
     "@arkecosystem/client": "1.0.5",
     "@arkecosystem/core-interfaces": "^2.6.10",
     "@arkecosystem/crypto": "^2.6.10",
+    "@internet-of-people/sdk": "1.0.0",
     "@internet-of-people/did-manager": "1.0.1",
     "@internet-of-people/keyvault": "1.0.0",
     "axios": "0.19.0",

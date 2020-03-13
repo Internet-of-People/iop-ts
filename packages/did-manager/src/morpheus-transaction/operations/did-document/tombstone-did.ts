@@ -1,9 +1,11 @@
+import { IO } from '@internet-of-people/sdk';
+type Did = IO.Did;
+type TransactionId = IO.TransactionId;
+
 import {
-  Did,
   ISignableOperationVisitor,
   SignableOperation,
   SignableOperationType,
-  TransactionId,
 } from '../../../interfaces';
 
 export class TombstoneDid extends SignableOperation {

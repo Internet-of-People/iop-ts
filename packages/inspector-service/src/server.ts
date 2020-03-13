@@ -19,7 +19,7 @@ const handleError = (err: Error, _req: express.Request, res: express.Response, _
   res.status(500).json(err.message);
 };
 
-const jsonBody = bodyParser.json({});
+const jsonBody = bodyParser.json({ limit: '1mb', type: '*/*' });
 
 export class Server {
   public readonly app: express.Application;
@@ -53,6 +53,27 @@ export class Server {
       try {
         const contentId = await this.api.uploadPresentation(req.body);
         res.status(202).json({ contentId });
+      } catch (err) {
+        console.log(err);
+        res.status(400).json(err.message);
+      }
+    }));
+
+    this.app.get('/after-proof', handleAsync(async(_, res): Promise<void> => {
+      try {
+        console.log('Getting after-proof');
+        const afterProof = await this.api.getAfterProof();
+        res.status(200).json(afterProof);
+      } catch (err) {
+        console.log(err);
+        res.status(502).json(err.message);
+      }
+    }));
+
+    this.app.post('/validate', jsonBody, handleAsync(async(req, res): Promise<void> => {
+      try {
+        const validationResult = await this.api.validate(req.body);
+        res.status(200).json(validationResult);
       } catch (err) {
         console.log(err);
         res.status(400).json(err.message);

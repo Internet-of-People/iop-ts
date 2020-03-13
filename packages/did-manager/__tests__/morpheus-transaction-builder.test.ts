@@ -1,7 +1,11 @@
 import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
+
 import { KeyId, Vault, PersistentVault, Interfaces as KvInterfaces, SignedMessage } from '@internet-of-people/keyvault';
-import { IOperationData, TransactionId } from '../src/interfaces';
+import { IO } from '@internet-of-people/sdk';
+type TransactionId = IO.TransactionId;
+
+import { IOperationData } from '../src/interfaces';
 import { Builder, Operations, Transaction } from '../src/morpheus-transaction';
 
 const { DidDocument: { RightRegistry } } = Operations;
