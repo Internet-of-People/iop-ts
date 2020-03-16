@@ -1,7 +1,11 @@
 import { InspectorAPI, VerifierAPI, IO, JsonUtils, Signed } from '@internet-of-people/sdk';
+const { Signature } = IO;
+import { Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
+type IBeforeProofHistory = DidInterfaces.IBeforeProofHistory;
 
 import { IStorage } from './storage';
 import { IHydraApi } from './hydra-api';
+import { SignedJson, PublicKey, ValidationResult, ValidationIssue } from '../../morpheus-core/dist';
 
 export class Service implements InspectorAPI.IApi {
   public constructor(private readonly storage: IStorage, private readonly hydra: IHydraApi) {
@@ -50,10 +54,61 @@ export class Service implements InspectorAPI.IApi {
     return afterProof;
   }
 
-  public async validate(_request: VerifierAPI.IValidationRequest): Promise<VerifierAPI.IValidationResult> {
-    return {
+  public async validate(request: VerifierAPI.IValidationRequest): Promise<VerifierAPI.IValidationResult> {
+    const result: VerifierAPI.IValidationResult = {
       errors: [],
-      warnings: ['Validation not implemented yet'],
+      warnings: [],
     };
+
+    try {
+      const doc = await this.hydra.getDidDocument(request.onBehalfOf);
+      const pk = new PublicKey(request.publicKey);
+      const validator = new SignedJson(
+        pk,
+        request.contentId,
+        new Signature(request.signature),
+      );
+      const validationRes: ValidationResult = validator.validateWithDidDoc(
+        JSON.stringify(doc.toData()),
+        await this.fromHeight(request.afterProof),
+        await this.untilHeight(request.contentId),
+      );
+
+      for (const i of validationRes.messages) {
+        const issue: ValidationIssue = i;
+        const message = `${issue.reason} (${issue.code})`;
+
+        if (issue.severity === 'ERROR') {
+          result.errors.push(message);
+        } else {
+          result.warnings.push(message);
+        }
+      }
+    } catch (error) {
+      result.errors.push(error.toString());
+    }
+    return result;
+  }
+
+  private async fromHeight(afterProof: IO.IAfterProof | null): Promise<number | undefined> {
+    if (afterProof) {
+      const block = await this.hydra.getBlockIdAtHeight(afterProof.blockHeight);
+
+      if (block && block.blockHash === afterProof.blockHash) {
+        return block.blockHeight;
+      }
+    }
+    /* eslint no-undefined:0 */
+    return undefined;
+  }
+
+  private async untilHeight(contentId: string): Promise<number | undefined> {
+    const beforeProofHistory: IBeforeProofHistory = await this.hydra.getBeforeProofHistory(contentId);
+
+    if (beforeProofHistory.existsFromHeight) {
+      return beforeProofHistory.existsFromHeight;
+    }
+    /* eslint no-undefined:0 */
+    return undefined;
   }
 }

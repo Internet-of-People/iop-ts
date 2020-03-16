@@ -1,9 +1,10 @@
-import { IAfterProof, Did, ContentId, AuthenticationData } from '../interfaces/io';
+import { IAfterProof, Did, ContentId, SignatureData, PublicKeyData } from '../interfaces/io';
 
 export interface IValidationRequest {
+  publicKey: PublicKeyData;
+  contentId: ContentId;
+  signature: SignatureData;
   onBehalfOf: Did;
-  auth: AuthenticationData;
-  beforeProof: ContentId | null;
   afterProof: IAfterProof | null;
 }
 

@@ -10,7 +10,8 @@ type IAfterProof = IO.IAfterProof;
 export interface IHydraApi {
   getNodeCryptoConfig(): Promise<CryptoIf.INetworkConfig>;
   getBlockIdAtHeight(height?: number): Promise<IAfterProof | null>;
-  beforeProofExists(contentId: string): Promise<boolean>;
+  getBeforeProofHistory(contentId: IO.ContentId): Promise<DidIf.IBeforeProofHistory>;
+  beforeProofExists(contentId: IO.ContentId): Promise<boolean>;
   getDidDocument(did: Did): Promise<DidIf.IDidDocument>;
 }
 
@@ -54,6 +55,14 @@ export class HydraApi implements IHydraApi {
     }
     console.log(`Block ID is ${blockHash}`);
     return { blockHeight, blockHash };
+  }
+
+  public async getBeforeProofHistory(contentId: IO.ContentId): Promise<DidIf.IBeforeProofHistory> {
+    console.log(`Getting history of content ${contentId}...`);
+    const url = `/before-proof/${contentId}/history`;
+    const resp = await this.api.get(url);
+    const history: DidIf.IBeforeProofHistory = resp.data;
+    return history;
   }
 
   public async beforeProofExists(contentId: string): Promise<boolean> {

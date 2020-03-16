@@ -103,6 +103,7 @@ describe('Service', () => {
     public readonly hydraMock = {
       getNodeCryptoConfig: jest.fn<Promise<CryptoIf.INetworkConfig>, []>(),
       getBlockIdAtHeight: jest.fn<Promise<IAfterProof | null>, [number | undefined]>(),
+      getBeforeProofHistory: jest.fn<Promise<DidIf.IBeforeProofHistory>, [IO.ContentId]>(),
       beforeProofExists: jest.fn<Promise<boolean>, [string]>(),
       getDidDocument: jest.fn<Promise<DidIf.IDidDocument>, [Did]>(),
     };
