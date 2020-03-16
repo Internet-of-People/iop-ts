@@ -26,6 +26,7 @@ class Fixture {
     query: {
       lastSeenBlockHeight: jest.fn<number, []>(),
       beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
+      getBeforeProofHistory: jest.fn<Interfaces.IBeforeProofHistory, [string]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
       getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Did, number]>(),
       getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[], [Did, boolean, number, number]>(),

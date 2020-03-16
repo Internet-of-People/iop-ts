@@ -1,4 +1,9 @@
-import { IBeforeProofOperations, IBeforeProofQueries, IBeforeProofState } from '../../../interfaces';
+import {
+  IBeforeProofOperations,
+  IBeforeProofQueries,
+  IBeforeProofState,
+  IBeforeProofHistory,
+} from '../../../interfaces';
 import { ITimeSeries, TimeSeries } from '../../../time-series';
 
 export class BeforeProofState implements IBeforeProofState {
@@ -7,6 +12,17 @@ export class BeforeProofState implements IBeforeProofState {
       return height ?
         this.periods.query.get(height) :
         this.periods.query.latestValue();
+    },
+
+    getHistoryAt: (height: number): IBeforeProofHistory => {
+      const latestHeight = this.periods.query.latestHeight();
+      const existsFromHeight = latestHeight.isPresent() ? latestHeight.get() : null;
+      const result: IBeforeProofHistory = {
+        contentId: this.contentId,
+        existsFromHeight,
+        queriedAtHeight: height,
+      };
+      return result;
     },
   };
 

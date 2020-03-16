@@ -132,6 +132,17 @@ export class Layer2API {
       },
       {
         method: 'GET',
+        path: '/before-proof/{contentId}/history',
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const { params: { contentId } } = request;
+          this.log.debug(`Getting history of before-proof ${contentId}`);
+          return this.stateHandler.query.getBeforeProofHistory(
+            contentId,
+          );
+        },
+      },
+      {
+        method: 'GET',
         path: '/txn-status/{txid}',
         handler: (request: Request): Lifecycle.ReturnValue => {
           const { params: { txid } } = request;

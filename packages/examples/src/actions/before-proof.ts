@@ -34,7 +34,15 @@ const registerBeforeProof = async(): Promise<void> => {
   await processMorpheusTx(opAttempts, 'Register before proof');
 };
 
-const queryBeforeProof = async(): Promise<void> => {
+const queryBeforeProofHistory = async(): Promise<void> => {
+  const contentId = await askContentId();
+
+  const history = await Layer2Api.get().getBeforeProofHistory(contentId);
+  /* eslint no-undefined:0 */
+  console.log(JSON.stringify(history, undefined, 2));
+};
+
+const queryBeforeProofExists = async(): Promise<void> => {
   const contentId = await askContentId();
   const height = await askHeight();
 
@@ -50,7 +58,11 @@ const run = async(): Promise<void> => {
     },
     {
       id: 'query',
-      run: queryBeforeProof,
+      run: queryBeforeProofHistory,
+    },
+    {
+      id: 'exists',
+      run: queryBeforeProofExists,
     },
   ];
   const subAction = await chooseAction(subActions, process.argv[3]);

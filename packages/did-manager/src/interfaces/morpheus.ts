@@ -2,6 +2,7 @@ import Optional from 'optional-js';
 
 import { IO } from '@internet-of-people/sdk';
 type Authentication = IO.Authentication;
+type ContentId = IO.ContentId;
 type Did = IO.Did;
 type Right = IO.Right;
 type TransactionId = IO.TransactionId;
@@ -11,6 +12,7 @@ import { IDidDocument, ITransactionIdHeight } from './did-document';
 import { Operation } from './operation';
 import { IOperationData } from './operation-data';
 import { IState } from './state';
+import { IBeforeProofHistory } from './before-proof';
 
 export interface IBlockHeightChange {
   blockHeight: number;
@@ -90,7 +92,8 @@ export interface IMorpheusOperations {
 
 export interface IMorpheusQueries {
   lastSeenBlockHeight(): number;
-  beforeProofExistsAt(contentId: string, height?: number): boolean;
+  beforeProofExistsAt(contentId: ContentId, height?: number): boolean;
+  getBeforeProofHistory(contentId: ContentId): IBeforeProofHistory;
   isConfirmed(transactionId: string): Optional<boolean>;
   getDidDocumentAt(did: Did, height: number): IDidDocument;
   getDidTransactionIds(

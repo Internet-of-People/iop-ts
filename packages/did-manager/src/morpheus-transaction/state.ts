@@ -3,6 +3,7 @@ import Optional from 'optional-js';
 
 import { IO } from '@internet-of-people/sdk';
 type Authentication = IO.Authentication;
+type ContentId = IO.ContentId;
 type Did = IO.Did;
 type Right = IO.Right;
 type TransactionId = IO.TransactionId;
@@ -22,6 +23,7 @@ import {
   ISignedOperationsData,
   Operation,
   ITransactionIdHeight,
+  IBeforeProofHistory,
 } from '../interfaces';
 import { BeforeProofState } from './operations/before-proof';
 import { DidDocumentState, RightRegistry } from './operations/did-document';
@@ -39,10 +41,14 @@ export class MorpheusState implements IMorpheusState {
       return Optional.ofNullable(this.confirmedTxs.get(transactionId));
     },
 
-    beforeProofExistsAt: (contentId: string, height?: number): boolean => {
+    beforeProofExistsAt: (contentId: ContentId, height?: number): boolean => {
       const beforeProofState = this.beforeProofs.get(contentId);
-      /* eslint no-undefined: 0 */
-      return beforeProofState !== undefined && beforeProofState.query.existsAt(height);
+      return beforeProofState ? beforeProofState.query.existsAt(height) : false;
+    },
+
+    getBeforeProofHistory: (contentId: ContentId): IBeforeProofHistory => {
+      const beforeProofState = this.getOrCreateBeforeProof(contentId);
+      return beforeProofState.query.getHistoryAt(this.lastSeenBlockHeight);
     },
 
     getDidDocumentAt: (did: Did, height: number): IDidDocument => {

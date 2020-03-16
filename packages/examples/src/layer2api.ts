@@ -15,7 +15,7 @@ export class Layer2Api {
   private readonly api: AxiosInstance;
 
   private constructor(network: Network) {
-    const baseURL = `${schemaAndHost(network) }:4703`;
+    const baseURL = `${schemaAndHost(network) }:4703/morpheus/v1`;
     this.api = axios.create({
       baseURL,
       headers: {
@@ -30,6 +30,14 @@ export class Layer2Api {
 
   public static get(): Layer2Api {
     return Layer2Api.instance;
+  }
+
+  public async getBeforeProofHistory(contentId: string): Promise<Interfaces.IBeforeProofHistory> {
+    console.log(`Getting history of ${contentId}...`);
+    const url = `/before-proof/${contentId}/history`;
+    const resp = await this.api.get(url);
+    const history: Interfaces.IBeforeProofHistory = resp.data;
+    return history;
   }
 
   public async beforeProofExists(contentId: string, height?: number): Promise<boolean> {

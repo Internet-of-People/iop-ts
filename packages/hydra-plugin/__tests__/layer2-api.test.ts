@@ -19,6 +19,7 @@ type TransactionId = IO.TransactionId;
 import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { IDidOperation } from '../src/did-operations';
+import { IBeforeProofHistory } from '@internet-of-people/did-manager/dist/interfaces';
 
 const defaultDid = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 const did2 = 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX';
@@ -65,6 +66,18 @@ let fixture: Fixture;
 
 describe('Layer2API', () => {
   let lastTxId: TransactionId | null = null;
+
+  const registerBeforeProof = (): void => {
+    const registrationAttempt = new OperationAttemptsBuilder()
+      .registerBeforeProof(contentId)
+      .getAttempts();
+    fixture.stateHandler.applyTransactionToState({
+      asset: { operationAttempts: registrationAttempt },
+      blockHeight,
+      blockId,
+      transactionId,
+    });
+  };
 
   const addKey = (
     key: Authentication,
@@ -182,16 +195,40 @@ describe('Layer2API', () => {
     expect(res.payload).toBe(JSON.stringify(false));
   });
 
-  it('registered content exists only from its height', async() => {
-    const registrationAttempt = new OperationAttemptsBuilder()
-      .registerBeforeProof(contentId)
-      .getAttempts();
-    fixture.stateHandler.applyTransactionToState({
-      asset: { operationAttempts: registrationAttempt },
-      blockHeight,
-      blockId,
-      transactionId,
+  it('unregistered content still has a history', async() => {
+    fixture.stateHandler.applyEmptyBlockToState({ blockHeight, blockId: 'SomeBlockId' });
+    const expectedHistory: IBeforeProofHistory = {
+      contentId,
+      existsFromHeight: null,
+      queriedAtHeight: blockHeight,
+    };
+
+    const history = await hapiServer.inject({
+      method: 'get',
+      url: `/before-proof/${contentId}/history`,
     });
+
+    expect(history.statusCode).toBe(200);
+    expect(history.payload).toBe(JSON.stringify(expectedHistory));
+  });
+
+  it('registered content returns history', async() => {
+    registerBeforeProof();
+    const expectedHistory: IBeforeProofHistory = {
+      contentId,
+      existsFromHeight: blockHeight,
+      queriedAtHeight: blockHeight,
+    };
+    const history = await hapiServer.inject({
+      method: 'get',
+      url: `/before-proof/${contentId}/history`,
+    });
+    expect(history.statusCode).toBe(200);
+    expect(history.payload).toBe(JSON.stringify(expectedHistory));
+  });
+
+  it('registered content exists only from its height', async() => {
+    registerBeforeProof();
 
     const res5 = await hapiServer.inject({
       method: 'get',

@@ -47,6 +47,7 @@ describe('DidOperationExtractor', () => {
     lastSeenBlockHeight: jest.fn<number, []>(),
     isConfirmed: jest.fn<Optional<boolean>, [string]>(),
     beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
+    getBeforeProofHistory: jest.fn<Interfaces.IBeforeProofHistory, [string]>(),
     getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Did, number]>(),
     getDidTransactionIds: jest.fn<
     Interfaces.ITransactionIdHeight[],
