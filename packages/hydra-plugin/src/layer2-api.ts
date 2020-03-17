@@ -36,9 +36,21 @@ export class Layer2API {
     this.didOperations = new DidOperationExtractor(transactionRepo, this.stateHandler);
   }
 
+  public async init(): Promise<void> {
+    await this.hapi.register({
+      register: (server) => {
+        return this.registerPlugin(server);
+      },
+      name: 'morpheus',
+      version: '1.0.2',
+      dependencies: 'api',
+    }, {
+      routes: { prefix: '/morpheus/v1' },
+    });
+  }
 
-  public init(): void {
-    this.hapi.route([
+  private registerPlugin(server: HapiServer): void {
+    server.route([
       {
         method: 'GET',
         path: '/did/{did}/document/{blockHeight?}',

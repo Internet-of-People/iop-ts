@@ -179,17 +179,25 @@ describe('Layer2API', () => {
     lastTxId = null;
     hapiServer = await createServer({ host: '0.0.0.0', port: '4703' });
     const morpheusServer = new Layer2API(fixture.log, fixture.stateHandler, hapiServer, fixture.transactionRepo);
-    morpheusServer.init();
+    await morpheusServer.init();
   });
 
   afterEach(async() => {
     await hapiServer.stop();
   });
 
-  it('unregistered content does not exist', async() => {
+  it('plugin is only available via versioned api', async() => {
     const res = await hapiServer.inject({
       method: 'get',
       url: '/before-proof/invalid_content_id/exists',
+    });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('unregistered content does not exist', async() => {
+    const res = await hapiServer.inject({
+      method: 'get',
+      url: '/morpheus/v1/before-proof/invalid_content_id/exists',
     });
     expect(res.statusCode).toBe(200);
     expect(res.payload).toBe(JSON.stringify(false));
@@ -205,7 +213,7 @@ describe('Layer2API', () => {
 
     const history = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/history`,
+      url: `/morpheus/v1/before-proof/${contentId}/history`,
     });
 
     expect(history.statusCode).toBe(200);
@@ -221,7 +229,7 @@ describe('Layer2API', () => {
     };
     const history = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/history`,
+      url: `/morpheus/v1/before-proof/${contentId}/history`,
     });
     expect(history.statusCode).toBe(200);
     expect(history.payload).toBe(JSON.stringify(expectedHistory));
@@ -232,21 +240,21 @@ describe('Layer2API', () => {
 
     const res5 = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/exists/${blockHeight}`,
+      url: `/morpheus/v1/before-proof/${contentId}/exists/${blockHeight}`,
     });
     expect(res5.statusCode).toBe(200);
     expect(res5.payload).toBe(JSON.stringify(true));
 
     const resLatest = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/exists`,
+      url: `/morpheus/v1/before-proof/${contentId}/exists`,
     });
     expect(resLatest.statusCode).toBe(200);
     expect(resLatest.payload).toBe(JSON.stringify(true));
 
     const res4 = await hapiServer.inject({
       method: 'get',
-      url: `/before-proof/${contentId}/exists/${blockHeight - 1}`,
+      url: `/morpheus/v1/before-proof/${contentId}/exists/${blockHeight - 1}`,
     });
     expect(res4.statusCode).toBe(200);
     expect(res4.payload).toBe(JSON.stringify(false));
@@ -254,7 +262,10 @@ describe('Layer2API', () => {
 
   it('can query implicit did', async() => {
     fixture.stateHandler.applyEmptyBlockToState({ blockHeight: 100, blockId: 'SomeBlockId' });
-    const res = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document` });
+    const res = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document`,
+    });
     expect(res.statusCode).toBe(200);
     const data = JSON.parse(res.payload) as IDidDocumentData;
     const doc = new DidDocument.DidDocument(data);
@@ -272,7 +283,10 @@ describe('Layer2API', () => {
     addKey(keyId2, 10, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
-    const res = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${10}` });
+    const res = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${10}`,
+    });
     expect(res.statusCode).toBe(200);
     const data = JSON.parse(res.payload) as IDidDocumentData;
     const doc = new DidDocument.DidDocument(data);
@@ -297,7 +311,10 @@ describe('Layer2API', () => {
     revokeKey(keyId2, 15, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
 
-    const res10 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${10}` });
+    const res10 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${10}`,
+    });
     expect(res10.statusCode).toBe(200);
     const doc10 = JSON.parse(res10.payload) as IDidDocumentData;
     expect(doc10.queriedAtHeight).toBe(10);
@@ -307,7 +324,10 @@ describe('Layer2API', () => {
     expect(doc10.keys[0].valid).toBeTruthy();
     expect(doc10.keys[1].valid).toBeTruthy();
 
-    const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
+    const res15 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${15}`,
+    });
     expect(res15.statusCode).toBe(200);
     const doc15 = JSON.parse(res15.payload) as IDidDocumentData;
     expect(doc15.queriedAtHeight).toBe(15);
@@ -326,7 +346,10 @@ describe('Layer2API', () => {
     addRight(keyId2, 15, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
 
-    const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
+    const res15 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${15}`,
+    });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
@@ -346,7 +369,10 @@ describe('Layer2API', () => {
     addRight(keyId2, 15, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
 
-    const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
+    const res15 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${15}`,
+    });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
@@ -368,7 +394,10 @@ describe('Layer2API', () => {
     revokeRight(keyId2, 20, 'tx3', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
 
-    const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
+    const res15 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${15}`,
+    });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
@@ -383,7 +412,10 @@ describe('Layer2API', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
 
-    const res20 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${20}` });
+    const res20 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${20}`,
+    });
     expect(res20.statusCode).toBe(200);
     const data20 = JSON.parse(res20.payload) as IDidDocumentData;
     const doc20 = new DidDocument.DidDocument(data20);
@@ -405,7 +437,10 @@ describe('Layer2API', () => {
     revokeRight(keyId2, 20, 'tx3', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
 
-    const res20 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${20}` });
+    const res20 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${20}`,
+    });
     expect(res20.statusCode).toBe(200);
     const data20 = JSON.parse(res20.payload) as IDidDocumentData;
     const doc20 = new DidDocument.DidDocument(data20);
@@ -429,7 +464,10 @@ describe('Layer2API', () => {
     addRight(keyId3, 15, 'tx3', keyId2);
     expect(fixture.stateHandler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
 
-    const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
+    const res15 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${15}`,
+    });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
@@ -451,7 +489,10 @@ describe('Layer2API', () => {
     tombstoneDid(15, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
-    const res14 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${14}` });
+    const res14 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${14}`,
+    });
     expect(res14.statusCode).toBe(200);
     const data14 = JSON.parse(res14.payload) as IDidDocumentData;
     const doc14 = new DidDocument.DidDocument(data14);
@@ -464,7 +505,10 @@ describe('Layer2API', () => {
     expect(doc14.hasRightAt(keyId2, RightRegistry.systemRights.impersonate, 14)).toBeFalsy();
     expect(doc14.hasRightAt(keyId2, RightRegistry.systemRights.update, 14)).toBeFalsy();
 
-    const res15 = await hapiServer.inject({ method: 'get', url: `/did/${defaultDid}/document/${15}` });
+    const res15 = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/did/${defaultDid}/document/${15}`,
+    });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
     const doc15 = new DidDocument.DidDocument(data15);
@@ -481,7 +525,7 @@ describe('Layer2API', () => {
   const getDidTransactions = async(includeAttempts: boolean, did: Did,
     fromHeight: number, untilHeight?: number): Promise<TransactionId[]> => {
     const endpoint = includeAttempts ? 'transaction-attempts' : 'transactions';
-    let url = `/did/${did}/${endpoint}/${fromHeight}/`;
+    let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
 
     if (untilHeight) {
       url = url + untilHeight;
@@ -495,7 +539,7 @@ describe('Layer2API', () => {
   const getDidOperations = async(includeAttempts: boolean, did: Did,
     fromHeight: number, untilHeight?: number): Promise<IDidOperation[]> => {
     const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
-    let url = `/did/${did}/${endpoint}/${fromHeight}/`;
+    let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
 
     if (untilHeight) {
       url = url + untilHeight;
@@ -741,7 +785,11 @@ describe('Layer2API', () => {
       .addRight(keyId2, RightRegistry.systemRights.update) // key is not yet added
       .sign(defaultKeyId)
       .getAttempts();
-    const res = await hapiServer.inject({ method: 'post', url: `/check-transaction-validity`, payload: attempts });
+    const res = await hapiServer.inject({
+      method: 'post',
+      url: `/morpheus/v1/check-transaction-validity`,
+      payload: attempts,
+    });
     const errors = JSON.parse(res.payload) as Interfaces.IDryRunOperationError[];
     expect(errors).toHaveLength(1);
     expect(errors[0].message).toBe(`DID ${defaultDid} has no valid key matching ${keyId2} at height 0`);
@@ -751,7 +799,10 @@ describe('Layer2API', () => {
   it('transaction status gives 404 for tx not seen by morpheus', async() => {
     const txid = 'c18894aa5ffe6f819dc98770d1eb9c4357c4d1ef73221fd5937cc360a54dd77f';
     expect(fixture.stateHandler.query.isConfirmed(txid)).toStrictEqual(Optional.empty());
-    const res = await hapiServer.inject({ method: 'get', url: `/txn-status/${txid}` });
+    const res = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/txn-status/${txid}`,
+    });
     expect(res.statusCode).toBe(404);
     expect(res.payload).toMatch(txid);
     expect(res.payload).toMatch('not processed');
@@ -761,7 +812,10 @@ describe('Layer2API', () => {
     addKey(keyId2, 10, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
-    const res = await hapiServer.inject({ method: 'get', url: `/txn-status/${transactionId}` });
+    const res = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/txn-status/${transactionId}`,
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.payload).toBe('true');
@@ -771,7 +825,10 @@ describe('Layer2API', () => {
     addRight(keyId2, 10, transactionId, defaultKeyId); // key not added yet
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
 
-    const res = await hapiServer.inject({ method: 'get', url: `/txn-status/${transactionId}` });
+    const res = await hapiServer.inject({
+      method: 'get',
+      url: `/morpheus/v1/txn-status/${transactionId}`,
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.payload).toBe('false');

@@ -51,18 +51,21 @@ export class Composite implements IInitializable {
   }
 }
 
-const attachHTTPApi = (
+const attachHTTPApi = async(
   container: Container.IContainer,
   stateHandler: Interfaces.IMorpheusStateHandler,
   log: Utils.IAppLog,
-): void => {
+): Promise<void> => {
   log.info('Trying to attach Morpheus HTTP API...');
 
   const api = container.resolvePlugin('api');
 
   if (!api) {
     setTimeout(() => {
-      attachHTTPApi(container, stateHandler, log);
+      attachHTTPApi(container, stateHandler, log)
+        .catch((err) => {
+          return log.error(`Error attaching Morpheus HTTP API: ${err}`);
+        });
     }, 1000);
     return;
   }
@@ -79,7 +82,7 @@ const attachHTTPApi = (
 
   const http: HapiServer = api.instance('http');
   const layer2API = new Layer2API(log, stateHandler, http, txDb);
-  layer2API.init();
+  await layer2API.init();
   log.info('HTTP API READY');
 };
 
@@ -117,7 +120,7 @@ const register = async(container: Container.IContainer): Promise<Composite> => {
   const composite = new Composite(log, arkConnector, blockEventSource);
   await composite.init();
 
-  attachHTTPApi(container, stateHandler, log);
+  await attachHTTPApi(container, stateHandler, log);
 
   log.info('Registering MorpheusTransactionHandler');
   Handlers.Registry.registerTransactionHandler(MorpheusTransactionHandler);
