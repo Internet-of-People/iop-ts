@@ -34,6 +34,16 @@ describe('json-digest', () => {
     expect(digest).toBe(complexDigest);
   });
 
+  it('digests really complex object', () => {
+    const complex: IO.IDynamicContent = { z: testObj, y: testObj };
+    const doubleComplex: IO.IDynamicContent = { z: complex, y: complex };
+    const tripleComplex: IO.IDynamicContent = { z: doubleComplex, y: doubleComplex };
+    const doubleDigest = JsonUtils.digest(doubleComplex);
+    expect(doubleDigest).toBe('cjuQLebyl_BJipFLibhWiStDBqK5J4JZq15ehUqybfTTKA');
+    const tripleDigest = JsonUtils.digest(tripleComplex);
+    expect(tripleDigest).toBe('cjuik140L3w7LCi6z1eHt7Qgwr2X65-iy8HA6zqrlUdmVk');
+  });
+
   it('half-masked complex object gets the same digest', () => {
     const complex: IO.IDynamicContent = { z: testObj, y: testObjDigest };
     const digest = JsonUtils.digest(complex);
