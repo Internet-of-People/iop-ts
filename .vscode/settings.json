@@ -1,4 +1,13 @@
 {
     "editor.tabSize": 2,
     "markdown.extension.toc.levels": "2..4",
+    "markdown.extension.toc.githubCompatibility": true,
+    "markdownlint.config": {
+        "no-inline-html": {
+            "allowed_elements": ["details", "summary"],
+        },
+        "no-duplicate-header": {
+            "siblings_only": true
+        }
+    },
 }

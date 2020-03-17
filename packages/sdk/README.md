@@ -2,7 +2,11 @@
 
 ## AuthorityAPI
 
-Contains all interfaces, types and enums that are needed to communicate with an Authority service.
+Contains all interfaces, types and enums that are needed to communicate with an [Authority service](../authority-service/README.md).
+
+## InspectorAPI
+
+Contains all interfaces, types and enums that are needed to communicate with an [Inspector service](../inspector-service/README.md).
 
 ## IO
 
