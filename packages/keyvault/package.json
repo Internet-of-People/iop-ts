@@ -20,12 +20,12 @@
   "scripts": {
     "build": "npm run build:src && npm run build:test",
     "build:src": "tsc -p . ",
-    "build:test": "tsc -p tsconfig.test.json",
+    "build:test": "echo ignored || tsc -p tsconfig.test.json",
     "lint": "npm run lint:src & npm run lint:test",
     "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
-    "lint:test": "eslint -c ../../eslintrc.test.json --fix \"./__tests__/**\"",
+    "lint:test": "echo ignored || eslint -c ../../eslintrc.test.json --fix \"./__tests__/**\"",
     "clean": "rimraf dist && rimraf node_modules",
-    "test": "jest --detectOpenHandles --no-cache"
+    "test": "echo ignored || jest --detectOpenHandles --no-cache"
   },
   "dependencies": {},
   "devDependencies": {

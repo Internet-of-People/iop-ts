@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { config } from 'xdg-portable';
-import { PersistentVault } from '@internet-of-people/keyvault';
+import { PersistentVault } from '@internet-of-people/morpheus-core';
 
 export const vaultPath = (): string => {
   return join(config(), '/prometheus/vault.dat');

@@ -15,7 +15,7 @@ const askForAmount = async(): Promise<number> => {
 };
 
 const run = async(): Promise<void> => {
-  const sender = await askForPassphrase('sender'); // genesis
+  const sender = await askForPassphrase('sender');
   const recipient = await askForAddress('recipient');
   const amount = await askForAmount();
   await sendTransferTx(

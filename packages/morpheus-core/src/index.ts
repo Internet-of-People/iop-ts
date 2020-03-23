@@ -1,8 +1,19 @@
-import { KeyId, PublicKey, Signature, SignedString, SignedMessage } from '../pkg';
-
 export {
+  Did,
   KeyId,
   PublicKey,
   Signature,
-  SignedString,
-};
+  SignedJson,
+  SignedBytes,
+  ValidationIssue,
+  ValidationResult,
+  Vault,
+} from '../pkg';
+
+export {
+  IVault,
+} from './interfaces';
+
+export {
+  PersistentVault,
+} from './PersistentVault';

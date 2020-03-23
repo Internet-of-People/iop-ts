@@ -1,6 +1,6 @@
 import Optional from 'optional-js';
 
-import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
+import { IVault, KeyId, PersistentVault, SignedBytes, Vault } from '@internet-of-people/morpheus-core';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 const { Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } } } = MorpheusTransaction;
 import { IO } from '@internet-of-people/sdk';
@@ -16,13 +16,13 @@ const keyId2 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const transactionId = 'someTransactionId';
 
 const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
-rustVault.createId();
-rustVault.createId();
-rustVault.createId();
+rustVault.createDid();
+rustVault.createDid();
+rustVault.createDid();
 
-const vault: KvInterfaces.IVault = {
-  sign: (message: Uint8Array, keyId: KeyId): SignedMessage => {
-    return rustVault.sign(keyId, message);
+const vault: IVault = {
+  signDidOperations: (keyId: KeyId, message: Uint8Array): SignedBytes => {
+    return rustVault.signDidOperations(keyId, message);
   },
 };
 

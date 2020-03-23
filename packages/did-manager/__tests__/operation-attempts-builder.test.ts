@@ -1,4 +1,4 @@
-import { Interfaces, KeyId, PublicKey, Signature, SignedMessage } from '@internet-of-people/keyvault';
+import { IVault, KeyId, PublicKey, Signature, SignedBytes } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 type TransactionId = IO.TransactionId;
 
@@ -47,9 +47,9 @@ describe('OperationAttemptsBuilder', () => {
   });
 
   it('can sign an addKey with a vault', () => {
-    const signMock = jest.fn<SignedMessage, [Uint8Array, KeyId]>();
-    const vault: Interfaces.IVault = {
-      sign: signMock,
+    const signMock = jest.fn<SignedBytes, [KeyId, Uint8Array]>();
+    const vault: IVault = {
+      signDidOperations: signMock,
     };
     const expectedAddKeyData: IAddKeyData = {
       operation: SignableOperationType.AddKey,
@@ -66,8 +66,8 @@ describe('OperationAttemptsBuilder', () => {
       signerPublicKey: 'pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6',
       signature: 'sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4',
     };
-    signMock.mockImplementationOnce((msg, _) => {
-      return new SignedMessage(
+    signMock.mockImplementationOnce((_, msg) => {
+      return new SignedBytes(
         new PublicKey(expectedOperationData.signerPublicKey),
         msg,
         new Signature(expectedOperationData.signature),

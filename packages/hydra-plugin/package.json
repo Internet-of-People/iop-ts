@@ -33,7 +33,7 @@
     "@hapi/boom": "^8.0.0",
     "@hapi/hapi": "^18.3.1",
     "@internet-of-people/did-manager": "1.0.1",
-    "@internet-of-people/keyvault": "1.0.0",
+    "@internet-of-people/morpheus-core": "1.0.0",
     "@internet-of-people/sdk": "1.0.0",
     "awilix": "^4.2.2",
     "buffer": "5.4.2",

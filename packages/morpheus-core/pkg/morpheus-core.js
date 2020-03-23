@@ -3,57 +3,11 @@ imports['__wbindgen_placeholder__'] = module.exports;
 let wasm;
 const { TextDecoder } = require(String.raw`util`);
 
-let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
-
-cachedTextDecoder.decode();
-
-let cachegetUint8Memory0 = null;
-function getUint8Memory0() {
-    if (cachegetUint8Memory0 === null || cachegetUint8Memory0.buffer !== wasm.memory.buffer) {
-        cachegetUint8Memory0 = new Uint8Array(wasm.memory.buffer);
-    }
-    return cachegetUint8Memory0;
-}
-
-function getStringFromWasm0(ptr, len) {
-    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
-}
-
 const heap = new Array(32).fill(undefined);
 
 heap.push(undefined, null, true, false);
 
-let heap_next = heap.length;
-
-function addHeapObject(obj) {
-    if (heap_next === heap.length) heap.push(heap.length + 1);
-    const idx = heap_next;
-    heap_next = heap[idx];
-
-    heap[idx] = obj;
-    return idx;
-}
-
 function getObject(idx) { return heap[idx]; }
-
-function dropObject(idx) {
-    if (idx < 36) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
-}
-
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
-}
 
 let WASM_VECTOR_LEN = 0;
 
@@ -82,8 +36,50 @@ function getInt32Memory0() {
     return cachegetInt32Memory0;
 }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
+let heap_next = heap.length;
+
+function dropObject(idx) {
+    if (idx < 36) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
+}
+
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
+}
+
+let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+
+cachedTextDecoder.decode();
+
+let cachegetUint8Memory0 = null;
+function getUint8Memory0() {
+    if (cachegetUint8Memory0 === null || cachegetUint8Memory0.buffer !== wasm.memory.buffer) {
+        cachegetUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+    }
+    return cachegetUint8Memory0;
+}
+
+function getStringFromWasm0(ptr, len) {
+    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
+}
+
+function addHeapObject(obj) {
+    if (heap_next === heap.length) heap.push(heap.length + 1);
+    const idx = heap_next;
+    heap_next = heap[idx];
+
+    heap[idx] = obj;
+    return idx;
+}
+
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
 }
 
 function passArray8ToWasm0(arg, malloc) {
@@ -95,6 +91,18 @@ function passArray8ToWasm0(arg, malloc) {
 
 function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
+}
+
+let stack_pointer = 32;
+
+function addBorrowedObject(obj) {
+    if (stack_pointer == 1) throw new Error('out of js stack');
+    heap[--stack_pointer] = obj;
+    return stack_pointer;
+}
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
 
 let cachegetUint32Memory0 = null;
@@ -114,6 +122,63 @@ function getArrayJsValueFromWasm0(ptr, len) {
     }
     return result;
 }
+/**
+*/
+class Did {
+
+    static __wrap(ptr) {
+        const obj = Object.create(Did.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_did_free(ptr);
+    }
+    /**
+    * @param {string} did_str
+    */
+    constructor(did_str) {
+        var ptr0 = passStringToWasm0(did_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.did_new(ptr0, len0);
+        return Did.__wrap(ret);
+    }
+    /**
+    * @param {KeyId} key_id
+    * @returns {Did}
+    */
+    static fromKeyId(key_id) {
+        _assertClass(key_id, KeyId);
+        var ret = wasm.did_fromKeyId(key_id.ptr);
+        return Did.__wrap(ret);
+    }
+    /**
+    * @returns {KeyId}
+    */
+    defaultKeyId() {
+        var ret = wasm.did_defaultKeyId(this.ptr);
+        return KeyId.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    toString() {
+        try {
+            wasm.did_toString(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+}
+module.exports.Did = Did;
 /**
 */
 class KeyId {
@@ -294,10 +359,10 @@ class Signature {
 module.exports.Signature = Signature;
 /**
 */
-class SignedMessage {
+class SignedBytes {
 
     static __wrap(ptr) {
-        const obj = Object.create(SignedMessage.prototype);
+        const obj = Object.create(SignedBytes.prototype);
         obj.ptr = ptr;
 
         return obj;
@@ -307,33 +372,33 @@ class SignedMessage {
         const ptr = this.ptr;
         this.ptr = 0;
 
-        wasm.__wbg_signedmessage_free(ptr);
+        wasm.__wbg_signedbytes_free(ptr);
     }
     /**
     * @param {PublicKey} public_key
-    * @param {Uint8Array} message
+    * @param {Uint8Array} content
     * @param {Signature} signature
     */
-    constructor(public_key, message, signature) {
+    constructor(public_key, content, signature) {
         _assertClass(public_key, PublicKey);
-        var ptr0 = passArray8ToWasm0(message, wasm.__wbindgen_malloc);
+        var ptr0 = passArray8ToWasm0(content, wasm.__wbindgen_malloc);
         var len0 = WASM_VECTOR_LEN;
         _assertClass(signature, Signature);
-        var ret = wasm.signedmessage_new(public_key.ptr, ptr0, len0, signature.ptr);
-        return SignedMessage.__wrap(ret);
+        var ret = wasm.signedbytes_new(public_key.ptr, ptr0, len0, signature.ptr);
+        return SignedBytes.__wrap(ret);
     }
     /**
     * @returns {PublicKey}
     */
     get publicKey() {
-        var ret = wasm.signedmessage_publicKey(this.ptr);
+        var ret = wasm.signedbytes_publicKey(this.ptr);
         return PublicKey.__wrap(ret);
     }
     /**
     * @returns {Uint8Array}
     */
-    get message() {
-        wasm.signedmessage_message(8, this.ptr);
+    get content() {
+        wasm.signedbytes_content(8, this.ptr);
         var r0 = getInt32Memory0()[8 / 4 + 0];
         var r1 = getInt32Memory0()[8 / 4 + 1];
         var v0 = getArrayU8FromWasm0(r0, r1).slice();
@@ -344,33 +409,24 @@ class SignedMessage {
     * @returns {Signature}
     */
     get signature() {
-        var ret = wasm.signedmessage_signature(this.ptr);
+        var ret = wasm.signedbytes_signature(this.ptr);
         return Signature.__wrap(ret);
     }
     /**
     * @returns {boolean}
     */
     validate() {
-        var ret = wasm.signedmessage_validate(this.ptr);
-        return ret !== 0;
-    }
-    /**
-    * @param {KeyId} signer_id
-    * @returns {boolean}
-    */
-    validateWithId(signer_id) {
-        _assertClass(signer_id, KeyId);
-        var ret = wasm.signedmessage_validateWithId(this.ptr, signer_id.ptr);
+        var ret = wasm.signedbytes_validate(this.ptr);
         return ret !== 0;
     }
 }
-module.exports.SignedMessage = SignedMessage;
+module.exports.SignedBytes = SignedBytes;
 /**
 */
-class SignedString {
+class SignedJson {
 
     static __wrap(ptr) {
-        const obj = Object.create(SignedString.prototype);
+        const obj = Object.create(SignedJson.prototype);
         obj.ptr = ptr;
 
         return obj;
@@ -380,62 +436,49 @@ class SignedString {
         const ptr = this.ptr;
         this.ptr = 0;
 
-        wasm.__wbg_signedstring_free(ptr);
+        wasm.__wbg_signedjson_free(ptr);
     }
     /**
     * @param {PublicKey} public_key
-    * @param {string} content
+    * @param {any} content
     * @param {Signature} signature
     */
     constructor(public_key, content, signature) {
-        _assertClass(public_key, PublicKey);
-        var ptr0 = passStringToWasm0(content, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        _assertClass(signature, Signature);
-        var ret = wasm.signedstring_new(public_key.ptr, ptr0, len0, signature.ptr);
-        return SignedString.__wrap(ret);
-    }
-    /**
-    * @param {SignedMessage} signed
-    * @returns {SignedString}
-    */
-    static from(signed) {
-        _assertClass(signed, SignedMessage);
-        var ret = wasm.signedstring_from(signed.ptr);
-        return SignedString.__wrap(ret);
+        try {
+            _assertClass(public_key, PublicKey);
+            _assertClass(signature, Signature);
+            var ret = wasm.signedjson_new(public_key.ptr, addBorrowedObject(content), signature.ptr);
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
     }
     /**
     * @returns {PublicKey}
     */
     get publicKey() {
-        var ret = wasm.signedstring_publicKey(this.ptr);
+        var ret = wasm.signedjson_publicKey(this.ptr);
         return PublicKey.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * @returns {any}
     */
     get content() {
-        try {
-            wasm.signedstring_content(8, this.ptr);
-            var r0 = getInt32Memory0()[8 / 4 + 0];
-            var r1 = getInt32Memory0()[8 / 4 + 1];
-            return getStringFromWasm0(r0, r1);
-        } finally {
-            wasm.__wbindgen_free(r0, r1);
-        }
+        var ret = wasm.signedjson_content(this.ptr);
+        return takeObject(ret);
     }
     /**
     * @returns {Signature}
     */
     get signature() {
-        var ret = wasm.signedstring_signature(this.ptr);
+        var ret = wasm.signedjson_signature(this.ptr);
         return Signature.__wrap(ret);
     }
     /**
     * @returns {boolean}
     */
     validate() {
-        var ret = wasm.signedstring_validate(this.ptr);
+        var ret = wasm.signedjson_validate(this.ptr);
         return ret !== 0;
     }
     /**
@@ -444,23 +487,118 @@ class SignedString {
     */
     validateWithKeyId(signer_id) {
         _assertClass(signer_id, KeyId);
-        var ret = wasm.signedstring_validateWithKeyId(this.ptr, signer_id.ptr);
+        var ret = wasm.signedjson_validateWithKeyId(this.ptr, signer_id.ptr);
         return ret !== 0;
     }
     /**
     * @param {string} did_doc_str
     * @param {number | undefined} from_height_inc
     * @param {number | undefined} until_height_exc
-    * @returns {boolean}
+    * @returns {any}
     */
     validateWithDid(did_doc_str, from_height_inc, until_height_exc) {
         var ptr0 = passStringToWasm0(did_doc_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.signedstring_validateWithDid(this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
-        return ret !== 0;
+        var ret = wasm.signedjson_validateWithDid(this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
+        return takeObject(ret);
     }
 }
-module.exports.SignedString = SignedString;
+module.exports.SignedJson = SignedJson;
+/**
+*/
+class ValidationIssue {
+
+    static __wrap(ptr) {
+        const obj = Object.create(ValidationIssue.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_validationissue_free(ptr);
+    }
+    /**
+    * @returns {number}
+    */
+    get code() {
+        var ret = wasm.validationissue_code(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @returns {string}
+    */
+    get severity() {
+        try {
+            wasm.validationissue_severity(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    get reason() {
+        try {
+            wasm.validationissue_reason(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+}
+module.exports.ValidationIssue = ValidationIssue;
+/**
+*/
+class ValidationResult {
+
+    static __wrap(ptr) {
+        const obj = Object.create(ValidationResult.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_validationresult_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get status() {
+        try {
+            wasm.validationresult_status(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {any[]}
+    */
+    get messages() {
+        wasm.validationresult_messages(8, this.ptr);
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        var v0 = getArrayJsValueFromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 4);
+        return v0;
+    }
+}
+module.exports.ValidationResult = ValidationResult;
 /**
 */
 class Vault {
@@ -513,8 +651,8 @@ class Vault {
     /**
     * @returns {any[]}
     */
-    profiles() {
-        wasm.vault_profiles(8, this.ptr);
+    keyIds() {
+        wasm.vault_keyIds(8, this.ptr);
         var r0 = getInt32Memory0()[8 / 4 + 0];
         var r1 = getInt32Memory0()[8 / 4 + 1];
         var v0 = getArrayJsValueFromWasm0(r0, r1).slice();
@@ -522,36 +660,127 @@ class Vault {
         return v0;
     }
     /**
-    * @returns {KeyId | undefined}
+    * @returns {any[]}
     */
-    activeId() {
-        var ret = wasm.vault_activeId(this.ptr);
-        return ret === 0 ? undefined : KeyId.__wrap(ret);
+    dids() {
+        wasm.vault_dids(8, this.ptr);
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        var v0 = getArrayJsValueFromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 4);
+        return v0;
     }
     /**
-    * @returns {KeyId}
+    * @returns {Did | undefined}
     */
-    createId() {
-        var ret = wasm.vault_createId(this.ptr);
-        return KeyId.__wrap(ret);
+    activeDid() {
+        var ret = wasm.vault_activeDid(this.ptr);
+        return ret === 0 ? undefined : Did.__wrap(ret);
+    }
+    /**
+    * @returns {Did}
+    */
+    createDid() {
+        var ret = wasm.vault_createDid(this.ptr);
+        return Did.__wrap(ret);
     }
     /**
     * @param {KeyId} key_id
-    * @param {Uint8Array} message
-    * @returns {SignedMessage}
+    * @param {any} js_req
+    * @returns {SignedJson}
     */
-    sign(key_id, message) {
+    signWitnessRequest(key_id, js_req) {
+        try {
+            _assertClass(key_id, KeyId);
+            var ret = wasm.vault_signWitnessRequest(this.ptr, key_id.ptr, addBorrowedObject(js_req));
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+    /**
+    * @param {KeyId} key_id
+    * @param {any} js_stmt
+    * @returns {SignedJson}
+    */
+    signWitnessStatement(key_id, js_stmt) {
+        try {
+            _assertClass(key_id, KeyId);
+            var ret = wasm.vault_signWitnessStatement(this.ptr, key_id.ptr, addBorrowedObject(js_stmt));
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+    /**
+    * @param {KeyId} key_id
+    * @param {any} js_presentation
+    * @returns {SignedJson}
+    */
+    signClaimPresentation(key_id, js_presentation) {
+        try {
+            _assertClass(key_id, KeyId);
+            var ret = wasm.vault_signClaimPresentation(this.ptr, key_id.ptr, addBorrowedObject(js_presentation));
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+    /**
+    * @param {KeyId} key_id
+    * @param {Uint8Array} js_operations
+    * @returns {SignedBytes}
+    */
+    signDidOperations(key_id, js_operations) {
         _assertClass(key_id, KeyId);
-        var ptr0 = passArray8ToWasm0(message, wasm.__wbindgen_malloc);
+        var ptr0 = passArray8ToWasm0(js_operations, wasm.__wbindgen_malloc);
         var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.vault_sign(this.ptr, key_id.ptr, ptr0, len0);
-        return SignedMessage.__wrap(ret);
+        var ret = wasm.vault_signDidOperations(this.ptr, key_id.ptr, ptr0, len0);
+        return SignedBytes.__wrap(ret);
     }
 }
 module.exports.Vault = Vault;
 
+module.exports.__wbg_validationissue_new = function(arg0) {
+    var ret = ValidationIssue.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
+module.exports.__wbg_did_new = function(arg0) {
+    var ret = Did.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
+module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
+    const obj = getObject(arg1);
+    var ret = JSON.stringify(obj === undefined ? null : obj);
+    var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    getInt32Memory0()[arg0 / 4 + 1] = len0;
+    getInt32Memory0()[arg0 / 4 + 0] = ptr0;
+};
+
+module.exports.__wbg_validationresult_new = function(arg0) {
+    var ret = ValidationResult.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
+module.exports.__wbindgen_object_drop_ref = function(arg0) {
+    takeObject(arg0);
+};
+
 module.exports.__wbindgen_string_new = function(arg0, arg1) {
     var ret = getStringFromWasm0(arg0, arg1);
+    return addHeapObject(ret);
+};
+
+module.exports.__wbindgen_json_parse = function(arg0, arg1) {
+    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+    return addHeapObject(ret);
+};
+
+module.exports.__wbg_keyid_new = function(arg0) {
+    var ret = KeyId.__wrap(arg0);
     return addHeapObject(ret);
 };
 

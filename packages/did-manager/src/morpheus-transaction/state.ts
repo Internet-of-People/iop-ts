@@ -423,7 +423,7 @@ export class MorpheusState implements IMorpheusState {
     state: IDidTransactionsOperations, transactionId: string): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
-        const signableOperations = Signed.getOperations(operations);
+        const signableOperations = Signed.getOperationsUnsafeWithoutSignatureChecking(operations);
         const registerAttemptAtHeight = this.visitorRegisterSignedOperationAttemptAtHeight(
           height, state, transactionId);
 

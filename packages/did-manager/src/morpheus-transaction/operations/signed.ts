@@ -1,4 +1,4 @@
-import { PublicKey, Signature, SignedMessage } from '@internet-of-people/keyvault';
+import { PublicKey, Signature, SignedBytes } from '@internet-of-people/morpheus-core';
 import stringify from 'json-stable-stringify';
 import {
   IOperationVisitor,
@@ -26,10 +26,13 @@ export class Signed extends Operation {
 
   public static getOperations(data: ISignedOperationsData): SignableOperation[] {
     const signableBytes = Signed.serialize(data.signables);
-    const message = new SignedMessage(new PublicKey(data.signerPublicKey),
-      signableBytes, new Signature(data.signature));
+    const signedBytes = new SignedBytes(
+      new PublicKey(data.signerPublicKey),
+      signableBytes,
+      new Signature(data.signature),
+    );
 
-    if (!message.validate()) {
+    if (!signedBytes.validate()) {
       throw new Error('Invalid signature');
     }
     return Signed.getOperationsUnsafeWithoutSignatureChecking(data);

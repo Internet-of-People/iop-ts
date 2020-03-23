@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { KeyId, SignedMessage, Vault } from '../pkg';
+import { Did, KeyId, SignedBytes, Vault } from './';
 import * as Interfaces from './interfaces';
 
 
@@ -27,24 +27,26 @@ export class PersistentVault implements Interfaces.IVault {
     return new PersistentVault(vault, vaultPath);
   }
 
-  public activeId(): KeyId | undefined {
-    return this.vault.activeId();
+  public activeDid(): Did | undefined {
+    return this.vault.activeDid();
   }
 
-  public createId(): KeyId {
-    const id = this.vault.createId();
+  public createDid(): Did {
+    const id = this.vault.createDid();
     this.saveFile();
     return id;
   }
 
-  public ids(): KeyId[] {
-    return this.vault.profiles().map((id) => {
-      return new KeyId(id);
-    });
+  public keyIds(): KeyId[] {
+    return this.vault.keyIds();
   }
 
-  public sign(message: Uint8Array, id: KeyId): SignedMessage {
-    return this.vault.sign(id, message);
+  public dids(): Did[] {
+    return this.vault.dids();
+  }
+
+  public signDidOperations(id: KeyId, message: Uint8Array): SignedBytes {
+    return this.vault.signDidOperations(id, message);
   }
 
   private saveFile(): void {

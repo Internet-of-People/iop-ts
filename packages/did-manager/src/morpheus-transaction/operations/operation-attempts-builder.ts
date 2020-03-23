@@ -1,4 +1,4 @@
-import { Interfaces } from '@internet-of-people/keyvault';
+import { IVault } from '@internet-of-people/morpheus-core';
 import { IOperationData, ISignedOperationsData, Operation } from '../../interfaces';
 import { RegisterBeforeProof } from './before-proof';
 import { Signed } from './signed';
@@ -8,7 +8,7 @@ import { toData } from './to-data';
 export class OperationAttemptsBuilder {
   private readonly attempts: Operation[] = [];
 
-  public withVault(vault: Interfaces.IVault): ISignedOperationBuilderNeedsDid {
+  public withVault(vault: IVault): ISignedOperationBuilderNeedsDid {
     return new SignedOperationAttemptsBuilder(this.signed.bind(this), vault);
   }
 

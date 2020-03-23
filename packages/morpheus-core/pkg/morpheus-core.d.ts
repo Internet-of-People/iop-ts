@@ -1,5 +1,25 @@
 /* tslint:disable */
 /* eslint-disable */
+export class Did {
+  free(): void;
+/**
+* @param {string} did_str 
+*/
+  constructor(did_str: string);
+/**
+* @param {KeyId} key_id 
+* @returns {Did} 
+*/
+  static fromKeyId(key_id: KeyId): Did;
+/**
+* @returns {KeyId} 
+*/
+  defaultKeyId(): KeyId;
+/**
+* @returns {string} 
+*/
+  toString(): string;
+}
 export class KeyId {
   free(): void;
 /**
@@ -54,40 +74,30 @@ export class Signature {
 */
   toString(): string;
 }
-export class SignedMessage {
+export class SignedBytes {
   free(): void;
 /**
 * @param {PublicKey} public_key 
-* @param {Uint8Array} message 
+* @param {Uint8Array} content 
 * @param {Signature} signature 
 */
-  constructor(public_key: PublicKey, message: Uint8Array, signature: Signature);
+  constructor(public_key: PublicKey, content: Uint8Array, signature: Signature);
 /**
 * @returns {boolean} 
 */
   validate(): boolean;
-/**
-* @param {KeyId} signer_id 
-* @returns {boolean} 
-*/
-  validateWithId(signer_id: KeyId): boolean;
-  readonly message: Uint8Array;
+  readonly content: Uint8Array;
   readonly publicKey: PublicKey;
   readonly signature: Signature;
 }
-export class SignedString {
+export class SignedJson {
   free(): void;
 /**
 * @param {PublicKey} public_key 
-* @param {string} content 
+* @param {any} content 
 * @param {Signature} signature 
 */
-  constructor(public_key: PublicKey, content: string, signature: Signature);
-/**
-* @param {SignedMessage} signed 
-* @returns {SignedString} 
-*/
-  static from(signed: SignedMessage): SignedString;
+  constructor(public_key: PublicKey, content: any, signature: Signature);
 /**
 * @returns {boolean} 
 */
@@ -101,12 +111,23 @@ export class SignedString {
 * @param {string} did_doc_str 
 * @param {number | undefined} from_height_inc 
 * @param {number | undefined} until_height_exc 
-* @returns {boolean} 
+* @returns {any} 
 */
-  validateWithDid(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): boolean;
-  readonly content: string;
+  validateWithDid(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
+  readonly content: any;
   readonly publicKey: PublicKey;
   readonly signature: Signature;
+}
+export class ValidationIssue {
+  free(): void;
+  readonly code: number;
+  readonly reason: string;
+  readonly severity: string;
+}
+export class ValidationResult {
+  free(): void;
+  readonly messages: any[];
+  readonly status: string;
 }
 export class Vault {
   free(): void;
@@ -126,19 +147,41 @@ export class Vault {
 /**
 * @returns {any[]} 
 */
-  profiles(): any[];
+  keyIds(): any[];
 /**
-* @returns {KeyId | undefined} 
+* @returns {any[]} 
 */
-  activeId(): KeyId | undefined;
+  dids(): any[];
 /**
-* @returns {KeyId} 
+* @returns {Did | undefined} 
 */
-  createId(): KeyId;
+  activeDid(): Did | undefined;
+/**
+* @returns {Did} 
+*/
+  createDid(): Did;
 /**
 * @param {KeyId} key_id 
-* @param {Uint8Array} message 
-* @returns {SignedMessage} 
+* @param {any} js_req 
+* @returns {SignedJson} 
 */
-  sign(key_id: KeyId, message: Uint8Array): SignedMessage;
+  signWitnessRequest(key_id: KeyId, js_req: any): SignedJson;
+/**
+* @param {KeyId} key_id 
+* @param {any} js_stmt 
+* @returns {SignedJson} 
+*/
+  signWitnessStatement(key_id: KeyId, js_stmt: any): SignedJson;
+/**
+* @param {KeyId} key_id 
+* @param {any} js_presentation 
+* @returns {SignedJson} 
+*/
+  signClaimPresentation(key_id: KeyId, js_presentation: any): SignedJson;
+/**
+* @param {KeyId} key_id 
+* @param {Uint8Array} js_operations 
+* @returns {SignedBytes} 
+*/
+  signDidOperations(key_id: KeyId, js_operations: Uint8Array): SignedBytes;
 }

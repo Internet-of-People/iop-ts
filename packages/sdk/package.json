@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-interfaces": "^2.6.10",
-    "@internet-of-people/keyvault": "1.0.0",
+    "@internet-of-people/morpheus-core": "1.0.0",
     "bigint-hash": "0.2.2",
     "multibase": "0.6.0"
   },

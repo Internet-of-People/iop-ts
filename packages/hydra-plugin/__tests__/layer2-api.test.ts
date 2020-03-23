@@ -4,13 +4,14 @@ import Optional from 'optional-js';
 import { EventEmitter } from 'events';
 import { Server as HapiServer } from '@hapi/hapi';
 
-import { Interfaces as KvInterfaces, KeyId, PersistentVault, SignedMessage, Vault } from '@internet-of-people/keyvault';
+import { IVault, KeyId, PersistentVault, SignedBytes, Vault } from '@internet-of-people/morpheus-core';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 const {
   Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry }, DidDocument },
   MorpheusStateHandler: { MorpheusStateHandler },
 } = MorpheusTransaction;
 type IDidDocumentData = Interfaces.IDidDocumentData;
+type IBeforeProofHistory = Interfaces.IBeforeProofHistory;
 import { IO, Utils } from '@internet-of-people/sdk';
 type Authentication = IO.Authentication;
 type Did = IO.Did;
@@ -19,7 +20,6 @@ type TransactionId = IO.TransactionId;
 import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { IDidOperation } from '../src/did-operations';
-import { IBeforeProofHistory } from '@internet-of-people/did-manager/dist/interfaces';
 
 const defaultDid = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 const did2 = 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX';
@@ -34,13 +34,13 @@ const blockId = 'myFavoriteBlockId';
 const blockHeight = 5;
 
 const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
-rustVault.createId();
-rustVault.createId();
-rustVault.createId();
+rustVault.createDid();
+rustVault.createDid();
+rustVault.createDid();
 
-const vault: KvInterfaces.IVault = {
-  sign: (message: Uint8Array, keyId: KeyId): SignedMessage => {
-    return rustVault.sign(keyId, message);
+const vault: IVault = {
+  signDidOperations: (keyId: KeyId, message: Uint8Array): SignedBytes => {
+    return rustVault.signDidOperations(keyId, message);
   },
 };
 

@@ -1,13 +1,12 @@
 import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
 
-import { KeyId, Vault, PersistentVault, Interfaces as KvInterfaces, SignedMessage } from '@internet-of-people/keyvault';
+import { KeyId, Vault, PersistentVault, IVault, SignedBytes } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 type TransactionId = IO.TransactionId;
 
 import { IOperationData } from '../src/interfaces';
 import { Builder, Operations, Transaction } from '../src/morpheus-transaction';
-
 const { DidDocument: { RightRegistry } } = Operations;
 
 beforeAll(() => {
@@ -24,10 +23,11 @@ const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
 const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
 const newKeyId = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
-rustVault.createId();
-const vault: KvInterfaces.IVault = {
-  sign: (message: Uint8Array, signerDid: KeyId): SignedMessage => {
-    return rustVault.sign(signerDid, message);
+rustVault.createDid();
+
+const vault: IVault = {
+  signDidOperations: (keyId: KeyId, message: Uint8Array): SignedBytes => {
+    return rustVault.signDidOperations(keyId, message);
   },
 };
 

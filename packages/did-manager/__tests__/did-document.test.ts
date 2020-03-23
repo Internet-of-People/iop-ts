@@ -1,4 +1,4 @@
-import { KeyId } from '@internet-of-people/keyvault';
+import { KeyId } from '@internet-of-people/morpheus-core';
 import { IKeyData, IRightsMap, IKeyRightHistory } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 

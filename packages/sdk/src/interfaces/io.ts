@@ -1,4 +1,4 @@
-import { KeyId, PublicKey } from '@internet-of-people/keyvault';
+import { KeyId, PublicKey } from '@internet-of-people/morpheus-core';
 
 export type Authentication = KeyId | PublicKey;
 

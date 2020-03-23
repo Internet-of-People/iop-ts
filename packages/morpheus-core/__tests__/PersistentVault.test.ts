@@ -1,5 +1,5 @@
 import { unlinkSync } from 'fs';
-import { KeyId, SignedMessage, Vault } from '../pkg';
+import { SignedBytes, Vault, Did } from '../pkg';
 import { PersistentVault } from '../src';
 
 const VAULT_FILE = 'vault.json';
@@ -10,8 +10,8 @@ describe('PersistentVault', () => {
   beforeAll(() => {
     const inMemoryVault = new Vault(PersistentVault.DEMO_PHRASE);
     vault = new PersistentVault(inMemoryVault, VAULT_FILE);
-    vault.createId();
-    vault.createId();
+    vault.createDid();
+    vault.createDid();
   });
 
   beforeEach(() => {
@@ -19,8 +19,8 @@ describe('PersistentVault', () => {
   });
 
   it('is persistent', () => {
-    expect(vault.ids()).toHaveLength(2);
-    expect(vault.ids().map((id) => {
+    expect(vault.keyIds()).toHaveLength(2);
+    expect(vault.keyIds().map((id) => {
       return id.toString();
     })).toStrictEqual(
       [ 'iezbeWGSY2dqcUBqT8K7R14xr', 'iez25N5WZ1Q6TQpgpyYgiu9gTX' ],
@@ -29,18 +29,18 @@ describe('PersistentVault', () => {
 
   it('can validate signatures', () => {
     const message = new Uint8Array([ 1, 2, 3, 4, 5 ]);
-    const idOpt = vault.activeId();
-    expect(idOpt).toBeTruthy();
-    const id = idOpt as KeyId;
-    expect(id.toString()).toStrictEqual('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-    const signedMessage = vault.sign(message, id);
+    const didOpt = vault.activeDid();
+    expect(didOpt).toBeTruthy();
+    const did = didOpt as Did;
+    expect(did.toString()).toStrictEqual('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX');
+    const signedMessage = vault.signDidOperations(did.defaultKeyId(), message);
     expect(signedMessage).toBeTruthy();
-    expect(signedMessage.validateWithId(id)).toBe(true);
     expect(signedMessage.validate()).toBe(true);
+    expect(signedMessage.publicKey.validateId(did.defaultKeyId())).toBe(true);
 
     const wrongMessage = new Uint8Array([ 1, 2, 255, 4, 5 ]);
-    const wrongSignedMessage = new SignedMessage(signedMessage.publicKey, wrongMessage, signedMessage.signature);
-    expect(wrongSignedMessage.validateWithId(id)).toBe(false);
+    const wrongSignedMessage = new SignedBytes(signedMessage.publicKey, wrongMessage, signedMessage.signature);
+    expect(wrongSignedMessage.validate()).toBe(false);
   });
 
   afterAll(() => {

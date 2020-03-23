@@ -129,7 +129,7 @@ describe('Service', () => {
       });
   });
 
-  it('tampering the request after signing is rejected', async() => {
+  it('tampering with the request after signing is rejected', async() => {
     const server = await createServer();
     const req1mod: IO.ISigned<IO.IWitnessRequest> = deepClone(req1);
     (req1mod.content as IO.IWitnessRequest).nonce = Utils.nonce264();

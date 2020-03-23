@@ -1,50 +1,42 @@
 import inquirer from 'inquirer';
 
-import { KeyId } from '@internet-of-people/keyvault';
+import { KeyId, Did } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
-type Did = IO.Did;
-type Authentication = IO.Authentication;
 
 import { IAction } from './action';
 import { Network, allNetworks } from './network';
 
-const pattern = new RegExp(`^${IO.MULTICIPHER_KEYID_PREFIX}`);
-
-export const authToDid = (id: KeyId): Did => {
-  return id.toString().replace(pattern, IO.MORPHEUS_DID_PREFIX);
-};
-
-export const dumpDids = (vaultIds: KeyId[]): void => {
+export const dumpDids = (dids: Did[]): void => {
   console.log('These are the dids based on your private keys:');
 
-  for (const id of vaultIds) {
-    console.log(authToDid(id));
+  for (const did of dids) {
+    console.log(did.toString());
   }
 };
 
-export const dumpKeyIds = (vaultIds: KeyId[]): void => {
+export const dumpKeyIds = (keyIds: KeyId[]): void => {
   console.log('These are the key ids based on your private keys:');
 
-  for (const id of vaultIds) {
+  for (const id of keyIds) {
     console.log(id.toString());
   }
 };
 
-export const askDid = async(operation: string): Promise<Did> => {
+export const askDid = async(operation: string): Promise<IO.Did> => {
   const { did }: { did: string; } = await inquirer.prompt([{
     type: 'input',
     name: 'did',
     message: `Type did to ${operation}:`,
   }]);
-  return did;
+  return new Did(did).toString();
 };
 
-export const askAuth = async(operation: string): Promise<Authentication> => {
-  const { auth }: { auth: Authentication; } = await inquirer.prompt([{
+export const askAuth = async(operation: string): Promise<IO.Authentication> => {
+  const { auth }: { auth: IO.Authentication; } = await inquirer.prompt([{
     type: 'input',
     name: 'auth',
     message: `Type a public key or key ID to ${operation}:`,
-    filter: async(value: string): Promise<Authentication> => {
+    filter: async(value: string): Promise<IO.Authentication> => {
       return IO.authenticationFromData(value);
     },
   }]);

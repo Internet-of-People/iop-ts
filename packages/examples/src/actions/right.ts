@@ -27,15 +27,15 @@ const askRight = async(): Promise<IO.Right> => {
 
 const addRight = async(): Promise<void> => {
   const vault = loadVault();
-  const vaultIds = vault.ids();
+  const keyIds = vault.keyIds();
 
-  dumpDids(vaultIds);
+  dumpDids(vault.dids());
   const did = await askDid('change rights on');
 
-  dumpKeyIds(vaultIds);
+  dumpKeyIds(keyIds);
   const auth = await askAuth('add a right to');
   const right = await askRight();
-  const signerKeyId = await askSignerKeyId(vaultIds);
+  const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
@@ -50,15 +50,15 @@ const addRight = async(): Promise<void> => {
 
 const revokeRight = async(): Promise<void> => {
   const vault = loadVault();
-  const vaultIds = vault.ids();
+  const keyIds = vault.keyIds();
 
-  dumpDids(vaultIds);
+  dumpDids(vault.dids());
   const did = await askDid('change rights on');
 
-  dumpKeyIds(vaultIds);
+  dumpKeyIds(keyIds);
   const auth = await askAuth('revoke a right from');
   const right = await askRight();
-  const signerKeyId = await askSignerKeyId(vaultIds);
+  const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
@@ -73,9 +73,8 @@ const revokeRight = async(): Promise<void> => {
 
 const queryRight = async(): Promise<void> => {
   const vault = loadVault();
-  const vaultIds = vault.ids();
 
-  dumpDids(vaultIds);
+  dumpDids(vault.dids());
   const did = await askDid('query a right on');
   // const right = await askRight();
   const height = await askHeight();

@@ -12,15 +12,15 @@ const {
 
 const addKey = async(): Promise<void> => {
   const vault = loadVault();
-  const vaultIds = vault.ids();
+  const keyIds = vault.keyIds();
 
-  dumpDids(vaultIds);
+  dumpDids(vault.dids());
   const did = await askDid('add key to');
 
-  dumpKeyIds(vaultIds);
+  dumpKeyIds(keyIds);
   const newAuth = await askAuth('add to that DID');
   const expires = await askHeight();
-  const signerKeyId = await askSignerKeyId(vaultIds);
+  const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()
@@ -35,14 +35,14 @@ const addKey = async(): Promise<void> => {
 
 const revokeKey = async(): Promise<void> => {
   const vault = loadVault();
-  const vaultIds = vault.ids();
+  const vaultKeyIds = vault.keyIds();
 
-  dumpDids(vaultIds);
+  dumpDids(vault.dids());
   const did = await askDid('revoke key from');
 
-  dumpKeyIds(vaultIds);
+  dumpKeyIds(vaultKeyIds);
   const newAuth = await askAuth('revoke from that DID');
-  const signerKeyId = await askSignerKeyId(vaultIds);
+  const signerKeyId = await askSignerKeyId(vaultKeyIds);
 
   const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()

@@ -4,20 +4,27 @@ import { initDemoVault, loadVault } from '../vault';
 
 const initVault = async(): Promise<void> => {
   const vault = initDemoVault();
-  const id = vault.createId();
-  console.log('Vault created, 1st id is', id.toString());
+  const id = vault.createDid();
+  console.log('Vault created, 1st did is', id.toString());
 };
 
-const createId = async(): Promise<void> => {
+const createDid = async(): Promise<void> => {
   const vault = loadVault();
-  const id = vault.createId();
-  console.log('New id created', id.toString());
+  const id = vault.createDid();
+  console.log('New did created', id.toString());
 };
 
-const listIds = async(): Promise<void> => {
+const listKeyIds = async(): Promise<void> => {
   const vault = loadVault();
-  vault.ids().forEach((id, idx) => {
+  vault.keyIds().forEach((id, idx) => {
     console.log(`#${idx}: ${id.toString()}`);
+  });
+};
+
+const listDids = async(): Promise<void> => {
+  const vault = loadVault();
+  vault.dids().forEach((did, idx) => {
+    console.log(`#${idx}: ${did.toString()}`);
   });
 };
 
@@ -28,12 +35,16 @@ const run = async(): Promise<void> => {
       run: initVault,
     },
     {
-      id: 'createId',
-      run: createId,
+      id: 'create',
+      run: createDid,
     },
     {
-      id: 'list',
-      run: listIds,
+      id: 'listKeyIds',
+      run: listKeyIds,
+    },
+    {
+      id: 'listDids',
+      run: listDids,
     },
   ];
   const subAction = await chooseAction(subActions, process.argv[3]);

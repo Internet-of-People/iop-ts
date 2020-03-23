@@ -12,11 +12,11 @@ const {
 
 const run = async(): Promise<void> => {
   const vault = loadVault();
-  const vaultIds = vault.ids();
+  const keyIds = vault.keyIds();
 
-  dumpDids(vaultIds);
+  dumpDids(vault.dids());
   const did = await askDid('tombstone');
-  const signerKeyId = await askSignerKeyId(vaultIds);
+  const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await Layer2Api.get().getLastTxId(did);
   const opAttempts = new OperationAttemptsBuilder()

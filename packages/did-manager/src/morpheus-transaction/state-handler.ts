@@ -209,7 +209,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     reverse: boolean): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
-        const signableOperations = Signed.getOperationsUnsafeWithoutSignatureChecking(operations);
+        const signableOperations = Signed.getOperations(operations);
         const signerAuth = IO.authenticationFromData(operations.signerPublicKey);
         const performSignableAtHeight = this.visitorPerformSignedOperationAtHeight(height, signerAuth, state);
 

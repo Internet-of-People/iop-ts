@@ -1,4 +1,4 @@
-import { KeyId } from '@internet-of-people/keyvault';
+import { KeyId } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 
 import { IDidDocumentState, IKeyData, IDidDocument } from '../src/interfaces';

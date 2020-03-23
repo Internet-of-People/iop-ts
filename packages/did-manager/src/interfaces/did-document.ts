@@ -1,4 +1,4 @@
-import { KeyId, PublicKey } from '@internet-of-people/keyvault';
+import { KeyId, PublicKey } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 import { IState } from './state';
 

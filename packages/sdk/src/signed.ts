@@ -1,4 +1,4 @@
-import { SignedMessage, PublicKey, Signature } from '@internet-of-people/keyvault';
+import { PublicKey, Signature, SignedJson } from '@internet-of-people/morpheus-core';
 
 import {
   IContent,
@@ -62,9 +62,8 @@ export class Signed<T extends IContent> {
 
   public checkSignature(): boolean {
     const publicKey = new PublicKey(this.signature.publicKey);
-    const message = Uint8Array.from(Buffer.from(this.signableContentId, 'utf8'));
     const signature = new Signature(this.signature.bytes);
-    const validator = new SignedMessage(publicKey, message, signature);
+    const validator = new SignedJson(publicKey, this.data.content, signature);
     return validator.validate();
   }
 

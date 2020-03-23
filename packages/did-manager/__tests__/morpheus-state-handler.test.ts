@@ -1,17 +1,19 @@
+import { EventEmitter } from 'events';
+import Optional from 'optional-js';
+
 import {
-  Interfaces as KvInterfaces,
+  IVault,
   KeyId,
   PersistentVault,
-  SignedMessage,
+  SignedBytes,
   Vault,
-} from '@internet-of-people/keyvault';
+} from '@internet-of-people/morpheus-core';
+
 import { IO } from '@internet-of-people/sdk';
 type Authentication = IO.Authentication;
 type TransactionId = IO.TransactionId;
 
 import { ISignedOperationsData, IStateChange, OperationType } from '../src/interfaces';
-import { EventEmitter } from 'events';
-import Optional from 'optional-js';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
 import { Operations } from '../src/morpheus-transaction';
 
@@ -32,13 +34,13 @@ export const assertStringlyEqual = (actual: IToString, expected: IToString): voi
 
 describe('StateHandler', () => {
   const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
-  rustVault.createId();
-  rustVault.createId();
-  rustVault.createId();
+  rustVault.createDid();
+  rustVault.createDid();
+  rustVault.createDid();
 
-  const vault: KvInterfaces.IVault = {
-    sign: (message: Uint8Array, keyId: KeyId): SignedMessage => {
-      return rustVault.sign(keyId, message);
+  const vault: IVault = {
+    signDidOperations: (keyId: KeyId, message: Uint8Array): SignedBytes => {
+      return rustVault.signDidOperations(keyId, message);
     },
   };
 

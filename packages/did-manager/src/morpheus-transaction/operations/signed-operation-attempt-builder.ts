@@ -1,4 +1,4 @@
-import { Interfaces, KeyId } from '@internet-of-people/keyvault';
+import { IVault, KeyId } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 type Authentication = IO.Authentication;
 type Did = IO.Did;
@@ -36,7 +36,7 @@ export class SignedOperationAttemptsBuilder implements ISignedOperationBuilder {
 
   public constructor(
     private readonly finish: (operation: ISignedOperationsData) => OperationAttemptsBuilder,
-    private readonly vault: Interfaces.IVault,
+    private readonly vault: IVault,
   ) {
   }
 
@@ -75,7 +75,7 @@ export class SignedOperationAttemptsBuilder implements ISignedOperationBuilder {
   public sign(keyId: KeyId): OperationAttemptsBuilder {
     const signableOperationDatas = this.signableOperations.map(toSignableData);
     const opBytes = Signed.serialize(signableOperationDatas);
-    const signedMessage = this.vault.sign(opBytes, keyId);
+    const signedMessage = this.vault.signDidOperations(keyId, opBytes);
     const signedOperationData: ISignedOperationsData = {
       operation: OperationType.Signed,
       signables: signableOperationDatas,
