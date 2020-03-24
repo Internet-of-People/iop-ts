@@ -1,4 +1,3 @@
-import { KeyId } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 
 import { IDidDocumentState, IKeyData, IDidDocument } from '../src/interfaces';
@@ -8,10 +7,10 @@ import { assertStringlyEqual } from './utils';
 const { DidDocument } = Operations;
 const { RightRegistry } = DidDocument;
 
-const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-const keyId2 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
+const did = new IO.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+const defaultKeyId = new IO.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+const keyId1 = new IO.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+const keyId2 = new IO.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
 const updateRight = RightRegistry.systemRights.update;
 
 export const assertEqualAuthEntries = (actual: IKeyData[], expected: Partial<IKeyData>[]): void => {
@@ -28,7 +27,8 @@ export const assertEqualAuthEntries = (actual: IKeyData[], expected: Partial<IKe
 
 describe('Relation of DID and KeyId', () => {
   it('did can be converted to auth string', () => {
-    assertStringlyEqual(IO.didToAuth(did), defaultKeyId);
+    assertStringlyEqual(IO.didToAuth(did.toString()), defaultKeyId);
+    assertStringlyEqual(did.defaultKeyId(), defaultKeyId);
   });
 });
 
@@ -42,7 +42,7 @@ describe('DidDocumentState', () => {
   it('can query implicit document', () => {
     const didDoc = didState.query.getAt(1);
     expect(didDoc.height).toBe(1);
-    expect(didDoc.did).toBe(did);
+    assertStringlyEqual(didDoc.did, did);
 
     const didData = didDoc.toData();
     assertEqualAuthEntries(didData.keys, [
@@ -60,7 +60,7 @@ describe('DidDocumentState', () => {
     it('can add keys', () => {
       const stateAtHeight1 = didState.query.getAt(1);
       expect(stateAtHeight1.height).toBe(1);
-      expect(stateAtHeight1.did).toBe(did);
+      assertStringlyEqual(stateAtHeight1.did, did);
       assertEqualAuthEntries(stateAtHeight1.toData().keys, [
         { index: 0, auth: defaultKeyId.toString(), valid: true },
       ]);
@@ -68,7 +68,7 @@ describe('DidDocumentState', () => {
       didState.apply.addKey(2, keyId1);
       const stateAtHeight2 = didState.query.getAt(2);
       expect(stateAtHeight2.height).toBe(2);
-      expect(stateAtHeight2.did).toBe(did);
+      assertStringlyEqual(stateAtHeight2.did, did);
       assertEqualAuthEntries(stateAtHeight2.toData().keys, [
         { index: 0, auth: defaultKeyId.toString(), valid: true },
         { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },
@@ -77,7 +77,7 @@ describe('DidDocumentState', () => {
       didState.apply.addKey(5, keyId2, 10);
       const stateAtHeight5 = didState.query.getAt(5);
       expect(stateAtHeight5.height).toBe(5);
-      expect(stateAtHeight5.did).toBe(did);
+      assertStringlyEqual(stateAtHeight5.did, did);
       assertEqualAuthEntries(stateAtHeight5.toData().keys, [
         { index: 0, auth: defaultKeyId.toString(), valid: true },
         { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },
@@ -86,7 +86,7 @@ describe('DidDocumentState', () => {
 
       const stateAtHeight10 = didState.query.getAt(10);
       expect(stateAtHeight10.height).toBe(10);
-      expect(stateAtHeight10.did).toBe(did);
+      assertStringlyEqual(stateAtHeight10.did, did);
       assertEqualAuthEntries(stateAtHeight10.toData().keys, [
         { index: 0, auth: defaultKeyId.toString(), valid: true },
         { index: 1, auth: keyId1.toString(), validFromHeight: 2, valid: true },

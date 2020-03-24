@@ -28,7 +28,7 @@ export const askDid = async(operation: string): Promise<IO.Did> => {
     name: 'did',
     message: `Type did to ${operation}:`,
   }]);
-  return new Did(did).toString();
+  return new Did(did);
 };
 
 export const askAuth = async(operation: string): Promise<IO.Authentication> => {

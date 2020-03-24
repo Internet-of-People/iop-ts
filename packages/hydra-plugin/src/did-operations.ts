@@ -45,7 +45,7 @@ export class DidOperationExtractor {
         })
         .operationAttempts;
 
-      const visitor = visitorFilterDid(did);
+      const visitor = visitorFilterDid(did.toString());
       const signedOperationsHierarchy = txOperations.map((item) => {
         return fromData(item).accept(visitor);
       });

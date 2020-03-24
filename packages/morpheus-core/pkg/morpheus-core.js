@@ -149,6 +149,19 @@ class Did {
         return Did.__wrap(ret);
     }
     /**
+    * @returns {string}
+    */
+    static prefix() {
+        try {
+            wasm.did_prefix(8);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
     * @param {KeyId} key_id
     * @returns {Did}
     */
@@ -496,10 +509,10 @@ class SignedJson {
     * @param {number | undefined} until_height_exc
     * @returns {any}
     */
-    validateWithDid(did_doc_str, from_height_inc, until_height_exc) {
+    validateWithDidDoc(did_doc_str, from_height_inc, until_height_exc) {
         var ptr0 = passStringToWasm0(did_doc_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.signedjson_validateWithDid(this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
+        var ret = wasm.signedjson_validateWithDidDoc(this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
         return takeObject(ret);
     }
 }

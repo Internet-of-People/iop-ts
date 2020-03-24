@@ -164,7 +164,7 @@ export class DidDocumentState implements IDidDocumentState {
       const tombstonedAtHeight = optionalToNullable(this.tombstoneHistory.query.latestHeight());
 
       return new DidDocument({
-        did: this.did,
+        did: this.did.toString(),
         keys,
         rights,
         tombstoned,
@@ -319,7 +319,7 @@ export class DidDocumentState implements IDidDocumentState {
     keyStack?: Readonly<IKeyEntry>[],
     tombstoneHistory?: ITimeSeries) {
     this.keyStack = keyStack ?? [{
-      auth: IO.didToAuth(did),
+      auth: did.defaultKeyId(),
       revoked: new TimeSeries(false),
       rights: initialRights(true),
     }];

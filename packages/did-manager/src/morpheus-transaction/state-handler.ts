@@ -199,7 +199,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       revokeRight: (did: Did, lastTxId: TransactionId | null, auth: Authentication, right: Right): void => {
         state.revokeRight(height, signerAuth, did, lastTxId, auth, right);
       },
-      tombstoneDid(did: string, lastTxId: TransactionId | null): void {
+      tombstoneDid(did: Did, lastTxId: TransactionId | null): void {
         state.tombstoneDid(height, signerAuth, did, lastTxId);
       },
     };

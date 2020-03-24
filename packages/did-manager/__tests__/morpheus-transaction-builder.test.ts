@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
 
-import { KeyId, Vault, PersistentVault, IVault, SignedBytes } from '@internet-of-people/morpheus-core';
+import { KeyId, Vault, PersistentVault, IVault, SignedBytes, Did } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 type TransactionId = IO.TransactionId;
 
@@ -19,7 +19,7 @@ afterAll(() => {
   Transactions.TransactionRegistry.deregisterTransactionType(Transaction.MorpheusTransaction);
 });
 
-const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
+const did = new Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
 const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
 const newKeyId = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const rustVault = new Vault(PersistentVault.DEMO_PHRASE);

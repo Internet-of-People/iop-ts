@@ -65,7 +65,7 @@ export class Layer2Api {
     return result;
   }
 
-  public async getTxnStatus(txid: string): Promise<Optional<boolean>> {
+  public async getTxnStatus(txid: TransactionId): Promise<Optional<boolean>> {
     console.log(`Getting txn status for ${txid}...`);
 
     const resp = await this.api.get(`/txn-status/${txid}`, {
@@ -81,7 +81,7 @@ export class Layer2Api {
     }
   }
 
-  public async getLastTxId(did: string): Promise<TransactionId | null> {
+  public async getLastTxId(did: Did): Promise<TransactionId | null> {
     console.log(`Getting last txn id for ${did}...`);
     const resp = await this.api.get(`/did/${did}/transactions/last`, {
       validateStatus: (status) => {

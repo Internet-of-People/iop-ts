@@ -3,6 +3,7 @@ import Optional from 'optional-js';
 
 import { IO } from '@internet-of-people/sdk';
 type Did = IO.Did;
+type DidData = IO.DidData;
 type TransactionId = IO.TransactionId;
 
 import {
@@ -56,14 +57,14 @@ export class DidTransactionsState implements IDidTransactionsState {
     },
   };
 
-  private readonly didTransactions: Map<Did, ITransactionIdHeight[]>;
+  private readonly didTransactions: Map<DidData, ITransactionIdHeight[]>;
 
-  public constructor(didTransactions?: Map<Did, ITransactionIdHeight[]>) {
+  public constructor(didTransactions?: Map<DidData, ITransactionIdHeight[]>) {
     this.didTransactions = didTransactions ?? new Map();
   }
 
   public clone(): IDidTransactionsState {
-    const clonedDidTransactions = new Map<Did, ITransactionIdHeight[]>();
+    const clonedDidTransactions = new Map<DidData, ITransactionIdHeight[]>();
 
     for (const [ key, value ] of this.didTransactions.entries()) {
       clonedDidTransactions.set(key, cloneDeep(value));
@@ -73,12 +74,13 @@ export class DidTransactionsState implements IDidTransactionsState {
 
 
   private getOrCreateDidTransactionEntries(did: Did): ITransactionIdHeight[] {
-    let transactionEntries = this.didTransactions.get(did);
+    const didData = did.toString();
+    let transactionEntries = this.didTransactions.get(didData);
 
     /* eslint no-undefined: 0 */
     if (transactionEntries === undefined) {
       transactionEntries = [];
-      this.didTransactions.set(did, transactionEntries);
+      this.didTransactions.set(didData, transactionEntries);
     }
     return transactionEntries;
   }

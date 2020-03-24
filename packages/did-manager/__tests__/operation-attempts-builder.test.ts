@@ -1,4 +1,4 @@
-import { IVault, KeyId, PublicKey, Signature, SignedBytes } from '@internet-of-people/morpheus-core';
+import { IVault, KeyId, PublicKey, Signature, SignedBytes, Did } from '@internet-of-people/morpheus-core';
 import { IO } from '@internet-of-people/sdk';
 type TransactionId = IO.TransactionId;
 
@@ -25,7 +25,7 @@ const assertSignedOperationsEqual = (actual: ISignedOperationsData, expected: IS
 };
 
 describe('OperationAttemptsBuilder', () => {
-  const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
+  const did = new Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
   const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
   const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 
@@ -53,7 +53,7 @@ describe('OperationAttemptsBuilder', () => {
     };
     const expectedAddKeyData: IAddKeyData = {
       operation: SignableOperationType.AddKey,
-      did,
+      did: did.toString(),
       lastTxId,
       auth: keyId1.toString(),
       expiresAtHeight: 69,

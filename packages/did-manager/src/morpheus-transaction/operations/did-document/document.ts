@@ -1,6 +1,5 @@
 import { IO } from '@internet-of-people/sdk';
 type Authentication = IO.Authentication;
-type Did = IO.Did;
 type Right = IO.Right;
 
 import {
@@ -72,8 +71,8 @@ export class DidDocument implements IDidDocument {
     return this.data.queriedAtHeight;
   }
 
-  public get did(): Did {
-    return this.data.did;
+  public get did(): IO.Did {
+    return new IO.Did(this.data.did);
   }
 
   private ensureHeightIsKnown(height: number): void {

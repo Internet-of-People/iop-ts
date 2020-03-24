@@ -4,13 +4,11 @@ import { IVault, KeyId, PersistentVault, SignedBytes, Vault } from '@internet-of
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 const { Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } } } = MorpheusTransaction;
 import { IO } from '@internet-of-people/sdk';
-type Did = IO.Did;
 type TransactionId = IO.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 
-
-const defaultDid = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
+const defaultDid = new IO.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
 const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
 const keyId2 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const transactionId = 'someTransactionId';
@@ -45,13 +43,13 @@ describe('DidOperationExtractor', () => {
 
   const stateHandlerQueryMock = {
     lastSeenBlockHeight: jest.fn<number, []>(),
-    isConfirmed: jest.fn<Optional<boolean>, [string]>(),
-    beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
+    isConfirmed: jest.fn<Optional<boolean>, [IO.TransactionId]>(),
+    beforeProofExistsAt: jest.fn<boolean, [IO.ContentId, number|undefined]>(),
     getBeforeProofHistory: jest.fn<Interfaces.IBeforeProofHistory, [string]>(),
-    getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Did, number]>(),
+    getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [IO.Did, number]>(),
     getDidTransactionIds: jest.fn<
     Interfaces.ITransactionIdHeight[],
-    [Did, boolean, number, number | undefined]
+    [IO.Did, boolean, number, number | undefined]
     >(),
   };
 
@@ -92,14 +90,14 @@ describe('DidOperationExtractor', () => {
     expect(didOps).toHaveLength(3);
   });
 
-  it('repo throws for unknown transactions', async() => {
+  it('repo does not throw for unknown transactions', async() => {
     stateHandlerQueryMock.getDidTransactionIds.mockImplementationOnce(() => {
       return [];
     });
     stateHandlerQueryMock.isConfirmed.mockImplementation(() => {
       return Optional.of(false);
     });
-    const didOps = await extractor.didOperationsOf('unknownDid', true, 0);
+    const didOps = await extractor.didOperationsOf(new IO.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX'), true, 0);
     expect(didOps).toHaveLength(0);
   });
 });

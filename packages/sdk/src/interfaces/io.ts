@@ -1,13 +1,25 @@
-import { KeyId, PublicKey } from '@internet-of-people/morpheus-core';
+import {
+  Did,
+  KeyId,
+  PublicKey,
+  Authentication,
+  AuthenticationData,
+  PublicKeyData,
+  SignatureData,
+  DidData,
+} from '@internet-of-people/morpheus-core';
 
-export type Authentication = KeyId | PublicKey;
-
-export type KeyIdData = string; // Example "iezBlah"
-export type PublicKeyData = string; // Example "pezFoo"
-export type SignatureData = string; // Example "sezBar"
-export type AuthenticationData = string; // Either "iezBlah" or "pezFoo"
+export {
+  Did,
+  KeyId,
+  PublicKey,
+  Authentication,
+  AuthenticationData,
+  PublicKeyData,
+  SignatureData,
+  DidData,
+};
 export type TransactionId = string;
-export type Did = string; // Example "did:morpheus:ezBlah"
 export type Right = string;
 
 export interface IContent {
@@ -41,7 +53,7 @@ export interface ISignature {
 }
 
 export interface IClaim extends IContent {
-  subject: Did;
+  subject: DidData;
   content: Content<IDynamicContent>;
 }
 
@@ -59,7 +71,7 @@ export interface IWitnessStatement extends IContent {
     after: DateTime | null;
     before: DateTime | null;
     witness: KeyLink;
-    authority: Did;
+    authority: DidData;
     content: Content<IDynamicContent> | null;
   };
 }
@@ -70,7 +82,7 @@ export interface IProvenClaim {
 }
 
 export interface ILicense {
-  issuedTo: Did;
+  issuedTo: DidData;
   purpose: string;
   validFrom: DateTime;
   validUntil: DateTime;
@@ -92,7 +104,7 @@ export interface IPrerequisite {
 }
 
 export interface ILicenseSpecification {
-  issuedTo: Did;
+  issuedTo: DidData;
   purpose: string;
   expiry: Duration;
 }
@@ -116,18 +128,13 @@ export interface IAfterEnvelope<T extends IContent> extends IContent {
   afterProof: IAfterProof;
 }
 
-
-export const MORPHEUS_DID_PREFIX = 'did:morpheus:';
-export const MULTICIPHER_KEYID_PREFIX = KeyId.prefix();
-
-export const didToAuth = (did: Did): Authentication => {
-  const keyId = did.replace(new RegExp(`^${MORPHEUS_DID_PREFIX}`), MULTICIPHER_KEYID_PREFIX);
-  return new KeyId(keyId);
+export const didToAuth = (did: DidData): Authentication => {
+  return new Did(did).defaultKeyId();
 };
 
 /** NOTE throws if conversion failed */
 export const authenticationFromData = (data: AuthenticationData): Authentication => {
-  if (data.startsWith(MULTICIPHER_KEYID_PREFIX)) {
+  if (data.startsWith(KeyId.prefix())) {
     return new KeyId(data);
   } else {
     return new PublicKey(data);

@@ -1,6 +1,6 @@
 import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
 import { notFound } from '@hapi/boom';
-import { Utils } from '@internet-of-people/sdk';
+import { IO, Utils } from '@internet-of-people/sdk';
 import { Interfaces } from '@internet-of-people/did-manager';
 import { DidOperationExtractor, ITransactionRepository } from './did-operations';
 
@@ -62,7 +62,7 @@ export class Layer2API {
           this.log.debug(
             `Getting DID document for ${did} at height ${queryAtHeight}, blockchain height is ${lastSeenBlockHeight}`,
           );
-          const document = this.stateHandler.query.getDidDocumentAt(did, queryAtHeight);
+          const document = this.stateHandler.query.getDidDocumentAt(new IO.Did(did), queryAtHeight);
           return document.toData();
         },
       },
@@ -72,7 +72,7 @@ export class Layer2API {
         handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: { did } } = request;
           this.log.debug(`Getting last DID transactions for ${did}`);
-          const transactionIds = this.stateHandler.query.getDidTransactionIds(did, false, 0);
+          const transactionIds = this.stateHandler.query.getDidTransactionIds(new IO.Did(did), false, 0);
 
           if (!transactionIds.length) {
             throw notFound(`DID ${did} has no transactions yet`);
@@ -88,7 +88,7 @@ export class Layer2API {
           const { params: { did, fromHeight, untilHeight } } = request;
           const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID transactions for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.stateHandler.query.getDidTransactionIds(did, false, fromHeightInc, untilHeightExc);
+          return this.stateHandler.query.getDidTransactionIds(new IO.Did(did), false, fromHeightInc, untilHeightExc);
         },
       },
       {
@@ -98,7 +98,7 @@ export class Layer2API {
           const { params: { did, fromHeight, untilHeight } } = request;
           const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID transaction attempts for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.stateHandler.query.getDidTransactionIds(did, true, fromHeightInc, untilHeightExc);
+          return this.stateHandler.query.getDidTransactionIds(new IO.Did(did), true, fromHeightInc, untilHeightExc);
         },
       },
       {
@@ -108,7 +108,7 @@ export class Layer2API {
           const { params: { did, fromHeight, untilHeight } } = request;
           const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID operations for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.didOperations.didOperationsOf(did, false, fromHeightInc, untilHeightExc);
+          return this.didOperations.didOperationsOf(new IO.Did(did), false, fromHeightInc, untilHeightExc);
         },
       },
       {
@@ -118,7 +118,7 @@ export class Layer2API {
           const { params: { did, fromHeight, untilHeight } } = request;
           const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID operation attempts for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.didOperations.didOperationsOf(did, true, fromHeightInc, untilHeightExc);
+          return this.didOperations.didOperationsOf(new IO.Did(did), true, fromHeightInc, untilHeightExc);
         },
       },
       {

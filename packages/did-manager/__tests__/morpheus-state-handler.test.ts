@@ -7,6 +7,7 @@ import {
   PersistentVault,
   SignedBytes,
   Vault,
+  Did,
 } from '@internet-of-people/morpheus-core';
 
 import { IO } from '@internet-of-people/sdk';
@@ -17,7 +18,7 @@ import { ISignedOperationsData, IStateChange, OperationType } from '../src/inter
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
 import { Operations } from '../src/morpheus-transaction';
 
-export const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
+export const did = new Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
 export const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
 export const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 export const keyId2 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');

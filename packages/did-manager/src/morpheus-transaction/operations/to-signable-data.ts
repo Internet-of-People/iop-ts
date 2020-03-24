@@ -22,7 +22,7 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
   ): ISignableOperationData {
     const result: IAddKeyData = {
       operation: SignableOperationType.AddKey,
-      did,
+      did: did.toString(),
       lastTxId,
       auth: auth.toString(),
     };
@@ -40,7 +40,7 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
   ): ISignableOperationData {
     const result: IRevokeKeyData = {
       operation: SignableOperationType.RevokeKey,
-      did,
+      did: did.toString(),
       lastTxId,
       auth: auth.toString(),
     };
@@ -55,7 +55,7 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
   ): ISignableOperationData {
     const result: IAddRightData = {
       operation: SignableOperationType.AddRight,
-      did,
+      did: did.toString(),
       lastTxId,
       auth: auth.toString(),
       right,
@@ -71,7 +71,7 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
   ): ISignableOperationData {
     const result: IRevokeRightData = {
       operation: SignableOperationType.RevokeRight,
-      did,
+      did: did.toString(),
       lastTxId,
       auth: auth.toString(),
       right,
@@ -80,12 +80,12 @@ class ToSignableDataVisitor implements ISignableOperationVisitor<ISignableOperat
   }
 
   public tombstoneDid(
-    did: string,
+    did: Did,
     lastTxId: TransactionId,
   ): ISignableOperationData {
     const result: ITombstoneDidData = {
       operation: SignableOperationType.TombstoneDid,
-      did,
+      did: did.toString(),
       lastTxId,
     };
     return result;

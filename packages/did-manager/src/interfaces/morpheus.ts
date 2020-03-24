@@ -37,9 +37,9 @@ export interface IMorpheusStateHandler {
 
 export interface IMorpheusOperations {
   setLastSeenBlockHeight(height: number): void;
-  registerOperationAttempt(height: number, transactionId: string, operation: Operation): void;
+  registerOperationAttempt(height: number, transactionId: TransactionId, operation: Operation): void;
 
-  registerBeforeProof(contentId: string, height: number): void;
+  registerBeforeProof(contentId: ContentId, height: number): void;
 
   addKey(
     height: number,
@@ -86,15 +86,15 @@ export interface IMorpheusOperations {
   /**
    * Marks a transaction as confirmed, all operations were valid.
    */
-  confirmTx(transactionId: string): void;
-  rejectTx(transactionId: string): void;
+  confirmTx(transactionId: TransactionId): void;
+  rejectTx(transactionId: TransactionId): void;
 }
 
 export interface IMorpheusQueries {
   lastSeenBlockHeight(): number;
   beforeProofExistsAt(contentId: ContentId, height?: number): boolean;
   getBeforeProofHistory(contentId: ContentId): IBeforeProofHistory;
-  isConfirmed(transactionId: string): Optional<boolean>;
+  isConfirmed(transactionId: TransactionId): Optional<boolean>;
   getDidDocumentAt(did: Did, height: number): IDidDocument;
   getDidTransactionIds(
     did: Did,

@@ -14,16 +14,16 @@ type IDidDocumentData = Interfaces.IDidDocumentData;
 type IBeforeProofHistory = Interfaces.IBeforeProofHistory;
 import { IO, Utils } from '@internet-of-people/sdk';
 type Authentication = IO.Authentication;
-type Did = IO.Did;
 type TransactionId = IO.TransactionId;
 
 import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { IDidOperation } from '../src/did-operations';
+import { assertStringlyEqual } from './utils';
 
-const defaultDid = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-const did2 = 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX';
-const did3 = 'did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W';
+const defaultDid = new IO.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+const did2 = new IO.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX');
+const did3 = new IO.Did('did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W');
 const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
 const keyId2 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const keyId3 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
@@ -273,7 +273,7 @@ describe('Layer2API', () => {
     expect(data.keys).toHaveLength(1);
     expect(data.keys[0].auth).toStrictEqual(defaultKeyId.toString());
     expect(doc.height).toBe(100); // the current chain height
-    expect(doc.did).toBe(defaultDid);
+    assertStringlyEqual(doc.did, defaultDid);
     expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 0)).toBeTruthy();
     expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 0)).toBeTruthy();
     expect(doc.isTombstonedAt(0)).toBeFalsy();
@@ -296,7 +296,7 @@ describe('Layer2API', () => {
     expect(data.keys[1].auth).toStrictEqual(keyId2.toString());
     expect(data.keys[0].valid).toBeTruthy();
     expect(data.keys[1].valid).toBeTruthy();
-    expect(doc.did).toBe(defaultDid);
+    assertStringlyEqual(doc.did, defaultDid);
     expect(doc.height).toBe(10);
     expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 10)).toBeTruthy();
     expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 10)).toBeTruthy();
@@ -522,7 +522,7 @@ describe('Layer2API', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
-  const getDidTransactions = async(includeAttempts: boolean, did: Did,
+  const getDidTransactions = async(includeAttempts: boolean, did: IO.Did,
     fromHeight: number, untilHeight?: number): Promise<TransactionId[]> => {
     const endpoint = includeAttempts ? 'transaction-attempts' : 'transactions';
     let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
@@ -536,7 +536,7 @@ describe('Layer2API', () => {
     return data;
   };
 
-  const getDidOperations = async(includeAttempts: boolean, did: Did,
+  const getDidOperations = async(includeAttempts: boolean, did: IO.Did,
     fromHeight: number, untilHeight?: number): Promise<IDidOperation[]> => {
     const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
     let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;

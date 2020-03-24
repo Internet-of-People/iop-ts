@@ -7,6 +7,10 @@ export class Did {
 */
   constructor(did_str: string);
 /**
+* @returns {string} 
+*/
+  static prefix(): string;
+/**
 * @param {KeyId} key_id 
 * @returns {Did} 
 */
@@ -113,7 +117,7 @@ export class SignedJson {
 * @param {number | undefined} until_height_exc 
 * @returns {any} 
 */
-  validateWithDid(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
+  validateWithDidDoc(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
   readonly content: any;
   readonly publicKey: PublicKey;
   readonly signature: Signature;

@@ -1,10 +1,11 @@
 import { IO } from '@internet-of-people/sdk';
 type AuthenticationData = IO.AuthenticationData;
-type Did = IO.Did;
+type DidData = IO.DidData;
 type Right = IO.Right;
 type TransactionId = IO.TransactionId;
 type PublicKeyData = IO.PublicKeyData;
 type SignatureData = IO.SignatureData;
+type ContentId = IO.ContentId;
 
 import { OperationType, SignableOperationType } from './operation-type';
 
@@ -16,7 +17,7 @@ export interface IOperationData {
 }
 
 export interface ISignableOperationData {
-  did: Did;
+  did: DidData;
   lastTxId: TransactionId | null;
   operation: SignableOperationType;
 }
@@ -31,7 +32,7 @@ export interface ISignedOperationsData extends IOperationData {
  * Data transfer object of RegisterBeforeProof.
  */
 export interface IRegisterBeforeProofData extends IOperationData {
-  contentId: string;
+  contentId: ContentId;
 }
 
 /**

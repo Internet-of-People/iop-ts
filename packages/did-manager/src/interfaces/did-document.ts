@@ -50,7 +50,7 @@ export interface IKeyRightHistory {
 
 // The interface that the Layer-2 will return to clients
 export interface IDidDocumentData {
-  did: IO.Did;
+  did: IO.DidData;
   keys: IKeyData[];
   rights: IRightsMap<IKeyRightHistory[]>; // contains key indexes from the keys property
   tombstonedAtHeight: number | null;
