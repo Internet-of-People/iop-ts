@@ -1,11 +1,12 @@
 import { InspectorAPI, VerifierAPI, IO, JsonUtils, Signed } from '@internet-of-people/sdk';
-const { Signature } = IO;
+type ValidationResult = IO.ValidationResult;
+type ValidationIssue = IO.ValidationIssue;
+const { Signature, SignedJson, PublicKey, Did } = IO;
 import { Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
 type IBeforeProofHistory = DidInterfaces.IBeforeProofHistory;
 
 import { IStorage } from './storage';
 import { IHydraApi } from './hydra-api';
-import { SignedJson, PublicKey, ValidationResult, ValidationIssue } from '../../morpheus-core/dist';
 
 export class Service implements InspectorAPI.IApi {
   public constructor(private readonly storage: IStorage, private readonly hydra: IHydraApi) {
@@ -61,7 +62,8 @@ export class Service implements InspectorAPI.IApi {
     };
 
     try {
-      const doc = await this.hydra.getDidDocument(request.onBehalfOf);
+      const did = new Did(request.onBehalfOf);
+      const doc = await this.hydra.getDidDocument(did);
       const pk = new PublicKey(request.publicKey);
       const validator = new SignedJson(
         pk,

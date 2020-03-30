@@ -59,7 +59,7 @@ export class HydraApi implements IHydraApi {
 
   public async getBeforeProofHistory(contentId: IO.ContentId): Promise<DidIf.IBeforeProofHistory> {
     console.log(`Getting history of content ${contentId}...`);
-    const url = `/before-proof/${contentId}/history`;
+    const url = `/morpheus/v1/before-proof/${contentId}/history`;
     const resp = await this.api.get(url);
     const history: DidIf.IBeforeProofHistory = resp.data;
     return history;
@@ -67,7 +67,7 @@ export class HydraApi implements IHydraApi {
 
   public async beforeProofExists(contentId: string): Promise<boolean> {
     console.log(`Getting if content ${contentId} exists...`);
-    const url = `/before-proof/${contentId}/exists`;
+    const url = `/morpheus/v1/before-proof/${contentId}/exists`;
     const resp = await this.api.get(url);
     const exists: boolean = resp.data;
     return exists;
@@ -75,7 +75,7 @@ export class HydraApi implements IHydraApi {
 
   public async getDidDocument(did: Did): Promise<DidIf.IDidDocument> {
     console.log(`Getting Did document ${did}...`);
-    const url = `/did/${did}/document`;
+    const url = `/morpheus/v1/did/${did}/document`;
     const resp = await this.api.get(url);
     const documentData: DidIf.IDidDocumentData = resp.data;
     const result = new DidDocument(documentData);

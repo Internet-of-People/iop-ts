@@ -2,12 +2,18 @@ import request from 'supertest';
 import { unlinkSync } from 'fs';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
-import { Interfaces as DidIf } from '@internet-of-people/did-manager';
-import { IO, JsonUtils } from '@internet-of-people/sdk';
+import { Interfaces as DidIf, MorpheusTransaction } from '@internet-of-people/did-manager';
+type IBeforeProofHistory = DidIf.IBeforeProofHistory;
+type IDidDocumentData = DidIf.IDidDocumentData;
+type IDidDocument = DidIf.IDidDocument;
+const { Operations: { DidDocument: { DidDocument } } } = MorpheusTransaction;
+import { IO, JsonUtils, VerifierAPI } from '@internet-of-people/sdk';
 type ISigned<T> = IO.ISigned<T>;
 type IPresentation = IO.IPresentation;
 type Did = IO.Did;
 type IAfterProof = IO.IAfterProof;
+type IValidationRequest = VerifierAPI.IValidationRequest;
+type IValidationResult = VerifierAPI.IValidationResult;
 
 import { SqliteStorage } from '../src/storage-sqlite';
 import { Service } from '../src/service';
@@ -97,6 +103,70 @@ describe('Service', () => {
         expect(res.status).toBe(200);
         expect(res.body).toStrictEqual(afterProof);
       });
+  });
+
+  it('validation checks Hydra node', async() => {
+    const afterProof: IAfterProof = {
+      blockHeight: 180,
+      blockHash: 'youAintKnowThisBeforeBlock180',
+    };
+    const validationRequest: IValidationRequest = {
+      publicKey: 'pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6',
+      contentId: 'cjuwtAZcIdlSzKS8i8qvg5Ux-N0-s5MOKkE1qyzsmlGw5A',
+      signature: 'sezAhsRgfDMRvSTFmLjDDkbFcxjPMxBrbo8ikJ1j8sba2oxoe5cLGc8J5FsMx8czVVRVKurwTJUkCRktC177ZGJp5Md',
+      onBehalfOf: 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+      afterProof,
+    };
+    const didDocData: IDidDocumentData = {
+      did: validationRequest.onBehalfOf,
+      queriedAtHeight: 200,
+      tombstoned: false,
+      tombstonedAtHeight: null,
+      keys: [{
+        index: 0,
+        auth: new IO.PublicKey(validationRequest.publicKey).keyId()
+          .toString(),
+        valid: true,
+        validFromHeight: null,
+        validUntilHeight: null,
+      }],
+      rights: {
+        'impersonate': [
+          {
+            keyLink: '#0',
+            valid: true,
+            history: [
+              { height: null, valid: true },
+            ],
+          },
+        ],
+      },
+    };
+    fixture.hydraMock.getDidDocument.mockImplementationOnce(async(): Promise<IDidDocument> => {
+      return new DidDocument(didDocData);
+    });
+    fixture.hydraMock.getBeforeProofHistory.mockImplementationOnce(async(): Promise<IBeforeProofHistory> => {
+      return {
+        contentId: validationRequest.contentId,
+        existsFromHeight: null,
+        queriedAtHeight: 200,
+      };
+    });
+    fixture.hydraMock.getBlockIdAtHeight.mockImplementationOnce(async(): Promise<IAfterProof> => {
+      return afterProof;
+    });
+    await request(fixture.app)
+      .post('/validate')
+      .send(validationRequest)
+      .expect((res: request.Response) => {
+        expect(res.status).toBe(200);
+        const validationResult: IValidationResult = res.body;
+        expect(validationResult.errors).toHaveLength(0);
+        expect(validationResult.warnings).toHaveLength(0);
+      });
+    expect(fixture.hydraMock.getBeforeProofHistory).toBeCalledTimes(1);
+    expect(fixture.hydraMock.getBlockIdAtHeight).toBeCalledTimes(1);
+    expect(fixture.hydraMock.getDidDocument).toBeCalledTimes(1);
   });
 
   class Fixture {
