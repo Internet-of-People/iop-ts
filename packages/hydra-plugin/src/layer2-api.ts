@@ -86,9 +86,9 @@ export class Layer2API {
         path: '/did/{did}/transactions/{fromHeight}/{untilHeight?}',
         handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: { did, fromHeight, untilHeight } } = request;
-          const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
-          this.log.debug(`Getting DID transactions for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.stateHandler.query.getDidTransactionIds(new IO.Did(did), false, fromHeightInc, untilHeightExc);
+          const [ fromHeightIncl, untilHeightIncl ] = safePathRange(fromHeight, untilHeight);
+          this.log.debug(`Getting DID transactions for ${did} from ${fromHeightIncl} to ${untilHeightIncl}`);
+          return this.stateHandler.query.getDidTransactionIds(new IO.Did(did), false, fromHeightIncl, untilHeightIncl);
         },
       },
       {
@@ -96,9 +96,9 @@ export class Layer2API {
         path: '/did/{did}/transaction-attempts/{fromHeight}/{untilHeight?}',
         handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: { did, fromHeight, untilHeight } } = request;
-          const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
-          this.log.debug(`Getting DID transaction attempts for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.stateHandler.query.getDidTransactionIds(new IO.Did(did), true, fromHeightInc, untilHeightExc);
+          const [ fromHeightIncl, untilHeightIncl ] = safePathRange(fromHeight, untilHeight);
+          this.log.debug(`Getting DID transaction attempts for ${did} from ${fromHeightIncl} to ${untilHeightIncl}`);
+          return this.stateHandler.query.getDidTransactionIds(new IO.Did(did), true, fromHeightIncl, untilHeightIncl);
         },
       },
       {

@@ -12,7 +12,7 @@ import {
   IDidTransactionsState,
   ITransactionIdHeight,
 } from '../../../interfaces';
-import { isHeightInRange } from './state';
+import { isHeightInRangeInclUntil } from './state';
 
 
 export class DidTransactionsState implements IDidTransactionsState {
@@ -20,8 +20,11 @@ export class DidTransactionsState implements IDidTransactionsState {
     getBetween: (did: Did, fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[] => {
       const transactions = this.getOrCreateDidTransactionEntries(did);
       const entriesInRange = transactions.filter((entry) => {
-        return isHeightInRange(entry.height,
-          Optional.of(fromHeightInc), Optional.ofNullable(untilHeightExc));
+        return isHeightInRangeInclUntil(
+          entry.height,
+          Optional.of(fromHeightInc),
+          Optional.ofNullable(untilHeightExc),
+        );
       });
       return entriesInRange;
     },

@@ -61,9 +61,9 @@ export class MorpheusState implements IMorpheusState {
       did: Did,
       includeAttempts: boolean,
       fromHeightInc: number,
-      untilHeightExc?: number,
+      untilHeightInc?: number,
     ): ITransactionIdHeight[] => {
-      let transactionIdHeights = this.didTransactions.query.getBetween(did, fromHeightInc, untilHeightExc);
+      let transactionIdHeights = this.didTransactions.query.getBetween(did, fromHeightInc, untilHeightInc);
 
       if (!includeAttempts) {
         transactionIdHeights = transactionIdHeights.filter(

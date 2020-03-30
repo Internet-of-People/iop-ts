@@ -58,7 +58,7 @@ export const initialRights = (initial: boolean): IRightsMap<ITimeSeries> => {
   });
 };
 
-export const isHeightInRange = (
+export const isHeightInRangeExclUntil = (
   height: number, fromHeightInc: Optional<number>, untilHeightExc: Optional<number>,
 ): boolean => {
   if (fromHeightInc.isPresent() && height < fromHeightInc.get()) {
@@ -69,6 +69,13 @@ export const isHeightInRange = (
     return false;
   }
   return true;
+};
+
+export const isHeightInRangeInclUntil = (
+  height: number, fromHeightIncl: Optional<number>, untilHeightIncl: Optional<number>,
+): boolean => {
+  return isHeightInRangeExclUntil(height, fromHeightIncl, untilHeightIncl) ||
+       untilHeightIncl.isPresent() && height === untilHeightIncl.get() ;
 };
 
 export const aggregateOptionals = <T>(
@@ -109,7 +116,7 @@ const keyEntryToKeyData = (entry: IKeyEntry, index: number, height: number, tomb
   const validUntil = keyEntryValidUntil(entry, tombstone);
   const validFromHeight = entry.addedAtHeight ?? null;
   const validUntilHeight = optionalToNullable(validUntil);
-  const valid = isHeightInRange(height, Optional.ofNullable(validFromHeight), validUntil);
+  const valid = isHeightInRangeExclUntil(height, Optional.ofNullable(validFromHeight), validUntil);
   const data: IKeyData = {
     index,
     auth: entry.auth.toString(),
@@ -122,7 +129,7 @@ const keyEntryToKeyData = (entry: IKeyEntry, index: number, height: number, tomb
 
 const keyEntryIsValidAt = (entry: IKeyEntry, tombstone: ITimeSeries, height: number): boolean => {
   const validUntil = keyEntryValidUntil(entry, tombstone);
-  return isHeightInRange(height, Optional.ofNullable(entry.addedAtHeight), validUntil);
+  return isHeightInRangeExclUntil(height, Optional.ofNullable(entry.addedAtHeight), validUntil);
 };
 
 // TODO: what if we rename it to DidDocumentTimeline

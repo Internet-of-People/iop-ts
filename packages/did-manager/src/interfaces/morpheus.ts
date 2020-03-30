@@ -99,8 +99,8 @@ export interface IMorpheusQueries {
   getDidTransactionIds(
     did: Did,
     includeAttempts: boolean,
-    fromHeightInc: number,
-    untilHeightExc?: number,
+    fromHeightIncl: number,
+    untilHeightIncl?: number,
   ): ITransactionIdHeight[];
 }
 

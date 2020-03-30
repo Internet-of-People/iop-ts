@@ -85,7 +85,7 @@ export type IDidDocumentState = IState<IDidDocumentQueries, IDidDocumentOperatio
 
 
 export interface IDidTransactionsQueries {
-  getBetween(did: IO.Did, fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[];
+  getBetween(did: IO.Did, fromHeightIncl: number, untilHeightIncl?: number): ITransactionIdHeight[];
 }
 
 export interface IDidTransactionsOperations {

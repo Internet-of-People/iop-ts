@@ -612,7 +612,7 @@ describe('Layer2API', () => {
     fixture.transactionRepo.pushTransaction(thirdTransaction.transactionId, thirdTransaction.asset);
     lastTxId = thirdTransaction.transactionId;
 
-    return 103;
+    return 102;
   };
 
   const defaultDidExpectedOps = [

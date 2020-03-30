@@ -10,7 +10,7 @@ import {
   IKeyRightHistory,
   IKeyRightHistoryPoint,
 } from '../../../interfaces';
-import { isHeightInRange } from './state';
+import { isHeightInRangeExclUntil } from './state';
 import Optional from 'optional-js';
 
 /**
@@ -82,7 +82,11 @@ export class DidDocument implements IDidDocument {
   }
 
   private isKeyValidAt(key: IKeyData, height: number): boolean {
-    return isHeightInRange(height, Optional.ofNullable(key.validFromHeight), Optional.ofNullable(key.validUntilHeight));
+    return isHeightInRangeExclUntil(
+      height,
+      Optional.ofNullable(key.validFromHeight),
+      Optional.ofNullable(key.validUntilHeight),
+    );
   }
 
   private isRightValidAt(points: IKeyRightHistoryPoint[], height: number): boolean {

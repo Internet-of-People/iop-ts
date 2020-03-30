@@ -28,10 +28,10 @@ export class DidOperationExtractor {
     did: Did,
     includeAttempts: boolean,
     fromHeightInc: number,
-    untilHeightExc?: number,
+    untilHeightInc?: number,
   ): Promise<IDidOperation[]> {
     const transactionIdHeightsDesc = this.stateHandler.query.getDidTransactionIds(did,
-      includeAttempts, fromHeightInc, untilHeightExc);
+      includeAttempts, fromHeightInc, untilHeightInc);
     const transactionIdHeightsAsc = transactionIdHeightsDesc.reverse();
 
     const resultAsc = new Array<IDidOperation>();
