@@ -40,6 +40,10 @@ export function vault_signWitnessRequest(a: number, b: number, c: number): numbe
 export function vault_signWitnessStatement(a: number, b: number, c: number): number;
 export function vault_signClaimPresentation(a: number, b: number, c: number): number;
 export function vault_signDidOperations(a: number, b: number, c: number, d: number): number;
+export function bip39_new(a: number, b: number): number;
+export function bip39_generatePhrase(a: number, b: number, c: number, d: number): void;
+export function bip39_validatePhrase(a: number, b: number, c: number): void;
+export function bip39_listWords(a: number, b: number, c: number, d: number): void;
 export function __wbg_keyid_free(a: number): void;
 export function keyid_new(a: number, b: number): number;
 export function keyid_prefix(a: number): void;
@@ -52,6 +56,7 @@ export function publickey_toString(a: number, b: number): void;
 export function signature_new(a: number, b: number): number;
 export function signature_prefix(a: number): void;
 export function signature_toString(a: number, b: number): void;
+export function __wbg_bip39_free(a: number): void;
 export function __wbg_publickey_free(a: number): void;
 export function __wbg_signature_free(a: number): void;
 export function __wbindgen_malloc(a: number): number;

@@ -26,3 +26,7 @@ export {
 export {
   PersistentVault,
 } from './PersistentVault';
+
+export {
+  Bip39,
+} from './Bip39';

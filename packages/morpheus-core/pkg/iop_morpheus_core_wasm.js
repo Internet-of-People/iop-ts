@@ -124,6 +124,72 @@ function getArrayJsValueFromWasm0(ptr, len) {
 }
 /**
 */
+class Bip39 {
+
+    static __wrap(ptr) {
+        const obj = Object.create(Bip39.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_bip39_free(ptr);
+    }
+    /**
+    * @param {string} lang_code
+    */
+    constructor(lang_code) {
+        var ptr0 = passStringToWasm0(lang_code, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.bip39_new(ptr0, len0);
+        return Bip39.__wrap(ret);
+    }
+    /**
+    * @param {Uint8Array} entropy
+    * @returns {string}
+    */
+    generatePhrase(entropy) {
+        try {
+            var ptr0 = passArray8ToWasm0(entropy, wasm.__wbindgen_malloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.bip39_generatePhrase(8, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @param {string} phrase
+    */
+    validatePhrase(phrase) {
+        var ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.bip39_validatePhrase(this.ptr, ptr0, len0);
+    }
+    /**
+    * @param {string} prefix
+    * @returns {any[]}
+    */
+    listWords(prefix) {
+        var ptr0 = passStringToWasm0(prefix, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.bip39_listWords(8, this.ptr, ptr0, len0);
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        var v1 = getArrayJsValueFromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 4);
+        return v1;
+    }
+}
+module.exports.Bip39 = Bip39;
+/**
+*/
 class Did {
 
     static __wrap(ptr) {
@@ -782,13 +848,13 @@ module.exports.__wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
 };
 
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
+module.exports.__wbindgen_json_parse = function(arg0, arg1) {
+    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_json_parse = function(arg0, arg1) {
-    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+module.exports.__wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
     return addHeapObject(ret);
 };
 
@@ -805,7 +871,7 @@ module.exports.__wbindgen_rethrow = function(arg0) {
     throw takeObject(arg0);
 };
 
-const path = require('path').join(__dirname, 'morpheus-core_bg.wasm');
+const path = require('path').join(__dirname, 'iop_morpheus_core_wasm_bg.wasm');
 const bytes = require('fs').readFileSync(path);
 
 const wasmModule = new WebAssembly.Module(bytes);

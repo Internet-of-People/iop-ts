@@ -1,5 +1,26 @@
 /* tslint:disable */
 /* eslint-disable */
+export class Bip39 {
+  free(): void;
+/**
+* @param {string} lang_code 
+*/
+  constructor(lang_code: string);
+/**
+* @param {Uint8Array} entropy 
+* @returns {string} 
+*/
+  generatePhrase(entropy: Uint8Array): string;
+/**
+* @param {string} phrase 
+*/
+  validatePhrase(phrase: string): void;
+/**
+* @param {string} prefix 
+* @returns {any[]} 
+*/
+  listWords(prefix: string): any[];
+}
 export class Did {
   free(): void;
 /**
