@@ -1,21 +1,20 @@
-import { KeyId } from '@internet-of-people/morpheus-core';
-import { IKeyData, IRightsMap, IKeyRightHistory } from '../src/interfaces';
+import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
 import { Operations } from '../src/morpheus-transaction';
 
-const { DidDocument, DidDocument: { RightRegistry } } = Operations;
+const { RightRegistry } = Operations;
 
 describe('DidDocument', () => {
   const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-  const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-  const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-  const keys: IKeyData[] = [{
+  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+  const keyId1 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+  const keys: Types.Layer2.IKeyData[] = [{
     index: 0,
     auth: defaultKeyId.toString(),
     validFromHeight: null,
     validUntilHeight: null,
     valid: true,
   }];
-  const rights = {} as IRightsMap<IKeyRightHistory[]>;
+  const rights = {} as Types.Layer2.IRightsMap<Types.Layer2.IKeyRightHistory[]>;
   rights[RightRegistry.systemRights.impersonate] = [
     { keyLink: '#0', history: [{ height: null, valid: true }], valid: true },
   ];
@@ -25,7 +24,7 @@ describe('DidDocument', () => {
   const queriedAtHeight = 1;
 
   it('hasRight trivial', () => {
-    const doc1 = new DidDocument.DidDocument(
+    const doc1 = new Layer2.DidDocument(
       { did, keys, rights, queriedAtHeight, tombstonedAtHeight: null, tombstoned: false },
     );
 
@@ -36,7 +35,7 @@ describe('DidDocument', () => {
   });
 
   it('hasRight complex', () => {
-    const keys2: IKeyData[] = [
+    const keys2: Types.Layer2.IKeyData[] = [
       {
         index: 0,
         auth: defaultKeyId.toString(),
@@ -52,7 +51,7 @@ describe('DidDocument', () => {
         valid: true,
       },
     ];
-    const rights2 = {} as IRightsMap<IKeyRightHistory[]>;
+    const rights2 = {} as Types.Layer2.IRightsMap<Types.Layer2.IKeyRightHistory[]>;
     rights2[RightRegistry.systemRights.impersonate] = [
       {
         keyLink: '#0',
@@ -88,7 +87,7 @@ describe('DidDocument', () => {
         valid: true,
       },
     ];
-    const doc10 = new DidDocument.DidDocument({
+    const doc10 = new Layer2.DidDocument({
       did,
       keys: keys2,
       rights: rights2,
@@ -113,10 +112,10 @@ describe('DidDocument', () => {
   });
 
   it('fromData restores data correctly', () => {
-    const doc = new DidDocument.DidDocument({
+    const doc = new Layer2.DidDocument({
       did,
       keys: [],
-      rights: {} as IRightsMap<IKeyRightHistory[]>,
+      rights: {} as Types.Layer2.IRightsMap<Types.Layer2.IKeyRightHistory[]>,
       queriedAtHeight,
       tombstonedAtHeight: null,
       tombstoned: false,
@@ -156,7 +155,7 @@ describe('DidDocument', () => {
   });
 
   it('did can be tombstoned', () => {
-    const doc = new DidDocument.DidDocument(
+    const doc = new Layer2.DidDocument(
       { did, keys, rights, queriedAtHeight: 3, tombstonedAtHeight: 2, tombstoned: true },
     );
 
@@ -168,7 +167,7 @@ describe('DidDocument', () => {
   });
 
   it('throws if rights or tombstone state is queried ', () => {
-    const doc = new DidDocument.DidDocument(
+    const doc = new Layer2.DidDocument(
       { did, keys, rights, queriedAtHeight: 3, tombstonedAtHeight: null, tombstoned: false },
     );
 

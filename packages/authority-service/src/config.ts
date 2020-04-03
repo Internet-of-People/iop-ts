@@ -1,7 +1,7 @@
 import { readdirSync, Dirent, readFileSync } from 'fs';
 import path from 'path';
 
-import { IO } from '@internet-of-people/sdk';
+import { Types } from '@internet-of-people/sdk';
 import { addProcessSchemas } from './storage';
 import { SqliteStorage } from './storage-sqlite';
 
@@ -13,7 +13,7 @@ export const addProcesses = async(folder: string, storage: SqliteStorage): Promi
   })) {
     console.log(`adding process ${fileEntry.name} to database`);
     const fileContent = readFileSync(path.join(folder, fileEntry.name), { encoding: 'utf8' });
-    const processObj: IO.IProcess = JSON.parse(fileContent);
+    const processObj: Types.Sdk.IProcess = JSON.parse(fileContent);
 
     // TODO Check against process JSON Schema
     try {

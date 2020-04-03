@@ -1,15 +1,9 @@
 import { Identities, Transactions, Utils } from '@arkecosystem/crypto';
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { Layer1, Types } from '@internet-of-people/sdk';
 import { Layer1Api } from './layer1api';
 import { askForPassphrase } from './utils';
 import { Layer2Api } from './layer2api';
 import Optional from 'optional-js';
-
-const {
-  Builder: { MorpheusTransactionBuilder },
-} = MorpheusTransaction;
-
-const { Address } = Identities;
 
 const nextNonce = async(publicKey: string): Promise<Utils.BigNumber> => {
   const address = Identities.Address.fromPublicKey(publicKey);
@@ -46,8 +40,8 @@ const delay = (millis: number): Promise<void> => {
   });
 };
 
-const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Promise<string> => {
-  const txBuilder = new MorpheusTransactionBuilder();
+const sendMorpheusTx = async(attempts: Types.Layer1.IOperationData[]): Promise<string> => {
+  const txBuilder = new Layer1.MorpheusTransactionBuilder();
 
   console.log('Creating tx...');
   const unsignedTx = txBuilder.fromOperationAttempts(attempts);
@@ -56,7 +50,7 @@ const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Promise<str
   const passphrase = await askForPassphrase('gas address');
   // checking balance
   const keys = Identities.Keys.fromPassphrase(passphrase);
-  const address = Address.fromPublicKey(keys.publicKey);
+  const address = Identities.Address.fromPublicKey(keys.publicKey);
   const balance = await Layer1Api.get().getWalletBalance(address);
 
   if (balance.isLessThan(1)) {
@@ -71,7 +65,7 @@ const sendMorpheusTx = async(attempts: Interfaces.IOperationData[]): Promise<str
   return Layer1Api.get().sendTx(signedTx);
 };
 
-export const processMorpheusTx = async(attempts: Interfaces.IOperationData[], operation: string): Promise<void> => {
+export const processMorpheusTx = async(attempts: Types.Layer1.IOperationData[], operation: string): Promise<void> => {
   const id = await sendMorpheusTx(attempts);
   console.log(`${operation} txn was sent, id: ${id}`);
   let result: Optional<boolean>;

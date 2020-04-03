@@ -1,7 +1,7 @@
 import { HashType, hashAsBuffer } from 'bigint-hash';
 import multibase from 'multibase';
 import { canonicalJson } from './canonicalJson';
-import { ContentId, IContent } from '../interfaces/io';
+import { Sdk } from '../types';
 
 export const defaultDigest = (json: string): string => {
   const hash = hashAsBuffer(HashType.SHA3_256, Buffer.from(json, 'utf8'));
@@ -16,6 +16,6 @@ export const defaultDigest = (json: string): string => {
  *
  * @param content Any object, but not an array or a string
  */
-export const digest = <T extends IContent>(content: T): ContentId => {
+export const digest = <T extends Sdk.IContent>(content: T): Sdk.ContentId => {
   return JSON.parse(canonicalJson(content, defaultDigest));
 };

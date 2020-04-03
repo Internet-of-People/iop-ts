@@ -12,12 +12,13 @@ web-of-trust way. See the [specification](https://iop-stack.iop.rocks/dids-and-c
     - [Prerequisites](#prerequisites)
     - [NodeJS Scripts](#nodejs-scripts)
   - [Usage](#usage)
+    - [authority-service](#authority-service)
+    - [inspector-service](#inspector-service)
+    - [sdk](#sdk)
     - [examples](#examples)
     - [did-manager](#did-manager)
     - [hydra-plugin](#hydra-plugin)
-    - [keyvault](#keyvault)
-    - [kyc-user](#kyc-user)
-    - [logger](#logger)
+    - [morpheus-crypto](#morpheus-crypto)
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [License](#license)
@@ -42,16 +43,6 @@ Morpheus forms the basis of secure transmission and validation of personal infor
 - reusing verification with different service providers
 - offline verification of ID ownership
 - and many more
-
-## Current and Future Features
-
-[ x ] Register Before Proof
-[ x ] Query implicit DID Documents
-[ x ] Add/Revoke Key to DID
-[ x ] Add/Revoke Right to DID
-[ x ] Tombstone DID
-[ x ] Dry run on state
-[ ] Add/Remove Service Endpoint
 
 ## How to Use
 
@@ -144,17 +135,9 @@ This package contains all business logic that needed for DID management, hence c
 
 This is a Hydra plugin that will be started up when your node is running. Receives block events (Layer 1) and forwards it to the business logic (Layer 2).
 
-#### keyvault
+#### morpheus-crypto
 
-This is a webassembly binding for our keyvault written in Rust.
-
-#### kyc-user
-
-TBD
-
-#### logger
-
-A simple logging utility used by multitple packages. Uses Hydra's built in chain logger package.
+A wasm package and wrapper on top of [keyvault-rs](https://github.com/Internet-of-People/keyvault-rust). The SDK reexports it, so users don't need to use this package directly.
 
 ## Maintainers
 

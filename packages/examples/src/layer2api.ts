@@ -1,14 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
-
-import { MorpheusTransaction, Interfaces } from '@internet-of-people/did-manager';
-import { IO } from '@internet-of-people/sdk';
-type TransactionId = IO.TransactionId;
-type Did = IO.Did;
-
+import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
 import { Network, schemaAndHost } from './network';
-
-const { Operations: { DidDocument: { DidDocument } } } = MorpheusTransaction;
 
 export class Layer2Api {
   private static instance: Layer2Api;
@@ -32,11 +25,11 @@ export class Layer2Api {
     return Layer2Api.instance;
   }
 
-  public async getBeforeProofHistory(contentId: string): Promise<Interfaces.IBeforeProofHistory> {
+  public async getBeforeProofHistory(contentId: string): Promise<Types.Layer2.IBeforeProofHistory> {
     console.log(`Getting history of ${contentId}...`);
     const url = `/before-proof/${contentId}/history`;
     const resp = await this.api.get(url);
-    const history: Interfaces.IBeforeProofHistory = resp.data;
+    const history: Types.Layer2.IBeforeProofHistory = resp.data;
     return history;
   }
 
@@ -52,7 +45,7 @@ export class Layer2Api {
     return exists;
   }
 
-  public async getDidDocument(did: Did, height?: number): Promise<Interfaces.IDidDocument> {
+  public async getDidDocument(did: Crypto.Did, height?: number): Promise<Types.Layer2.IDidDocument> {
     console.log(`Getting Did document ${did} at ${height || 'now'}...`);
     let url = `/did/${did}/document`;
 
@@ -60,12 +53,12 @@ export class Layer2Api {
       url = `${url}/${height}`;
     }
     const resp = await this.api.get(url);
-    const documentData: Interfaces.IDidDocumentData = resp.data;
-    const result = new DidDocument(documentData);
+    const documentData: Types.Layer2.IDidDocumentData = resp.data;
+    const result = new Layer2.DidDocument(documentData);
     return result;
   }
 
-  public async getTxnStatus(txid: TransactionId): Promise<Optional<boolean>> {
+  public async getTxnStatus(txid: Types.Sdk.TransactionId): Promise<Optional<boolean>> {
     console.log(`Getting txn status for ${txid}...`);
 
     const resp = await this.api.get(`/txn-status/${txid}`, {
@@ -81,7 +74,7 @@ export class Layer2Api {
     }
   }
 
-  public async getLastTxId(did: Did): Promise<TransactionId | null> {
+  public async getLastTxId(did: Crypto.Did): Promise<Types.Sdk.TransactionId | null> {
     console.log(`Getting last txn id for ${did}...`);
     const resp = await this.api.get(`/did/${did}/transactions/last`, {
       validateStatus: (status) => {

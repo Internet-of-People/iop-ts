@@ -6,8 +6,8 @@ import { Server as HapiServer } from '@hapi/hapi';
 
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { IO, Utils } from '@internet-of-people/sdk';
-type TransactionId = IO.TransactionId;
+import { Types, Utils } from '@internet-of-people/sdk';
+type TransactionId = Types.Sdk.TransactionId;
 
 import { MorpheusArkConnector } from './ark-connector';
 import { BlockEventSource } from './block-event-source';
@@ -73,9 +73,9 @@ const attachHTTPApi = async(
   const database: Database.IDatabaseService = container.resolvePlugin('database');
   const transactionRepository: Database.ITransactionsBusinessRepository = database.transactionsBusinessRepository;
   const txDb = {
-    getMorpheusTransaction: async(txId: TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>> => {
+    getMorpheusTransaction: async(txId: TransactionId): Promise<Optional<Types.Layer1.IMorpheusAsset>> => {
       const txDetails: CryptoIf.ITransactionData = await transactionRepository.findById(txId);
-      const morpheusTx = txDetails as Interfaces.IMorpheusData;
+      const morpheusTx = txDetails as Types.Layer1.IMorpheusData;
       return Optional.ofNullable(morpheusTx?.asset);
     },
   };

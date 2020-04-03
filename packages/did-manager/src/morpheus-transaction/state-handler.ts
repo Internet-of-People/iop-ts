@@ -1,8 +1,12 @@
-import { IO, Utils } from '@internet-of-people/sdk';
-type Authentication = IO.Authentication;
-type Did = IO.Did;
-type Right = IO.Right;
-type TransactionId = IO.TransactionId;
+import { Crypto, Layer1, Types, Utils } from '@internet-of-people/sdk';
+type Authentication = Types.Crypto.Authentication;
+type Did = Crypto.Did;
+type Right = Types.Sdk.Right;
+type TransactionId = Types.Sdk.TransactionId;
+type IOperationData = Types.Layer1.IOperationData;
+type IOperationVisitor<T> = Types.Layer1.IOperationVisitor<T>;
+type ISignableOperationVisitor<T> = Types.Layer1.ISignableOperationVisitor<T>;
+type ISignedOperationsData = Types.Layer1.ISignedOperationsData;
 
 import { MorpheusState } from './state';
 import {
@@ -12,14 +16,9 @@ import {
   IMorpheusQueries,
   IMorpheusState,
   IMorpheusStateHandler,
-  IOperationData,
-  IOperationVisitor,
-  ISignableOperationVisitor,
-  ISignedOperationsData,
   IStateChange,
   MorpheusEvents,
 } from '../interfaces';
-import { fromData, Signed } from './operations';
 
 export class MorpheusStateHandler implements IMorpheusStateHandler {
   public get query(): IMorpheusQueries {
@@ -57,7 +56,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
         this.state.query.lastSeenBlockHeight(), tempState.apply, false);
 
       for (const operationData of operationAttempts) {
-        const operation = fromData(operationData);
+        const operation = Layer1.fromData(operationData);
         operation.accept(applyVisitor);
         lastSuccessIndex++;
       }
@@ -94,7 +93,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
       for (const operationData of change.asset.operationAttempts) {
         this.logger.debug(`Registering operation attempt ${operationData.operation}...`);
-        const operation = fromData(operationData);
+        const operation = Layer1.fromData(operationData);
         this.state.apply.registerOperationAttempt(change.blockHeight, change.transactionId, operation);
       }
 
@@ -107,7 +106,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
       for (const operationData of change.asset.operationAttempts) {
         this.logger.debug(`Applying operation ${operationData.operation}...`);
-        const operation = fromData(operationData);
+        const operation = Layer1.fromData(operationData);
         operation.accept(applyVisitor);
         this.logger.debug(`Operation ${operationData.operation} applied`);
       }
@@ -151,7 +150,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
         for (const operationData of change.asset.operationAttempts.slice().reverse()) {
           this.logger.debug(`Reverting operation ${operationData.operation}...`);
-          const operation = fromData(operationData);
+          const operation = Layer1.fromData(operationData);
           operation.accept(revertVisitor);
           this.logger.debug('Operation reverted');
         }
@@ -161,7 +160,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
 
       for (const operationData of change.asset.operationAttempts.slice().reverse()) {
         this.logger.debug(`Reverting operation attempt ${operationData.operation}...`);
-        const operation = fromData(operationData);
+        const operation = Layer1.fromData(operationData);
         this.state.revert.registerOperationAttempt(change.blockHeight, change.transactionId, operation);
       }
     } catch (e) {
@@ -209,8 +208,8 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     reverse: boolean): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
-        const signableOperations = Signed.getOperations(operations);
-        const signerAuth = IO.authenticationFromData(operations.signerPublicKey);
+        const signableOperations = Layer1.Signed.getOperations(operations);
+        const signerAuth = Crypto.authenticationFromData(operations.signerPublicKey);
         const performSignableAtHeight = this.visitorPerformSignedOperationAtHeight(height, signerAuth, state);
 
         for (const signable of reverse ? signableOperations.slice().reverse() : signableOperations) {

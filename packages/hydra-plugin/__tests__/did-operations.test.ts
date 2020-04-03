@@ -1,37 +1,37 @@
 import Optional from 'optional-js';
 
-import { IVault, KeyId, PersistentVault, SignedBytes, Vault } from '@internet-of-people/morpheus-core';
+import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-const { Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } } } = MorpheusTransaction;
-import { IO } from '@internet-of-people/sdk';
-type TransactionId = IO.TransactionId;
+
+const { Operations: { RightRegistry } } = MorpheusTransaction;
+type TransactionId = Types.Sdk.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 
-const defaultDid = new IO.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-const keyId2 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
 const transactionId = 'someTransactionId';
 
-const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
+const rustVault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
 rustVault.createDid();
 rustVault.createDid();
 rustVault.createDid();
 
-const vault: IVault = {
-  signDidOperations: (keyId: KeyId, message: Uint8Array): SignedBytes => {
+const vault: Types.Crypto.IVault = {
+  signDidOperations: (keyId: Crypto.KeyId, message: Uint8Array): Crypto.SignedBytes => {
     return rustVault.signDidOperations(keyId, message);
   },
 };
 
 
 export class TransactionTestRepo implements ITransactionRepository {
-  private transactions: { [txid: string]: Interfaces.IMorpheusAsset; } = {};
+  private transactions: { [txid: string]: Types.Layer1.IMorpheusAsset; } = {};
 
-  public pushTransaction(txId: TransactionId, tx: Interfaces.IMorpheusAsset): void {
+  public pushTransaction(txId: TransactionId, tx: Types.Layer1.IMorpheusAsset): void {
     this.transactions[txId] = tx;
   }
-  public async getMorpheusTransaction(txId: TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>> {
+  public async getMorpheusTransaction(txId: TransactionId): Promise<Optional<Types.Layer1.IMorpheusAsset>> {
     const result = this.transactions[txId];
     return Optional.ofNullable(result);
   }
@@ -43,19 +43,19 @@ describe('DidOperationExtractor', () => {
 
   const stateHandlerQueryMock = {
     lastSeenBlockHeight: jest.fn<number, []>(),
-    isConfirmed: jest.fn<Optional<boolean>, [IO.TransactionId]>(),
-    beforeProofExistsAt: jest.fn<boolean, [IO.ContentId, number|undefined]>(),
-    getBeforeProofHistory: jest.fn<Interfaces.IBeforeProofHistory, [string]>(),
-    getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [IO.Did, number]>(),
+    isConfirmed: jest.fn<Optional<boolean>, [TransactionId]>(),
+    beforeProofExistsAt: jest.fn<boolean, [Types.Sdk.ContentId, number|undefined]>(),
+    getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
+    getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
     getDidTransactionIds: jest.fn<
     Interfaces.ITransactionIdHeight[],
-    [IO.Did, boolean, number, number | undefined]
+    [Crypto.Did, boolean, number, number | undefined]
     >(),
   };
 
   const stateHandler = {
     query: stateHandlerQueryMock,
-    dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Interfaces.IOperationData[]]>(),
+    dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
     applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
     revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
@@ -66,7 +66,7 @@ describe('DidOperationExtractor', () => {
     const repo = new TransactionTestRepo();
 
     const txAsset = {
-      operationAttempts: new OperationAttemptsBuilder()
+      operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(defaultDid, null)
         .addKey(keyId2)
@@ -97,7 +97,7 @@ describe('DidOperationExtractor', () => {
     stateHandlerQueryMock.isConfirmed.mockImplementation(() => {
       return Optional.of(false);
     });
-    const didOps = await extractor.didOperationsOf(new IO.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX'), true, 0);
+    const didOps = await extractor.didOperationsOf(new Crypto.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX'), true, 0);
     expect(didOps).toHaveLength(0);
   });
 });

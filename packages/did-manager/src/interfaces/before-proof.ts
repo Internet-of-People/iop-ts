@@ -1,9 +1,9 @@
+import { Types } from '@internet-of-people/sdk';
 import { IState } from './state';
-import { IO } from '@internet-of-people/sdk';
 
 export interface IBeforeProofQueries {
   existsAt(height?: number): boolean;
-  getHistoryAt(height: number): IBeforeProofHistory;
+  getHistoryAt(height: number): Types.Layer2.IBeforeProofHistory;
 }
 
 export interface IBeforeProofOperations {
@@ -11,9 +11,3 @@ export interface IBeforeProofOperations {
 }
 
 export type IBeforeProofState = IState<IBeforeProofQueries, IBeforeProofOperations>;
-
-export interface IBeforeProofHistory {
-  contentId: IO.ContentId;
-  existsFromHeight: number | null;
-  queriedAtHeight: number;
-}

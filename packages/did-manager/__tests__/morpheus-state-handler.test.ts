@@ -1,29 +1,21 @@
 import { EventEmitter } from 'events';
 import Optional from 'optional-js';
 
-import {
-  IVault,
-  KeyId,
-  PersistentVault,
-  SignedBytes,
-  Vault,
-  Did,
-} from '@internet-of-people/morpheus-core';
+import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 
-import { IO } from '@internet-of-people/sdk';
-type Authentication = IO.Authentication;
-type TransactionId = IO.TransactionId;
+type Authentication = Types.Crypto.Authentication;
+type TransactionId = Types.Sdk.TransactionId;
 
-import { ISignedOperationsData, IStateChange, OperationType } from '../src/interfaces';
+import { IStateChange } from '../src/interfaces';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
 import { Operations } from '../src/morpheus-transaction';
 
-export const did = new Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-export const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-export const keyId1 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-export const keyId2 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
+export const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+export const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+export const keyId1 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+export const keyId2 = new Crypto.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
 
-const { DidDocument: { RightRegistry }, OperationAttemptsBuilder } = Operations;
+const { RightRegistry } = Operations;
 
 export interface IToString {
   toString(): string;
@@ -34,13 +26,13 @@ export const assertStringlyEqual = (actual: IToString, expected: IToString): voi
 };
 
 describe('StateHandler', () => {
-  const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
+  const rustVault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
   rustVault.createDid();
   rustVault.createDid();
   rustVault.createDid();
 
-  const vault: IVault = {
-    signDidOperations: (keyId: KeyId, message: Uint8Array): SignedBytes => {
+  const vault: Types.Crypto.IVault = {
+    signDidOperations: (keyId: Crypto.KeyId, message: Uint8Array): Crypto.SignedBytes => {
       return rustVault.signDidOperations(keyId, message);
     },
   };
@@ -59,7 +51,7 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(did, lastTxId)
         .addKey(keyToAdd)
@@ -78,7 +70,7 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(did, lastTxId)
         .revokeKey(keyToRevoke)
@@ -97,7 +89,7 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(did, lastTxId)
         .addRight(toKey, RightRegistry.systemRights.update)
@@ -116,7 +108,7 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(did, lastTxId)
         .revokeRight(toKey, RightRegistry.systemRights.update)
@@ -131,7 +123,7 @@ describe('StateHandler', () => {
   const tombstoneDid = (blockHeight: number, txId: string): IStateChange => {
     const stateChange = {
       asset: {
-        operationAttempts: new OperationAttemptsBuilder()
+        operationAttempts: new Layer1.OperationAttemptsBuilder()
           .withVault(vault)
           .on(did, lastTxId)
           .tombstoneDid()
@@ -154,7 +146,7 @@ describe('StateHandler', () => {
     lastTxId = null;
   });
 
-  const registrationAttempt = new OperationAttemptsBuilder()
+  const registrationAttempt = new Layer1.OperationAttemptsBuilder()
     .registerBeforeProof(contentId)
     .getAttempts();
 
@@ -188,7 +180,7 @@ describe('StateHandler', () => {
     expect(handler.query.beforeProofExistsAt(contentId, undefined)).toBeTruthy();
 
     const otherTxId = 'someOtherTransactionId';
-    const multipleRegistrationAttempts = new OperationAttemptsBuilder()
+    const multipleRegistrationAttempts = new Layer1.OperationAttemptsBuilder()
       .registerBeforeProof(otherContentId)
       .registerBeforeProof(contentId)
       .getAttempts();
@@ -231,12 +223,12 @@ describe('StateHandler', () => {
   });
 
   it('authentication passes on signed operation', () => {
-    const attempts = new OperationAttemptsBuilder()
+    const attempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(did, null)
       .sign(defaultKeyId)
       .getAttempts();
-    expect(attempts[0].operation).toBe(OperationType.Signed);
+    expect(attempts[0].operation).toBe(Layer1.OperationType.Signed);
     handler.applyTransactionToState({
       asset: { operationAttempts: attempts },
       blockHeight: 5,
@@ -247,12 +239,12 @@ describe('StateHandler', () => {
   });
 
   it('authentication fails on invalid signature', () => {
-    const attempts = new OperationAttemptsBuilder()
+    const attempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(did, null)
       .sign(defaultKeyId)
       .getAttempts();
-    const signed = attempts[0] as ISignedOperationsData;
+    const signed = attempts[0] as Types.Layer1.ISignedOperationsData;
     /* eslint max-len: 0 */
     const invalidSignature = 'sez6JdkXYwnz9VD5KECBq7B5jBiWBZiqf1Pzh6D9Rzf9QhmqDXsAvNPhzNGe7TkM3BD2uV6Y2w9MgAsVf2wGwARpNW4';
     signed.signature = invalidSignature;
@@ -272,7 +264,7 @@ describe('StateHandler', () => {
   });
 
   it('rights can be moved to a different key in a single transaction', () => {
-    const attempts = new OperationAttemptsBuilder()
+    const attempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(did, null)
       .addKey(keyId1)
@@ -614,7 +606,7 @@ describe('StateHandler', () => {
     // we have to emit at least one layer-1 tx to bump the internal lastSeenBlockHeight
     addKey(5, keyId2, defaultKeyId, transactionId);
 
-    const errors = handler.dryRun(new OperationAttemptsBuilder()
+    const errors = handler.dryRun(new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(did, transactionId)
       .addKey(keyId1)
@@ -626,7 +618,7 @@ describe('StateHandler', () => {
   });
 
   it('dry run returns the same error that we will receive', () => {
-    const attempts = new OperationAttemptsBuilder()
+    const attempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(did, null)
       .addRight(keyId1, RightRegistry.systemRights.update) // key is not yet added

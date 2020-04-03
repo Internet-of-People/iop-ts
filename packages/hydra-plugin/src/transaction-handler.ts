@@ -3,8 +3,8 @@ import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces'
 import { Handlers } from '@arkecosystem/core-transactions';
 import { Interfaces as CryptoIf, Transactions } from '@arkecosystem/crypto';
 
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { Utils } from '@internet-of-people/sdk';
+import { Interfaces } from '@internet-of-people/did-manager';
+import { Layer1, Types, Utils } from '@internet-of-people/sdk';
 
 import {
   COMPONENT_NAME as READER_FACTORY_COMPONENT,
@@ -12,14 +12,12 @@ import {
   TransactionReaderFactory,
 } from './transaction-reader-factory';
 
-const { Transaction } = MorpheusTransaction;
-
 /**
  * Handles Morpheus custom transactions on Layer 1 (IWalletManager)
  */
 export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
   public getConstructor(): typeof Transactions.Transaction {
-    return Transaction.MorpheusTransaction;
+    return Layer1.MorpheusTransaction;
   }
 
   public dependencies(): readonly Handlers.TransactionHandlerConstructor[] {
@@ -48,7 +46,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
 
       for (const transaction of transactions) {
         stateHandler.applyTransactionToState({
-          asset: transaction.asset as Interfaces.IMorpheusAsset,
+          asset: transaction.asset as Types.Layer1.IMorpheusAsset,
           blockHeight: transaction.blockHeight,
           blockId: transaction.blockId,
           transactionId: transaction.id,
@@ -63,8 +61,8 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
     _processor: TransactionPool.IProcessor,
   ): Promise<{ type: string; message: string; } | null> {
     try {
-      const asset = _data.asset as Interfaces.IMorpheusAsset;
-      const expectedFee = MorpheusTransaction.Builder.MorpheusTransactionBuilder.calculateFee(asset.operationAttempts);
+      const asset = _data.asset as Types.Layer1.IMorpheusAsset;
+      const expectedFee = Layer1.MorpheusTransactionBuilder.calculateFee(asset.operationAttempts);
 
       if (_data.fee < expectedFee) {
         return {

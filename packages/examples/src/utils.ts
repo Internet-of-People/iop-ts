@@ -1,12 +1,11 @@
 import inquirer from 'inquirer';
 
-import { KeyId, Did } from '@internet-of-people/morpheus-core';
-import { IO } from '@internet-of-people/sdk';
+import { Crypto, Types } from '@internet-of-people/sdk';
 
 import { IAction } from './action';
 import { Network, allNetworks } from './network';
 
-export const dumpDids = (dids: Did[]): void => {
+export const dumpDids = (dids: Crypto.Did[]): void => {
   console.log('These are the dids based on your private keys:');
 
   for (const did of dids) {
@@ -14,7 +13,7 @@ export const dumpDids = (dids: Did[]): void => {
   }
 };
 
-export const dumpKeyIds = (keyIds: KeyId[]): void => {
+export const dumpKeyIds = (keyIds: Crypto.KeyId[]): void => {
   console.log('These are the key ids based on your private keys:');
 
   for (const id of keyIds) {
@@ -22,22 +21,22 @@ export const dumpKeyIds = (keyIds: KeyId[]): void => {
   }
 };
 
-export const askDid = async(operation: string): Promise<IO.Did> => {
+export const askDid = async(operation: string): Promise<Crypto.Did> => {
   const { did }: { did: string; } = await inquirer.prompt([{
     type: 'input',
     name: 'did',
     message: `Type did to ${operation}:`,
   }]);
-  return new Did(did);
+  return new Crypto.Did(did);
 };
 
-export const askAuth = async(operation: string): Promise<IO.Authentication> => {
-  const { auth }: { auth: IO.Authentication; } = await inquirer.prompt([{
+export const askAuth = async(operation: string): Promise<Types.Crypto.Authentication> => {
+  const { auth }: { auth: Types.Crypto.Authentication; } = await inquirer.prompt([{
     type: 'input',
     name: 'auth',
     message: `Type a public key or key ID to ${operation}:`,
-    filter: async(value: string): Promise<IO.Authentication> => {
-      return IO.authenticationFromData(value);
+    filter: async(value: string): Promise<Types.Crypto.Authentication> => {
+      return Crypto.authenticationFromData(value);
     },
   }]);
   return auth;
@@ -56,8 +55,8 @@ export const askHeight = async(): Promise<number | undefined> => {
   return height;
 };
 
-export const askSignerKeyId = async(ids: KeyId[]): Promise<KeyId> => {
-  const { signerKeyId }: { signerKeyId: KeyId; } = await inquirer.prompt([{
+export const askSignerKeyId = async(ids: Crypto.KeyId[]): Promise<Crypto.KeyId> => {
+  const { signerKeyId }: { signerKeyId: Crypto.KeyId; } = await inquirer.prompt([{
     name: 'signerKeyId',
     message: 'Choose id to sign with:',
     type: 'list',

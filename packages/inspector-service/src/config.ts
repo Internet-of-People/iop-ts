@@ -1,7 +1,7 @@
 import { readdirSync, Dirent, readFileSync } from 'fs';
 import path from 'path';
 
-import { IO } from '@internet-of-people/sdk';
+import { Types } from '@internet-of-people/sdk';
 
 import { addScenario } from './storage';
 import { SqliteStorage } from './storage-sqlite';
@@ -14,7 +14,7 @@ export const addScenarios = async(folder: string, storage: SqliteStorage): Promi
   })) {
     console.log(`adding scenario ${fileEntry.name} to database`);
     const fileContent = readFileSync(path.join(folder, fileEntry.name), { encoding: 'utf8' });
-    const scenarioObj: IO.IScenario = JSON.parse(fileContent);
+    const scenarioObj: Types.Sdk.IScenario = JSON.parse(fileContent);
 
     // TODO Check against scenario JSON Schema
     try {

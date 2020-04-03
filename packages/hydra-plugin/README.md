@@ -1,6 +1,6 @@
-# Hydra Morpheus Plugin
+# Hydra DAC (Project Morpheus) Plugin
 
-This is the Morpheus plugin for the Hydra Blockchain.
+This is the DAC plugin for the Hydra Blockchain.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -12,8 +12,6 @@ This is the Morpheus plugin for the Hydra Blockchain.
 
 You have a cloned out [hydra-core](https://github.com/Internet-of-People/hydra-core)
 repo, where you've ran `yarn setup`.
-
-Note: until Morpheus is live on the mainnet, you must clone out the `develop` branch.
 
 ## Installation
 

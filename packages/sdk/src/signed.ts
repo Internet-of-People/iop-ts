@@ -1,31 +1,22 @@
-import { PublicKey, Signature, SignedJson } from '@internet-of-people/morpheus-core';
+import { PublicKey, Signature, SignedJson } from '@internet-of-people/morpheus-crypto';
+import { Sdk } from './types';
+import * as JsonUtils from './json';
 
-import {
-  IContent,
-  ISigned,
-  ISignature,
-  IAfterProof,
-  IAfterEnvelope,
-  Content,
-  ContentId,
-} from './interfaces/io';
-import { JsonUtils } from '.';
-
-export class Signed<T extends IContent> {
-  public constructor(public readonly data: ISigned<T>, public readonly typeName: string) {
+export class Signed<T extends Sdk.IContent> {
+  public constructor(public readonly data: Sdk.ISigned<T>, public readonly typeName: string) {
     if (!this.data) {
       throw new Error(`Signed ${this.typeName} cannot be constructed without any data`);
     }
   }
 
-  public get signature(): ISignature {
+  public get signature(): Sdk.ISignature {
     if (!this.data.signature) {
       throw new Error(`Signed ${this.typeName} ${this.contentId} is missing signature`);
     }
     return this.data.signature;
   }
 
-  public get afterProof(): IAfterProof | null {
+  public get afterProof(): Sdk.IAfterProof | null {
     const { afterEnvelope } = this;
 
     if (afterEnvelope.afterProof) {
@@ -34,13 +25,13 @@ export class Signed<T extends IContent> {
     return null;
   }
 
-  public get payload(): Content<T> {
+  public get payload(): Sdk.Content<T> {
     const { afterEnvelope } = this;
 
     if (afterEnvelope.afterProof) {
       return afterEnvelope.content;
     }
-    return this.data.content as Content<T>;
+    return this.data.content as Sdk.Content<T>;
   }
 
   public get payloadObject(): T {
@@ -50,11 +41,11 @@ export class Signed<T extends IContent> {
     return this.payload;
   }
 
-  public get contentId(): ContentId {
+  public get contentId(): Sdk.ContentId {
     return JsonUtils.digest(this.data);
   }
 
-  public get signableContentId(): ContentId {
+  public get signableContentId(): Sdk.ContentId {
     return typeof this.data.content === 'object' ?
       JsonUtils.digest(this.data.content) :
       this.data.content;
@@ -67,10 +58,10 @@ export class Signed<T extends IContent> {
     return validator.validate();
   }
 
-  private get afterEnvelope(): IAfterEnvelope<T> {
+  private get afterEnvelope(): Sdk.IAfterEnvelope<T> {
     if (!this.data.content) {
       throw new Error(`Signed ${this.typeName} ${this.contentId} is missing content`);
     }
-    return this.data.content as IAfterEnvelope<T>;
+    return this.data.content as Sdk.IAfterEnvelope<T>;
   }
 }

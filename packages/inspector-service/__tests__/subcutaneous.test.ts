@@ -2,18 +2,7 @@ import request from 'supertest';
 import { unlinkSync } from 'fs';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
-import { Interfaces as DidIf, MorpheusTransaction } from '@internet-of-people/did-manager';
-type IBeforeProofHistory = DidIf.IBeforeProofHistory;
-type IDidDocumentData = DidIf.IDidDocumentData;
-type IDidDocument = DidIf.IDidDocument;
-const { Operations: { DidDocument: { DidDocument } } } = MorpheusTransaction;
-import { IO, JsonUtils, VerifierAPI } from '@internet-of-people/sdk';
-type ISigned<T> = IO.ISigned<T>;
-type IPresentation = IO.IPresentation;
-type Did = IO.Did;
-type IAfterProof = IO.IAfterProof;
-type IValidationRequest = VerifierAPI.IValidationRequest;
-type IValidationResult = VerifierAPI.IValidationResult;
+import { Crypto, Layer2, JsonUtils, Types } from '@internet-of-people/sdk';
 
 import { SqliteStorage } from '../src/storage-sqlite';
 import { Service } from '../src/service';
@@ -62,7 +51,7 @@ describe('Service', () => {
       .get('/blob/cjuFURvWkcd-82J83erY_dEUhlRf9Yn8OiWWl7SxVpBvf4')
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const scenario: IO.IScenario = res.body;
+        const scenario: Types.Sdk.IScenario = res.body;
         expect(scenario.name).toBe('Swimming discount');
         expect(scenario.version).toBe(1);
         expect(scenario.description).toBe('Reduced prices based on your resident address');
@@ -70,7 +59,7 @@ describe('Service', () => {
   });
 
   it('presenation can be sent', async() => {
-    const contentId = JsonUtils.digest(presenation1 as ISigned<IPresentation>);
+    const contentId = JsonUtils.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
     await request(fixture.app)
       .post('/presentation')
       .send(presenation1)
@@ -82,18 +71,18 @@ describe('Service', () => {
   });
 
   it('presenation can be retrieved', async() => {
-    const contentId = JsonUtils.digest(presenation1 as ISigned<IPresentation>);
+    const contentId = JsonUtils.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
     await request(fixture.app)
       .get(`/blob/${contentId}`)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const signedPresentation: IO.ISigned<IO.IPresentation> = res.body;
+        const signedPresentation: Types.Sdk.ISigned<Types.Sdk.IPresentation> = res.body;
         expect(JsonUtils.digest(signedPresentation)).toBe(contentId);
       });
   });
 
   it('returns after-proof', async() => {
-    const afterProof: IAfterProof = { blockHeight: 200, blockHash: 'someUnreadableHex' };
+    const afterProof: Types.Sdk.IAfterProof = { blockHeight: 200, blockHash: 'someUnreadableHex' };
     fixture.hydraMock.getBlockIdAtHeight.mockImplementationOnce(async() => {
       return afterProof;
     });
@@ -106,25 +95,25 @@ describe('Service', () => {
   });
 
   it('validation checks Hydra node', async() => {
-    const afterProof: IAfterProof = {
+    const afterProof: Types.Sdk.IAfterProof = {
       blockHeight: 180,
       blockHash: 'youAintKnowThisBeforeBlock180',
     };
-    const validationRequest: IValidationRequest = {
+    const validationRequest: Types.Verifier.IValidationRequest = {
       publicKey: 'pez7aYuvoDPM5i7xedjwjsWaFVzL3qRKPv4sBLv3E3pAGi6',
       contentId: 'cjuwtAZcIdlSzKS8i8qvg5Ux-N0-s5MOKkE1qyzsmlGw5A',
       signature: 'sezAhsRgfDMRvSTFmLjDDkbFcxjPMxBrbo8ikJ1j8sba2oxoe5cLGc8J5FsMx8czVVRVKurwTJUkCRktC177ZGJp5Md',
       onBehalfOf: 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
       afterProof,
     };
-    const didDocData: IDidDocumentData = {
+    const didDocData: Types.Layer2.IDidDocumentData = {
       did: validationRequest.onBehalfOf,
       queriedAtHeight: 200,
       tombstoned: false,
       tombstonedAtHeight: null,
       keys: [{
         index: 0,
-        auth: new IO.PublicKey(validationRequest.publicKey).keyId()
+        auth: new Crypto.PublicKey(validationRequest.publicKey).keyId()
           .toString(),
         valid: true,
         validFromHeight: null,
@@ -142,17 +131,20 @@ describe('Service', () => {
         ],
       },
     };
-    fixture.hydraMock.getDidDocument.mockImplementationOnce(async(): Promise<IDidDocument> => {
-      return new DidDocument(didDocData);
+    fixture.hydraMock.getDidDocument.mockImplementationOnce(async(): Promise<Types.Layer2.IDidDocument> => {
+      return new Layer2.DidDocument(didDocData);
     });
-    fixture.hydraMock.getBeforeProofHistory.mockImplementationOnce(async(): Promise<IBeforeProofHistory> => {
-      return {
-        contentId: validationRequest.contentId,
-        existsFromHeight: null,
-        queriedAtHeight: 200,
-      };
-    });
-    fixture.hydraMock.getBlockIdAtHeight.mockImplementationOnce(async(): Promise<IAfterProof> => {
+    fixture
+      .hydraMock
+      .getBeforeProofHistory
+      .mockImplementationOnce(async(): Promise<Types.Layer2.IBeforeProofHistory> => {
+        return {
+          contentId: validationRequest.contentId,
+          existsFromHeight: null,
+          queriedAtHeight: 200,
+        };
+      });
+    fixture.hydraMock.getBlockIdAtHeight.mockImplementationOnce(async(): Promise<Types.Sdk.IAfterProof> => {
       return afterProof;
     });
     await request(fixture.app)
@@ -160,7 +152,7 @@ describe('Service', () => {
       .send(validationRequest)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const validationResult: IValidationResult = res.body;
+        const validationResult: Types.Verifier.IValidationResult = res.body;
         expect(validationResult.errors).toHaveLength(0);
         expect(validationResult.warnings).toHaveLength(0);
       });
@@ -172,10 +164,10 @@ describe('Service', () => {
   class Fixture {
     public readonly hydraMock = {
       getNodeCryptoConfig: jest.fn<Promise<CryptoIf.INetworkConfig>, []>(),
-      getBlockIdAtHeight: jest.fn<Promise<IAfterProof | null>, [number | undefined]>(),
-      getBeforeProofHistory: jest.fn<Promise<DidIf.IBeforeProofHistory>, [IO.ContentId]>(),
+      getBlockIdAtHeight: jest.fn<Promise<Types.Sdk.IAfterProof | null>, [number | undefined]>(),
+      getBeforeProofHistory: jest.fn<Promise<Types.Layer2.IBeforeProofHistory>, [Types.Sdk.ContentId]>(),
       beforeProofExists: jest.fn<Promise<boolean>, [string]>(),
-      getDidDocument: jest.fn<Promise<DidIf.IDidDocument>, [Did]>(),
+      getDidDocument: jest.fn<Promise<Types.Layer2.IDidDocument>, [Crypto.Did]>(),
     };
     private readonly server: Server;
 

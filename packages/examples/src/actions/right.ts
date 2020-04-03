@@ -1,8 +1,6 @@
 import inquirer = require('inquirer');
 
-import { MorpheusTransaction } from '@internet-of-people/did-manager';
-import { IO } from '@internet-of-people/sdk';
-type Right = IO.Right;
+import { Layer1, Layer2, Types } from '@internet-of-people/sdk';
 
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
@@ -10,15 +8,13 @@ import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askSignerKeyId, as
 import { loadVault } from '../vault';
 import { Layer2Api } from '../layer2api';
 
-const {
-  Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry } },
-} = MorpheusTransaction;
+const systemRights = new Layer2.SystemRights();
 
-const askRight = async(): Promise<IO.Right> => {
-  const { right }: { right: IO.Right; } = await inquirer.prompt([{
+const askRight = async(): Promise<Types.Sdk.Right> => {
+  const { right }: { right: Types.Sdk.Right; } = await inquirer.prompt([{
     type: 'list',
     name: 'right',
-    choices: RightRegistry.systemRights.all.map((r) => {
+    choices: systemRights.all.map((r) => {
       return { name: r.toString(), value: r };
     }),
   }]);
@@ -38,7 +34,7 @@ const addRight = async(): Promise<void> => {
   const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await Layer2Api.get().getLastTxId(did);
-  const opAttempts = new OperationAttemptsBuilder()
+  const opAttempts = new Layer1.OperationAttemptsBuilder()
     .withVault(vault)
     .on(did, lastTxId)
     .addRight(auth, right)
@@ -61,7 +57,7 @@ const revokeRight = async(): Promise<void> => {
   const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await Layer2Api.get().getLastTxId(did);
-  const opAttempts = new OperationAttemptsBuilder()
+  const opAttempts = new Layer1.OperationAttemptsBuilder()
     .withVault(vault)
     .on(did, lastTxId)
     .revokeRight(auth, right)

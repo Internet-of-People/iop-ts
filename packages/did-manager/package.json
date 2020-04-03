@@ -1,13 +1,13 @@
 {
   "name": "@internet-of-people/did-manager",
-  "version": "1.0.1",
-  "private": false,
+  "version": "2.0.0",
+  "private": true,
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
-  "description": "Business model and a Hydra transaction type for managing DIDs on chain",
+  "description": "Layer2 Utilities for Hydra",
   "repository": "https://github.com/internet-of-people/morpheus-ts",
   "license": "LGPL-3.0-or-later",
   "main": "dist/index",
@@ -34,10 +34,7 @@
     "testPathIgnorePatterns": ["__tests__/utils.ts"]
   },
   "dependencies": {
-    "@arkecosystem/core-interfaces": "^2.6.10",
-    "@arkecosystem/crypto": "^2.6.10",
-    "@internet-of-people/morpheus-core": "1.0.0",
-    "@internet-of-people/sdk": "1.0.0",
+    "@internet-of-people/sdk": "2.0.0",
     "bytebuffer": "5.0.1",
     "json-stable-stringify": "1.0.1",
     "lodash.clonedeep": "4.5.0",
@@ -60,6 +57,6 @@
     "jest-extended": "0.11.2",
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0",
-    "typescript": "3.7.2"
+    "typescript": "3.8.3"
   }
 }

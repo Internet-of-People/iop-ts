@@ -1,22 +1,19 @@
 import Optional from 'optional-js';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { IO } from '@internet-of-people/sdk';
-type Did = IO.Did;
-type TransactionId = IO.TransactionId;
+import { Layer1, Crypto, Types } from '@internet-of-people/sdk';
 
-const { Operations: { fromData, toSignableData, visitorFilterDid } } = MorpheusTransaction;
-
+const { Operations: { visitorFilterDid } } = MorpheusTransaction;
 
 export interface IDidOperation {
-  transactionId: TransactionId;
+  transactionId: Types.Sdk.TransactionId;
   blockHeight: number;
-  data: Interfaces.ISignableOperationData;
+  data: Types.Layer1.ISignableOperationData;
   valid: boolean;
 }
 
 
 export interface ITransactionRepository {
-  getMorpheusTransaction(txId: TransactionId): Promise<Optional<Interfaces.IMorpheusAsset>>;
+  getMorpheusTransaction(txId: Types.Sdk.TransactionId): Promise<Optional<Types.Layer1.IMorpheusAsset>>;
 }
 
 export class DidOperationExtractor {
@@ -25,7 +22,7 @@ export class DidOperationExtractor {
   }
 
   public async didOperationsOf(
-    did: Did,
+    did: Crypto.Did,
     includeAttempts: boolean,
     fromHeightInc: number,
     untilHeightInc?: number,
@@ -47,14 +44,14 @@ export class DidOperationExtractor {
 
       const visitor = visitorFilterDid(did.toString());
       const signedOperationsHierarchy = txOperations.map((item) => {
-        return fromData(item).accept(visitor);
+        return Layer1.fromData(item).accept(visitor);
       });
-      const signedOpsFlattened = new Array<Interfaces.SignableOperation>().concat(...signedOperationsHierarchy);
+      const signedOpsFlattened = new Array<Layer1.SignableOperation>().concat(...signedOperationsHierarchy);
       const didOperations: IDidOperation[] = signedOpsFlattened.map((attempt) => {
         return {
           transactionId,
           blockHeight: transactionIdHeight.height,
-          data: toSignableData(attempt),
+          data: Layer1.toSignableData(attempt),
           valid: this.stateHandler.query.isConfirmed(transactionId).orElse(false),
         };
       });

@@ -1,8 +1,8 @@
+import { Types } from '@internet-of-people/sdk';
 import {
   IBeforeProofOperations,
   IBeforeProofQueries,
   IBeforeProofState,
-  IBeforeProofHistory,
 } from '../../../interfaces';
 import { ITimeSeries, TimeSeries } from '../../../time-series';
 
@@ -14,10 +14,10 @@ export class BeforeProofState implements IBeforeProofState {
         this.periods.query.latestValue();
     },
 
-    getHistoryAt: (height: number): IBeforeProofHistory => {
+    getHistoryAt: (height: number): Types.Layer2.IBeforeProofHistory => {
       const latestHeight = this.periods.query.latestHeight();
       const existsFromHeight = latestHeight.isPresent() ? latestHeight.get() : null;
-      const result: IBeforeProofHistory = {
+      const result: Types.Layer2.IBeforeProofHistory = {
         contentId: this.contentId,
         existsFromHeight,
         queriedAtHeight: height,

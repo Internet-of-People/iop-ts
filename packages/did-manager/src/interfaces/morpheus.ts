@@ -1,18 +1,9 @@
 import Optional from 'optional-js';
 
-import { IO } from '@internet-of-people/sdk';
-type Authentication = IO.Authentication;
-type ContentId = IO.ContentId;
-type Did = IO.Did;
-type Right = IO.Right;
-type TransactionId = IO.TransactionId;
+import { Crypto, Layer1, Layer2, Types } from '@internet-of-people/sdk';
 
-import { IMorpheusAsset } from './asset';
-import { IDidDocument, ITransactionIdHeight } from './did-document';
-import { Operation } from './operation';
-import { IOperationData } from './operation-data';
+import { ITransactionIdHeight } from './did-transactions';
 import { IState } from './state';
-import { IBeforeProofHistory } from './before-proof';
 
 export interface IBlockHeightChange {
   blockHeight: number;
@@ -20,7 +11,7 @@ export interface IBlockHeightChange {
 }
 
 export interface IStateChange extends IBlockHeightChange {
-  asset: IMorpheusAsset;
+  asset: Types.Layer1.IMorpheusAsset;
   transactionId: string;
 }
 
@@ -28,7 +19,7 @@ export const MORPHEUS_STATE_HANDLER_COMPONENT_NAME = 'morpheus-state-handler';
 
 export interface IMorpheusStateHandler {
   readonly query: IMorpheusQueries;
-  dryRun(operationAttempts: IOperationData[]): IDryRunOperationError[];
+  dryRun(operationAttempts: Types.Layer1.IOperationData[]): IDryRunOperationError[];
   applyEmptyBlockToState(change: IBlockHeightChange): void;
   applyTransactionToState(stateChange: IStateChange): void;
   revertEmptyBlockFromState(change: IBlockHeightChange): void;
@@ -37,67 +28,67 @@ export interface IMorpheusStateHandler {
 
 export interface IMorpheusOperations {
   setLastSeenBlockHeight(height: number): void;
-  registerOperationAttempt(height: number, transactionId: TransactionId, operation: Operation): void;
+  registerOperationAttempt(height: number, transactionId: Types.Sdk.TransactionId, operation: Layer1.Operation): void;
 
-  registerBeforeProof(contentId: ContentId, height: number): void;
+  registerBeforeProof(contentId: Types.Sdk.ContentId, height: number): void;
 
   addKey(
     height: number,
-    signerAuth: Authentication,
-    did: Did,
-    lastTxId: TransactionId | null,
-    newAuth: Authentication,
+    signerAuth: Types.Crypto.Authentication,
+    did: Crypto.Did,
+    lastTxId: Types.Sdk.TransactionId | null,
+    newAuth: Types.Crypto.Authentication,
     expiresAtHeight?: number,
   ): void;
 
   revokeKey(
     height: number,
-    signerAuth: Authentication,
-    did: Did,
-    lastTxId: TransactionId | null,
-    revokedAuth: Authentication,
+    signerAuth: Types.Crypto.Authentication,
+    did: Crypto.Did,
+    lastTxId: Types.Sdk.TransactionId | null,
+    revokedAuth: Types.Crypto.Authentication,
   ): void;
 
   addRight(
     height: number,
-    signerAuth: Authentication,
-    did: Did,
-    lastTxId: TransactionId | null,
-    auth: Authentication,
-    right: Right,
+    signerAuth: Types.Crypto.Authentication,
+    did: Crypto.Did,
+    lastTxId: Types.Sdk.TransactionId | null,
+    auth: Types.Crypto.Authentication,
+    right: Types.Sdk.Right,
   ): void;
 
   revokeRight(
     height: number,
-    signerAuth: Authentication,
-    did: Did,
-    lastTxId: TransactionId | null,
-    auth: Authentication,
-    right: Right,
+    signerAuth: Types.Crypto.Authentication,
+    did: Crypto.Did,
+    lastTxId: Types.Sdk.TransactionId | null,
+    auth: Types.Crypto.Authentication,
+    right: Types.Sdk.Right,
   ): void;
 
   tombstoneDid(
     height: number,
-    signerAuth: Authentication,
-    did: Did,
-    lastTxId: TransactionId | null,
+    signerAuth: Types.Crypto.Authentication,
+    did: Crypto.Did,
+    lastTxId: Types.Sdk.TransactionId | null,
   ): void;
 
   /**
    * Marks a transaction as confirmed, all operations were valid.
    */
-  confirmTx(transactionId: TransactionId): void;
-  rejectTx(transactionId: TransactionId): void;
+  confirmTx(transactionId: Types.Sdk.TransactionId): void;
+  rejectTx(transactionId: Types.Sdk.TransactionId): void;
 }
 
 export interface IMorpheusQueries {
   lastSeenBlockHeight(): number;
-  beforeProofExistsAt(contentId: ContentId, height?: number): boolean;
-  getBeforeProofHistory(contentId: ContentId): IBeforeProofHistory;
-  isConfirmed(transactionId: TransactionId): Optional<boolean>;
-  getDidDocumentAt(did: Did, height: number): IDidDocument;
+  beforeProofExistsAt(contentId: Types.Sdk.ContentId, height?: number): boolean;
+  getBeforeProofHistory(contentId: Types.Sdk.ContentId): Types.Layer2.IBeforeProofHistory;
+  isConfirmed(transactionId: Types.Sdk.TransactionId): Optional<boolean>;
+  getDidDocumentAt(did: Crypto.Did, height: number): Types.Layer2.IDidDocument;
   getDidTransactionIds(
-    did: Did,
+    did: Crypto.Did,
     includeAttempts: boolean,
     fromHeightIncl: number,
     untilHeightIncl?: number,
@@ -111,7 +102,7 @@ export const enum MorpheusEvents {
 }
 
 export interface IDryRunOperationError {
-  invalidOperationAttempt: IOperationData | undefined;
+  invalidOperationAttempt: Types.Layer1.IOperationData | undefined;
   // code: number; TODO: later we need exact error codes
   message: string;
 }

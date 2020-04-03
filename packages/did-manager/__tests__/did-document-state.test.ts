@@ -1,19 +1,21 @@
-import { IO } from '@internet-of-people/sdk';
+import { Crypto, Types } from '@internet-of-people/sdk';
 
-import { IDidDocumentState, IKeyData, IDidDocument } from '../src/interfaces';
+import { IDidDocumentState } from '../src/interfaces';
 import { Operations } from '../src/morpheus-transaction';
 import { assertStringlyEqual } from './utils';
 
-const { DidDocument } = Operations;
-const { RightRegistry } = DidDocument;
+const { DidDocumentState, RightRegistry } = Operations;
 
-const did = new IO.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-const defaultKeyId = new IO.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-const keyId1 = new IO.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-const keyId2 = new IO.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
+const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+const keyId1 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+const keyId2 = new Crypto.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
 const updateRight = RightRegistry.systemRights.update;
 
-export const assertEqualAuthEntries = (actual: IKeyData[], expected: Partial<IKeyData>[]): void => {
+export const assertEqualAuthEntries = (
+  actual: Types.Layer2.IKeyData[],
+  expected: Partial<Types.Layer2.IKeyData>[],
+): void => {
   expect(actual).toHaveLength(expected.length);
 
   for (let i = 0; i < actual.length; i += 1) {
@@ -27,7 +29,7 @@ export const assertEqualAuthEntries = (actual: IKeyData[], expected: Partial<IKe
 
 describe('Relation of DID and KeyId', () => {
   it('did can be converted to auth string', () => {
-    assertStringlyEqual(IO.didToAuth(did.toString()), defaultKeyId);
+    assertStringlyEqual(Crypto.didToAuth(did.toString()), defaultKeyId);
     assertStringlyEqual(did.defaultKeyId(), defaultKeyId);
   });
 });
@@ -36,7 +38,7 @@ describe('DidDocumentState', () => {
   let didState: IDidDocumentState;
 
   beforeEach(() => {
-    didState = new DidDocument.DidDocumentState(did);
+    didState = new DidDocumentState(did);
   });
 
   it('can query implicit document', () => {
@@ -290,14 +292,14 @@ describe('DidDocumentState', () => {
 
       didState.apply.tombstone(5);
 
-      const checkHistoryAt4 = (doc: IDidDocument): void => {
+      const checkHistoryAt4 = (doc: Types.Layer2.IDidDocument): void => {
         expect(doc.isTombstonedAt(4)).toBeFalsy();
         expect(doc.hasRightAt(keyId1, updateRight, 4)).toBeTruthy();
         expect(doc.hasRightAt(defaultKeyId, updateRight, 4)).toBeTruthy();
         expect(doc.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 4)).toBeTruthy();
       };
 
-      const checkHistoryAt5 = (doc: IDidDocument): void => {
+      const checkHistoryAt5 = (doc: Types.Layer2.IDidDocument): void => {
         expect(doc.isTombstonedAt(5)).toBeTruthy();
         expect(doc.hasRightAt(keyId1, updateRight, 5)).toBeFalsy();
         expect(doc.hasRightAt(defaultKeyId, updateRight, 5)).toBeFalsy();

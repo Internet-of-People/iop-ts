@@ -2,7 +2,7 @@
 
 git checkout master
 
-declare -a packages=("did-manager" "examples" "hydra-plugin" "keyvault" "logger" "sdk" "morpheus-core")
+declare -a packages=("sdk" "morpheus-crypto")
 
 for package in "${packages[@]}"; do
     cd packages/$package

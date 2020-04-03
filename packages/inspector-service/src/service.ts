@@ -1,22 +1,17 @@
-import { InspectorAPI, VerifierAPI, IO, JsonUtils, Signed } from '@internet-of-people/sdk';
-type ValidationResult = IO.ValidationResult;
-type ValidationIssue = IO.ValidationIssue;
-const { Signature, SignedJson, PublicKey, Did } = IO;
-import { Interfaces as DidInterfaces } from '@internet-of-people/did-manager';
-type IBeforeProofHistory = DidInterfaces.IBeforeProofHistory;
+import { Crypto, Types, JsonUtils, Signed } from '@internet-of-people/sdk';
 
 import { IStorage } from './storage';
 import { IHydraApi } from './hydra-api';
 
-export class Service implements InspectorAPI.IApi {
+export class Service implements Types.Inspector.IApi {
   public constructor(private readonly storage: IStorage, private readonly hydra: IHydraApi) {
   }
 
-  public async listScenarios(): Promise<IO.ContentId[]> {
+  public async listScenarios(): Promise<Types.Sdk.ContentId[]> {
     return this.storage.getScenarios();
   }
 
-  public async getPublicBlob(contentId: IO.ContentId): Promise<unknown> {
+  public async getPublicBlob(contentId: Types.Sdk.ContentId): Promise<unknown> {
     const content = await this.storage.getPublicBlob(contentId);
 
     if (content) {
@@ -25,7 +20,9 @@ export class Service implements InspectorAPI.IApi {
     throw new Error(`Unknown contentId '${contentId}'`);
   }
 
-  public async uploadPresentation(presentation: IO.ISigned<IO.IPresentation>): Promise<IO.ContentId> {
+  public async uploadPresentation(
+    presentation: Types.Sdk.ISigned<Types.Sdk.IPresentation>,
+  ): Promise<Types.Sdk.ContentId> {
     const contentId = JsonUtils.digest(presentation);
     const existingContent = await this.storage.getPublicBlob(contentId);
 
@@ -46,7 +43,7 @@ export class Service implements InspectorAPI.IApi {
     return contentId;
   }
 
-  public async getAfterProof(): Promise<IO.IAfterProof> {
+  public async getAfterProof(): Promise<Types.Sdk.IAfterProof> {
     const afterProof = await this.hydra.getBlockIdAtHeight();
 
     if (!afterProof) {
@@ -55,29 +52,29 @@ export class Service implements InspectorAPI.IApi {
     return afterProof;
   }
 
-  public async validate(request: VerifierAPI.IValidationRequest): Promise<VerifierAPI.IValidationResult> {
-    const result: VerifierAPI.IValidationResult = {
+  public async validate(request: Types.Verifier.IValidationRequest): Promise<Types.Verifier.IValidationResult> {
+    const result: Types.Verifier.IValidationResult = {
       errors: [],
       warnings: [],
     };
 
     try {
-      const did = new Did(request.onBehalfOf);
+      const did = new Crypto.Did(request.onBehalfOf);
       const doc = await this.hydra.getDidDocument(did);
-      const pk = new PublicKey(request.publicKey);
-      const validator = new SignedJson(
+      const pk = new Crypto.PublicKey(request.publicKey);
+      const validator = new Crypto.SignedJson(
         pk,
         request.contentId,
-        new Signature(request.signature),
+        new Crypto.Signature(request.signature),
       );
-      const validationRes: ValidationResult = validator.validateWithDidDoc(
+      const validationRes: Crypto.ValidationResult = validator.validateWithDidDoc(
         JSON.stringify(doc.toData()),
         await this.fromHeight(request.afterProof),
         await this.untilHeight(request.contentId),
       );
 
       for (const i of validationRes.messages) {
-        const issue: ValidationIssue = i;
+        const issue: Crypto.ValidationIssue = i;
         const message = `${issue.reason} (${issue.code})`;
 
         if (issue.severity === 'ERROR') {
@@ -92,7 +89,7 @@ export class Service implements InspectorAPI.IApi {
     return result;
   }
 
-  private async fromHeight(afterProof: IO.IAfterProof | null): Promise<number | undefined> {
+  private async fromHeight(afterProof: Types.Sdk.IAfterProof | null): Promise<number | undefined> {
     if (afterProof) {
       const block = await this.hydra.getBlockIdAtHeight(afterProof.blockHeight);
 
@@ -105,7 +102,7 @@ export class Service implements InspectorAPI.IApi {
   }
 
   private async untilHeight(contentId: string): Promise<number | undefined> {
-    const beforeProofHistory: IBeforeProofHistory = await this.hydra.getBeforeProofHistory(contentId);
+    const beforeProofHistory: Types.Layer2.IBeforeProofHistory = await this.hydra.getBeforeProofHistory(contentId);
 
     if (beforeProofHistory.existsFromHeight) {
       return beforeProofHistory.existsFromHeight;

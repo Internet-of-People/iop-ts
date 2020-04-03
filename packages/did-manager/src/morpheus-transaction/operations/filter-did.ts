@@ -1,69 +1,61 @@
-import { IO } from '@internet-of-people/sdk';
-type Authentication = IO.Authentication;
-type Did = IO.Did;
-type DidData = IO.DidData;
-type Right = IO.Right;
-type TransactionId = IO.TransactionId;
+import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 
-import {
-  IOperationVisitor,
-  ISignableOperationVisitor, ISignedOperationsData,
-  SignableOperation,
-} from '../../interfaces';
-import { Signed } from './signed';
-
-const visitorSignableFilterDid = (expectedDidData: DidData): ISignableOperationVisitor<boolean> => {
+const visitorSignableFilterDid = (
+  expectedDidData: Types.Crypto.DidData,
+): Types.Layer1.ISignableOperationVisitor<boolean> => {
   return {
     addKey: (
-      did: Did,
-      _lastTxId: TransactionId | null,
-      _newAuth: Authentication,
+      did: Crypto.Did,
+      _lastTxId: Types.Sdk.TransactionId | null,
+      _newAuth: Types.Crypto.Authentication,
       _expiresAtHeight?: number,
     ): boolean => {
       return expectedDidData === did.toString();
     },
     revokeKey: (
-      did: Did,
-      _lastTxId: TransactionId | null,
-      _auth: Authentication,
+      did: Crypto.Did,
+      _lastTxId: Types.Sdk.TransactionId | null,
+      _auth: Types.Crypto.Authentication,
     ): boolean => {
       return expectedDidData === did.toString();
     },
     addRight: (
-      did: Did,
-      _lastTxId: TransactionId | null,
-      _auth: Authentication,
-      _right: Right,
+      did: Crypto.Did,
+      _lastTxId: Types.Sdk.TransactionId | null,
+      _auth: Types.Crypto.Authentication,
+      _right: Types.Sdk.Right,
     ): boolean => {
       return expectedDidData === did.toString();
     },
     revokeRight: (
-      did: Did,
-      _lastTxId: TransactionId | null,
-      _auth: Authentication,
-      _right: Right,
+      did: Crypto.Did,
+      _lastTxId: Types.Sdk.TransactionId | null,
+      _auth: Types.Crypto.Authentication,
+      _right: Types.Sdk.Right,
     ): boolean => {
       return expectedDidData === did.toString();
     },
     tombstoneDid: (
-      did: Did,
-      _lastTxId: TransactionId | null,
+      did: Crypto.Did,
+      _lastTxId: Types.Sdk.TransactionId | null,
     ): boolean => {
       return expectedDidData === did.toString();
     },
   };
 };
 
-export const visitorFilterDid = (expectedDidData: DidData): IOperationVisitor<SignableOperation[]> => {
+export const visitorFilterDid = (
+  expectedDidData: Types.Crypto.DidData,
+): Types.Layer1.IOperationVisitor<Layer1.SignableOperation[]> => {
   return {
-    signed: (operations: ISignedOperationsData): SignableOperation[] => {
-      const signableOperations = Signed.getOperationsUnsafeWithoutSignatureChecking(operations);
+    signed: (operations: Types.Layer1.ISignedOperationsData): Layer1.SignableOperation[] => {
+      const signableOperations = Layer1.Signed.getOperationsUnsafeWithoutSignatureChecking(operations);
       const visitor = visitorSignableFilterDid(expectedDidData);
       return signableOperations.filter((op) => {
         return op.accept(visitor);
       });
     },
-    registerBeforeProof: (_contentId: string): SignableOperation[] => {
+    registerBeforeProof: (_contentId: string): Layer1.SignableOperation[] => {
       return [];
     },
   };

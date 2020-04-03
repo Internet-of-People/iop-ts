@@ -4,42 +4,41 @@ import Optional from 'optional-js';
 import { EventEmitter } from 'events';
 import { Server as HapiServer } from '@hapi/hapi';
 
-import { IVault, KeyId, PersistentVault, SignedBytes, Vault } from '@internet-of-people/morpheus-core';
+import { Crypto, Layer1, Layer2, Types, Utils } from '@internet-of-people/sdk';
 import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 const {
-  Operations: { OperationAttemptsBuilder, DidDocument: { RightRegistry }, DidDocument },
+  Operations: { RightRegistry },
   MorpheusStateHandler: { MorpheusStateHandler },
 } = MorpheusTransaction;
-type IDidDocumentData = Interfaces.IDidDocumentData;
-type IBeforeProofHistory = Interfaces.IBeforeProofHistory;
-import { IO, Utils } from '@internet-of-people/sdk';
-type Authentication = IO.Authentication;
-type TransactionId = IO.TransactionId;
+type IDidDocumentData = Types.Layer2.IDidDocumentData;
+type IBeforeProofHistory = Types.Layer2.IBeforeProofHistory;
+type Authentication = Types.Crypto.Authentication;
+type TransactionId = Types.Sdk.TransactionId;
 
 import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { IDidOperation } from '../src/did-operations';
 import { assertStringlyEqual } from './utils';
 
-const defaultDid = new IO.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-const did2 = new IO.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX');
-const did3 = new IO.Did('did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W');
-const defaultKeyId = new KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-const keyId2 = new KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-const keyId3 = new KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
+const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+const did2 = new Crypto.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX');
+const did3 = new Crypto.Did('did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W');
+const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+const keyId3 = new Crypto.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
 
 const contentId = 'myFavoriteContentId';
 const transactionId = 'myFavoriteTxid';
 const blockId = 'myFavoriteBlockId';
 const blockHeight = 5;
 
-const rustVault = new Vault(PersistentVault.DEMO_PHRASE);
+const rustVault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
 rustVault.createDid();
 rustVault.createDid();
 rustVault.createDid();
 
-const vault: IVault = {
-  signDidOperations: (keyId: KeyId, message: Uint8Array): SignedBytes => {
+const vault: Types.Crypto.IVault = {
+  signDidOperations: (keyId: Crypto.KeyId, message: Uint8Array): Crypto.SignedBytes => {
     return rustVault.signDidOperations(keyId, message);
   },
 };
@@ -68,7 +67,7 @@ describe('Layer2API', () => {
   let lastTxId: TransactionId | null = null;
 
   const registerBeforeProof = (): void => {
-    const registrationAttempt = new OperationAttemptsBuilder()
+    const registrationAttempt = new Layer1.OperationAttemptsBuilder()
       .registerBeforeProof(contentId)
       .getAttempts();
     fixture.stateHandler.applyTransactionToState({
@@ -86,7 +85,7 @@ describe('Layer2API', () => {
     signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(defaultDid, lastTxId)
         .addKey(key)
@@ -106,7 +105,7 @@ describe('Layer2API', () => {
     signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(defaultDid, lastTxId)
         .revokeKey(key)
@@ -126,7 +125,7 @@ describe('Layer2API', () => {
     signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(defaultDid, lastTxId)
         .addRight(key, RightRegistry.systemRights.update)
@@ -146,7 +145,7 @@ describe('Layer2API', () => {
     signer: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(defaultDid, lastTxId)
         .revokeRight(key, RightRegistry.systemRights.update)
@@ -161,7 +160,7 @@ describe('Layer2API', () => {
 
   const tombstoneDid = (height: number, txId: string, signer: Authentication): void => {
     fixture.stateHandler.applyTransactionToState({
-      asset: { operationAttempts: new OperationAttemptsBuilder()
+      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
         .withVault(vault)
         .on(defaultDid, lastTxId)
         .tombstoneDid()
@@ -268,7 +267,7 @@ describe('Layer2API', () => {
     });
     expect(res.statusCode).toBe(200);
     const data = JSON.parse(res.payload) as IDidDocumentData;
-    const doc = new DidDocument.DidDocument(data);
+    const doc = new Layer2.DidDocument(data);
 
     expect(data.keys).toHaveLength(1);
     expect(data.keys[0].auth).toStrictEqual(defaultKeyId.toString());
@@ -289,7 +288,7 @@ describe('Layer2API', () => {
     });
     expect(res.statusCode).toBe(200);
     const data = JSON.parse(res.payload) as IDidDocumentData;
-    const doc = new DidDocument.DidDocument(data);
+    const doc = new Layer2.DidDocument(data);
 
     expect(data.keys).toHaveLength(2);
     expect(data.keys[0].auth).toStrictEqual(defaultKeyId.toString());
@@ -352,7 +351,7 @@ describe('Layer2API', () => {
     });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
-    const doc15 = new DidDocument.DidDocument(data15);
+    const doc15 = new Layer2.DidDocument(data15);
     expect(data15.keys).toHaveLength(2);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data15.keys[1].auth.toString()).toStrictEqual(keyId2.toString());
@@ -375,7 +374,7 @@ describe('Layer2API', () => {
     });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
-    const doc15 = new DidDocument.DidDocument(data15);
+    const doc15 = new Layer2.DidDocument(data15);
     expect(data15.keys).toHaveLength(1);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data15.keys[0].valid).toBeTruthy();
@@ -400,7 +399,7 @@ describe('Layer2API', () => {
     });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
-    const doc15 = new DidDocument.DidDocument(data15);
+    const doc15 = new Layer2.DidDocument(data15);
     expect(data15.keys).toHaveLength(2);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data15.keys[1].auth.toString()).toStrictEqual(keyId2.toString());
@@ -418,7 +417,7 @@ describe('Layer2API', () => {
     });
     expect(res20.statusCode).toBe(200);
     const data20 = JSON.parse(res20.payload) as IDidDocumentData;
-    const doc20 = new DidDocument.DidDocument(data20);
+    const doc20 = new Layer2.DidDocument(data20);
     expect(data20.keys).toHaveLength(2);
     expect(data20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data20.keys[1].auth.toString()).toStrictEqual(keyId2.toString());
@@ -443,7 +442,7 @@ describe('Layer2API', () => {
     });
     expect(res20.statusCode).toBe(200);
     const data20 = JSON.parse(res20.payload) as IDidDocumentData;
-    const doc20 = new DidDocument.DidDocument(data20);
+    const doc20 = new Layer2.DidDocument(data20);
     expect(data20.keys).toHaveLength(1);
     expect(data20.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data20.keys[0].valid).toBeTruthy();
@@ -470,7 +469,7 @@ describe('Layer2API', () => {
     });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
-    const doc15 = new DidDocument.DidDocument(data15);
+    const doc15 = new Layer2.DidDocument(data15);
     expect(data15.keys).toHaveLength(3);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data15.keys[1].auth.toString()).toStrictEqual(keyId2.toString());
@@ -495,7 +494,7 @@ describe('Layer2API', () => {
     });
     expect(res14.statusCode).toBe(200);
     const data14 = JSON.parse(res14.payload) as IDidDocumentData;
-    const doc14 = new DidDocument.DidDocument(data14);
+    const doc14 = new Layer2.DidDocument(data14);
     expect(data14.keys).toHaveLength(1);
     expect(data14.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data14.keys[0].valid).toBeTruthy();
@@ -511,7 +510,7 @@ describe('Layer2API', () => {
     });
     expect(res15.statusCode).toBe(200);
     const data15 = JSON.parse(res15.payload) as IDidDocumentData;
-    const doc15 = new DidDocument.DidDocument(data15);
+    const doc15 = new Layer2.DidDocument(data15);
     expect(data15.keys).toHaveLength(1);
     expect(data15.keys[0].auth.toString()).toStrictEqual(defaultKeyId.toString());
     expect(data15.keys[0].valid).toBeFalsy();
@@ -522,7 +521,7 @@ describe('Layer2API', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
-  const getDidTransactions = async(includeAttempts: boolean, did: IO.Did,
+  const getDidTransactions = async(includeAttempts: boolean, did: Crypto.Did,
     fromHeight: number, untilHeight?: number): Promise<TransactionId[]> => {
     const endpoint = includeAttempts ? 'transaction-attempts' : 'transactions';
     let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
@@ -536,7 +535,7 @@ describe('Layer2API', () => {
     return data;
   };
 
-  const getDidOperations = async(includeAttempts: boolean, did: IO.Did,
+  const getDidOperations = async(includeAttempts: boolean, did: Crypto.Did,
     fromHeight: number, untilHeight?: number): Promise<IDidOperation[]> => {
     const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
     let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
@@ -558,7 +557,7 @@ describe('Layer2API', () => {
 
   const applyComplexTransactionSequence = (
   ): number => {
-    const firstTxAttempts = new OperationAttemptsBuilder()
+    const firstTxAttempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(defaultDid, null)
       .addKey(keyId2)
@@ -576,7 +575,7 @@ describe('Layer2API', () => {
     fixture.transactionRepo.pushTransaction(firstTransaction.transactionId, firstTransaction.asset);
     lastTxId = firstTransaction.transactionId;
 
-    const secondTxAttempts = new OperationAttemptsBuilder()
+    const secondTxAttempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(defaultDid, 'firstTransactionId')
       .revokeKey(defaultKeyId)
@@ -594,7 +593,7 @@ describe('Layer2API', () => {
     fixture.transactionRepo.pushTransaction(secondTransaction.transactionId, secondTransaction.asset);
     lastTxId = secondTransaction.transactionId;
 
-    const thirdTxAttempts = new OperationAttemptsBuilder()
+    const thirdTxAttempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(did2, 'secondTransactionId')
       .addKey(keyId3)
@@ -779,7 +778,7 @@ describe('Layer2API', () => {
   });
 
   it('can check transaction validity', async() => {
-    const attempts = new OperationAttemptsBuilder()
+    const attempts = new Layer1.OperationAttemptsBuilder()
       .withVault(vault)
       .on(defaultDid, null)
       .addRight(keyId2, RightRegistry.systemRights.update) // key is not yet added

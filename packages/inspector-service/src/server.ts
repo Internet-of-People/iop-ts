@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { InspectorAPI } from '@internet-of-people/sdk';
+import { Types } from '@internet-of-people/sdk';
 
 type AsyncRequestHandler = (req: express.Request, res: express.Response) => Promise<void>;
 
@@ -23,9 +23,9 @@ const jsonBody = bodyParser.json({ limit: '1mb', type: '*/*' });
 
 export class Server {
   public readonly app: express.Application;
-  private readonly api: InspectorAPI.IApi;
+  private readonly api: Types.Inspector.IApi;
 
-  public constructor(api: InspectorAPI.IApi) {
+  public constructor(api: Types.Inspector.IApi) {
     this.api = api;
     this.app = express();
     this.app.use(handleError);

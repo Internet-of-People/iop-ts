@@ -6,7 +6,7 @@ import { SqliteStorage } from '../src/storage-sqlite';
 import { Service } from '../src/service';
 import { Server } from '../src/server';
 import { addProcesses } from '../src/config';
-import { AuthorityAPI, IO, Utils } from '@internet-of-people/sdk';
+import { Crypto, Types } from '@internet-of-people/sdk';
 
 import req1 from './signedWitnessRequest1.json';
 import req2 from './signedWitnessRequest2.json';
@@ -14,8 +14,8 @@ import stmt2 from './signedWitnessStatement1.json';
 
 describe('Service', () => {
   const dbFilename = 'db/test.sqlite';
-  let cap1: AuthorityAPI.CapabilityLink | null = null;
-  let cap2: AuthorityAPI.CapabilityLink | null = null;
+  let cap1: Types.Authority.CapabilityLink | null = null;
+  let cap2: Types.Authority.CapabilityLink | null = null;
 
   const createStorage = async(): Promise<SqliteStorage> => {
     return SqliteStorage.open(dbFilename);
@@ -56,7 +56,7 @@ describe('Service', () => {
       .get('/blob/cjuc1fS3_nrxuK0bRr3P3jZeFeT51naOCMXDPekX8rPqho')
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const process: IO.IProcess = res.body;
+        const process: Types.Sdk.IProcess = res.body;
         expect(process.name).toBe('Age-over based on digitalized ID');
         expect(process.version).toBe(1);
         expect(process.description).toBe('Using a digitalized ID card you can prove you are over an age');
@@ -86,7 +86,7 @@ describe('Service', () => {
       .get(`/requests/${cap1}/status`)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const { body }: { body: AuthorityAPI.IRequestStatus; } = res;
+        const { body }: { body: Types.Authority.IRequestStatus; } = res;
         expect(body.status).toBe('pending');
         expect(body.signedStatement).toBeNull();
         expect(body.rejectionReason).toBeNull();
@@ -122,7 +122,7 @@ describe('Service', () => {
       .get(`/requests/${cap1}/status`)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
-        const { body }: { body: AuthorityAPI.IRequestStatus; } = res;
+        const { body }: { body: Types.Authority.IRequestStatus; } = res;
         expect(body.status).toBe('rejected');
         expect(body.signedStatement).toBeNull();
         expect(body.rejectionReason).toBe('Just because');
@@ -131,8 +131,8 @@ describe('Service', () => {
 
   it('tampering with the request after signing is rejected', async() => {
     const server = await createServer();
-    const req1mod: IO.ISigned<IO.IWitnessRequest> = deepClone(req1);
-    (req1mod.content as IO.IWitnessRequest).nonce = Utils.nonce264();
+    const req1mod: Types.Sdk.ISigned<Types.Sdk.IWitnessRequest> = deepClone(req1);
+    (req1mod.content as Types.Sdk.IWitnessRequest).nonce = Crypto.nonce264();
     await request(server.app)
       .post('/requests')
       .send(req1mod)

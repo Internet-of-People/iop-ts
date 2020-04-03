@@ -5,9 +5,8 @@ import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces'
 import { Managers, Transactions, Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Wallets } from '@arkecosystem/core-state';
 
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { IO, Utils } from '@internet-of-people/sdk';
-type Did = IO.Did;
+import { Interfaces } from '@internet-of-people/did-manager';
+import { Crypto, Layer1, Types, Utils } from '@internet-of-people/sdk';
 
 import { MorpheusTransactionHandler } from '../src/transaction-handler';
 import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader } from '../src/transaction-reader-factory';
@@ -26,16 +25,16 @@ class Fixture {
     query: {
       lastSeenBlockHeight: jest.fn<number, []>(),
       beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
-      getBeforeProofHistory: jest.fn<Interfaces.IBeforeProofHistory, [string]>(),
+      getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
-      getDidDocumentAt: jest.fn<Interfaces.IDidDocument, [Did, number]>(),
-      getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[], [Did, boolean, number, number]>(),
+      getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
+      getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[], [Crypto.Did, boolean, number, number]>(),
     },
     applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
     revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
-    dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Interfaces.IOperationData[]]>(),
+    dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
   };
   public stateHandler = this.stateHandlerMock as Interfaces.IMorpheusStateHandler;
 
@@ -72,9 +71,9 @@ class Fixture {
 
   public createBootstrapTx(
     props: Partial<Database.IBootstrapTransaction>,
-    ops: Interfaces.IOperationData[],
+    ops: Types.Layer1.IOperationData[],
   ): Database.IBootstrapTransaction {
-    const asset: Interfaces.IMorpheusAsset = {
+    const asset: Types.Layer1.IMorpheusAsset = {
       operationAttempts: [...ops],
     };
     return {
@@ -99,7 +98,7 @@ class Fixture {
 beforeAll(() => {
   Managers.configManager.setFromPreset('testnet');
   Managers.configManager.setHeight(2);
-  Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction.Transaction.MorpheusTransaction);
+  Transactions.TransactionRegistry.registerTransactionType(Layer1.MorpheusTransaction);
 });
 
 describe('TransactionHandler', () => {
@@ -133,10 +132,10 @@ describe('TransactionHandler', () => {
     };
 
     it('should not throw if the transaction is correct', async() => {
-      const ops = new MorpheusTransaction.Operations.OperationAttemptsBuilder()
+      const ops = new Layer1.OperationAttemptsBuilder()
         .registerBeforeProof('my content id')
         .getAttempts();
-      const transaction = new MorpheusTransaction.Builder.MorpheusTransactionBuilder()
+      const transaction = new Layer1.MorpheusTransactionBuilder()
         .fromOperationAttempts(ops)
         .nonce('42')
         .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire')
@@ -150,11 +149,11 @@ describe('TransactionHandler', () => {
     });
 
     it('should throw if the transaction was sent with low fee set', async() => {
-      const ops = new MorpheusTransaction.Operations.OperationAttemptsBuilder()
+      const ops = new Layer1.OperationAttemptsBuilder()
         .registerBeforeProof('my content id')
         .getAttempts();
-      const expectedFee = MorpheusTransaction.Builder.MorpheusTransactionBuilder.calculateFee(ops);
-      const transaction = new MorpheusTransaction.Builder.MorpheusTransactionBuilder()
+      const expectedFee = Layer1.MorpheusTransactionBuilder.calculateFee(ops);
+      const transaction = new Layer1.MorpheusTransactionBuilder()
         .fromOperationAttempts(ops)
         .fee('42')
         .nonce('42')

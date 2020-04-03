@@ -10,10 +10,10 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "install": "lerna bootstrap --ci",
-    "build": "lerna run --stream build",
+    "build": "lerna run --stream --no-bail build",
     "clean": "lerna run clean && rimraf node_modules",
-    "lint": "lerna run --stream lint",
-    "test": "npm run build && lerna run --stream test",
+    "lint": "lerna run --stream --no-bail lint",
+    "test": "npm run build && lerna run --stream --no-bail test",
     "publish:nightly": "./scripts/publish/nightly.sh",
     "publish:stable": "./scripts/publish/stable.sh"
   },
@@ -64,7 +64,7 @@
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0",
     "typedoc": "0.15.0",
-    "typescript": "3.7.2"
+    "typescript": "3.8.3"
   },
   "husky": {
     "hooks": {

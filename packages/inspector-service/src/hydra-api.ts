@@ -1,18 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
-import { MorpheusTransaction, Interfaces as DidIf } from '@internet-of-people/did-manager';
-const { Operations: { DidDocument: { DidDocument } } } = MorpheusTransaction;
-import { IO } from '@internet-of-people/sdk';
-type Did = IO.Did;
-type IAfterProof = IO.IAfterProof;
+import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
 
 export interface IHydraApi {
   getNodeCryptoConfig(): Promise<CryptoIf.INetworkConfig>;
-  getBlockIdAtHeight(height?: number): Promise<IAfterProof | null>;
-  getBeforeProofHistory(contentId: IO.ContentId): Promise<DidIf.IBeforeProofHistory>;
-  beforeProofExists(contentId: IO.ContentId): Promise<boolean>;
-  getDidDocument(did: Did): Promise<DidIf.IDidDocument>;
+  getBlockIdAtHeight(height?: number): Promise<Types.Sdk.IAfterProof | null>;
+  getBeforeProofHistory(contentId: Types.Sdk.ContentId): Promise<Types.Layer2.IBeforeProofHistory>;
+  beforeProofExists(contentId: Types.Sdk.ContentId): Promise<boolean>;
+  getDidDocument(did: Crypto.Did): Promise<Types.Layer2.IDidDocument>;
 }
 
 export class HydraApi implements IHydraApi {
@@ -33,7 +29,7 @@ export class HydraApi implements IHydraApi {
     return resp.data.data;
   }
 
-  public async getBlockIdAtHeight(height?: number): Promise<IAfterProof | null> {
+  public async getBlockIdAtHeight(height?: number): Promise<Types.Sdk.IAfterProof | null> {
     console.log(`Getting after-proof at ${height || 'now'}...`);
     let url = '/api/v2/blocks?limit=1&transform=false';
 
@@ -57,11 +53,11 @@ export class HydraApi implements IHydraApi {
     return { blockHeight, blockHash };
   }
 
-  public async getBeforeProofHistory(contentId: IO.ContentId): Promise<DidIf.IBeforeProofHistory> {
+  public async getBeforeProofHistory(contentId: Types.Sdk.ContentId): Promise<Types.Layer2.IBeforeProofHistory> {
     console.log(`Getting history of content ${contentId}...`);
     const url = `/morpheus/v1/before-proof/${contentId}/history`;
     const resp = await this.api.get(url);
-    const history: DidIf.IBeforeProofHistory = resp.data;
+    const history: Types.Layer2.IBeforeProofHistory = resp.data;
     return history;
   }
 
@@ -73,12 +69,12 @@ export class HydraApi implements IHydraApi {
     return exists;
   }
 
-  public async getDidDocument(did: Did): Promise<DidIf.IDidDocument> {
+  public async getDidDocument(did: Crypto.Did): Promise<Types.Layer2.IDidDocument> {
     console.log(`Getting Did document ${did}...`);
     const url = `/morpheus/v1/did/${did}/document`;
     const resp = await this.api.get(url);
-    const documentData: DidIf.IDidDocumentData = resp.data;
-    const result = new DidDocument(documentData);
+    const documentData: Types.Layer2.IDidDocumentData = resp.data;
+    const result = new Layer2.DidDocument(documentData);
     return result;
   }
 }

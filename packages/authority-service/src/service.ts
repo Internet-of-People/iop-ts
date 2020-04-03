@@ -1,16 +1,16 @@
 import moment from 'moment';
-import { AuthorityAPI, IO, JsonUtils, Utils, Signed } from '@internet-of-people/sdk';
+import { Authority, Crypto, JsonUtils, Signed, Types } from '@internet-of-people/sdk';
 import { IStorage, IRequestData } from './storage';
 
-export class Service implements AuthorityAPI.IApi {
+export class Service implements Types.Authority.IApi {
   public constructor(private readonly storage: IStorage) {
   }
 
-  public async listProcesses(): Promise<IO.ContentId[]> {
+  public async listProcesses(): Promise<Types.Sdk.ContentId[]> {
     return this.storage.getProcesses();
   }
 
-  public async getPublicBlob(contentId: IO.ContentId): Promise<unknown> {
+  public async getPublicBlob(contentId: Types.Sdk.ContentId): Promise<unknown> {
     const content = await this.storage.getPublicBlob(contentId);
 
     if (content) {
@@ -19,7 +19,9 @@ export class Service implements AuthorityAPI.IApi {
     throw new Error(`Unknown contentId '${contentId}'`);
   }
 
-  public async sendRequest(witnessRequest: IO.ISigned<IO.IWitnessRequest>): Promise<AuthorityAPI.CapabilityLink> {
+  public async sendRequest(
+    witnessRequest: Types.Sdk.ISigned<Types.Sdk.IWitnessRequest>,
+  ): Promise<Types.Authority.CapabilityLink> {
     const requestId = JsonUtils.digest(witnessRequest);
 
     const existingRequestData = await this.storage.getRequestById(requestId);
@@ -36,12 +38,12 @@ export class Service implements AuthorityAPI.IApi {
     }
     await this.storage.setPrivateBlob(requestId, witnessRequest);
 
-    const capabilityLink = Utils.nonce264();
+    const capabilityLink = Crypto.nonce264();
     const data: IRequestData = {
       capabilityLink,
       requestId,
       dateOfRequest: moment.utc().toISOString(),
-      status: AuthorityAPI.Status.Pending,
+      status: Authority.Status.Pending,
       processId: model.payloadObject.processId,
       notes: null,
       statementId: null,
@@ -52,30 +54,34 @@ export class Service implements AuthorityAPI.IApi {
     return capabilityLink;
   }
 
-  public async getRequestStatus(capabilityLink: AuthorityAPI.CapabilityLink): Promise<AuthorityAPI.IRequestStatus> {
+  public async getRequestStatus(
+    capabilityLink: Types.Authority.CapabilityLink,
+  ): Promise<Types.Authority.IRequestStatus> {
     const data = await this.storage.getRequestByLink(capabilityLink);
 
     if (data === null) {
       throw new Error(`Unknown capabilityLink '${capabilityLink}'`);
     }
 
-    const status: AuthorityAPI.IRequestStatus = {
+    const status: Types.Authority.IRequestStatus = {
       status: data.status,
       signedStatement: null,
       rejectionReason: data.rejectionReason,
     };
 
     if (data.statementId) {
-      status.signedStatement = await this.storage.getPrivateBlob(data.statementId) as IO.ISigned<IO.IWitnessStatement>;
+      status.signedStatement = await this.storage.getPrivateBlob(
+        data.statementId,
+      ) as Types.Sdk.ISigned<Types.Sdk.IWitnessStatement>;
     }
     return status;
   }
 
-  public async listRequests(): Promise<AuthorityAPI.IRequestEntry[]> {
+  public async listRequests(): Promise<Types.Authority.IRequestEntry[]> {
     // TODO authenticate in middleware
     const datas = await this.storage.getRequests();
     return datas.map((data) => {
-      const entry: AuthorityAPI.IRequestEntry = {
+      const entry: Types.Authority.IRequestEntry = {
         capabilityLink: data.capabilityLink,
         requestId: data.requestId,
         dateOfRequest: data.dateOfRequest,
@@ -87,7 +93,7 @@ export class Service implements AuthorityAPI.IApi {
     });
   }
 
-  public async getPrivateBlob(contentId: IO.ContentId): Promise<unknown> {
+  public async getPrivateBlob(contentId: Types.Sdk.ContentId): Promise<unknown> {
     // TODO authenticate in middleware
     const content = await this.storage.getPrivateBlob(contentId);
 
@@ -98,8 +104,8 @@ export class Service implements AuthorityAPI.IApi {
   }
 
   public async approveRequest(
-    capabilityLink: AuthorityAPI.CapabilityLink,
-    signedStatement: IO.ISigned<IO.IWitnessStatement>,
+    capabilityLink: Types.Authority.CapabilityLink,
+    signedStatement: Types.Sdk.ISigned<Types.Sdk.IWitnessStatement>,
   ): Promise<void> {
     // TODO authenticate in middleware
     const data = await this.storage.getRequestByLink(capabilityLink);
@@ -108,7 +114,7 @@ export class Service implements AuthorityAPI.IApi {
       throw new Error(`Unknown capabilityLink '${capabilityLink}'`);
     }
 
-    if (data.status !== AuthorityAPI.Status.Pending) {
+    if (data.status !== Authority.Status.Pending) {
       throw new Error(`Request '${data.requestId}' cannot be approved in state ${data.status}`);
     }
 
@@ -120,13 +126,13 @@ export class Service implements AuthorityAPI.IApi {
     }
 
     await this.storage.setPrivateBlob(statementId, signedStatement);
-    data.status = AuthorityAPI.Status.Approved;
+    data.status = Authority.Status.Approved;
     data.statementId = statementId;
     data.rejectionReason = null;
     return this.storage.updateRequest(data);
   }
 
-  public async rejectRequest(capabilityLink: AuthorityAPI.CapabilityLink, rejectionReason: string): Promise<void> {
+  public async rejectRequest(capabilityLink: Types.Authority.CapabilityLink, rejectionReason: string): Promise<void> {
     // TODO authenticate in middleware
     const data = await this.storage.getRequestByLink(capabilityLink);
 
@@ -134,14 +140,14 @@ export class Service implements AuthorityAPI.IApi {
       throw new Error(`Unknown capabilityLink '${capabilityLink}'`);
     }
 
-    if (data.status !== AuthorityAPI.Status.Pending) {
+    if (data.status !== Authority.Status.Pending) {
       throw new Error(`Request '${data.requestId}' cannot be rejected in state ${data.status}`);
     }
 
     if (typeof rejectionReason !== 'string') {
       throw new Error(`Rejection reason '${rejectionReason}' is not a string`);
     }
-    data.status = AuthorityAPI.Status.Rejected;
+    data.status = Authority.Status.Rejected;
     data.statementId = null;
     data.rejectionReason = rejectionReason;
     return this.storage.updateRequest(data);

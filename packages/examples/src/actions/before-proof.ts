@@ -1,15 +1,11 @@
 import inquirer from 'inquirer';
 
-import { MorpheusTransaction } from '@internet-of-people/did-manager';
+import { Layer1 } from '@internet-of-people/sdk';
 
 import { processMorpheusTx } from '../transaction-sender';
 import { IAction } from '../action';
 import { chooseAction, askHeight } from '../utils';
 import { Layer2Api } from '../layer2api';
-
-const {
-  Operations: { OperationAttemptsBuilder },
-} = MorpheusTransaction;
 
 const askContentId = async(): Promise<string> => {
   const result = await inquirer.prompt([{
@@ -27,7 +23,7 @@ const askContentId = async(): Promise<string> => {
 const registerBeforeProof = async(): Promise<void> => {
   const contentId = await askContentId();
 
-  const opAttempts = new OperationAttemptsBuilder()
+  const opAttempts = new Layer1.OperationAttemptsBuilder()
     .registerBeforeProof(contentId)
     .getAttempts();
 

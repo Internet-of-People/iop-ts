@@ -1,10 +1,12 @@
+import { Layer2 } from '@internet-of-people/sdk';
+
 import { MorpheusState } from '../src/morpheus-transaction/state';
 import { IMorpheusState } from '../src/interfaces';
 
 import { assertStringlyEqual, defaultKeyId, did, keyId1, keyId2 } from './morpheus-state-handler.test';
 import { Operations } from '../src/morpheus-transaction';
 
-const { DidDocument, DidDocument: { RightRegistry } } = Operations;
+const { RightRegistry } = Operations;
 
 const updateRight = RightRegistry.systemRights.update;
 const impersonateRight = RightRegistry.systemRights.impersonate;
@@ -124,7 +126,7 @@ describe('MorpheusState', () => {
     state.apply.addRight(7, defaultKeyId, did, null, keyId1, updateRight);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
-    const doc7 = new DidDocument.DidDocument(data7);
+    const doc7 = new Layer2.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
@@ -135,7 +137,7 @@ describe('MorpheusState', () => {
     expect(doc7.hasRightAt(keyId1, updateRight, 7)).toBeTruthy();
 
     const data5 = state.query.getDidDocumentAt(did, 5).toData();
-    const doc5 = new DidDocument.DidDocument(data5);
+    const doc5 = new Layer2.DidDocument(data5);
     const keys5 = data5.keys;
     expect(keys5).toHaveLength(2);
     assertStringlyEqual(keys5[0].auth, defaultKeyId);
@@ -171,7 +173,7 @@ describe('MorpheusState', () => {
     state.revert.addRight(7, defaultKeyId, did, null, keyId1, updateRight);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
-    const doc7 = new DidDocument.DidDocument(data7);
+    const doc7 = new Layer2.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
@@ -182,7 +184,7 @@ describe('MorpheusState', () => {
     expect(doc7.hasRightAt(keyId1, updateRight, 7)).toBeFalsy();
 
     const data5 = state.query.getDidDocumentAt(did, 5).toData();
-    const doc5 = new DidDocument.DidDocument(data5);
+    const doc5 = new Layer2.DidDocument(data5);
     const keys5 = data5.keys;
     expect(keys5).toHaveLength(2);
     assertStringlyEqual(keys5[0].auth, defaultKeyId);
@@ -202,7 +204,7 @@ describe('MorpheusState', () => {
     state.apply.revokeRight(7, keyId1, did, null, defaultKeyId, updateRight);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
-    const doc7 = new DidDocument.DidDocument(data7);
+    const doc7 = new Layer2.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);
@@ -237,7 +239,7 @@ describe('MorpheusState', () => {
     state.revert.revokeRight(7, defaultKeyId, did, null, keyId1, updateRight);
 
     const data7 = state.query.getDidDocumentAt(did, 7).toData();
-    const doc7 = new DidDocument.DidDocument(data7);
+    const doc7 = new Layer2.DidDocument(data7);
     const keys7 = data7.keys;
     expect(keys7).toHaveLength(2);
     assertStringlyEqual(keys7[0].auth, defaultKeyId);

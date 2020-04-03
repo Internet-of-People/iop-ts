@@ -1,24 +1,17 @@
 import cloneDeep from 'lodash.clonedeep';
+import Optional from 'optional-js';
 
-import { IO } from '@internet-of-people/sdk';
-type Authentication = IO.Authentication;
-type Did = IO.Did;
-type Right = IO.Right;
+import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
+type Authentication = Types.Crypto.Authentication;
+type Did = Crypto.Did;
+type Right = Types.Sdk.Right;
 
 import {
-  IDidDocument,
   IDidDocumentOperations,
   IDidDocumentQueries,
   IDidDocumentState,
-  IKeyData,
-  isSameAuthentication,
-  IRightsMap,
-  IKeyRightHistory,
-  IKeyRightHistoryPoint,
 } from '../../../interfaces';
 import { ITimeSeries, TimeSeries } from '../../../time-series';
-import { DidDocument } from './document';
-import Optional from 'optional-js';
 import { RightRegistry } from './right-registry';
 
 // TODO these might needed to be moved somewhere else
@@ -37,11 +30,11 @@ interface IKeyEntry {
   addedAtHeight?: number;
   expiresAtHeight?: number;
   revoked: ITimeSeries;
-  rights: IRightsMap<ITimeSeries>;
+  rights: Types.Layer2.IRightsMap<ITimeSeries>;
 }
 
-const mapAllRights = <T>(func: (right: Right) => T): IRightsMap<T> => {
-  const map = {} as IRightsMap<T>;
+const mapAllRights = <T>(func: (right: Right) => T): Types.Layer2.IRightsMap<T> => {
+  const map = {} as Types.Layer2.IRightsMap<T>;
 
   for (const right of RightRegistry.systemRights.all) {
     map[right] = func(right);
@@ -52,46 +45,10 @@ const mapAllRights = <T>(func: (right: Right) => T): IRightsMap<T> => {
 
 // Note: that this only work, because we keep the state in memory, hence every bootstrap the state will be rebuilt
 // Otherwise it would be problematic if we add a new right without "migrating" it.
-export const initialRights = (initial: boolean): IRightsMap<ITimeSeries> => {
+export const initialRights = (initial: boolean): Types.Layer2.IRightsMap<ITimeSeries> => {
   return mapAllRights((_) => {
     return new TimeSeries(initial) as ITimeSeries;
   });
-};
-
-export const isHeightInRangeExclUntil = (
-  height: number, fromHeightInc: Optional<number>, untilHeightExc: Optional<number>,
-): boolean => {
-  if (fromHeightInc.isPresent() && height < fromHeightInc.get()) {
-    return false;
-  }
-
-  if (untilHeightExc.isPresent() && height >= untilHeightExc.get()) {
-    return false;
-  }
-  return true;
-};
-
-export const isHeightInRangeInclUntil = (
-  height: number, fromHeightIncl: Optional<number>, untilHeightIncl: Optional<number>,
-): boolean => {
-  return isHeightInRangeExclUntil(height, fromHeightIncl, untilHeightIncl) ||
-       untilHeightIncl.isPresent() && height === untilHeightIncl.get() ;
-};
-
-export const aggregateOptionals = <T>(
-  aggregate: (...presents: T[]) => T, ...optionals: Optional<T>[]
-): Optional<T> => {
-  const presents = optionals.filter((opt) => {
-    return opt.isPresent();
-  });
-
-  if (presents.length) {
-    return Optional.of(aggregate(...presents.map((opt) => {
-      return opt.get();
-    })));
-  } else {
-    return Optional.empty();
-  }
 };
 
 /**
@@ -99,7 +56,7 @@ export const aggregateOptionals = <T>(
  * the key and the tombstoning of the did that contains the key.
  */
 const keyEntryValidUntil = (entry: IKeyEntry, tombstone: ITimeSeries): Optional<number> => {
-  return aggregateOptionals(
+  return Layer2.aggregateOptionals(
     /* eslint @typescript-eslint/unbound-method: 0 */
     Math.min,
     Optional.ofNullable(entry.expiresAtHeight),
@@ -112,12 +69,14 @@ const optionalToNullable = <T>(optional: Optional<T>): T | null => {
   return optional.isPresent() ? optional.get() : null;
 };
 
-const keyEntryToKeyData = (entry: IKeyEntry, index: number, height: number, tombstone: ITimeSeries): IKeyData => {
+const keyEntryToKeyData = (
+  entry: IKeyEntry, index: number, height: number, tombstone: ITimeSeries,
+): Types.Layer2.IKeyData => {
   const validUntil = keyEntryValidUntil(entry, tombstone);
   const validFromHeight = entry.addedAtHeight ?? null;
   const validUntilHeight = optionalToNullable(validUntil);
-  const valid = isHeightInRangeExclUntil(height, Optional.ofNullable(validFromHeight), validUntil);
-  const data: IKeyData = {
+  const valid = Layer2.isHeightInRangeExclUntil(height, Optional.ofNullable(validFromHeight), validUntil);
+  const data: Types.Layer2.IKeyData = {
     index,
     auth: entry.auth.toString(),
     validFromHeight,
@@ -129,13 +88,13 @@ const keyEntryToKeyData = (entry: IKeyEntry, index: number, height: number, tomb
 
 const keyEntryIsValidAt = (entry: IKeyEntry, tombstone: ITimeSeries, height: number): boolean => {
   const validUntil = keyEntryValidUntil(entry, tombstone);
-  return isHeightInRangeExclUntil(height, Optional.ofNullable(entry.addedAtHeight), validUntil);
+  return Layer2.isHeightInRangeExclUntil(height, Optional.ofNullable(entry.addedAtHeight), validUntil);
 };
 
 // TODO: what if we rename it to DidDocumentTimeline
 export class DidDocumentState implements IDidDocumentState {
   public readonly query: IDidDocumentQueries = {
-    getAt: (height: number): IDidDocument => {
+    getAt: (height: number): Types.Layer2.IDidDocument => {
       const reversedKeys = this.keyStack.slice(0).reverse();
 
       const existingKeysAtHeight = reversedKeys
@@ -151,12 +110,12 @@ export class DidDocumentState implements IDidDocumentState {
           return keyEntryToKeyData(key, index, height, this.tombstoneHistory);
         });
 
-      const rights: IRightsMap<IKeyRightHistory[]> = mapAllRights((right) => {
+      const rights: Types.Layer2.IRightsMap<Types.Layer2.IKeyRightHistory[]> = mapAllRights((right) => {
         return existingKeysAtHeight.map((key, idx) => {
           const state = key.rights[right];
 
           const keyLink = `#${idx}`;
-          const history: IKeyRightHistoryPoint[] = [];
+          const history: Types.Layer2.IKeyRightHistoryPoint[] = [];
 
           for (const point of state.query) {
             history.push({ height: point.height, valid: point.value });
@@ -170,7 +129,7 @@ export class DidDocumentState implements IDidDocumentState {
       const tombstoned = this.tombstoneHistory.query.get(height);
       const tombstonedAtHeight = optionalToNullable(this.tombstoneHistory.query.latestHeight());
 
-      return new DidDocument({
+      return new Layer2.DidDocument({
         did: this.did.toString(),
         keys,
         rights,
@@ -371,13 +330,13 @@ export class DidDocumentState implements IDidDocumentState {
 
   private lastKeyIndexWithAuth(auth: Authentication): number {
     return this.keyStack.findIndex((entry) => {
-      return isSameAuthentication(entry.auth, auth);
+      return Crypto.isSameAuthentication(entry.auth, auth);
     });
   }
 
   private lastKeyEntryWithAuth(auth: Authentication): IKeyEntry | undefined {
     return this.keyStack.find((entry) => {
-      return isSameAuthentication(entry.auth, auth);
+      return Crypto.isSameAuthentication(entry.auth, auth);
     });
   }
 }

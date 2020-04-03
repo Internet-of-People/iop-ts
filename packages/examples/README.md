@@ -1,6 +1,6 @@
-# Morpheus Examples
+# IoP DAC (Project Morpheus) SDK Examples
 
-This repository contains example codes how can Morpheus be used.  Also, you can even test it via command line commands described below.
+This repository contains example codes how can IoP DAC be used.  Also, you can even test it via command line commands described below.
 
 ## Requirements
 

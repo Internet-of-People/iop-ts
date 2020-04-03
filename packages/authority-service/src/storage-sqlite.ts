@@ -4,7 +4,7 @@
 import sqlite from 'sqlite';
 import { SQL } from 'sql-template-strings';
 import moment from 'moment';
-import { AuthorityAPI, IO } from '@internet-of-people/sdk';
+import { Authority, Types } from '@internet-of-people/sdk';
 
 import { IStorage, IRequestData } from './storage';
 
@@ -24,13 +24,13 @@ export class SqliteStorage implements IStorage {
     await this.db.migrate({ migrationsPath });
   }
 
-  public async addProcess(contentId: IO.ContentId): Promise<boolean> {
+  public async addProcess(contentId: Types.Sdk.ContentId): Promise<boolean> {
     const query = SQL`INSERT INTO Process (contentId) VALUES (${contentId});`;
     const result: sqlite.Statement = await this.db.run(query);
     return result.changes !== 1;
   }
 
-  public async getProcesses(): Promise<IO.ContentId[]> {
+  public async getProcesses(): Promise<Types.Sdk.ContentId[]> {
     const query = SQL`SELECT contentId FROM Process;`;
     /* eslint @typescript-eslint/no-explicit-any: 0 */
     const rows: any[] = await this.db.all(query);
@@ -176,17 +176,17 @@ export class SqliteStorage implements IStorage {
     return moment(iso, moment.ISO_8601).unix();
   }
 
-  private statusToNumber(status: AuthorityAPI.Status): number {
+  private statusToNumber(status: Authority.Status): number {
     switch (status) {
-      case AuthorityAPI.Status.Pending: return 0;
-      case AuthorityAPI.Status.Approved: return 1;
-      case AuthorityAPI.Status.Rejected: return 2;
+      case Authority.Status.Pending: return 0;
+      case Authority.Status.Approved: return 1;
+      case Authority.Status.Rejected: return 2;
       default: throw new Error(`Unknown status ${status}`);
     }
   }
 
-  private numberToStatus(status: number): AuthorityAPI.Status {
-    const result = [ AuthorityAPI.Status.Pending, AuthorityAPI.Status.Approved, AuthorityAPI.Status.Rejected ][status];
+  private numberToStatus(status: number): Authority.Status {
+    const result = [ Authority.Status.Pending, Authority.Status.Approved, Authority.Status.Rejected ][status];
 
     if (!result) {
       throw new Error(`Unknown status code ${status}`);

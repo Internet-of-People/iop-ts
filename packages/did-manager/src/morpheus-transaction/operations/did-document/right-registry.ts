@@ -1,24 +1,9 @@
-import { IO } from '@internet-of-people/sdk';
-type Right = IO.Right;
-
-/* eslint max-classes-per-file: 0 */
-export class SystemRights {
-  public get all(): string[] {
-    return [ 'update', 'impersonate' ];
-  }
-
-  public get update(): string {
-    return 'update';
-  }
-
-  public get impersonate(): string {
-    return 'impersonate';
-  }
-}
+import { Layer2, Types } from '@internet-of-people/sdk';
+type Right = Types.Sdk.Right;
 
 /* eslint @typescript-eslint/no-extraneous-class: 0 */
 export class RightRegistry {
-  private static readonly systemRightsInstance = new SystemRights();
+  private static readonly systemRightsInstance = new Layer2.SystemRights();
   private static readonly rights: Right[] = [
     ...RightRegistry.systemRightsInstance.all,
   ];
@@ -35,7 +20,7 @@ export class RightRegistry {
     return RightRegistry.rights.includes(right);
   }
 
-  public static get systemRights(): SystemRights {
+  public static get systemRights(): Layer2.SystemRights {
     return RightRegistry.systemRightsInstance;
   }
 }

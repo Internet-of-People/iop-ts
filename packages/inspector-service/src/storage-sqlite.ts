@@ -4,7 +4,7 @@
 import sqlite from 'sqlite';
 import { SQL } from 'sql-template-strings';
 
-import { IO } from '@internet-of-people/sdk';
+import { Types } from '@internet-of-people/sdk';
 
 import { IStorage } from './storage';
 
@@ -24,13 +24,13 @@ export class SqliteStorage implements IStorage {
     await this.db.migrate({ migrationsPath });
   }
 
-  public async addScenario(contentId: IO.ContentId): Promise<boolean> {
+  public async addScenario(contentId: Types.Sdk.ContentId): Promise<boolean> {
     const query = SQL`INSERT INTO Scenario (contentId) VALUES (${contentId});`;
     const result: sqlite.Statement = await this.db.run(query);
     return result.changes !== 1;
   }
 
-  public async getScenarios(): Promise<IO.ContentId[]> {
+  public async getScenarios(): Promise<Types.Sdk.ContentId[]> {
     const query = SQL`SELECT contentId FROM Scenario;`;
     /* eslint @typescript-eslint/no-explicit-any: 0 */
     const rows: any[] = await this.db.all(query);

@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/sdk",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -29,7 +29,8 @@
   },
   "dependencies": {
     "@arkecosystem/core-interfaces": "^2.6.10",
-    "@internet-of-people/morpheus-core": "1.0.0",
+    "@arkecosystem/crypto": "^2.6.10",
+    "@internet-of-people/morpheus-crypto": "2.0.0",
     "bigint-hash": "0.2.2",
     "multibase": "0.6.0"
   },
@@ -44,6 +45,6 @@
     "jest": "24.9.0",
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0",
-    "typescript": "3.7.2"
+    "typescript": "3.8.3"
   }
 }

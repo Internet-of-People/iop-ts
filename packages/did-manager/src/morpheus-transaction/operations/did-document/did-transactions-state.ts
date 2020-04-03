@@ -1,10 +1,10 @@
 import cloneDeep from 'lodash.clonedeep';
 import Optional from 'optional-js';
 
-import { IO } from '@internet-of-people/sdk';
-type Did = IO.Did;
-type DidData = IO.DidData;
-type TransactionId = IO.TransactionId;
+import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
+type Did = Crypto.Did;
+type DidData = Types.Crypto.DidData;
+type TransactionId = Types.Sdk.TransactionId;
 
 import {
   IDidTransactionsOperations,
@@ -12,7 +12,6 @@ import {
   IDidTransactionsState,
   ITransactionIdHeight,
 } from '../../../interfaces';
-import { isHeightInRangeInclUntil } from './state';
 
 
 export class DidTransactionsState implements IDidTransactionsState {
@@ -20,7 +19,7 @@ export class DidTransactionsState implements IDidTransactionsState {
     getBetween: (did: Did, fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[] => {
       const transactions = this.getOrCreateDidTransactionEntries(did);
       const entriesInRange = transactions.filter((entry) => {
-        return isHeightInRangeInclUntil(
+        return Layer2.isHeightInRangeInclUntil(
           entry.height,
           Optional.of(fromHeightInc),
           Optional.ofNullable(untilHeightExc),

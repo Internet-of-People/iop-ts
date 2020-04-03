@@ -4,6 +4,11 @@
     "enable": true,
     "include": ["jest-ts"]
   },
+  "compilerOptions": {
+    "incremental": false, // https://github.com/microsoft/TypeScript/issues/36917
+    "noEmit": true,
+    "skipLibCheck": true // Some @arkecosystem dependencies fail with strictNullChecks
+  },
   "include": [
     "__tests__", "**/**.spec.ts", "**/**.test.ts"
   ]

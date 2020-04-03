@@ -1,40 +1,40 @@
-import { AuthorityAPI, IO, JsonUtils } from '@internet-of-people/sdk';
+import { Authority, JsonUtils, Types } from '@internet-of-people/sdk';
 
 export interface IRequestData {
-  capabilityLink: AuthorityAPI.CapabilityLink;
-  requestId: IO.ContentId; // ISigned<IWitnessRequest> private blob
-  dateOfRequest: IO.DateTime;
-  status: AuthorityAPI.Status;
-  processId: IO.ContentId; // IProcess public blob
-  statementId: IO.ContentId | null; // ISigned<IWitnessStatement> private blob
+  capabilityLink: Types.Authority.CapabilityLink;
+  requestId: Types.Sdk.ContentId; // ISigned<IWitnessRequest> private blob
+  dateOfRequest: Types.Sdk.DateTime;
+  status: Authority.Status;
+  processId: Types.Sdk.ContentId; // IProcess public blob
+  statementId: Types.Sdk.ContentId | null; // ISigned<IWitnessStatement> private blob
   rejectionReason: string | null;
   notes: string | null;
   // lockedBy: KeyLink | null;
 }
 
 export interface IStorage {
-  getProcesses(): Promise<IO.ContentId[]>;
+  getProcesses(): Promise<Types.Sdk.ContentId[]>;
 
-  getPublicBlob(contentId: IO.ContentId): Promise<unknown | null>; // Process, schema downloads
-  setPublicBlob(contentId: IO.ContentId, content: unknown): Promise<void>;
+  getPublicBlob(contentId: Types.Sdk.ContentId): Promise<unknown | null>; // Process, schema downloads
+  setPublicBlob(contentId: Types.Sdk.ContentId, content: unknown): Promise<void>;
 
-  getPrivateBlob(contentId: IO.ContentId): Promise<unknown | null>; // ISigned<IWitnessRequest> download
-  setPrivateBlob(contentId: IO.ContentId, content: unknown): Promise<void>;
+  getPrivateBlob(contentId: Types.Sdk.ContentId): Promise<unknown | null>; // ISigned<IWitnessRequest> download
+  setPrivateBlob(contentId: Types.Sdk.ContentId, content: unknown): Promise<void>;
 
   getRequests(): Promise<IRequestData[]>; // TODO paging
-  getRequestByLink(capabilityLink: AuthorityAPI.CapabilityLink): Promise<IRequestData | null>;
-  getRequestById(requestId: IO.ContentId): Promise<IRequestData | null>;
+  getRequestByLink(capabilityLink: Types.Authority.CapabilityLink): Promise<IRequestData | null>;
+  getRequestById(requestId: Types.Sdk.ContentId): Promise<IRequestData | null>;
   updateRequest(request: IRequestData): Promise<void>;
   createRequest(request: IRequestData): Promise<void>;
 }
 
-export const addPublicBlob = async(s: IStorage, c: IO.IContent): Promise<IO.ContentId> => {
+export const addPublicBlob = async(s: IStorage, c: Types.Sdk.IContent): Promise<Types.Sdk.ContentId> => {
   const contentId = JsonUtils.digest(c);
   await s.setPublicBlob(contentId, c);
   return contentId;
 };
 
-export const addProcessSchemas = async(s: IStorage, p: IO.IProcess): Promise<IO.ContentId> => {
+export const addProcessSchemas = async(s: IStorage, p: Types.Sdk.IProcess): Promise<Types.Sdk.ContentId> => {
   const contentId = JsonUtils.digest(p);
 
   /* eslint require-atomic-updates: 0 */

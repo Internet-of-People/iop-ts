@@ -1,9 +1,7 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
-import { Utils } from '@internet-of-people/sdk';
+import { Interfaces } from '@internet-of-people/did-manager';
+import { Layer1, Types, Utils } from '@internet-of-people/sdk';
 import { IBlockListener } from './block-event-source';
-
-const { Transaction: { MorpheusTransaction: { type, typeGroup } } } = MorpheusTransaction;
 
 /**
  * Handles Morpheus custom transactions on Layer 2 (IMorpheusState)
@@ -68,16 +66,16 @@ export class BlockHandler implements IBlockListener {
     }
   }
 
-  private getMorpheusTransactions(blockData: CryptoIf.IBlockData): Interfaces.IMorpheusData[] {
+  private getMorpheusTransactions(blockData: CryptoIf.IBlockData): Types.Layer1.IMorpheusData[] {
     if (!blockData.transactions) {
       this.log.info(`Block ${blockData.id} has no transactions`);
       return [];
     }
     return blockData.transactions.filter((tx) => {
-      return tx.typeGroup === typeGroup && tx.type === type;
+      return tx.typeGroup === Layer1.MorpheusTransaction.typeGroup && tx.type === Layer1.MorpheusTransaction.type;
     })
       .map((tx) => {
-        return tx as Interfaces.IMorpheusData;
+        return tx as Types.Layer1.IMorpheusData;
       });
   }
 }

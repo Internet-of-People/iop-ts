@@ -1,17 +1,18 @@
-import * as AuthorityAPI from './authority-api';
-import * as InspectorAPI from './inspector-api';
-import * as VerifierAPI from './verifier-api';
-import * as IO from './interfaces/io';
+import * as Crypto from '@internet-of-people/morpheus-crypto';
 import * as JsonUtils from './json';
+import * as Layer1 from './layer1';
+import * as Layer2 from './layer2';
+import * as Types from './types';
 import * as Utils from './utils';
+import * as Authority from './authority';
 
 export * from './signed';
-
 export {
-  AuthorityAPI,
-  InspectorAPI,
-  VerifierAPI,
-  IO,
+  Authority,
+  Crypto,
   JsonUtils,
+  Layer1,
+  Layer2,
+  Types,
   Utils,
 };
