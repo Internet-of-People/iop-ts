@@ -1,6 +1,6 @@
+export * from './api';
 export * from './register-before-proof';
 export * from './signed';
-
 export * from './attempts-builder';
 export * from './from-data';
 export * from './operation-type';

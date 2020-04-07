@@ -1,13 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
-import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
-import { Network, schemaAndHost } from './network';
+import * as Crypto from '@internet-of-people/morpheus-crypto';
+import * as Layer2 from '../../layer2';
+import * as Types from '../../types';
+import { Network, schemaAndHost } from '../../network';
 
-export class Layer2Api {
-  private static instance: Layer2Api;
+export class Api {
   private readonly api: AxiosInstance;
 
-  private constructor(network: Network) {
+  public constructor(network: Network) {
     const baseURL = `${schemaAndHost(network) }:4703/morpheus/v1`;
     this.api = axios.create({
       baseURL,
@@ -15,14 +16,6 @@ export class Layer2Api {
         'Content-Type': 'application/json',
       },
     });
-  }
-
-  public static create(network: Network): void {
-    Layer2Api.instance = new Layer2Api(network);
-  }
-
-  public static get(): Layer2Api {
-    return Layer2Api.instance;
   }
 
   public async getBeforeProofHistory(contentId: string): Promise<Types.Layer2.IBeforeProofHistory> {
@@ -89,3 +82,7 @@ export class Layer2Api {
     }
   }
 }
+
+export const createApi = (network: Network): Types.Layer2.IApi => {
+  return new Api(network);
+};

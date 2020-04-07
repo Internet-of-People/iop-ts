@@ -1,9 +1,8 @@
 import inquirer from 'inquirer';
 
-import { Crypto, Types } from '@internet-of-people/sdk';
+import { allNetworks, Crypto, Network, Types } from '@internet-of-people/sdk';
 
 import { IAction } from './action';
-import { Network, allNetworks } from './network';
 
 export const dumpDids = (dids: Crypto.Did[]): void => {
   console.log('These are the dids based on your private keys:');

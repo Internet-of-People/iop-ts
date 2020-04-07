@@ -24,7 +24,6 @@
   "dependencies": {
     "@arkecosystem/client": "1.0.5",
     "@arkecosystem/core-interfaces": "^2.6.10",
-    "@arkecosystem/crypto": "^2.6.10",
     "@internet-of-people/sdk": "2.0.0",
     "axios": "0.19.0",
     "inquirer": "7.0.0",

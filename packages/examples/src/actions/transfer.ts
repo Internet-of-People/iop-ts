@@ -1,6 +1,5 @@
-import { Utils } from '@arkecosystem/crypto';
+import { Ark, Types } from '@internet-of-people/sdk';
 
-import { sendTransferTx } from '../transaction-sender';
 import { askForPassphrase, askForAddress } from '../utils';
 import { IAction } from '../action';
 import inquirer = require('inquirer');
@@ -14,14 +13,14 @@ const askForAmount = async(): Promise<number> => {
   return amount;
 };
 
-const run = async(): Promise<void> => {
+const run = async(layer1Api: Types.Layer1.IApi, _: Types.Layer2.IApi): Promise<void> => {
   const sender = await askForPassphrase('sender');
   const recipient = await askForAddress('recipient');
   const amount = await askForAmount();
-  await sendTransferTx(
+  await layer1Api.sendTransferTx(
     sender,
     recipient,
-    Utils.BigNumber.make(amount).times(1e8),
+    Ark.Utils.BigNumber.make(amount).times(1e8),
   );
 };
 

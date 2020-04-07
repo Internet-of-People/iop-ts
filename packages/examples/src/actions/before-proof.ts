@@ -1,11 +1,10 @@
 import inquirer from 'inquirer';
 
-import { Layer1 } from '@internet-of-people/sdk';
+import { Layer1, Types } from '@internet-of-people/sdk';
 
 import { processMorpheusTx } from '../transaction-sender';
 import { IAction } from '../action';
 import { chooseAction, askHeight } from '../utils';
-import { Layer2Api } from '../layer2api';
 
 const askContentId = async(): Promise<string> => {
   const result = await inquirer.prompt([{
@@ -20,33 +19,33 @@ const askContentId = async(): Promise<string> => {
   return contentId;
 };
 
-const registerBeforeProof = async(): Promise<void> => {
+const registerBeforeProof = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const contentId = await askContentId();
 
   const opAttempts = new Layer1.OperationAttemptsBuilder()
     .registerBeforeProof(contentId)
     .getAttempts();
 
-  await processMorpheusTx(opAttempts, 'Register before proof');
+  await processMorpheusTx(opAttempts, 'Register before proof', layer1Api, layer2Api);
 };
 
-const queryBeforeProofHistory = async(): Promise<void> => {
+const queryBeforeProofHistory = async(_: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const contentId = await askContentId();
 
-  const history = await Layer2Api.get().getBeforeProofHistory(contentId);
+  const history = await layer2Api.getBeforeProofHistory(contentId);
   /* eslint no-undefined:0 */
   console.log(JSON.stringify(history, undefined, 2));
 };
 
-const queryBeforeProofExists = async(): Promise<void> => {
+const queryBeforeProofExists = async(_: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const contentId = await askContentId();
   const height = await askHeight();
 
-  const exists = await Layer2Api.get().beforeProofExists(contentId, height);
+  const exists = await layer2Api.beforeProofExists(contentId, height);
   console.log(exists);
 };
 
-const run = async(): Promise<void> => {
+const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const subActions: IAction[] = [
     {
       id: 'register',
@@ -62,7 +61,7 @@ const run = async(): Promise<void> => {
     },
   ];
   const subAction = await chooseAction(subActions, process.argv[3]);
-  await subAction.run();
+  await subAction.run(layer1Api, layer2Api);
 };
 
 const BeforeProof: IAction = {

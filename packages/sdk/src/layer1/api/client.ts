@@ -1,12 +1,12 @@
 import { Interfaces, Utils } from '@arkecosystem/crypto';
 import axios, { AxiosInstance } from 'axios';
-import { schemaAndHost, Network } from './network';
+import { schemaAndHost, Network } from '../../network';
+import { Layer1 } from '../../types';
 
-export class Layer1Api {
-  private static instance: Layer1Api;
+export class AxiosClient implements Layer1.IClient {
   private readonly api: AxiosInstance;
 
-  private constructor(network: Network) {
+  public constructor(network: Network) {
     const baseURL = `${schemaAndHost(network) }:4703/api/v2`;
     this.api = axios.create({
       baseURL,
@@ -14,14 +14,6 @@ export class Layer1Api {
         'Content-Type': 'application/json',
       },
     });
-  }
-
-  public static create(network: Network): void {
-    Layer1Api.instance = new Layer1Api(network);
-  }
-
-  public static get(): Layer1Api {
-    return Layer1Api.instance;
   }
 
   public async sendTx(tx: Interfaces.ITransactionJson): Promise<string> {

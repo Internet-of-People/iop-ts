@@ -1,3 +1,4 @@
+/* eslint no-undefined: 0 */
 import { IAction } from '../action';
 import { chooseAction } from '../utils';
 import { initDemoVault, loadVault } from '../vault';
@@ -48,7 +49,7 @@ const run = async(): Promise<void> => {
     },
   ];
   const subAction = await chooseAction(subActions, process.argv[3]);
-  await subAction.run();
+  await subAction.run(undefined, undefined);
 };
 
 const Vault: IAction = {

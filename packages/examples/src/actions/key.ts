@@ -1,12 +1,11 @@
-import { Layer1 } from '@internet-of-people/sdk';
+import { Layer1, Types } from '@internet-of-people/sdk';
 
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askHeight, askSignerKeyId } from '../utils';
 import { loadVault } from '../vault';
-import { Layer2Api } from '../layer2api';
 
-const addKey = async(): Promise<void> => {
+const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = loadVault();
   const keyIds = vault.keyIds();
 
@@ -18,7 +17,7 @@ const addKey = async(): Promise<void> => {
   const expires = await askHeight();
   const signerKeyId = await askSignerKeyId(keyIds);
 
-  const lastTxId = await Layer2Api.get().getLastTxId(did);
+  const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
     .withVault(vault)
     .on(did, lastTxId)
@@ -26,10 +25,10 @@ const addKey = async(): Promise<void> => {
     .sign(signerKeyId)
     .getAttempts();
 
-  await processMorpheusTx(opAttempts, 'Add key');
+  await processMorpheusTx(opAttempts, 'Add key', layer1Api, layer2Api);
 };
 
-const revokeKey = async(): Promise<void> => {
+const revokeKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = loadVault();
   const vaultKeyIds = vault.keyIds();
 
@@ -40,7 +39,7 @@ const revokeKey = async(): Promise<void> => {
   const newAuth = await askAuth('revoke from that DID');
   const signerKeyId = await askSignerKeyId(vaultKeyIds);
 
-  const lastTxId = await Layer2Api.get().getLastTxId(did);
+  const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
     .withVault(vault)
     .on(did, lastTxId)
@@ -48,10 +47,10 @@ const revokeKey = async(): Promise<void> => {
     .sign(signerKeyId)
     .getAttempts();
 
-  await processMorpheusTx(opAttempts, 'Revoke key');
+  await processMorpheusTx(opAttempts, 'Revoke key', layer1Api, layer2Api);
 };
 
-const run = async(): Promise<void> => {
+const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const subActions: IAction[] = [
     {
       id: 'add',
@@ -63,7 +62,7 @@ const run = async(): Promise<void> => {
     },
   ];
   const subAction = await chooseAction(subActions, process.argv[3]);
-  await subAction.run();
+  await subAction.run(layer1Api, layer2Api);
 };
 
 const Key: IAction = {

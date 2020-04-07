@@ -13,14 +13,24 @@ For more info please visit the [IoP Developer Portal](https://iop-stack.iop.rock
 - [Modules](#Modules)
   - [Types Module](#Types-Module)
   - [Layer-1 Module](#Layer-1-Module)
-    - [Create a DAC Transaction](#Create-a-DAC-Transaction)
+    - [Transfer Hydra](#Transfer-Hydra)
+    - [Register Before-Proof Transaction](#Register-Before-Proof-Transaction)
+    - [Key and Right Management Transactions](#Key-and-Right-Management-Transactions)
+    - [Tombstone DID Transaction](#Tombstone-DID-Transaction)
   - [Layer-2 Module](#Layer-2-Module)
+    - [Get Before-Proof History](#Get-Before-Proof-History)
+    - [Before-Proof Exists](#Before-Proof-Exists)
+    - [Get Transaction Status](#Get-Transaction-Status)
+    - [Get DID Document](#Get-DID-Document)
+    - [Get Last Transaction ID](#Get-Last-Transaction-ID)
   - [Crypto Module](#Crypto-Module)
     - [Utility Functions](#Utility-Functions)
     - [In-Memory Vault](#In-Memory-Vault)
     - [Persistent Vault](#Persistent-Vault)
   - [Authority Module](#Authority-Module)
   - [JsonUtils Module](#JsonUtils-Module)
+  - [Ark Module](#Ark-Module)
+  - [Network Module](#Network-Module)
   - [Utils Module](#Utils-Module)
 - [Contribution and License](#Contribution-and-License)
 
@@ -38,7 +48,7 @@ $ npm install @internet-of-people/sdk --save
 ## Usage
 
 ```typescript
-import { Authority, Crypto, JsonUtils, Layer1, Layer2, Types, Utils } from '@internet-of-people/sdk';
+import { Ark, Authority, Crypto, JsonUtils, Layer1, Layer2, Network, Types, Utils } from '@internet-of-people/sdk';
 ```
 
 For more information about the modules, check the corresponding module section below.
@@ -100,92 +110,176 @@ All interfaces and types that needed to be able to communicate with a Verifier e
 
 ### Layer-1 Module
 
-This package contains all Typescript class and utils that you need to interact with the DAC Layer-1 API.
-
-#### Register Before-Proof DAC Transaction
-
-> Until further improvement of this section (and the corresponding SDK itself), please consult the `example` package's code as a real, working guideline.
-
-Note: in these examples we use [Axios](https://www.npmjs.com/package/axios) for http connections.
-For more complex examples, such as signed transactions (key & right management) please visit our [Github page](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/examples).
-
-```typescript
-// Create a DAC Transaction
-import { Identities } from '@arkecosystem/crypto';
-import { Layer1, Types } from '@internet-of-people/sdk';
-import axios from 'axios';
-
-const api = axios.create({
-  'http://test.hydra.iop.global:4703/api/v2',
-  headers: { 'Content-Type': 'application/json' },
-});
-
-const getWalletNonce = async () => {
-  try {
-    const resp = await this.api.get(`/wallets/${address}`);
-    const nonce = Utils.BigNumber.make(resp.data.data.nonce);
-    console.log(`Nonce of ${address} is ${nonce.toFixed()}`);
-    return nonce;
-  } catch (e) {
-    console.log(`Could not get wallet for ${address}, probably a cold wallet.`);
-    console.log(`Nonce of ${address} is 0`);
-    return Utils.BigNumber.ZERO;
-  }
-}
-
-const contentId = 'your_content_id';
-
-// Create operations
-const opAttempts = new Layer1.OperationAttemptsBuilder()
-  .registerBeforeProof(contentId)
-  .getAttempts();
-
-// Create a builder
-const txBuilder = new Layer1.MorpheusTransactionBuilder();
-const unsignedTx = txBuilder.fromOperationAttempts(attempts);
-
-const passphrase = 'your bip38 passphrase';
-const publicKey = 'your public key';
-const address = Identities.Address.fromPublicKey(publicKey);
-
-// Creating nonce
-const nonce = (await getWalletNonce(address)).plus(1);
-unsignedTx.nonce(nonce.toFixed());
-
-// Sign transaction
-const signedTx = unsignedTx.sign(passphrase).build().toJson();
-
-// At this point you can send the signedTx to the Hydra chain.
-await api.post('/transactions', JSON.stringify({ transactions: [signedTx] }));
-```
+This package contains all Typescript class and utils that you need to interact with the DAC Layer-1 API. Below we provide you example how can you interact with Layer-1 APIs.
 
 #### Transfer Hydra
 
-TBD
+```typescript
+import { Ark, Layer1 } from '@internet-of-people/sdk';
 
-#### Query DID Document
+const api = await Layer1.createApi(Layer1.Network.Devnet);
+const amount = 10; // 10 HYD
 
-TBD
+await api.sendTransferTx(
+  'SENDER_BIP38_PASSPHRASE',
+  'RECIPIENT_ADDRESS',
+  Ark.Utils.BigNumber.make(amount).times(1e8),
+);
+```
 
-#### Add and Revoke Key
+#### Register Before-Proof Transaction
 
-TBD
+```typescript
+import { Layer1, Network } from '@internet-of-people/sdk';
 
-#### Add and Revoke Right
+const api = await Layer1.createApi(Network.Devnet);
+const opAttempts = new Layer1.OperationAttemptsBuilder()
+    .registerBeforeProof('YOUR_CONTENT_ID')
+    .getAttempts();
 
-TBD
+const txId = await api.sendMorpheusTx(opAttempts, 'SENDER_BIP38_PASSPHRASE');
+```
 
-#### Tombstone DID
+#### Key and Right Management Transactions
 
-TBD
+In this example we
+
+- first add a secondary key,
+- then we give some rights to it,
+- then we revoke rights from the first key,
+- and finally we revoke the first key itself.
+
+> Note: This can be done in one or separated transactions as well!
+
+```typescript
+import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
+
+// Creating vault
+const layer1Api = await Layer1.createApi(Network.Devnet);
+const layer2Api = Layer2.createApi(Network.Devnet);
+const vault = Crypto.PersistentVault.fromSeedPhrase(Crypto.PersistentVault.DEMO_PHRASE, 'YOUR_VAULT_PATH');
+
+// Collect transaction requirements
+const did = vault.dids()[0]; // let's use the first DID
+const firstKey = vault.keyIds()[0]; // by default only the initial key has the right to update the DID document
+const secondaryKey = vault.keyIds()[1]; // the first key is by default added to DID, hence it's already there
+const expiresAtHeight = 42; // the key will not be valid after the 42th block height
+const systemRights = new Layer2.SystemRights();
+
+// Adding the new key with rights
+const tx1Operations = new Layer1.OperationAttemptsBuilder()
+  .withVault(vault)
+  .on(did, await layer2Api.getLastTxId(did))
+  .addKey(secondaryKey, expiresAtHeight)
+  .addRight(secondaryKey, systemRights.update)
+  .addRight(secondaryKey, systemRights.impersonate)
+  .sign(firstKey)
+  .getAttempts();
+
+const tx1Id = await layer1Api.sendMorpheusTx(tx1Operations, 'SENDER_BIP38_PASSPHRASE');
+
+// Revoking the old key
+const tx2Operations = new Layer1.OperationAttemptsBuilder()
+  .withVault(vault)
+  .on(did, await layer2Api.getLastTxId(did))
+  .revokeRight(firstKey, systemRights.update)
+  .revokeRight(firstKey, systemRights.impersonate)
+  .revokeKey(firstKey)
+  .sign(secondaryKey)
+  .getAttempts();
+
+const tx2Id = await layer1Api.sendMorpheusTx(tx2Operations, 'SENDER_BIP38_PASSPHRASE');
+```
+
+#### Tombstone DID Transaction
+
+```typescript
+import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
+
+// Creating vault
+const layer1Api = await Layer1.createApi(Network.Devnet);
+const layer2Api = Layer2.createApi(Network.Devnet);
+const vault = Crypto.PersistentVault.fromSeedPhrase(Crypto.PersistentVault.DEMO_PHRASE, 'YOUR_VAULT_PATH');
+
+// Collect transaction requirements
+const did = vault.dids()[0]; // let's use the first DID
+const firstKey = vault.keyIds()[0]; // by default only the initial key has the right to update the DID document
+
+// Adding the new key with rights
+const operations = new Layer1.OperationAttemptsBuilder()
+  .withVault(vault)
+  .on(did, await layer2Api.getLastTxId(did))
+  .tombstoneDid()
+  .sign(firstKey)
+  .getAttempts();
+
+const txId = await layer1Api.sendMorpheusTx(operations, 'SENDER_BIP38_PASSPHRASE');
+```
 
 ### Layer-2 Module
 
 This package contains all Typescript class and utils that you need to interact with the DAC Layer-2 API.
 
-#### Create and Analyze DID Document
+#### Get Before-Proof History
 
-TBD
+```typescript
+import { Layer2, Network } from '@internet-of-people/sdk';
+
+const api = Layer2.createApi(Network.Devnet);
+
+// let's suppose that the contentId below was sent in at height 42 and the actual height is 4242
+
+console.log(await api.getBeforeProofHistory('YOUR_CONTENT_ID'));
+// {"contentId":"YOUR_CONTENT_ID","existsFromHeight":42,"queriedAtHeight":4242}
+```
+
+#### Before-Proof Exists
+
+```typescript
+import { Layer2, Network } from '@internet-of-people/sdk';
+
+const api = Layer2.createApi(Network.Devnet);
+
+// let's suppose that the contentId below was sent in at height 42 and the actual height is 4242
+
+console.log(await api.beforeProofExists('YOUR_CONTENT_ID'));
+// true
+
+console.log(await api.beforeProofExists('YOUR_CONTENT_ID', 43));
+// true
+
+console.log(await api.beforeProofExists('YOUR_CONTENT_ID', 41));
+// false
+```
+
+#### Get Transaction Status
+
+```typescript
+import { Layer2, Network } from '@internet-of-people/sdk';
+
+const api = Layer2.createApi(Network.Devnet);
+const status = await api.getTxnStatus('THE_LAYER_1_TX_ID_CONTAINED_A_DAC_OPERATION');
+// if the tx is not found, it will be an empty Optional.
+// if the tx is there, it will be an Optional<bool>, where false means the tx was rejected at layer-2 and true means the tx was applied in the layer-2 state.
+```
+
+#### Get DID Document
+
+```typescript
+import { Layer2, Network } from '@internet-of-people/sdk';
+
+const api = Layer2.createApi(Network.Devnet);
+const document = await api.getDidDocument('A_DID');
+```
+
+#### Get Last Transaction ID
+
+```typescript
+import { Layer2, Network } from '@internet-of-people/sdk';
+
+const api = Layer2.createApi(Network.Devnet);
+const lastTxId = await api.getLastTxId('A_DID');
+```
 
 ### Crypto Module
 
@@ -279,6 +373,27 @@ vault.signDidOperations(keyId, 'TBD');
 ### Authority Module
 
 Currently contains only one enum, `Status` which describes a possible status for a Witness Request.
+
+### Ark Module
+
+Under this module we reexport the complete [@arkecosystem/crypto](https://www.npmjs.com/package/@arkecosystem/crypto) package.
+It's useful, because some of our interfaces require for example `Utils.BigNumber` from this package.
+
+> Note, that the package version is fixed at `^2.6.10`.
+
+### Network Module
+
+In this module you can access some `enum` and other `const` which helps you to use Hydra network parameters.
+
+```typescript
+import { allNetworks, schemaAndHost, Network } from '@internet-of-people/sdk';
+
+const network = Network.LocalTestnet;
+
+console.log(allNetworks); // will print out an array containing all field in the Network enum
+
+const host = schemaAndHost(Network.LocalTestnet); // will be 'http://127.0.0.1'
+```
 
 ### JsonUtils Module
 

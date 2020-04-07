@@ -1,7 +1,5 @@
-import { Managers, Transactions } from '@arkecosystem/crypto';
-import { Layer1 } from '@internet-of-people/sdk';
-import { Layer1Api } from './layer1api';
-import { Layer2Api } from './layer2api';
+/* eslint no-undefined: 0 */
+import { Layer1, Layer2 } from '@internet-of-people/sdk';
 import { BeforeProof, Key, Right, Tombstone, Transfer, Vault } from './actions';
 import { askForNetwork, chooseAction } from './utils';
 
@@ -12,18 +10,12 @@ const asyncRun = async(): Promise<void> => {
 
   if (rootAction && !rootAction.ignoreNetwork) {
     const network = await askForNetwork();
-    Layer1Api.create(network);
-    Layer2Api.create(network);
-    const [ cryptoConfig, height ] = await Promise.all([
-      Layer1Api.get().getNodeCryptoConfig(),
-      Layer1Api.get().getCurrentHeight(),
-    ]);
-    Managers.configManager.setConfig(cryptoConfig);
-    Managers.configManager.setHeight(height);
-    Transactions.TransactionRegistry.registerTransactionType(Layer1.MorpheusTransaction);
+    const layer1Api = await Layer1.createApi(network);
+    const layer2Api = Layer2.createApi(network);
+    await rootAction.run(layer1Api, layer2Api);
+  } else {
+    await rootAction.run(undefined, undefined);
   }
-
-  await rootAction.run();
 };
 
 asyncRun().catch((e) => {
