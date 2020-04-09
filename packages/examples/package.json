@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/examples",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "private": true,
   "author": {
     "url": "https://iop.global/dsf",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@arkecosystem/client": "1.0.5",
     "@arkecosystem/core-interfaces": "^2.6.10",
-    "@internet-of-people/sdk": "2.0.3",
+    "@internet-of-people/sdk": "2.0.4",
     "axios": "0.19.0",
     "inquirer": "7.0.0",
     "optional-js": "2.1.1",

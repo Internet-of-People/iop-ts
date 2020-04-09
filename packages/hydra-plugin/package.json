@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-hydra-plugin",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "private": true,
   "author": {
     "url": "https://iop.global/dsf",
@@ -32,8 +32,8 @@
     "@arkecosystem/crypto": "^2.6.10",
     "@hapi/boom": "^8.0.0",
     "@hapi/hapi": "^18.3.1",
-    "@internet-of-people/did-manager": "2.0.3",
-    "@internet-of-people/sdk": "2.0.3",
+    "@internet-of-people/did-manager": "2.0.4",
+    "@internet-of-people/sdk": "2.0.4",
     "awilix": "^4.2.2",
     "buffer": "5.4.2",
     "lodash.clonedeep": "4.5.0",
