@@ -1,10 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
-import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
-import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
+import { Ark, Crypto, Layer2, Types } from '@internet-of-people/sdk';
 
 export interface IHydraApi {
-  getNodeCryptoConfig(): Promise<CryptoIf.INetworkConfig>;
+  getNodeCryptoConfig(): Promise<Ark.Interfaces.INetworkConfig>;
   getBlockIdAtHeight(height?: number): Promise<Types.Sdk.IAfterProof | null>;
   getBeforeProofHistory(contentId: Types.Sdk.ContentId): Promise<Types.Layer2.IBeforeProofHistory>;
   beforeProofExists(contentId: Types.Sdk.ContentId): Promise<boolean>;
@@ -23,7 +22,7 @@ export class HydraApi implements IHydraApi {
     });
   }
 
-  public async getNodeCryptoConfig(): Promise<CryptoIf.INetworkConfig> {
+  public async getNodeCryptoConfig(): Promise<Ark.Interfaces.INetworkConfig> {
     console.log('Getting node crypto config...');
     const resp = await this.api.get('/api/v2/node/configuration/crypto');
     return resp.data.data;

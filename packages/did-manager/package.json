@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/did-manager",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "private": true,
   "author": {
     "url": "https://iop.global/dsf",
@@ -34,19 +34,15 @@
     "testPathIgnorePatterns": ["__tests__/utils.ts"]
   },
   "dependencies": {
-    "@internet-of-people/sdk": "2.0.2",
+    "@internet-of-people/sdk": "2.0.3",
     "bytebuffer": "5.0.1",
     "lodash.clonedeep": "4.5.0",
-    "optional-js": "2.1.1",
-    "socketcluster": "^14.3.5",
-    "socketcluster-client": "^14.2.2"
+    "optional-js": "2.1.1"
   },
   "devDependencies": {
     "@types/bytebuffer": "5.0.40",
     "@types/jest": "24.0.23",
     "@types/lodash.clonedeep": "4.5.6",
-    "@types/socketcluster": "^14.0.2",
-    "@types/socketcluster-client": "^13.0.3",
     "@typescript-eslint/eslint-plugin": "2.11.0",
     "@typescript-eslint/parser": "2.11.0",
     "eslint": "6.7.2",

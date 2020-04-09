@@ -1,8 +1,7 @@
 import request from 'supertest';
 import { unlinkSync } from 'fs';
-import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
-import { Crypto, Layer2, JsonUtils, Types } from '@internet-of-people/sdk';
+import { Ark, Crypto, Layer2, JsonUtils, Types } from '@internet-of-people/sdk';
 
 import { SqliteStorage } from '../src/storage-sqlite';
 import { Service } from '../src/service';
@@ -163,7 +162,7 @@ describe('Service', () => {
 
   class Fixture {
     public readonly hydraMock = {
-      getNodeCryptoConfig: jest.fn<Promise<CryptoIf.INetworkConfig>, []>(),
+      getNodeCryptoConfig: jest.fn<Promise<Ark.Interfaces.INetworkConfig>, []>(),
       getBlockIdAtHeight: jest.fn<Promise<Types.Sdk.IAfterProof | null>, [number | undefined]>(),
       getBeforeProofHistory: jest.fn<Promise<Types.Layer2.IBeforeProofHistory>, [Types.Sdk.ContentId]>(),
       beforeProofExists: jest.fn<Promise<boolean>, [string]>(),

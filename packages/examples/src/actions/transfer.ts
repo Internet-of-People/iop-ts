@@ -1,8 +1,9 @@
+import inquirer from 'inquirer';
+
 import { Ark, Types } from '@internet-of-people/sdk';
 
 import { askForPassphrase, askForAddress } from '../utils';
 import { IAction } from '../action';
-import inquirer = require('inquirer');
 
 const askForAmount = async(): Promise<number> => {
   const { amount }: { amount: number; } = await inquirer.prompt([{
