@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-ts",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -34,6 +34,7 @@
     "inquirer": "7.0.0",
     "json-stable-stringify": "1.0.1",
     "lodash.clonedeep": "4.5.0",
+    "multibase": "0.6.0",
     "optional-js": "2.1.1",
     "p-queue": "6.2.1",
     "socketcluster-client": "^14.2.2",
@@ -49,6 +50,7 @@
     "@types/inquirer": "6.5.0",
     "@types/jest": "24.0.23",
     "@types/lodash.clonedeep": "4.5.6",
+    "@types/multibase": "0.6.0",
     "@types/node": "12.12.14",
     "@types/socketcluster": "^14.0.2",
     "@types/socketcluster-client": "^13.0.3",

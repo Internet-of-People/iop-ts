@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/sdk",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "prepare": "npm run build:src",
-    "prepublish": "npm run lint && npm run build:test && npm run test",
+    "prepublishOnly": "npm run lint && npm run build:test && npm run test",
     "build": "npm run build:src && npm run build:test",
     "build:src": "tsc -p . ",
     "build:test": "tsc -p tsconfig.test.json",
@@ -35,14 +35,16 @@
   "dependencies": {
     "@arkecosystem/core-interfaces": "^2.6.10",
     "@arkecosystem/crypto": "^2.6.10",
-    "@internet-of-people/morpheus-crypto": "2.0.1",
+    "@internet-of-people/morpheus-crypto": "2.0.2",
     "axios": "0.19.0",
     "bigint-hash": "0.2.2",
+    "json-stable-stringify": "1.0.1",
     "multibase": "0.6.0"
   },
   "devDependencies": {
     "@types/axios": "0.14.0",
     "@types/jest": "24.0.23",
+    "@types/json-stable-stringify": "1.0.32",
     "@types/multibase": "0.6.0",
     "@typescript-eslint/eslint-plugin": "2.11.0",
     "@typescript-eslint/parser": "2.11.0",

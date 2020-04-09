@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-crypto",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "prepare": "npm run build:src",
-    "prepublish": "npm run lint && npm run build:test && npm run test",    
+    "prepublishOnly": "npm run lint && npm run build:test && npm run test",    
     "build": "npm run build:src && npm run build:test",
     "build:src": "tsc -p . ",
     "build:test": "tsc -p tsconfig.test.json",
