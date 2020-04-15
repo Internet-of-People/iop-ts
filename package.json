@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-ts",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "author": {
     "url": "https://iop.global/dsf",
     "name": "Internet of People",
@@ -18,13 +18,13 @@
     "publish:stable": "./scripts/publish/stable.sh"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^2.6.10",
-    "@arkecosystem/core-event-emitter": "^2.6.10",
-    "@arkecosystem/core-http-utils": "^2.6.10",
-    "@arkecosystem/core-interfaces": "^2.6.10",
-    "@arkecosystem/core-state": "^2.6.10",
-    "@arkecosystem/core-transactions": "^2.6.10",
-    "@arkecosystem/crypto": "^2.6.10",
+    "@arkecosystem/core-container": "^2.6.31",
+    "@arkecosystem/core-event-emitter": "^2.6.31",
+    "@arkecosystem/core-http-utils": "^2.6.31",
+    "@arkecosystem/core-interfaces": "^2.6.31",
+    "@arkecosystem/core-state": "^2.6.31",
+    "@arkecosystem/core-transactions": "^2.6.31",
+    "@arkecosystem/crypto": "^2.6.31",
     "@hapi/boom": "^8.0.0",
     "@hapi/hapi": "^18.3.1",
     "awilix": "^4.2.2",

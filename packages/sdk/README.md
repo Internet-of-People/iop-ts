@@ -379,7 +379,7 @@ Currently contains only one enum, `Status` which describes a possible status for
 Under this module we reexport the complete [@arkecosystem/crypto](https://www.npmjs.com/package/@arkecosystem/crypto) package.
 It's useful, because some of our interfaces require for example `Utils.BigNumber` from this package.
 
-> Note, that the package version is fixed at `^2.6.10`.
+> Note, that the package version is fixed at `^2.6.31`.
 
 ### Network Module
 
