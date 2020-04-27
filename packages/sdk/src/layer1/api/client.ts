@@ -64,6 +64,7 @@ export class AxiosClient implements Layer1.IClient {
     if (wallet.isPresent()) {
       const nonce = Utils.BigNumber.make(wallet.get().nonce);
       console.log(`Nonce of ${address} is ${nonce.toFixed()}`);
+      return nonce;
     }
 
     console.log(`Nonce of ${address} is 0`);
