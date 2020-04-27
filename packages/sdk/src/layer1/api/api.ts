@@ -45,13 +45,15 @@ export class Api implements Types.Layer1.IApi {
     // checking balance
     const keys = Identities.Keys.fromPassphrase(passphrase);
     const address = Identities.Address.fromPublicKey(keys.publicKey);
-    const balance = await this.clientInstance.getWalletBalance(address);
+    const wallet = await this.clientInstance.getWallet(address);
+    const balance = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().balance) : Utils.BigNumber.ZERO;
 
     if (balance.isLessThan(1)) {
       throw new Error('Low balance. Send some HYDs to the address you provided.');
     }
 
-    const nonce = await this.nextWalletNonce(keys.publicKey);
+    let nonce = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().nonce) : Utils.BigNumber.ZERO;
+    nonce = nonce.plus(1);
     unsignedTx.nonce(nonce.toFixed());
 
     const signedTx = unsignedTx.sign(passphrase).build()
