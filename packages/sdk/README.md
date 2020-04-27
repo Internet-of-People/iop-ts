@@ -193,11 +193,6 @@ const secondTxId = await layer1Api.sendMorpheusTx(secondTxOpAttempts, 'SENDER_BI
 
 #### Tombstone DID Transaction
 
-TODO this example needs editing:
- - dids are not created
- - keys should be queried from the DID
- - it's unclear what numbers in names mean, sometimes layer, sometimes var numbering
-
 ```typescript
 import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
 

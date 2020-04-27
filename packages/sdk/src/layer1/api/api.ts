@@ -47,14 +47,16 @@ export class Api implements Types.Layer1.IApi {
     const address = Identities.Address.fromPublicKey(keys.publicKey);
     const wallet = await this.clientInstance.getWallet(address);
     const balance = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().balance) : Utils.BigNumber.ZERO;
+    // console.log(`Current balance is ${balance}`);
 
-    if (balance.isLessThan(1)) {
+    if (balance.isLessThan(10000000)) { // 0.1 HYD in flakes (HYD*1e8)
       throw new Error('Low balance. Send some HYDs to the address you provided.');
     }
 
-    let nonce = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().nonce) : Utils.BigNumber.ZERO;
-    nonce = nonce.plus(1);
-    unsignedTx.nonce(nonce.toFixed());
+    const currentNonce = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().nonce) : Utils.BigNumber.ZERO;
+    const nextNonce = currentNonce.plus(1);
+    console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+    unsignedTx.nonce(nextNonce.toFixed());
 
     const signedTx = unsignedTx.sign(passphrase).build()
       .toJson();
@@ -64,7 +66,9 @@ export class Api implements Types.Layer1.IApi {
   public async nextWalletNonce(publicKey: string): Promise<Utils.BigNumber> {
     const address = Identities.Address.fromPublicKey(publicKey);
     const currentNonce = await this.clientInstance.getWalletNonce(address);
-    return currentNonce.plus(1);
+    const nextNonce = currentNonce.plus(1);
+    console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+    return nextNonce;
   }
 }
 
