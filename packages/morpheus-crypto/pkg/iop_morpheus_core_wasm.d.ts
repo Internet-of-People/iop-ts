@@ -1,5 +1,16 @@
 /* tslint:disable */
 /* eslint-disable */
+/**
+* @param {any} data 
+* @param {string} keep_properties_list 
+* @returns {string} 
+*/
+export function mask(data: any, keep_properties_list: string): string;
+/**
+* @param {any} data 
+* @returns {string} 
+*/
+export function digest(data: any): string;
 export class Bip39 {
   free(): void;
 /**

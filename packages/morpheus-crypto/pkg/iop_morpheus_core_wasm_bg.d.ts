@@ -28,6 +28,8 @@ export function did_prefix(a: number): void;
 export function did_fromKeyId(a: number): number;
 export function did_defaultKeyId(a: number): number;
 export function did_toString(a: number, b: number): void;
+export function mask(a: number, b: number, c: number, d: number): void;
+export function digest(a: number, b: number): void;
 export function __wbg_vault_free(a: number): void;
 export function vault_new(a: number, b: number): number;
 export function vault_serialize(a: number, b: number): void;

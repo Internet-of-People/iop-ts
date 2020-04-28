@@ -36,20 +36,6 @@ function getInt32Memory0() {
     return cachegetInt32Memory0;
 }
 
-let heap_next = heap.length;
-
-function dropObject(idx) {
-    if (idx < 36) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
-}
-
 let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 
 cachedTextDecoder.decode();
@@ -66,6 +52,8 @@ function getStringFromWasm0(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
 
+let heap_next = heap.length;
+
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -73,6 +61,18 @@ function addHeapObject(obj) {
 
     heap[idx] = obj;
     return idx;
+}
+
+function dropObject(idx) {
+    if (idx < 36) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
+}
+
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
 }
 
 function _assertClass(instance, klass) {
@@ -122,6 +122,41 @@ function getArrayJsValueFromWasm0(ptr, len) {
     }
     return result;
 }
+/**
+* @param {any} data
+* @param {string} keep_properties_list
+* @returns {string}
+*/
+module.exports.mask = function(data, keep_properties_list) {
+    try {
+        var ptr0 = passStringToWasm0(keep_properties_list, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.mask(8, addBorrowedObject(data), ptr0, len0);
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        heap[stack_pointer++] = undefined;
+        wasm.__wbindgen_free(r0, r1);
+    }
+};
+
+/**
+* @param {any} data
+* @returns {string}
+*/
+module.exports.digest = function(data) {
+    try {
+        wasm.digest(8, addBorrowedObject(data));
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        heap[stack_pointer++] = undefined;
+        wasm.__wbindgen_free(r0, r1);
+    }
+};
+
 /**
 */
 class Bip39 {
@@ -820,13 +855,13 @@ class Vault {
 }
 module.exports.Vault = Vault;
 
-module.exports.__wbg_validationissue_new = function(arg0) {
-    var ret = ValidationIssue.__wrap(arg0);
+module.exports.__wbg_did_new = function(arg0) {
+    var ret = Did.__wrap(arg0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_did_new = function(arg0) {
-    var ret = Did.__wrap(arg0);
+module.exports.__wbg_validationissue_new = function(arg0) {
+    var ret = ValidationIssue.__wrap(arg0);
     return addHeapObject(ret);
 };
 
@@ -844,17 +879,13 @@ module.exports.__wbg_validationresult_new = function(arg0) {
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_object_drop_ref = function(arg0) {
-    takeObject(arg0);
+module.exports.__wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
+    return addHeapObject(ret);
 };
 
 module.exports.__wbindgen_json_parse = function(arg0, arg1) {
     var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
-    return addHeapObject(ret);
-};
-
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
     return addHeapObject(ret);
 };
 
