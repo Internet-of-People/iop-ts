@@ -1,4 +1,4 @@
-import { SignedJson, Vault, PersistentVault, SignedBytes } from '../src';
+import { digest, mask, PersistentVault, SignedBytes, SignedJson, Vault } from '../src';
 import cloneDeep from 'lodash.clonedeep';
 
 const request = {
@@ -21,8 +21,7 @@ const request = {
   'nonce': 'u1U9fIy/AE2sIA1Xi3523NzSsMnJrVU3Tv+q4rlGyhluQ',
 };
 
-// Calculated with JsonUtils.digest from '@internet-of-people/sdk'
-const requestId = 'cjuzC-XxgzNMwYXtw8aMIAeS2Xjlw1hlSNKTvVtUwPuyYo';
+const requestId = digest(request);
 
 describe('SignedJson', () => {
   let vault: Vault;
@@ -30,6 +29,23 @@ describe('SignedJson', () => {
   beforeEach(() => {
     vault = new Vault(PersistentVault.DEMO_PHRASE);
     vault.createDid();
+  });
+
+  it('masking works', () => {
+    expect(requestId).toStrictEqual('cjuzC-XxgzNMwYXtw8aMIAeS2Xjlw1hlSNKTvVtUwPuyYo');
+
+    const maskedRequest = mask(request, '.evidence , .claim.subject');
+    expect(maskedRequest).toStrictEqual(
+      '{' +
+        '"claim":{' +
+          '"content":"cjub8nDXTl3S-6052q4P4FCSAYeuVBRQm8lTDQZuPyk44E",' +
+          '"subject":"did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr"' +
+        '},' +
+        '"claimant":"did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr#0",' +
+        '"evidence":{"photo":"HUGE SELFIE"},' +
+        '"nonce":"u1U9fIy/AE2sIA1Xi3523NzSsMnJrVU3Tv+q4rlGyhluQ",' +
+        '"processId":"cjunI8lB1BEtampkcvotOpF-zr1XmsCRNvntciGl3puOkg"' +
+      '}');
   });
 
   it('validation passes', () => {
@@ -40,20 +56,20 @@ describe('SignedJson', () => {
     expect(signedJson.validateWithKeyId(keyId)).toBeTruthy();
   });
 
-  it('validation fails with tempered content', () => {
+  it('validation fails with tampered content', () => {
     const [keyId] = vault.keyIds();
     const originalSignedJson = vault.signWitnessRequest(keyId, request);
-    const temperedRequest = cloneDeep(request);
-    temperedRequest.nonce = `U${ request.nonce.substr(1)}`;
+    const tamperedRequest = cloneDeep(request);
+    tamperedRequest.nonce = `U${ request.nonce.substr(1)}`;
 
-    const temperedSignedJson = new SignedJson(
+    const tamperedSignedJson = new SignedJson(
       originalSignedJson.publicKey,
-      temperedRequest,
+      tamperedRequest,
       originalSignedJson.signature,
     );
 
-    expect(temperedSignedJson.validate()).toBeFalsy();
-    expect(temperedSignedJson.validateWithKeyId(keyId)).toBeFalsy();
+    expect(tamperedSignedJson.validate()).toBeFalsy();
+    expect(tamperedSignedJson.validateWithKeyId(keyId)).toBeFalsy();
   });
 
   it('validation passes with masked content', () => {

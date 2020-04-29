@@ -1,6 +1,8 @@
 export {
   Did,
+  digest,
   KeyId,
+  mask,
   PublicKey,
   Signature,
   SignedJson,
