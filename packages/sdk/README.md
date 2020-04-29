@@ -260,8 +260,16 @@ import { Layer2, Network } from '@internet-of-people/sdk';
 const api = Layer2.createApi(Network.Devnet);
 const status = await api.getTxnStatus('THE_LAYER_1_TX_ID_CONTAINED_A_DAC_OPERATION');
 // if the tx is not found, it will be an empty Optional.
-// if the tx is there, it will be an Optional<bool>, where false means the tx was rejected at layer-2 and true means the tx was applied in the layer-2 state.
+// if the tx is there, it will be an Optional<bool>, where
+// false means that the tx was successfully sent but was rejected by the layer-2 consensus and
+// true means the tx was accepted and applied in the layer-2 state.
 ```
+
+Note that layer2 status is returned here hence transactions containing layer2 operations are expected.
+Layer1 transactions are not found thus `Optional.empty()` is returned for them as well.
+For a description of our Layer2 transactions and consensus,
+[see the specification](https://iop-stack.iop.rocks/dids-and-claims/specification/#/dac?id=decentralized-ledger-dlt).
+
 
 #### Get DID Document
 

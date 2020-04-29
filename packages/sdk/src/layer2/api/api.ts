@@ -52,11 +52,13 @@ export class Api {
     return result;
   }
 
-  public async getTxnStatus(txid: Types.Sdk.TransactionId): Promise<Optional<boolean>> {
-    console.log(`Getting txn status for ${txid}...`);
+  // NOTE that layer2 status is returned here, i.e. layer2 transactions are expected.
+  //      Layer1 txns are not found thus Optional.empty() is returned for them as well.
+  public async getTxnStatus(layer2TxId: Types.Sdk.TransactionId): Promise<Optional<boolean>> {
+    console.log(`Getting txn status for ${layer2TxId}...`);
 
     try {
-      const resp = await apiGet(this.api, `/txn-status/${txid}`);
+      const resp = await apiGet(this.api, `/txn-status/${layer2TxId}`);
       return Optional.of(resp.data);
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
