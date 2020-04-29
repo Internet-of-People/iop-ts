@@ -144,7 +144,7 @@ const txId = await api.sendMorpheusTx(opAttempts, 'SENDER_BIP38_PASSPHRASE');
 
 In this example we
 
-- first add a secondary key,
+- add a secondary key,
 - then we give some rights to it,
 - then we revoke rights from the first key,
 - and finally we revoke the first key itself.
@@ -160,14 +160,14 @@ const layer2Api = Layer2.createApi(Network.Devnet);
 const vault = Crypto.PersistentVault.fromSeedPhrase(Crypto.PersistentVault.DEMO_PHRASE, 'YOUR_VAULT_PATH');
 
 // Collect transaction requirements
-const did = vault.dids()[0]; // let's use the first DID
-const firstKey = vault.keyIds()[0]; // by default only the initial key has the right to update the DID document
-const secondaryKey = vault.keyIds()[1]; // the first key is by default added to DID, hence it's already there
+const did = vault.createDid(); // let's use the first DID
+const firstKey = did.defaultKeyId(); // by default only the initial key has the right to update the DID document
+const secondaryKey = ...; // another key (one of your own or somebody else's)
 const expiresAtHeight = 42; // the key will not be valid after the 42th block height
 const systemRights = new Layer2.SystemRights();
 
 // Adding the new key with rights
-const tx1Operations = new Layer1.OperationAttemptsBuilder()
+const firstTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .withVault(vault)
   .on(did, await layer2Api.getLastTxId(did))
   .addKey(secondaryKey, expiresAtHeight)
@@ -176,10 +176,10 @@ const tx1Operations = new Layer1.OperationAttemptsBuilder()
   .sign(firstKey)
   .getAttempts();
 
-const tx1Id = await layer1Api.sendMorpheusTx(tx1Operations, 'SENDER_BIP38_PASSPHRASE');
+const firstTxId = await layer1Api.sendMorpheusTx(firstTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
 
 // Revoking the old key
-const tx2Operations = new Layer1.OperationAttemptsBuilder()
+const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .withVault(vault)
   .on(did, await layer2Api.getLastTxId(did))
   .revokeRight(firstKey, systemRights.update)
@@ -188,10 +188,15 @@ const tx2Operations = new Layer1.OperationAttemptsBuilder()
   .sign(secondaryKey)
   .getAttempts();
 
-const tx2Id = await layer1Api.sendMorpheusTx(tx2Operations, 'SENDER_BIP38_PASSPHRASE');
+const secondTxId = await layer1Api.sendMorpheusTx(secondTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
 ```
 
 #### Tombstone DID Transaction
+
+TODO this example needs editing:
+ - dids are not created
+ - keys should be queried from the DID
+ - it's unclear what numbers in names mean, sometimes layer, sometimes var numbering
 
 ```typescript
 import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
@@ -199,21 +204,21 @@ import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
 // Creating vault
 const layer1Api = await Layer1.createApi(Network.Devnet);
 const layer2Api = Layer2.createApi(Network.Devnet);
-const vault = Crypto.PersistentVault.fromSeedPhrase(Crypto.PersistentVault.DEMO_PHRASE, 'YOUR_VAULT_PATH');
+const vault = Crypto.PersistentVault.loadFile('YOUR_VAULT_PATH');
 
 // Collect transaction requirements
-const did = vault.dids()[0]; // let's use the first DID
-const firstKey = vault.keyIds()[0]; // by default only the initial key has the right to update the DID document
+const did = vault.activeDid();
+const firstKey = ...; // the currently active key of the DID
 
 // Adding the new key with rights
-const operations = new Layer1.OperationAttemptsBuilder()
+const operationAttempts = new Layer1.OperationAttemptsBuilder()
   .withVault(vault)
   .on(did, await layer2Api.getLastTxId(did))
   .tombstoneDid()
   .sign(firstKey)
   .getAttempts();
 
-const txId = await layer1Api.sendMorpheusTx(operations, 'SENDER_BIP38_PASSPHRASE');
+const txId = await layer1Api.sendMorpheusTx(operationAttempts, 'SENDER_BIP38_PASSPHRASE');
 ```
 
 ### Layer-2 Module
@@ -313,6 +318,8 @@ const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
 An in-memory vault, that does not persist state, it your job via the `serialize` and `deserialize` methods.
 
 ```typescript
+import { Crypto } from '@internet-of-people/sdk';
+
 // Create
 const vault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
 
@@ -333,6 +340,7 @@ const activeDid = vault.activeDid();
 
 // Create DID
 const newDid = vault.createDid();
+const keyId = newDid.defaultKeyId();
 
 // Sign witness request
 vault.signWitnessRequest(keyId, 'A_JSON_WITNESS_REQUEST');
@@ -373,6 +381,7 @@ const activeDid = vault.activeDid();
 
 // Create DID
 const newDid = vault.createDid();
+const keyId = newDid.defaultKeyId();
 
 // Sign DID operations
 vault.signDidOperations(keyId, 'TBD');
@@ -413,6 +422,8 @@ import { JsonUtils, Types } from '@internet-of-people/sdk';
 const content: Types.Sdk.IContent = '{"ajson":"object"}';
 const contentId = JsonUtils.digest(content);
 ```
+
+TODO add Json masking
 
 ### Utils Module
 

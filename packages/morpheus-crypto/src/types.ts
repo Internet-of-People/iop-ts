@@ -7,7 +7,9 @@ export interface IVault {
 export type Authentication = KeyId | PublicKey;
 export type AuthenticationData = string; // Either "iezBlah" or "pezFoo"
 export type DidData = string; // Example "did:morpheus:ezBlah"
-export type KeyIdData = string; // Example "iezBlah"
 export type Nonce = string; // Example "uSomething"
+
+// TODO these seem to be unused
+export type KeyIdData = string; // Example "iezBlah"
 export type PublicKeyData = string; // Example "pezFoo"
 export type SignatureData = string; // Example "sezBar"
