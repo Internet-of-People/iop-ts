@@ -56,19 +56,9 @@ const attachHTTPApi = async(
   stateHandler: Interfaces.IMorpheusStateHandler,
   log: Utils.IAppLog,
 ): Promise<void> => {
-  log.info('Trying to attach Morpheus HTTP API...');
+  log.info('Attaching Morpheus HTTP API...');
 
   const api = container.resolvePlugin('api');
-
-  if (!api) {
-    setTimeout(() => {
-      attachHTTPApi(container, stateHandler, log)
-        .catch((err) => {
-          return log.error(`Error attaching Morpheus HTTP API: ${err}`);
-        });
-    }, 1000);
-    return;
-  }
 
   const database: Database.IDatabaseService = container.resolvePlugin('database');
   const transactionRepository: Database.ITransactionsBusinessRepository = database.transactionsBusinessRepository;
@@ -120,10 +110,14 @@ const register = async(container: Container.IContainer): Promise<Composite> => {
   const composite = new Composite(log, arkConnector, blockEventSource);
   await composite.init();
 
-  await attachHTTPApi(container, stateHandler, log);
-
   log.info('Registering MorpheusTransactionHandler');
   Handlers.Registry.registerTransactionHandler(MorpheusTransactionHandler);
+
+  /* eslint @typescript-eslint/no-misused-promises: 0 */
+  eventEmitter.on('wallet.api.started', async() => {
+    await attachHTTPApi(container, stateHandler, log);
+  });
+
   return composite;
 };
 
