@@ -19,13 +19,13 @@ export class Api implements Types.Layer1.IApi {
   public async sendTransferTx(
     fromPassphrase: string,
     toAddress: string,
-    amountArkToshi: Utils.BigNumber,
+    amountFlake: Utils.BigNumber,
   ): Promise<string> {
     const senderKeys = Identities.Keys.fromPassphrase(fromPassphrase);
     const nonce = await this.nextWalletNonce(senderKeys.publicKey);
 
     const tx = Transactions.BuilderFactory.transfer()
-      .amount(amountArkToshi.toFixed())
+      .amount(amountFlake.toFixed())
       .fee(Utils.BigNumber.make(0.1 * 1e8).toFixed())
       .nonce(nonce.toFixed())
       .recipientId(toAddress);
