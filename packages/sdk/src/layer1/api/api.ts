@@ -20,14 +20,20 @@ export class Api implements Types.Layer1.IApi {
     fromPassphrase: string,
     toAddress: string,
     amountFlake: Utils.BigNumber,
+    nonce?: Utils.BigNumber,
   ): Promise<string> {
     const senderKeys = Identities.Keys.fromPassphrase(fromPassphrase);
-    const nonce = await this.nextWalletNonce(senderKeys.publicKey);
+
+    let nextNonce = nonce;
+
+    if (! nextNonce) {
+      nextNonce = await this.nextWalletNonce(senderKeys.publicKey);
+    }
 
     const tx = Transactions.BuilderFactory.transfer()
       .amount(amountFlake.toFixed())
       .fee(Utils.BigNumber.make(0.1 * 1e8).toFixed())
-      .nonce(nonce.toFixed())
+      .nonce(nextNonce.toFixed())
       .recipientId(toAddress);
 
     const signedTx = tx
@@ -38,7 +44,11 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx);
   }
 
-  public async sendMorpheusTx(attempts: Types.Layer1.IOperationData[], passphrase: string): Promise<string> {
+  public async sendMorpheusTx(
+    attempts: Types.Layer1.IOperationData[],
+    passphrase: string,
+    nonce?: Utils.BigNumber,
+  ): Promise<string> {
     const txBuilder = new Layer1.MorpheusTransactionBuilder();
     const unsignedTx = txBuilder.fromOperationAttempts(attempts);
 
@@ -53,9 +63,13 @@ export class Api implements Types.Layer1.IApi {
       throw new Error('Low balance. Send some HYDs to the address you provided.');
     }
 
-    const currentNonce = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().nonce) : Utils.BigNumber.ZERO;
-    const nextNonce = currentNonce.plus(1);
-    console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+    let nextNonce = nonce;
+
+    if (! nextNonce) {
+      const currentNonce = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().nonce) : Utils.BigNumber.ZERO;
+      nextNonce = currentNonce.plus(1);
+      console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+    }
     unsignedTx.nonce(nextNonce.toFixed());
 
     const signedTx = unsignedTx.sign(passphrase).build()
