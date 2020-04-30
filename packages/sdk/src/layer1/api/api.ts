@@ -5,6 +5,7 @@ import * as Layer1 from '../../layer1';
 import { Network } from '../../network';
 import { AxiosClient } from './client';
 
+
 export class Api implements Types.Layer1.IApi {
   private readonly clientInstance: Types.Layer1.IClient;
 

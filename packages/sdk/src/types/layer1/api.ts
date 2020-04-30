@@ -1,9 +1,11 @@
 import { Interfaces, Utils } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
 import { IOperationData } from './operation-data';
+import { Sdk } from '../index';
 
 export interface IClient {
   sendTx(tx: Interfaces.ITransactionJson): Promise<string>;
+  getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Interfaces.ITransactionJson>>;
   getWallet(address: string): Promise<Optional<IWalletResponse>>;
   getWalletNonce(address: string): Promise<Utils.BigNumber>;
   getWalletBalance(address: string): Promise<Utils.BigNumber>;

@@ -52,13 +52,13 @@ export class Api {
     return result;
   }
 
-  // NOTE that layer2 status is returned here, i.e. layer2 transactions are expected.
-  //      Layer1 txns are not found thus Optional.empty() is returned for them as well.
-  public async getTxnStatus(layer2TxId: Types.Sdk.TransactionId): Promise<Optional<boolean>> {
-    console.log(`Getting txn status for ${layer2TxId}...`);
+  // NOTE that layer2 status is returned here, i.e. Morpheus/DAC transactions are expected.
+  //      Layer1 (e.g. transfer) transactions are not found thus Optional.empty() is returned for them.
+  public async getTxnStatus(morpheusTxId: Types.Sdk.TransactionId): Promise<Optional<boolean>> {
+    console.log(`Getting txn layer2 status for ${morpheusTxId}...`);
 
     try {
-      const resp = await apiGet(this.api, `/txn-status/${layer2TxId}`);
+      const resp = await apiGet(this.api, `/txn-status/${morpheusTxId}`);
       return Optional.of(resp.data);
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {

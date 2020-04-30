@@ -2,8 +2,9 @@ import { Interfaces, Utils } from '@arkecosystem/crypto';
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
 import { schemaAndHost, Network } from '../../network';
-import { Layer1 } from '../../types';
+import { Layer1, Sdk } from '../../types';
 import { apiGet, apiPost, HttpError } from '../../internal/http';
+
 
 export class AxiosClient implements Layer1.IClient {
   private readonly api: AxiosInstance;
@@ -38,6 +39,20 @@ export class AxiosClient implements Layer1.IClient {
 
     console.log('Tx sent, id:', accept[0]);
     return accept[0];
+  }
+
+  public async getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Interfaces.ITransactionJson>> {
+    console.log(`Getting txn layer1 status for ${txId}...`);
+
+    try {
+      const resp = await apiGet(this.api, `/transactions/${txId}`);
+      return Optional.of(resp.data.data);
+    } catch (e) {
+      if (e instanceof HttpError && e.statusCode === 404) {
+        return Optional.empty();
+      }
+      throw e;
+    }
   }
 
   public async getWallet(address: string): Promise<Optional<Layer1.IWalletResponse>> {

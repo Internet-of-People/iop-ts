@@ -6,6 +6,6 @@ export interface IApi {
   getBeforeProofHistory(contentId: string): Promise<Types.Layer2.IBeforeProofHistory>;
   beforeProofExists(contentId: string, height?: number): Promise<boolean>;
   getDidDocument(did: Crypto.Did, height?: number): Promise<Types.Layer2.IDidDocument>;
-  getTxnStatus(layer2TxId: Types.Sdk.TransactionId): Promise<Optional<boolean>>;
+  getTxnStatus(morpheusTxId: Types.Sdk.TransactionId): Promise<Optional<boolean>>;
   getLastTxId(did: Crypto.Did): Promise<Types.Sdk.TransactionId | null>;
 }
