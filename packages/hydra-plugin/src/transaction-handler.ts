@@ -64,7 +64,7 @@ export class MorpheusTransactionHandler extends Handlers.TransactionHandler {
       const asset = _data.asset as Types.Layer1.IMorpheusAsset;
       const expectedFee = Layer1.MorpheusTransactionBuilder.calculateFee(asset.operationAttempts);
 
-      if (_data.fee < expectedFee) {
+      if (_data.fee.isLessThan(expectedFee)) {
         return {
           type: 'ERR_LOW_FEE',
           message: `The fee for this transaction must be at least ${expectedFee}`,

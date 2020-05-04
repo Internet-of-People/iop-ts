@@ -6,7 +6,7 @@ export class MorpheusTransactionBuilder extends Transactions.TransactionBuilder<
   // see minFeePool:
   // https://github.com/Internet-of-People/hydra-core/blob/master/packages/core/bin/config/mainnet/plugins.js
   private static readonly FLAKES_PER_BYTES: number = 3000;
-  private static readonly OFFSET_BYTES: number = 3000; // we suppose one transaction eats up ~80Byte
+  private static readonly OFFSET_BYTES: number = 15;
 
   public constructor() {
     super();
