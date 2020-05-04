@@ -32,7 +32,7 @@ npm run serve
 
 ### List Scenarios
 
-Returns all inspection [scenarios](https://iop-stack.iop.rocks/dids-and-claims/specification/#/glossary?id=scenario) available at this inspector.
+Returns all inspection [scenarios](https://developer.iop.global/#/glossary?id=scenario) available at this inspector.
 
 Note: It's possible that process will not be objects but only a [content id](https://iop-stack.iop.rocks/dids-and-claims/specification/#/glossary?id=content-id). In that case, use the [blob storage endpoint](#Download-Public-Blob) to download the process itself.
 

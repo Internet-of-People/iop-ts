@@ -58,7 +58,6 @@ export class Api implements Types.Layer1.IApi {
     const address = Identities.Address.fromPublicKey(keys.publicKey);
     const wallet = await this.clientInstance.getWallet(address);
     const balance = wallet.isPresent() ? Utils.BigNumber.make(wallet.get().balance) : Utils.BigNumber.ZERO;
-    // console.log(`Current balance is ${balance}`);
 
     if (balance.isLessThan(10000000)) { // 0.1 HYD in flakes (HYD*1e8)
       throw new Error('Low balance. Send some HYDs to the address you provided.');

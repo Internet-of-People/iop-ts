@@ -1,7 +1,7 @@
 # Morpheus
 
 Morpheus is a decentralized identity system with an open ecosystem enabling verifiable claims in a
-web-of-trust way. See the [specification](https://iop-stack.iop.rocks/dids-and-claims/specification/) or check out the [whitepaper](https://iop.global/whitepaper/) where this fits.
+web-of-trust way. See the [specification](https://developer.iop.global/) or check out the [whitepaper](https://iop.global/whitepaper/) where this fits.
 
 ## Table of Contents <!-- omit in toc -->
 

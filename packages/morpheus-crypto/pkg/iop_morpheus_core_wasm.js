@@ -855,13 +855,13 @@ class Vault {
 }
 module.exports.Vault = Vault;
 
-module.exports.__wbg_did_new = function(arg0) {
-    var ret = Did.__wrap(arg0);
+module.exports.__wbg_validationissue_new = function(arg0) {
+    var ret = ValidationIssue.__wrap(arg0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_validationissue_new = function(arg0) {
-    var ret = ValidationIssue.__wrap(arg0);
+module.exports.__wbg_did_new = function(arg0) {
+    var ret = Did.__wrap(arg0);
     return addHeapObject(ret);
 };
 
@@ -879,13 +879,13 @@ module.exports.__wbg_validationresult_new = function(arg0) {
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
+module.exports.__wbindgen_json_parse = function(arg0, arg1) {
+    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_json_parse = function(arg0, arg1) {
-    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+module.exports.__wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
     return addHeapObject(ret);
 };
 

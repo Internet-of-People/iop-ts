@@ -1,7 +1,7 @@
 # IoP SDK
 
 This package contains all Typescript tool you need to interact with *IoP DAC* and *Fort* APIs and create awesome apps.
-For more info please visit the [IoP Developer Portal](https://iop-stack.iop.rocks/dids-and-claims/specification/).
+For more info please visit the [IoP Developer Portal](https://developer.iop.global/).
 
 *This SDK will improve over time to be able to use it more easily.*
 
@@ -268,7 +268,7 @@ const status = await api.getTxnStatus('THE_LAYER_1_TX_ID_CONTAINED_A_DAC_OPERATI
 Note that layer2 status is returned here hence transactions containing layer2 operations are expected.
 Layer1 transactions are not found thus `Optional.empty()` is returned for them as well.
 For a description of our Layer2 transactions and consensus,
-[see the specification](https://iop-stack.iop.rocks/dids-and-claims/specification/#/dac?id=decentralized-ledger-dlt).
+[see the specification](https://developer.iop.global/#/dac?id=decentralized-ledger-dlt).
 
 
 #### Get DID Document

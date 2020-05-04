@@ -33,7 +33,7 @@ If you are not sure where is your `plugins.js` file and you **have not modified*
 ## Usage
 
 The plugin provides some endpoints where you can query the Layer 2 consensus.
-Please see the [architecture section in the specification](https://iop-stack.iop.rocks/dids-and-claims/specification/#/architecture) for the exact endpoints.
+Please see the [architecture section in the specification](https://developer.iop.global/#/architecture) for the exact endpoints.
 
 An example URL you can curl: `curl http://127.0.0.1:4703/before-proof/iop/exists/780`
 

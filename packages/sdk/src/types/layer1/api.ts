@@ -19,11 +19,13 @@ export interface IApi {
     fromPassphrase: string,
     toAddress: string,
     amountFlake: Utils.BigNumber,
-    nonce?: Utils.BigNumber): Promise<string>;
+    nonce?: Utils.BigNumber,
+  ): Promise<string>;
   sendMorpheusTx(
     attempts: IOperationData[],
     passphrase: string,
-    nonce?: Utils.BigNumber): Promise<string>;
+    nonce?: Utils.BigNumber,
+  ): Promise<string>;
 }
 
 export interface IWalletResponse {

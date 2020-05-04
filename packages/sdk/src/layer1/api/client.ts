@@ -92,12 +92,9 @@ export class AxiosClient implements Layer1.IClient {
     const wallet = await this.getWallet(address);
 
     if (wallet.isPresent()) {
-      const balance = Utils.BigNumber.make(wallet.get().balance);
-      console.log(`Balance of ${address} is ${balance.toFixed()}`);
-      return balance;
+      return Utils.BigNumber.make(wallet.get().balance);
     }
 
-    console.log(`Balance of ${address} is 0`);
     return Utils.BigNumber.ZERO;
   }
 

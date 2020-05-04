@@ -11,6 +11,8 @@ export function mask(data: any, keep_properties_list: string): string;
 * @returns {string} 
 */
 export function digest(data: any): string;
+/**
+*/
 export class Bip39 {
   free(): void;
 /**
@@ -32,6 +34,8 @@ export class Bip39 {
 */
   listWords(prefix: string): any[];
 }
+/**
+*/
 export class Did {
   free(): void;
 /**
@@ -56,6 +60,8 @@ export class Did {
 */
   toString(): string;
 }
+/**
+*/
 export class KeyId {
   free(): void;
 /**
@@ -71,6 +77,8 @@ export class KeyId {
 */
   toString(): string;
 }
+/**
+*/
 export class PublicKey {
   free(): void;
 /**
@@ -95,6 +103,8 @@ export class PublicKey {
 */
   toString(): string;
 }
+/**
+*/
 export class Signature {
   free(): void;
 /**
@@ -110,6 +120,8 @@ export class Signature {
 */
   toString(): string;
 }
+/**
+*/
 export class SignedBytes {
   free(): void;
 /**
@@ -122,10 +134,21 @@ export class SignedBytes {
 * @returns {boolean} 
 */
   validate(): boolean;
+/**
+* @returns {Uint8Array} 
+*/
   readonly content: Uint8Array;
+/**
+* @returns {PublicKey} 
+*/
   readonly publicKey: PublicKey;
+/**
+* @returns {Signature} 
+*/
   readonly signature: Signature;
 }
+/**
+*/
 export class SignedJson {
   free(): void;
 /**
@@ -150,21 +173,51 @@ export class SignedJson {
 * @returns {any} 
 */
   validateWithDidDoc(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
+/**
+* @returns {any} 
+*/
   readonly content: any;
+/**
+* @returns {PublicKey} 
+*/
   readonly publicKey: PublicKey;
+/**
+* @returns {Signature} 
+*/
   readonly signature: Signature;
 }
+/**
+*/
 export class ValidationIssue {
   free(): void;
+/**
+* @returns {number} 
+*/
   readonly code: number;
+/**
+* @returns {string} 
+*/
   readonly reason: string;
+/**
+* @returns {string} 
+*/
   readonly severity: string;
 }
+/**
+*/
 export class ValidationResult {
   free(): void;
+/**
+* @returns {any[]} 
+*/
   readonly messages: any[];
+/**
+* @returns {string} 
+*/
   readonly status: string;
 }
+/**
+*/
 export class Vault {
   free(): void;
 /**
