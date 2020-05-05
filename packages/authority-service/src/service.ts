@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Authority, Crypto, JsonUtils, Signed, Types } from '@internet-of-people/sdk';
+import { Authority, Crypto, Signed, Types } from '@internet-of-people/sdk';
 import { IStorage, IRequestData } from './storage';
 
 export class Service implements Types.Authority.IApi {
@@ -22,7 +22,7 @@ export class Service implements Types.Authority.IApi {
   public async sendRequest(
     witnessRequest: Types.Sdk.ISigned<Types.Sdk.IWitnessRequest>,
   ): Promise<Types.Authority.CapabilityLink> {
-    const requestId = JsonUtils.digest(witnessRequest);
+    const requestId = Crypto.digest(witnessRequest);
 
     const existingRequestData = await this.storage.getRequestById(requestId);
 

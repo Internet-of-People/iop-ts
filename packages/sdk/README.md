@@ -25,10 +25,10 @@ For more info please visit the [IoP Developer Portal](https://developer.iop.glob
     - [Get Last Transaction ID](#Get-Last-Transaction-ID)
   - [Crypto Module](#Crypto-Module)
     - [Utility Functions](#Utility-Functions)
+    - [JSON Masking](#JSON-Masking)
     - [In-Memory Vault](#In-Memory-Vault)
     - [Persistent Vault](#Persistent-Vault)
   - [Authority Module](#Authority-Module)
-  - [JsonUtils Module](#JsonUtils-Module)
   - [Ark Module](#Ark-Module)
   - [Network Module](#Network-Module)
   - [Utils Module](#Utils-Module)
@@ -48,7 +48,7 @@ $ npm install @internet-of-people/sdk --save
 ## Usage
 
 ```typescript
-import { Ark, Authority, Crypto, JsonUtils, Layer1, Layer2, Network, Types, Utils } from '@internet-of-people/sdk';
+import { Ark, Authority, Crypto, Layer1, Layer2, Network, Types, Utils } from '@internet-of-people/sdk';
 ```
 
 For more information about the modules, check the corresponding module section below.
@@ -308,6 +308,31 @@ const keyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
 const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
 ```
 
+#### JSON Masking
+
+For a basic understanding of our data masking solution, consult
+[the specification](https://developer.iop.global/#/glossary?id=masked-claim-presentation).
+
+Function `mask` provides a generic solution for masking JSON documents.
+Argument `json` is the serialized Json document as a string to be processed.
+In argument `keepPaths` you can specify a string containing a comma-separated list of paths.
+Collapsing the Merkle-tree will stop at these nodes, their whole Json subtrees will be kept untouched.
+All other paths will be recursively collapsed, keeping only the specified paths open.
+The format of the Json path list was built on the path concepts of the
+[JQ (Json Query) tool](https://stedolan.github.io/jq/manual/#Basicfilters).
+The function returns the masked Json document as a string on success.
+
+Function `digest` is just an alias for a special case when the whole document is to be collapsed masking all details and only a single content ID of the root remains.
+
+```typescript
+import { Crypto, Types } from '@internet-of-people/sdk';
+
+const content = {"data": {"key": "value"}, "timestamp": "2020.02.02 02:02:02", "version": 1};
+const contentId = Crypto.digest(content);
+const maskedData = Crypto.mask(content, ".timestamp, .version");
+```
+
+
 #### In-Memory Vault
 
 An in-memory vault, that does not persist state, it your job via the `serialize` and `deserialize` methods.
@@ -407,18 +432,6 @@ console.log(allNetworks); // will print out an array containing all field in the
 const host = schemaAndHost(Network.LocalTestnet); // will be 'http://127.0.0.1'
 ```
 
-### JsonUtils Module
-
-Currently contains only a JSON digest utility, which calculates the ContentId of any content representible as a JSON object.
-
-```typescript
-import { JsonUtils, Types } from '@internet-of-people/sdk';
-
-const content: Types.Sdk.IContent = '{"ajson":"object"}';
-const contentId = JsonUtils.digest(content);
-```
-
-TODO add Json masking
 
 ### Utils Module
 

@@ -1,4 +1,4 @@
-import { Authority, JsonUtils, Types } from '@internet-of-people/sdk';
+import { Authority, Crypto, Types } from '@internet-of-people/sdk';
 
 export interface IRequestData {
   capabilityLink: Types.Authority.CapabilityLink;
@@ -29,13 +29,13 @@ export interface IStorage {
 }
 
 export const addPublicBlob = async(s: IStorage, c: Types.Sdk.IContent): Promise<Types.Sdk.ContentId> => {
-  const contentId = JsonUtils.digest(c);
+  const contentId = Crypto.digest(c);
   await s.setPublicBlob(contentId, c);
   return contentId;
 };
 
 export const addProcessSchemas = async(s: IStorage, p: Types.Sdk.IProcess): Promise<Types.Sdk.ContentId> => {
-  const contentId = JsonUtils.digest(p);
+  const contentId = Crypto.digest(p);
 
   /* eslint require-atomic-updates: 0 */
   const { claimSchema, evidenceSchema, constraintsSchema } = p;

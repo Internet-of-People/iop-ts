@@ -1,4 +1,4 @@
-import { Crypto, Types, JsonUtils, Signed } from '@internet-of-people/sdk';
+import { Crypto, Types, Signed } from '@internet-of-people/sdk';
 
 import { IStorage } from './storage';
 import { IHydraApi } from './hydra-api';
@@ -23,7 +23,7 @@ export class Service implements Types.Inspector.IApi {
   public async uploadPresentation(
     presentation: Types.Sdk.ISigned<Types.Sdk.IPresentation>,
   ): Promise<Types.Sdk.ContentId> {
-    const contentId = JsonUtils.digest(presentation);
+    const contentId = Crypto.digest(presentation);
     const existingContent = await this.storage.getPublicBlob(contentId);
 
     if (existingContent) {

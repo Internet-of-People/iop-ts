@@ -1,6 +1,5 @@
-import { PublicKey, Signature, SignedJson } from '@internet-of-people/morpheus-crypto';
+import { digest, PublicKey, Signature, SignedJson } from '@internet-of-people/morpheus-crypto';
 import { Sdk } from './types';
-import * as JsonUtils from './json';
 
 export class Signed<T extends Sdk.IContent> {
   public constructor(public readonly data: Sdk.ISigned<T>, public readonly typeName: string) {
@@ -42,12 +41,12 @@ export class Signed<T extends Sdk.IContent> {
   }
 
   public get contentId(): Sdk.ContentId {
-    return JsonUtils.digest(this.data);
+    return digest(this.data);
   }
 
   public get signableContentId(): Sdk.ContentId {
     return typeof this.data.content === 'object' ?
-      JsonUtils.digest(this.data.content) :
+      digest(this.data.content) :
       this.data.content;
   }
 

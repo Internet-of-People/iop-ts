@@ -1,4 +1,4 @@
-import { JsonUtils, Types } from '@internet-of-people/sdk';
+import { Crypto, Types } from '@internet-of-people/sdk';
 
 export interface IStorage {
   getScenarios(): Promise<Types.Sdk.ContentId[]>;
@@ -8,13 +8,13 @@ export interface IStorage {
 }
 
 export const addPublicBlob = async(storage: IStorage, content: Types.Sdk.IContent): Promise<Types.Sdk.ContentId> => {
-  const contentId = JsonUtils.digest(content);
+  const contentId = Crypto.digest(content);
   await storage.setPublicBlob(contentId, content);
   return contentId;
 };
 
 export const addScenario = async(storage: IStorage, scenario: Types.Sdk.IScenario): Promise<Types.Sdk.ContentId> => {
-  const contentId = JsonUtils.digest(scenario);
+  const contentId = Crypto.digest(scenario);
 
   scenario.prerequisites = await Promise.all(scenario.prerequisites.map(async(prerequisite) => {
     const result = prerequisite;

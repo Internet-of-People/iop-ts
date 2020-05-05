@@ -1,4 +1,4 @@
-import { JsonUtils, Types } from '../src';
+import { Crypto, Types } from '../src';
 
 type IDynamicContent = Types.Sdk.IDynamicContent;
 
@@ -9,22 +9,22 @@ describe('json-digest', () => {
   const complexDigest = 'cjubdcpA0FfHhD8yEpDzZ8vS5sm7yxkrX_wAJgmke2bWRQ';
 
   it('digests simple object', () => {
-    const digest = JsonUtils.digest(testObj);
+    const digest = Crypto.digest(testObj);
     expect(digest).toBe(testObjDigest);
   });
 
   it('digests array', () => {
-    const digest = JsonUtils.digest([ testObj, testObj ] as unknown as IDynamicContent);
+    const digest = Crypto.digest([ testObj, testObj ] as unknown as IDynamicContent);
     expect(digest).toBe(arrayDigest);
   });
 
   it('half-masked array gets the same digest', () => {
-    const digest = JsonUtils.digest([ testObj, testObjDigest ] as unknown as IDynamicContent);
+    const digest = Crypto.digest([ testObj, testObjDigest ] as unknown as IDynamicContent);
     expect(digest).toBe(arrayDigest);
   });
 
   it('fully masked array gets the same digest', () => {
-    const digest = JsonUtils.digest(
+    const digest = Crypto.digest(
       [ testObjDigest, testObjDigest ] as unknown as IDynamicContent,
     );
     expect(digest).toBe(arrayDigest);
@@ -32,7 +32,7 @@ describe('json-digest', () => {
 
   it('digests complex object', () => {
     const complex: IDynamicContent = { z: testObj, y: testObj };
-    const digest = JsonUtils.digest(complex);
+    const digest = Crypto.digest(complex);
     expect(digest).toBe(complexDigest);
   });
 
@@ -40,21 +40,21 @@ describe('json-digest', () => {
     const complex: IDynamicContent = { z: testObj, y: testObj };
     const doubleComplex: IDynamicContent = { z: complex, y: complex };
     const tripleComplex: IDynamicContent = { z: doubleComplex, y: doubleComplex };
-    const doubleDigest = JsonUtils.digest(doubleComplex);
+    const doubleDigest = Crypto.digest(doubleComplex);
     expect(doubleDigest).toBe('cjuQLebyl_BJipFLibhWiStDBqK5J4JZq15ehUqybfTTKA');
-    const tripleDigest = JsonUtils.digest(tripleComplex);
+    const tripleDigest = Crypto.digest(tripleComplex);
     expect(tripleDigest).toBe('cjuik140L3w7LCi6z1eHt7Qgwr2X65-iy8HA6zqrlUdmVk');
   });
 
   it('half-masked complex object gets the same digest', () => {
     const complex: IDynamicContent = { z: testObj, y: testObjDigest };
-    const digest = JsonUtils.digest(complex);
+    const digest = Crypto.digest(complex);
     expect(digest).toBe(complexDigest);
   });
 
   it('fully masked complex object gets the same digest', () => {
     const complex: IDynamicContent = { z: testObjDigest, y: testObjDigest };
-    const digest = JsonUtils.digest(complex);
+    const digest = Crypto.digest(complex);
     expect(digest).toBe(complexDigest);
   });
 
@@ -66,8 +66,8 @@ describe('json-digest', () => {
     objWithSameNormalizedKeys[nfc] = 2;
 
     expect(() => {
-      return JsonUtils.digest(objWithSameNormalizedKeys);
-    }).toThrowError('Object keys only differ in Unicode normalization');
+      return Crypto.digest(objWithSameNormalizedKeys);
+    }).toThrowError('Data to be digested/masked must contain field names normalized with Unicode NFKD');
   });
 
   it('rejects objects with cycles', () => {
@@ -76,7 +76,7 @@ describe('json-digest', () => {
     obj1['d'] = obj2;
 
     expect(() => {
-      return JsonUtils.digest(obj1);
-    }).toThrowError('Found a cycle in object graph');
+      return Crypto.digest(obj1);
+    }).toThrowError('Converting circular structure to JSON');
   });
 });

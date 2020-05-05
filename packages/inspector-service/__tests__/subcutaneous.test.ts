@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { unlinkSync } from 'fs';
 
-import { Ark, Crypto, Layer2, JsonUtils, Types } from '@internet-of-people/sdk';
+import { Ark, Crypto, Layer2, Types } from '@internet-of-people/sdk';
 
 import { SqliteStorage } from '../src/storage-sqlite';
 import { Service } from '../src/service';
@@ -58,7 +58,7 @@ describe('Service', () => {
   });
 
   it('presenation can be sent', async() => {
-    const contentId = JsonUtils.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
+    const contentId = Crypto.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
     await request(fixture.app)
       .post('/presentation')
       .send(presenation1)
@@ -70,13 +70,13 @@ describe('Service', () => {
   });
 
   it('presenation can be retrieved', async() => {
-    const contentId = JsonUtils.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
+    const contentId = Crypto.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
     await request(fixture.app)
       .get(`/blob/${contentId}`)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
         const signedPresentation: Types.Sdk.ISigned<Types.Sdk.IPresentation> = res.body;
-        expect(JsonUtils.digest(signedPresentation)).toBe(contentId);
+        expect(Crypto.digest(signedPresentation)).toBe(contentId);
       });
   });
 

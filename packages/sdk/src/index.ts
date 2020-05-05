@@ -1,7 +1,6 @@
 import * as Crypto from '@internet-of-people/morpheus-crypto';
 import * as Ark from '@arkecosystem/crypto';
 import * as Authority from './authority';
-import * as JsonUtils from './json';
 import * as Layer1 from './layer1';
 import * as Layer2 from './layer2';
 import * as Types from './types';
@@ -13,7 +12,6 @@ export {
   Ark,
   Authority,
   Crypto,
-  JsonUtils,
   Layer1,
   Layer2,
   Types,
