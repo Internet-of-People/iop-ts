@@ -1,4 +1,4 @@
-import { Vault } from '../pkg';
+import { Vault } from '@internet-of-people/morpheus-crypto-wasm';
 import { PersistentVault } from '../src';
 
 describe('Vault', () => {

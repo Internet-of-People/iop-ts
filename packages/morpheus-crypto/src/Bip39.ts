@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 
-import { Bip39 as WasmBip39 } from '../pkg';
+import { Bip39 as WasmBip39 } from '@internet-of-people/morpheus-crypto-wasm';
 
 export class Bip39 {
   private readonly wrapped: WasmBip39;

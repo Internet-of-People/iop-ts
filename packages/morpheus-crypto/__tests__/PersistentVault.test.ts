@@ -1,5 +1,5 @@
 import { unlinkSync } from 'fs';
-import { SignedBytes, Vault, Did } from '../pkg';
+import { SignedBytes, Vault, Did } from '@internet-of-people/morpheus-crypto-wasm';
 import { PersistentVault } from '../src';
 
 const VAULT_FILE = 'vault.json';

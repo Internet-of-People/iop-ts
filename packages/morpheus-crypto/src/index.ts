@@ -10,7 +10,7 @@ export {
   ValidationIssue,
   ValidationResult,
   Vault,
-} from '../pkg';
+} from '@internet-of-people/morpheus-crypto-wasm';
 
 import type * as Types from './types';
 

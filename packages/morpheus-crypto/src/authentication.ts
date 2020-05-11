@@ -1,5 +1,5 @@
 import { Authentication, AuthenticationData, DidData } from './types';
-import { Did, KeyId, PublicKey } from '../pkg';
+import { Did, KeyId, PublicKey } from '@internet-of-people/morpheus-crypto-wasm';
 
 export const didToAuth = (did: DidData): Authentication => {
   return new Did(did).defaultKeyId();

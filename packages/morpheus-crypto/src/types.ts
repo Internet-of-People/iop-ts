@@ -1,4 +1,4 @@
-import { KeyId, PublicKey, SignedBytes } from '../pkg';
+import { KeyId, PublicKey, SignedBytes } from '@internet-of-people/morpheus-crypto-wasm';
 
 export interface IVault {
   signDidOperations(id: KeyId, message: Uint8Array): SignedBytes;

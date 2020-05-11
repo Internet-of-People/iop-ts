@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { Did, KeyId, SignedBytes, Vault } from '../pkg';
+import { Did, KeyId, SignedBytes, Vault } from '@internet-of-people/morpheus-crypto-wasm';
 import { IVault } from './types';
 
 
