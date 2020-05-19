@@ -1,4 +1,5 @@
-import { Identities, Transactions, Managers, Utils, Errors } from '@arkecosystem/crypto';
+import { Identities, Interfaces, Transactions, Managers, Utils, Errors } from '@arkecosystem/crypto';
+import Optional from 'optional-js';
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
@@ -13,8 +14,28 @@ export class Api implements Types.Layer1.IApi {
     this.clientInstance = new AxiosClient(network);
   }
 
-  public get client(): Types.Layer1.IClient {
-    return this.clientInstance;
+  public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {
+    return this.clientInstance.getNodeCryptoConfig();
+  }
+
+  public async getCurrentHeight(): Promise<number> {
+    return this.clientInstance.getCurrentHeight();
+  }
+
+  public async getTxnStatus(txId: string): Promise<Optional<Interfaces.ITransactionJson>> {
+    return this.clientInstance.getTxnStatus(txId);
+  }
+
+  public async getWallet(address: string): Promise<Optional<Types.Layer1.IWalletResponse>> {
+    return this.clientInstance.getWallet(address);
+  }
+
+  public async getWalletNonce(address: string): Promise<Utils.BigNumber> {
+    return this.clientInstance.getWalletNonce(address);
+  }
+
+  public async getWalletBalance(address: string): Promise<Utils.BigNumber> {
+    return this.clientInstance.getWalletBalance(address);
   }
 
   public async sendTransferTx(
@@ -90,16 +111,17 @@ export const createApi = async(network: Network): Promise<Types.Layer1.IApi> => 
   const api = new Api(network);
 
   const [ cryptoConfig, height ] = await Promise.all([
-    api.client.getNodeCryptoConfig(),
-    api.client.getCurrentHeight(),
+    api.getNodeCryptoConfig(),
+    api.getCurrentHeight(),
   ]);
   Managers.configManager.setConfig(cryptoConfig);
   Managers.configManager.setHeight(height);
+
   try {
     Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction);
-  } catch(e) {
+  } catch (e) {
     // using the SDK hot reloaders might call this multiple times in one iteration
-    if(!(e instanceof Errors.TransactionAlreadyRegisteredError)) {
+    if (!(e instanceof Errors.TransactionAlreadyRegisteredError)) {
       throw e;
     }
   }

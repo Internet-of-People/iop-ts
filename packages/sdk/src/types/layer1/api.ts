@@ -5,27 +5,53 @@ import { Sdk } from '../index';
 
 export interface IClient {
   sendTx(tx: Interfaces.ITransactionJson): Promise<string>;
+
   getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Interfaces.ITransactionJson>>;
+
   getWallet(address: string): Promise<Optional<IWalletResponse>>;
+
   getWalletNonce(address: string): Promise<Utils.BigNumber>;
+
   getWalletBalance(address: string): Promise<Utils.BigNumber>;
+
   getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig>;
+
   getCurrentHeight(): Promise<number>;
 }
 
 export interface IApi {
-  readonly client: IClient;
+  getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig>;
+
+  getCurrentHeight(): Promise<number>;
+
   sendTransferTx(
     fromPassphrase: string,
     toAddress: string,
     amountFlake: Utils.BigNumber,
     nonce?: Utils.BigNumber,
   ): Promise<string>;
+
   sendMorpheusTx(
     attempts: IOperationData[],
     passphrase: string,
     nonce?: Utils.BigNumber,
   ): Promise<string>;
+
+  getTxnStatus(
+    txId: Sdk.TransactionId,
+  ): Promise<Optional<Interfaces.ITransactionJson>>;
+
+  getWallet(
+    address: string,
+  ): Promise<Optional<IWalletResponse>>;
+
+  getWalletNonce(
+    address: string,
+  ): Promise<Utils.BigNumber>;
+
+  getWalletBalance(
+    address: string,
+  ): Promise<Utils.BigNumber>;
 }
 
 export interface IWalletResponse {
