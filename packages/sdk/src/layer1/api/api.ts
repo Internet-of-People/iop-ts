@@ -1,4 +1,4 @@
-import { Identities, Transactions, Managers, Utils } from '@arkecosystem/crypto';
+import { Identities, Transactions, Managers, Utils, Errors } from '@arkecosystem/crypto';
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
@@ -95,6 +95,13 @@ export const createApi = async(network: Network): Promise<Types.Layer1.IApi> => 
   ]);
   Managers.configManager.setConfig(cryptoConfig);
   Managers.configManager.setHeight(height);
-  Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction);
+  try {
+    Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction);
+  } catch(e) {
+    // using the SDK hot reloaders might call this multiple times in one iteration
+    if(!(e instanceof Errors.TransactionAlreadyRegisteredError)) {
+      throw e;
+    }
+  }
   return api;
 };
