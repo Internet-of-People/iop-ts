@@ -10,7 +10,7 @@ export class AxiosClient implements Layer1.IClient {
   private readonly api: AxiosInstance;
 
   public constructor(network: Network) {
-    const baseURL = `${schemaAndHost(network) }:4703/api/v2`;
+    const baseURL = `${schemaAndHost(network) }:4705/api/v2`;
     this.api = axios.create({
       baseURL,
       headers: {

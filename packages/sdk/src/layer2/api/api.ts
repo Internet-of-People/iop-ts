@@ -10,7 +10,7 @@ export class Api {
   private readonly api: AxiosInstance;
 
   public constructor(network: Network) {
-    const baseURL = `${schemaAndHost(network) }:4703/morpheus/v1`;
+    const baseURL = `${schemaAndHost(network) }:4705/morpheus/v1`;
     this.api = axios.create({
       baseURL,
       headers: {

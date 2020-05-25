@@ -12,11 +12,11 @@ export const schemaAndHost = (network: Network): string => {
     case Network.LocalTestnet:
       return 'http://127.0.0.1';
     case Network.Testnet:
-      return 'http://35.187.56.222';
+      return 'https://test.hydra.iop.global';
     case Network.Devnet:
-      return 'http://35.240.62.119';
+      return 'https://dev.hydra.iop.global';
     case Network.Mainnet:
-      return 'http://35.195.150.223';
+      return 'https://hydra.iop.global';
     default:
       throw new Error(`Unknown network ${network}`);
   }
