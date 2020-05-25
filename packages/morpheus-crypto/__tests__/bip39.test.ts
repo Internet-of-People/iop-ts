@@ -1,16 +1,24 @@
-import { Bip39 } from '../src';
+import { Bip39, PersistentVault, Bip44 } from '../src';
 
 describe('Bip39', () => {
   it('can work with phrases', () => {
     const bip39 = new Bip39('en');
-    const phrase = bip39.generatePhrase();
+    const { phrase } = bip39.generate();
     expect(phrase).toBeTruthy();
     expect(phrase.split(' ')).toHaveLength(24);
 
     bip39.validatePhrase(phrase);
     expect(() => {
-      bip39.validatePhrase(`${phrase }X`);
+      bip39.validatePhrase(`${phrase}X`);
     }).toThrow();
+  });
+
+  it('can create seed', () => {
+    const bip39 = new Bip39('en');
+    const seed = bip39.phrase(PersistentVault.DEMO_PHRASE).password('');
+    const key = Bip44.network(seed, 'HYD testnet').account(0)
+      .key(0);
+    expect(key.address).toBe('tjMvaU79mMJ8fKwoLjFLn7rCTthpY6KxTx');
   });
 
   it('can list words', () => {

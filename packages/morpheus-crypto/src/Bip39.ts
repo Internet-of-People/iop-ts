@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 
-import { Bip39 as WasmBip39 } from '@internet-of-people/morpheus-crypto-wasm';
+import { Bip39 as WasmBip39, Bip39Phrase } from '@internet-of-people/morpheus-crypto-wasm';
 
 export class Bip39 {
   private readonly wrapped: WasmBip39;
@@ -17,11 +17,29 @@ export class Bip39 {
   }
 
   /**
-   * @returns {string} New 24-word mnemonic phrase in the selected language
+   * @returns {string} Creates a new random phrase that can be turned into a wallet seed
    */
-  public generatePhrase(): string {
+  public generate(): Bip39Phrase {
     const entropy = randomBytes(256 / 8);
-    return this.wrapped.generatePhrase(Uint8Array.from(entropy));
+    return this.wrapped.entropy(Uint8Array.from(entropy));
+  }
+
+  /**
+   * Checks if the phrase contains only valid words, has the right size and the checksum is also valid.
+   * If any of these fail, an exception will be thrown.
+   * @param {string} phrase
+   */
+  public phrase(phrase: string): Bip39Phrase {
+    return this.wrapped.phrase(phrase);
+  }
+
+  /**
+   * Checks if the phrase contains only valid words, has the right size and the checksum is also valid.
+   * If any of these fail, an exception will be thrown.
+   * @param {Uint8Array} entropy
+   */
+  public entropy(entropy: Uint8Array): Bip39Phrase {
+    return this.wrapped.entropy(entropy);
   }
 
   /**

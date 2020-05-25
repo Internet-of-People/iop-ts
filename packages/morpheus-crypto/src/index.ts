@@ -1,4 +1,5 @@
 export {
+  Bip44,
   Did,
   digest,
   KeyId,
