@@ -20,6 +20,66 @@ export class Bip32 {
 */
 export class Bip32Node {
   free(): void;
+/**
+* @param {number} idx 
+* @returns {Bip32Node} 
+*/
+  deriveNormal(idx: number): Bip32Node;
+/**
+* @param {number} idx 
+* @returns {Bip32Node} 
+*/
+  deriveHardened(idx: number): Bip32Node;
+/**
+* @returns {SecpPrivateKey} 
+*/
+  privateKey(): SecpPrivateKey;
+/**
+* @returns {Bip32PublicNode} 
+*/
+  neuter(): Bip32PublicNode;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+/**
+* @returns {string} 
+*/
+  readonly to_wif: string;
+/**
+* @returns {string} 
+*/
+  readonly to_xprv: string;
+}
+/**
+*/
+export class Bip32PublicNode {
+  free(): void;
+/**
+* @param {number} idx 
+* @returns {Bip32PublicNode} 
+*/
+  deriveNormal(idx: number): Bip32PublicNode;
+/**
+* @returns {SecpPublicKey} 
+*/
+  publicKey(): SecpPublicKey;
+/**
+* @returns {SecpKeyId} 
+*/
+  keyId(): SecpKeyId;
+/**
+* @returns {string} 
+*/
+  readonly p2pkh: string;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+/**
+* @returns {string} 
+*/
+  readonly xpub: string;
 }
 /**
 */
@@ -79,6 +139,10 @@ export class Bip44 {
 export class Bip44Account {
   free(): void;
 /**
+* @returns {Bip32Node} 
+*/
+  node(): Bip32Node;
+/**
 * @param {boolean} change 
 * @returns {Bip44SubAccount} 
 */
@@ -89,26 +153,33 @@ export class Bip44Account {
 */
   key(idx: number): Bip44Key;
 /**
-* @returns {string} 
+* @returns {Bip44PublicAccount} 
 */
-  xprv(): string;
+  neuter(): Bip44PublicAccount;
 /**
-* @returns {string} 
+* @param {number} account 
+* @param {string} xprv 
+* @param {string} network 
+* @returns {Bip44Account} 
 */
-  xpub(): string;
-/**
-* @returns {Bip32Node} 
-*/
-  readonly node: Bip32Node;
+  static fromXprv(account: number, xprv: string, network: string): Bip44Account;
 /**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {string} 
+*/
+  readonly xprv: string;
 }
 /**
 */
 export class Bip44Coin {
   free(): void;
+/**
+* @returns {Bip32Node} 
+*/
+  node(): Bip32Node;
 /**
 * @param {number} account 
 * @returns {Bip44Account} 
@@ -117,24 +188,79 @@ export class Bip44Coin {
 /**
 * @returns {string} 
 */
-  xprv(): string;
-/**
-* @returns {Bip32Node} 
-*/
-  readonly node: Bip32Node;
+  readonly path: string;
 /**
 * @returns {string} 
 */
-  readonly path: string;
+  readonly xprv: string;
 }
 /**
 */
 export class Bip44Key {
   free(): void;
 /**
+* @returns {Bip32Node} 
+*/
+  node(): Bip32Node;
+/**
 * @returns {SecpPrivateKey} 
 */
   privateKey(): SecpPrivateKey;
+/**
+* @returns {Bip44PublicKey} 
+*/
+  neuter(): Bip44PublicKey;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+/**
+* @returns {string} 
+*/
+  readonly wif: string;
+}
+/**
+*/
+export class Bip44PublicAccount {
+  free(): void;
+/**
+* @returns {Bip32PublicNode} 
+*/
+  node(): Bip32PublicNode;
+/**
+* @param {boolean} change 
+* @returns {Bip44PublicSubAccount} 
+*/
+  chain(change: boolean): Bip44PublicSubAccount;
+/**
+* @param {number} idx 
+* @returns {Bip44PublicKey} 
+*/
+  key(idx: number): Bip44PublicKey;
+/**
+* @param {number} account 
+* @param {string} xpub 
+* @param {string} network 
+* @returns {Bip44PublicAccount} 
+*/
+  static fromXpub(account: number, xpub: string, network: string): Bip44PublicAccount;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+/**
+* @returns {string} 
+*/
+  readonly xpub: string;
+}
+/**
+*/
+export class Bip44PublicKey {
+  free(): void;
+/**
+* @returns {Bip32PublicNode} 
+*/
+  node(): Bip32PublicNode;
 /**
 * @returns {SecpPublicKey} 
 */
@@ -146,15 +272,7 @@ export class Bip44Key {
 /**
 * @returns {string} 
 */
-  wif(): string;
-/**
-* @returns {string} 
-*/
   readonly address: string;
-/**
-* @returns {Bip32Node} 
-*/
-  readonly node: Bip32Node;
 /**
 * @returns {string} 
 */
@@ -162,29 +280,67 @@ export class Bip44Key {
 }
 /**
 */
+export class Bip44PublicSubAccount {
+  free(): void;
+/**
+* @returns {Bip32PublicNode} 
+*/
+  node(): Bip32PublicNode;
+/**
+* @param {number} idx 
+* @returns {Bip44PublicKey} 
+*/
+  key(idx: number): Bip44PublicKey;
+/**
+* @param {number} account 
+* @param {boolean} change 
+* @param {string} xpub 
+* @param {string} network 
+* @returns {Bip44PublicSubAccount} 
+*/
+  static fromXpub(account: number, change: boolean, xpub: string, network: string): Bip44PublicSubAccount;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+/**
+* @returns {string} 
+*/
+  readonly xpub: string;
+}
+/**
+*/
 export class Bip44SubAccount {
   free(): void;
+/**
+* @returns {Bip32Node} 
+*/
+  node(): Bip32Node;
 /**
 * @param {number} idx 
 * @returns {Bip44Key} 
 */
   key(idx: number): Bip44Key;
 /**
-* @returns {string} 
+* @returns {Bip44PublicSubAccount} 
 */
-  xprv(): string;
+  neuter(): Bip44PublicSubAccount;
 /**
-* @returns {string} 
+* @param {number} account 
+* @param {boolean} change 
+* @param {string} xprv 
+* @param {string} network 
+* @returns {Bip44SubAccount} 
 */
-  xpub(): string;
-/**
-* @returns {Bip32Node} 
-*/
-  readonly node: Bip32Node;
+  static fromXprv(account: number, change: boolean, xprv: string, network: string): Bip44SubAccount;
 /**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {string} 
+*/
+  readonly xprv: string;
 }
 /**
 */
@@ -220,51 +376,6 @@ export class JsBip32 {
 * @returns {Bip32Node} 
 */
   static master(seed: Seed, name: string): Bip32Node;
-}
-export class JsBip32Node {
-  free(): void;
-/**
-* @param {number} idx 
-* @returns {Bip32Node} 
-*/
-  deriveNormal(idx: number): Bip32Node;
-/**
-* @param {number} idx 
-* @returns {Bip32Node} 
-*/
-  deriveHardened(idx: number): Bip32Node;
-/**
-* @returns {string} 
-*/
-  xprv(): string;
-/**
-* @returns {string} 
-*/
-  xpub(): string;
-/**
-* @returns {string} 
-*/
-  wif(): string;
-/**
-* @returns {string} 
-*/
-  p2pkh(): string;
-/**
-* @returns {SecpKeyId} 
-*/
-  readonly keyId: SecpKeyId;
-/**
-* @returns {string} 
-*/
-  readonly path: string;
-/**
-* @returns {SecpPrivateKey} 
-*/
-  readonly privateKey: SecpPrivateKey;
-/**
-* @returns {SecpPublicKey} 
-*/
-  readonly publicKey: SecpPublicKey;
 }
 /**
 */
@@ -371,12 +482,16 @@ export class SecpPrivateKey {
 * @param {Uint8Array} data 
 * @returns {SecpSignature} 
 */
-  validateEcdsa(data: Uint8Array): SecpSignature;
+  signEcdsa(data: Uint8Array): SecpSignature;
 }
 /**
 */
 export class SecpPublicKey {
   free(): void;
+/**
+* @param {string} key 
+*/
+  constructor(key: string);
 /**
 * @returns {SecpKeyId} 
 */
@@ -419,6 +534,14 @@ export class SecpSignature {
 */
 export class Seed {
   free(): void;
+/**
+* @param {Uint8Array} bytes 
+*/
+  constructor(bytes: Uint8Array);
+/**
+* @returns {Uint8Array} 
+*/
+  toBytes(): Uint8Array;
 }
 /**
 */

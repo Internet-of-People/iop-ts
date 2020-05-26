@@ -18,7 +18,8 @@ describe('Bip39', () => {
     const seed = bip39.phrase(PersistentVault.DEMO_PHRASE).password('');
     const key = Bip44.network(seed, 'HYD testnet').account(0)
       .key(0);
-    expect(key.address).toBe('tjMvaU79mMJ8fKwoLjFLn7rCTthpY6KxTx');
+    expect(key.neuter().address).toBe('tjMvaU79mMJ8fKwoLjFLn7rCTthpY6KxTx');
+    expect(key.wif).toBe('TVp9Lipzh2e6aXct9vP27QSQtXxCTZHuSjB2wjqtLUoaPrDToYVL');
   });
 
   it('can list words', () => {

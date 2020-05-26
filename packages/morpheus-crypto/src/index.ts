@@ -25,5 +25,7 @@ export {
   Bip39,
 } from './Bip39';
 
+export * from './coin';
 export * from './authentication';
 export * from './nonce';
+export * from './xvault';
