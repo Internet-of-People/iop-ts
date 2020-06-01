@@ -24,19 +24,22 @@ export interface IVaultContext {
 }
 
 const decrypt = (encryptedSeed: string, _unlockPassword: string): Seed => {
-  let encryptedData = Uint8Array.from(multibase.decode(encryptedSeed));
-  let decryptedData = encryptedData; // TODO encrypt with password
+  const encryptedData = Uint8Array.from(multibase.decode(encryptedSeed));
+  const decryptedData = encryptedData; // TODO encrypt with password
   return new Seed(decryptedData);
-}
+};
 
 const encrypt = (seed: Seed, _unlockPassword: string): string => {
   const decryptedData = Buffer.from(seed.toBytes());
   const encryptedData = decryptedData; // TODO encrypt with password
   return multibase.encode('base64url', encryptedData).toString('ascii');
-}
+};
 
-const defaultSave = async (_state: IVaultState): Promise<void> => {};
-const defaultAskUnlockPassword = async (_forDecrypt: boolean): Promise<string> => '';
+const defaultSave = async(_state: IVaultState): Promise<void> => { /* we do not save anything here */ };
+
+const defaultAskUnlockPassword = async(_forDecrypt: boolean): Promise<string> => {
+  return '';
+};
 
 export class XVault implements IPluginHolder, IPluginRuntime {
   public static readonly pluginFactories: IPluginFactory[] = [

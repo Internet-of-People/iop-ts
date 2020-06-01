@@ -11,5 +11,4 @@ export interface IHydraParameters {
 
 export interface IHydraPublicState {
   xpub: string;
-  count: number;
 }

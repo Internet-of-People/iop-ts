@@ -1,42 +1,61 @@
-import { Bip44, Bip44Account, Seed } from '@internet-of-people/morpheus-crypto-wasm';
+import { Bip44, Bip44Account, Seed, Bip44PublicAccount } from '@internet-of-people/morpheus-crypto-wasm';
 
 import { IPlugin, IPluginFactory, ITypedPluginFactory, IPluginHolder, TypedPluginState } from '../plugin';
 import { IHydraContext, IHydraParameters, IHydraPublicState } from './types';
-import { HydraAccountPublic } from './pub';
-import { HydraAccountPrivate } from './priv';
 
-export class HydraPluginFactory implements IPluginFactory, ITypedPluginFactory<IHydraParameters, IHydraPublicState, HydraAccountPublic, HydraAccountPrivate> {
-  readonly name = 'Hydra';
+export class HydraPluginFactory
+implements IPluginFactory, ITypedPluginFactory<IHydraParameters, IHydraPublicState, Bip44PublicAccount, Bip44Account> {
+  public static instance = new HydraPluginFactory();
 
-  validate(parameters: unknown, state: unknown): void {
+  public readonly name = 'Hydra';
+
+  public validate(parameters: unknown, state: unknown): void {
     const p = parameters as IHydraParameters;
+
+    if (typeof p.network !== 'string') {
+      throw new Error(`Network name must be a string.`);
+    }
+    const idx = p.account;
+
+    if (!Number.isSafeInteger(idx) || idx < 0 || idx >= Math.pow(2, 31)) {
+      throw new Error(`Account number ${idx} is invalid.`);
+    }
     const s = state as IHydraPublicState;
+    this.createXpk(p, s);
   }
 
-  createPublic(state: TypedPluginState<IHydraParameters, IHydraPublicState>): HydraAccountPublic {
-    return new HydraAccountPublic(state);
+  public createPublic(state: TypedPluginState<IHydraParameters, IHydraPublicState>): Bip44PublicAccount {
+    return this.createXpk(state.parameters, state.publicState);
   }
 
-  createPrivate(state: TypedPluginState<IHydraParameters, IHydraPublicState>, seed: Seed): HydraAccountPrivate {
-    const bip44Account = this.createAccount(state.parameters, seed);
-    return new HydraAccountPrivate(bip44Account, state);
+  public createPrivate(state: TypedPluginState<IHydraParameters, IHydraPublicState>, seed: Seed): Bip44Account {
+    return this.createAccount(state.parameters, seed);
   }
 
   public createAccount(parameters: IHydraParameters, seed: Seed): Bip44Account {
     return Bip44.network(seed, parameters.network).account(parameters.account);
   }
 
-  public static instance = new HydraPluginFactory();
+  private createXpk(parameters: IHydraParameters, state: IHydraPublicState): Bip44PublicAccount {
+    const acc = parameters.account;
+    const { xpub } = state;
+    const net = parameters.network;
+    return Bip44PublicAccount.fromXpub(acc, xpub, net);
+  }
 }
 
-const defaultRewind = async (parameters: IHydraParameters, seed: Seed): Promise<IHydraPublicState> => {
+const defaultRewind = async(parameters: IHydraParameters, seed: Seed): Promise<IHydraPublicState> => {
   const account = HydraPluginFactory.instance.createAccount(parameters, seed);
   const pk = account.neuter();
-  const state: IHydraPublicState = { xpub: pk.xpub, count: 1 };
+  const state: IHydraPublicState = { xpub: pk.xpub };
   return state;
 };
 
-export const hydra = async(vault: IPluginHolder, parameters: IHydraParameters, context?: IHydraContext): Promise<IPlugin<HydraAccountPublic, HydraAccountPrivate>> => {
+export const hydra = async(
+  vault: IPluginHolder,
+  parameters: IHydraParameters,
+  context?: IHydraContext,
+): Promise<IPlugin<Bip44PublicAccount, Bip44Account>> => {
   // if (...parameters.network) {
   //   throw new Error(`Network ${parameters.network} is not known`);
   // }
