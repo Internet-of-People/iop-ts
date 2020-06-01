@@ -164,9 +164,17 @@ export class Bip44Account {
 */
   static fromXprv(account: number, xprv: string, network: string): Bip44Account;
 /**
+* @returns {number} 
+*/
+  readonly account: number;
+/**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {number} 
+*/
+  readonly slip44: number;
 /**
 * @returns {string} 
 */
@@ -190,6 +198,10 @@ export class Bip44Coin {
 */
   readonly path: string;
 /**
+* @returns {number} 
+*/
+  readonly slip44: number;
+/**
 * @returns {string} 
 */
   readonly xprv: string;
@@ -211,9 +223,25 @@ export class Bip44Key {
 */
   neuter(): Bip44PublicKey;
 /**
+* @returns {number} 
+*/
+  readonly account: number;
+/**
+* @returns {boolean} 
+*/
+  readonly change: boolean;
+/**
+* @returns {number} 
+*/
+  readonly key: number;
+/**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {number} 
+*/
+  readonly slip44: number;
 /**
 * @returns {string} 
 */
@@ -245,9 +273,17 @@ export class Bip44PublicAccount {
 */
   static fromXpub(account: number, xpub: string, network: string): Bip44PublicAccount;
 /**
+* @returns {number} 
+*/
+  readonly account: number;
+/**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {number} 
+*/
+  readonly slip44: number;
 /**
 * @returns {string} 
 */
@@ -270,13 +306,29 @@ export class Bip44PublicKey {
 */
   keyId(): SecpKeyId;
 /**
+* @returns {number} 
+*/
+  readonly account: number;
+/**
 * @returns {string} 
 */
   readonly address: string;
 /**
+* @returns {boolean} 
+*/
+  readonly change: boolean;
+/**
+* @returns {number} 
+*/
+  readonly key: number;
+/**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {number} 
+*/
+  readonly slip44: number;
 }
 /**
 */
@@ -300,9 +352,21 @@ export class Bip44PublicSubAccount {
 */
   static fromXpub(account: number, change: boolean, xpub: string, network: string): Bip44PublicSubAccount;
 /**
+* @returns {number} 
+*/
+  readonly account: number;
+/**
+* @returns {boolean} 
+*/
+  readonly change: boolean;
+/**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {number} 
+*/
+  readonly slip44: number;
 /**
 * @returns {string} 
 */
@@ -334,9 +398,21 @@ export class Bip44SubAccount {
 */
   static fromXprv(account: number, change: boolean, xprv: string, network: string): Bip44SubAccount;
 /**
+* @returns {number} 
+*/
+  readonly account: number;
+/**
+* @returns {boolean} 
+*/
+  readonly change: boolean;
+/**
 * @returns {string} 
 */
   readonly path: string;
+/**
+* @returns {number} 
+*/
+  readonly slip44: number;
 /**
 * @returns {string} 
 */

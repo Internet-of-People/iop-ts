@@ -26,16 +26,27 @@ describe('Vault BIP44 plugins', () => {
     const pk0 = account.pub.key(0);
     expect(pk0.address).toBe('tjMvaU79mMJ8fKwoLjFLn7rCTthpY6KxTx');
     expect(pk0.path).toBe(`m/44'/1'/0'/0/0`);
+    expect(pk0.slip44).toBe(1);
+    expect(pk0.account).toBe(0);
+    expect(pk0.change).toBe(false);
+    expect(pk0.key).toBe(0);
 
     const priv = await account.priv();
 
     const sk1 = priv.key(1);
     expect(sk1.path).toBe(`m/44'/1'/0'/0/1`);
     expect(sk1.wif).toBe('TajJBkJDEBvBJsvrQj1nxNsiSLYCqmTuHUkhAArA3gDJQm4tnX8u');
+    expect(sk1.slip44).toBe(1);
+    expect(sk1.account).toBe(0);
+    expect(sk1.change).toBe(false);
+    expect(sk1.key).toBe(1);
     const data = Uint8Array.from(Buffer.from('Hello world!', 'utf-8'));
     const sig = sk1.privateKey().signEcdsa(data);
+    const der = '3045' +
+    '022100de69e40e94fb886d53345f87b3b822a30faa17e42d6f7d565da242e12f021349' +
+    '0220133dbd61138f1fd490e00ea22bb68e14061eb60c96a400a9dfc83385de834584';
     expect(Buffer.from(sig.toDer()).toString('hex'))
-      .toEqual('3045022100de69e40e94fb886d53345f87b3b822a30faa17e42d6f7d565da242e12f0213490220133dbd61138f1fd490e00ea22bb68e14061eb60c96a400a9dfc83385de834584');
+      .toEqual(der);
 
     const pk1 = sk1.neuter();
     expect(pk1.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
@@ -66,13 +77,32 @@ describe('Vault BIP44 plugins', () => {
     expect(pk1Restored.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
   });
 
-  // TODO Currently we do not have the transaction serializer in morpheus-crypto-wasm, therefore we would have to rely on @ark-ecosystem/crypto
-  // to build the transfer transaction object...
+  // TODO Currently we do not have the transaction serializer in morpheus-crypto-wasm, therefore we would have to
+  // rely on @ark-ecosystem/crypto to build the transfer transaction object...
   it.skip('ARK passphrase', () => {
-    const sk = SecpPrivateKey.fromArkPassphrase('scout try doll stuff cake welcome random taste load town clerk ostrich');
-    const transfer = '{"transactions":[{"version":2,"network":128,"typeGroup":1,"type":0,"nonce":69,"senderPublicKey":"03d4bda72219264ff106e21044b047b6c6b2c0dde8f49b42c848e086b97920adbf","fee":10000000,"amount":100000000,"recipientId":"tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J","id":"b9e4c443071c166ca76a225a55e193deff837c5168818b715f5221b66e6f302c","signature":"304402207a0f32cc466b820ca9f76fbe595f7ac091144b89a7a9ff75df6f55ad17d4e31102204e1123a2741e1dee12ad985b194b2ed600ecad0765f2d3f2c6c18e46b0c3fce0"}]}';
-    const sig = sk.signEcdsa(Uint8Array.from(Buffer.from(transfer, 'utf-8')));
-    sig;
+    const phrase = 'scout try doll stuff cake welcome random taste load town clerk ostrich';
+    const sig = '3044' +
+    '02207a0f32cc466b820ca9f76fbe595f7ac091144b89a7a9ff75df6f55ad17d4e311' +
+    '02204e1123a2741e1dee12ad985b194b2ed600ecad0765f2d3f2c6c18e46b0c3fce0';
+    const sk = SecpPrivateKey.fromArkPassphrase(phrase);
+    const transfer = {
+      transactions: [
+        {
+          version: 2,
+          network: 128,
+          typeGroup: 1,
+          type: 0,
+          nonce: 69,
+          senderPublicKey: '03d4bda72219264ff106e21044b047b6c6b2c0dde8f49b42c848e086b97920adbf',
+          fee: 10000000,
+          amount: 100000000,
+          recipientId: 'tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J',
+          id: 'b9e4c443071c166ca76a225a55e193deff837c5168818b715f5221b66e6f302c',
+          signature: sig,
+        },
+      ],
+    };
+    sk.signEcdsa(Uint8Array.from(Buffer.from(JSON.stringify(transfer), 'utf-8')));
   });
 });
 

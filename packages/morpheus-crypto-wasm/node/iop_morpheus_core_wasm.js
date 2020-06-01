@@ -514,6 +514,20 @@ class Bip44Account {
         return Bip44Key.__wrap(ret);
     }
     /**
+    * @returns {number}
+    */
+    get slip44() {
+        var ret = wasm.bip44account_slip44(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {number}
+    */
+    get account() {
+        var ret = wasm.bip44account_account(this.ptr);
+        return ret;
+    }
+    /**
     * @returns {string}
     */
     get path() {
@@ -583,7 +597,7 @@ class Bip44Coin {
     * @returns {Bip32Node}
     */
     node() {
-        var ret = wasm.bip44account_node(this.ptr);
+        var ret = wasm.bip44coin_node(this.ptr);
         return Bip32Node.__wrap(ret);
     }
     /**
@@ -595,11 +609,18 @@ class Bip44Coin {
         return Bip44Account.__wrap(ret);
     }
     /**
+    * @returns {number}
+    */
+    get slip44() {
+        var ret = wasm.bip44coin_slip44(this.ptr);
+        return ret;
+    }
+    /**
     * @returns {string}
     */
     get path() {
         try {
-            wasm.bip44account_bip32_path(8, this.ptr);
+            wasm.bip44coin_bip32_path(8, this.ptr);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -643,7 +664,7 @@ class Bip44Key {
     * @returns {Bip32Node}
     */
     node() {
-        var ret = wasm.bip44account_node(this.ptr);
+        var ret = wasm.bip44key_node(this.ptr);
         return Bip32Node.__wrap(ret);
     }
     /**
@@ -654,11 +675,39 @@ class Bip44Key {
         return SecpPrivateKey.__wrap(ret);
     }
     /**
+    * @returns {number}
+    */
+    get slip44() {
+        var ret = wasm.bip44key_slip44(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {number}
+    */
+    get account() {
+        var ret = wasm.bip44key_account(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {boolean}
+    */
+    get change() {
+        var ret = wasm.bip44key_change(this.ptr);
+        return ret !== 0;
+    }
+    /**
+    * @returns {number}
+    */
+    get key() {
+        var ret = wasm.bip44key_key(this.ptr);
+        return ret;
+    }
+    /**
     * @returns {string}
     */
     get path() {
         try {
-            wasm.bip44account_bip32_path(8, this.ptr);
+            wasm.bip44key_bip32_path(8, this.ptr);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -670,7 +719,7 @@ class Bip44Key {
     * @returns {Bip44PublicKey}
     */
     neuter() {
-        var ret = wasm.bip44account_neuter(this.ptr);
+        var ret = wasm.bip44key_neuter(this.ptr);
         return Bip44PublicKey.__wrap(ret);
     }
     /**
@@ -727,6 +776,20 @@ class Bip44PublicAccount {
     key(idx) {
         var ret = wasm.bip44publicaccount_key(this.ptr, idx);
         return Bip44PublicKey.__wrap(ret);
+    }
+    /**
+    * @returns {number}
+    */
+    get slip44() {
+        var ret = wasm.bip44account_slip44(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {number}
+    */
+    get account() {
+        var ret = wasm.bip44account_account(this.ptr);
+        return ret;
     }
     /**
     * @returns {string}
@@ -791,7 +854,7 @@ class Bip44PublicKey {
     * @returns {Bip32PublicNode}
     */
     node() {
-        var ret = wasm.bip44publicaccount_node(this.ptr);
+        var ret = wasm.bip44publickey_node(this.ptr);
         return Bip32PublicNode.__wrap(ret);
     }
     /**
@@ -809,11 +872,39 @@ class Bip44PublicKey {
         return SecpKeyId.__wrap(ret);
     }
     /**
+    * @returns {number}
+    */
+    get slip44() {
+        var ret = wasm.bip44key_slip44(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {number}
+    */
+    get account() {
+        var ret = wasm.bip44key_account(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {boolean}
+    */
+    get change() {
+        var ret = wasm.bip44key_change(this.ptr);
+        return ret !== 0;
+    }
+    /**
+    * @returns {number}
+    */
+    get key() {
+        var ret = wasm.bip44key_key(this.ptr);
+        return ret;
+    }
+    /**
     * @returns {string}
     */
     get path() {
         try {
-            wasm.bip44account_bip32_path(8, this.ptr);
+            wasm.bip44key_bip32_path(8, this.ptr);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -857,7 +948,7 @@ class Bip44PublicSubAccount {
     * @returns {Bip32PublicNode}
     */
     node() {
-        var ret = wasm.bip44publicaccount_node(this.ptr);
+        var ret = wasm.bip44publicsubaccount_node(this.ptr);
         return Bip32PublicNode.__wrap(ret);
     }
     /**
@@ -869,11 +960,32 @@ class Bip44PublicSubAccount {
         return Bip44PublicKey.__wrap(ret);
     }
     /**
+    * @returns {number}
+    */
+    get slip44() {
+        var ret = wasm.bip44publicsubaccount_slip44(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {number}
+    */
+    get account() {
+        var ret = wasm.bip44publicsubaccount_account(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {boolean}
+    */
+    get change() {
+        var ret = wasm.bip44publicsubaccount_change(this.ptr);
+        return ret !== 0;
+    }
+    /**
     * @returns {string}
     */
     get path() {
         try {
-            wasm.bip44account_bip32_path(8, this.ptr);
+            wasm.bip44publicsubaccount_bip32_path(8, this.ptr);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -932,7 +1044,7 @@ class Bip44SubAccount {
     * @returns {Bip32Node}
     */
     node() {
-        var ret = wasm.bip44account_node(this.ptr);
+        var ret = wasm.bip44subaccount_node(this.ptr);
         return Bip32Node.__wrap(ret);
     }
     /**
@@ -944,11 +1056,32 @@ class Bip44SubAccount {
         return Bip44Key.__wrap(ret);
     }
     /**
+    * @returns {number}
+    */
+    get slip44() {
+        var ret = wasm.bip44publicsubaccount_slip44(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {number}
+    */
+    get account() {
+        var ret = wasm.bip44publicsubaccount_account(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {boolean}
+    */
+    get change() {
+        var ret = wasm.bip44publicsubaccount_change(this.ptr);
+        return ret !== 0;
+    }
+    /**
     * @returns {string}
     */
     get path() {
         try {
-            wasm.bip44account_bip32_path(8, this.ptr);
+            wasm.bip44publicsubaccount_bip32_path(8, this.ptr);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -960,7 +1093,7 @@ class Bip44SubAccount {
     * @returns {Bip44PublicSubAccount}
     */
     neuter() {
-        var ret = wasm.bip44account_neuter(this.ptr);
+        var ret = wasm.bip44subaccount_neuter(this.ptr);
         return Bip44PublicSubAccount.__wrap(ret);
     }
     /**
