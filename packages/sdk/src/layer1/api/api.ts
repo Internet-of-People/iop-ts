@@ -38,6 +38,33 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.getWalletBalance(address);
   }
 
+  public async sendTransferTxWithWIF(
+    fromWIF: string,
+    toAddress: string,
+    amountFlake: Utils.BigNumber,
+    nonce?: Utils.BigNumber,
+  ): Promise<string> {
+    const senderKeys = Identities.Keys.fromWIF(fromWIF);
+
+    let nextNonce = nonce;
+
+    if (! nextNonce) {
+      nextNonce = await this.nextWalletNonce(senderKeys.publicKey);
+    }
+
+    const tx = Transactions.BuilderFactory.transfer()
+      .amount(amountFlake.toFixed())
+      .fee(Utils.BigNumber.make(0.1 * 1e8).toFixed())
+      .nonce(nextNonce.toFixed())
+      .recipientId(toAddress);
+
+    const signedTx = tx
+      .signWithWif(fromWIF)
+      .getStruct();
+
+    return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  }
+
   public async sendTransferTx(
     fromPassphrase: string,
     toAddress: string,

@@ -24,6 +24,13 @@ export interface IApi {
 
   getCurrentHeight(): Promise<number>;
 
+  sendTransferTxWithWIF(
+    fromWIF: string,
+    toAddress: string,
+    amountFlake: Utils.BigNumber,
+    nonce?: Utils.BigNumber,
+  ): Promise<string>;
+
   sendTransferTx(
     fromPassphrase: string,
     toAddress: string,
