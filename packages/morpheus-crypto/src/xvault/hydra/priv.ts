@@ -10,6 +10,19 @@ export class HydraAccountPrivate {
   ) {
   }
 
+  public getKey(idx: number): Bip44Key {
+    const count = this.state.publicState.count;
+    if (idx < 0 || idx >= count) {
+      throw new Error(`Only indexes 0..${count - 1} were created yet in this account`);
+    }
+    return this.xsk.key(idx);
+  }
+
+  public async setCount(value: number): Promise<void> {
+    this.state.publicState.count = value;
+    await this.state.save();
+  }
+
   public async createKey(): Promise<Bip44Key> {
     const nextIdx = this.state.publicState.count;
     const nextKey = this.xsk.key(nextIdx);
