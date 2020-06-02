@@ -1,4 +1,4 @@
-import { Interfaces, Utils } from '@arkecosystem/crypto';
+import { Interfaces } from '@arkecosystem/crypto';
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
 import { schemaAndHost, Network } from '../../network';
@@ -71,31 +71,31 @@ export class AxiosClient implements Layer1.IClient {
     }
   }
 
-  public async getWalletNonce(address: string): Promise<Utils.BigNumber> {
+  public async getWalletNonce(address: string): Promise<BigInt> {
     console.log(`Getting wallet nonce of ${address}...`);
 
     const wallet = await this.getWallet(address);
 
     if (wallet.isPresent()) {
-      const nonce = Utils.BigNumber.make(wallet.get().nonce);
-      console.log(`Nonce of ${address} is ${nonce.toFixed()}`);
+      const nonce = BigInt(wallet.get().nonce);
+      console.log(`Nonce of ${address} is ${nonce.toLocaleString()}`);
       return nonce;
     }
 
     console.log(`Nonce of ${address} is 0`);
-    return Utils.BigNumber.ZERO;
+    return BigInt(0);
   }
 
-  public async getWalletBalance(address: string): Promise<Utils.BigNumber> {
+  public async getWalletBalance(address: string): Promise<BigInt> {
     console.log(`Getting wallet balance of ${address}...`);
 
     const wallet = await this.getWallet(address);
 
     if (wallet.isPresent()) {
-      return Utils.BigNumber.make(wallet.get().balance);
+      return BigInt(wallet.get().balance);
     }
 
-    return Utils.BigNumber.ZERO;
+    return BigInt(0);
   }
 
   public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {

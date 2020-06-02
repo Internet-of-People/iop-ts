@@ -137,7 +137,7 @@ const opAttempts = new Layer1.OperationAttemptsBuilder()
     .registerBeforeProof('YOUR_CONTENT_ID')
     .getAttempts();
 
-const txId = await api.sendMorpheusTx(opAttempts, 'SENDER_BIP38_PASSPHRASE');
+const txId = await api.sendMorpheusTxWithPassphrase(opAttempts, 'SENDER_BIP38_PASSPHRASE');
 ```
 
 #### Key and Right Management Transactions
@@ -176,7 +176,7 @@ const firstTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .sign(firstKey)
   .getAttempts();
 
-const firstTxId = await layer1Api.sendMorpheusTx(firstTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
+const firstTxId = await layer1Api.sendMorpheusTxWithPassphrase(firstTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
 
 // Revoking the old key
 const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
@@ -188,7 +188,7 @@ const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .sign(secondaryKey)
   .getAttempts();
 
-const secondTxId = await layer1Api.sendMorpheusTx(secondTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
+const secondTxId = await layer1Api.sendMorpheusTxWithPassphrase(secondTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
 ```
 
 #### Tombstone DID Transaction
@@ -213,7 +213,7 @@ const operationAttempts = new Layer1.OperationAttemptsBuilder()
   .sign(firstKey)
   .getAttempts();
 
-const txId = await layer1Api.sendMorpheusTx(operationAttempts, 'SENDER_BIP38_PASSPHRASE');
+const txId = await layer1Api.sendMorpheusTxWithPassphrase(operationAttempts, 'SENDER_BIP38_PASSPHRASE');
 ```
 
 ### Layer-2 Module

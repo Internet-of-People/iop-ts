@@ -16,7 +16,7 @@ export const processMorpheusTx = async(
   layer2Api: Types.Layer2.IApi,
 ): Promise<void> => {
   const passphrase = await askForPassphrase('gas address');
-  const id = await layer1Api.sendMorpheusTx(attempts, passphrase);
+  const id = await layer1Api.sendMorpheusTxWithPassphrase(attempts, passphrase);
   console.log(`${operation} txn was sent, id: ${id}`);
   let result: Optional<boolean>;
 

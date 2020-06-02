@@ -1,4 +1,4 @@
-import { Interfaces, Utils } from '@arkecosystem/crypto';
+import { Interfaces } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
 import { IOperationData } from './operation-data';
 import { Sdk } from '../index';
@@ -10,9 +10,9 @@ export interface IClient {
 
   getWallet(address: string): Promise<Optional<IWalletResponse>>;
 
-  getWalletNonce(address: string): Promise<Utils.BigNumber>;
+  getWalletNonce(address: string): Promise<BigInt>;
 
-  getWalletBalance(address: string): Promise<Utils.BigNumber>;
+  getWalletBalance(address: string): Promise<BigInt>;
 
   getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig>;
 
@@ -27,21 +27,27 @@ export interface IApi {
   sendTransferTxWithWIF(
     fromWIF: string,
     toAddress: string,
-    amountFlake: Utils.BigNumber,
-    nonce?: Utils.BigNumber,
+    amountFlake: BigInt,
+    nonce?: BigInt,
   ): Promise<string>;
 
-  sendTransferTx(
+  sendTransferTxWithPassphrase(
     fromPassphrase: string,
     toAddress: string,
-    amountFlake: Utils.BigNumber,
-    nonce?: Utils.BigNumber,
+    amountFlake: BigInt,
+    nonce?: BigInt,
   ): Promise<string>;
 
-  sendMorpheusTx(
+  sendMorpheusTxWithWIF(
     attempts: IOperationData[],
     passphrase: string,
-    nonce?: Utils.BigNumber,
+    nonce?: BigInt,
+  ): Promise<string>;
+
+  sendMorpheusTxWithPassphrase(
+    attempts: IOperationData[],
+    passphrase: string,
+    nonce?: BigInt,
   ): Promise<string>;
 
   getTxnStatus(
@@ -54,11 +60,11 @@ export interface IApi {
 
   getWalletNonce(
     address: string,
-  ): Promise<Utils.BigNumber>;
+  ): Promise<BigInt>;
 
   getWalletBalance(
     address: string,
-  ): Promise<Utils.BigNumber>;
+  ): Promise<BigInt>;
 }
 
 export interface IWalletResponse {
