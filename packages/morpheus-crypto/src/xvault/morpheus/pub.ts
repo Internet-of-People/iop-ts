@@ -1,11 +1,10 @@
-import { Did, KeyId } from '@internet-of-people/morpheus-crypto-wasm';
+import { IMorpheusPublicState } from './types';
+import { MorpheusPublicKind } from './pubKind';
 
 export class MorpheusPublic {
-  public keyIds(): KeyId[] {
-    throw new Error('not implemented');
-  }
+  public readonly personas: MorpheusPublicKind;
 
-  public dids(): Did[] {
-    throw new Error('not implemented');
+  public constructor(state: IMorpheusPublicState) {
+    this.personas = new MorpheusPublicKind(state.personas, 'Persona');
   }
 }

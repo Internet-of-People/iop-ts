@@ -1,25 +1,15 @@
-import { SecpPrivateKey, Vault, Seed } from '@internet-of-people/morpheus-crypto-wasm';
+import { SecpPrivateKey, KeyId } from '@internet-of-people/morpheus-crypto-wasm';
 import {
-  // Bip39,
   PersistentVault,
-  IMorpheusPublicState,
   hydra,
-  IMorpheusContext,
   morpheus,
   XVault,
   Coin,
   IVaultState,
 } from '../src';
 
-const dummyMorpheusContext: IMorpheusContext = {
-  rewind: async(_parameters: void, _seed: Seed): Promise<IMorpheusPublicState> => {
-    return {};
-  },
-};
-
 describe('Vault BIP44 plugins', () => {
   it('Hydra plugin', async() => {
-    // new Bip39('en').generate().phrase
     const vault = await XVault.create(PersistentVault.DEMO_PHRASE, '');
     const account = await hydra(vault, { network: Coin.Hydra.Testnet, account: 0 });
 
@@ -107,46 +97,48 @@ describe('Vault BIP44 plugins', () => {
 });
 
 describe('Vault Morpheus plugin', () => {
-  it.skip('Morpheus plugin', async() => {
+  it('Morpheus plugin', async() => {
     const vault = await XVault.create(PersistentVault.DEMO_PHRASE, '');
-    const m = await morpheus(vault, dummyMorpheusContext);
+    const m = await morpheus(vault);
 
-    expect(m.pub.dids()).toHaveLength(0);
+    const { personas } = m.pub;
+    expect(personas.count).toBe(1);
+    expect(personas.key(0).toString()).toBe('pez2CLkBUjHB8w8G87D3YkREjpRuiqPu6BrRsgHMQy2Pzt6');
+    expect(personas.did(0).toString()).toBe('did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J');
+    expect(() => {
+      return personas.key(1);
+    }).toThrow();
 
     const priv = await m.priv();
 
-    const did = await priv.createDid();
-    expect(did.toString()).toBe('did:morpheus:ezBlaa');
-    expect(m.pub.dids()).toHaveLength(1);
+    const maybeSk = priv.personas.keyById(new KeyId('iezqztJ6XX6GDxdSgdiySiT3J'));
+    expect(maybeSk.isPresent()).toBeTruthy();
+    const sk = maybeSk.get();
+    expect(sk.publicKey().toString()).toBe('pez2CLkBUjHB8w8G87D3YkREjpRuiqPu6BrRsgHMQy2Pzt6');
   });
 
-  it('can be serialized/deserialized', () => {
-    const vault = new Vault(PersistentVault.DEMO_PHRASE);
-    expect(vault.dids()).toHaveLength(0);
+  it('can be serialized/deserialized', async() => {
+    let stateString = '';
 
-    vault.createDid();
-    expect(vault.dids()).toHaveLength(1);
+    const save = async(state: IVaultState): Promise<void> => {
+      /* eslint no-undefined: 0 */
+      stateString = JSON.stringify(state, undefined, 2);
+    };
+    const vault = await XVault.create(PersistentVault.DEMO_PHRASE, '', { save });
+    const m = await morpheus(vault);
+    expect(m.pub.personas.count).toBe(1);
 
-    vault.createDid();
-    expect(vault.dids()).toHaveLength(2);
-    expect(vault.keyIds().map((id) => {
-      return id.toString();
-    })).toStrictEqual(
-      [ 'iezbeWGSY2dqcUBqT8K7R14xr', 'iez25N5WZ1Q6TQpgpyYgiu9gTX' ],
-    );
-    expect(vault.dids().map((id) => {
-      return id.toString();
-    })).toStrictEqual(
-      [ 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr', 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX' ],
-    );
+    const priv = await m.priv();
 
-    const vaultSerStr = vault.serialize();
-    const vaultDeser = Vault.deserialize(vaultSerStr);
+    const sk = await priv.personas.key(2);
+    expect(sk.publicKey().toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');
 
-    expect(vaultDeser.keyIds().map((id) => {
-      return id.toString();
-    })).toStrictEqual(vault.keyIds().map((id) => {
-      return id.toString();
-    }));
+    console.log(stateString);
+
+    const vaultRestored = XVault.load(JSON.parse(stateString));
+    const mRestored = await morpheus(vaultRestored);
+    const pk1Restored = mRestored.pub.personas.key(2);
+
+    expect(pk1Restored.toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');
   });
 });

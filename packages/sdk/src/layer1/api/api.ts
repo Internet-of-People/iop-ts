@@ -110,6 +110,14 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx);
   }
 
+  public async nextWalletNonce(publicKey: string): Promise<BigInt> {
+    const address = Identities.Address.fromPublicKey(publicKey);
+    const currentNonce = await this.clientInstance.getWalletNonce(address);
+    const nextNonce = currentNonce as bigint + BigInt(1);
+    console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+    return nextNonce;
+  }
+
   private async buildMorpheusTx(
     from: Interfaces.IKeyPair,
     attempts: Types.Layer1.IOperationData[],
@@ -137,14 +145,6 @@ export class Api implements Types.Layer1.IApi {
     unsignedTx.nonce(nextNonce.toString());
 
     return unsignedTx;
-  }
-
-  public async nextWalletNonce(publicKey: string): Promise<BigInt> {
-    const address = Identities.Address.fromPublicKey(publicKey);
-    const currentNonce = await this.clientInstance.getWalletNonce(address);
-    const nextNonce = currentNonce as bigint + BigInt(1);
-    console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
-    return nextNonce;
   }
 
   private async buildTransferTx(

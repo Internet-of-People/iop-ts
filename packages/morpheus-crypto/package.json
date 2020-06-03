@@ -32,7 +32,8 @@
   },
   "dependencies": {
     "@internet-of-people/morpheus-crypto-wasm": "file:../morpheus-crypto-wasm",
-    "multibase": "0.6.0"
+    "multibase": "0.6.0",
+    "optional-js": "2.1.1"
   },
   "devDependencies": {
     "@types/jest": "24.0.23",

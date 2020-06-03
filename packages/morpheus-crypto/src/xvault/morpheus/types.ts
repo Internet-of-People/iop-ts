@@ -1,8 +1,10 @@
 import { Seed } from '@internet-of-people/morpheus-crypto-wasm';
+import { PublicKeyData } from '../../types';
 
-/* eslint @typescript-eslint/no-empty-interface: 0 */
-export interface IMorpheusPublicState { }
+export interface IMorpheusPublicState {
+  personas: PublicKeyData[];
+}
 
 export interface IMorpheusContext {
-  rewind(parameters: void, seed: Seed): Promise<IMorpheusPublicState>;
+  rewind?: (parameters: void, seed: Seed) => Promise<IMorpheusPublicState>;
 }

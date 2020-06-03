@@ -262,11 +262,14 @@ export class Bip32Node {
         return Bip32PublicNode.__wrap(ret);
     }
     /**
+    * @param {string} name
     * @returns {string}
     */
-    get to_xprv() {
+    toXprv(name) {
         try {
-            wasm.bip32node_to_xprv(8, this.ptr);
+            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.bip32node_toXprv(8, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -275,11 +278,14 @@ export class Bip32Node {
         }
     }
     /**
+    * @param {string} name
     * @returns {string}
     */
-    get to_wif() {
+    toWif(name) {
         try {
-            wasm.bip32node_to_wif(8, this.ptr);
+            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.bip32node_toWif(8, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -341,11 +347,14 @@ export class Bip32PublicNode {
         return SecpKeyId.__wrap(ret);
     }
     /**
+    * @param {string} name
     * @returns {string}
     */
-    get xpub() {
+    toXpub(name) {
         try {
-            wasm.bip32publicnode_to_xpub(8, this.ptr);
+            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.bip32publicnode_toXpub(8, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -354,11 +363,14 @@ export class Bip32PublicNode {
         }
     }
     /**
+    * @param {string} name
     * @returns {string}
     */
-    get p2pkh() {
+    toP2pkh(name) {
         try {
-            wasm.bip32publicnode_to_p2pkh_addr(8, this.ptr);
+            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.bip32publicnode_toP2pkh(8, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -1301,6 +1313,239 @@ export class KeyId {
 }
 /**
 */
+export class Morpheus {
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheus_free(ptr);
+    }
+    /**
+    * @param {Seed} seed
+    * @returns {MorpheusRoot}
+    */
+    static root(seed) {
+        _assertClass(seed, Seed);
+        var ret = wasm.morpheus_root(seed.ptr);
+        return MorpheusRoot.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusKind {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusKind.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheuskind_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get path() {
+        try {
+            wasm.morpheuskind_bip32_path(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    get kind() {
+        try {
+            wasm.morpheuskind_kind(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @param {number} idx
+    * @returns {MorpheusPrivateKey}
+    */
+    key(idx) {
+        var ret = wasm.morpheuskind_key(this.ptr, idx);
+        return MorpheusPrivateKey.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusPrivateKey {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusPrivateKey.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheusprivatekey_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get path() {
+        try {
+            wasm.morpheusprivatekey_bip32_path(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    get kind() {
+        try {
+            wasm.morpheusprivatekey_kind(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {number}
+    */
+    get idx() {
+        var ret = wasm.morpheusprivatekey_idx(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {MorpheusPublicKey}
+    */
+    neuter() {
+        var ret = wasm.morpheusprivatekey_neuter(this.ptr);
+        return MorpheusPublicKey.__wrap(ret);
+    }
+    /**
+    * @returns {PrivateKey}
+    */
+    privateKey() {
+        var ret = wasm.morpheusprivatekey_privateKey(this.ptr);
+        return PrivateKey.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusPublicKey {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusPublicKey.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheuspublickey_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get path() {
+        try {
+            wasm.morpheuspublickey_bip32_path(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    get kind() {
+        try {
+            wasm.morpheuspublickey_kind(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {number}
+    */
+    get idx() {
+        var ret = wasm.morpheuspublickey_idx(this.ptr);
+        return ret;
+    }
+    /**
+    * @returns {PublicKey}
+    */
+    publicKey() {
+        var ret = wasm.morpheuspublickey_publicKey(this.ptr);
+        return PublicKey.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusRoot {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusRoot.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheusroot_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get path() {
+        try {
+            wasm.morpheusroot_bip32_path(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {MorpheusKind}
+    */
+    personas() {
+        var ret = wasm.morpheusroot_personas(this.ptr);
+        return MorpheusKind.__wrap(ret);
+    }
+}
+/**
+*/
 export class PrivateKey {
 
     static __wrap(ptr) {
@@ -1336,10 +1581,10 @@ export class PrivateKey {
     * @param {Uint8Array} data
     * @returns {Signature}
     */
-    validateEcdsa(data) {
+    signEcdsa(data) {
         var ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
         var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.privatekey_validateEcdsa(this.ptr, ptr0, len0);
+        var ret = wasm.privatekey_signEcdsa(this.ptr, ptr0, len0);
         return Signature.__wrap(ret);
     }
 }

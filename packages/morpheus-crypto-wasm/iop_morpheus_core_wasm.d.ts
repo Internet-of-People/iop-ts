@@ -39,17 +39,19 @@ export class Bip32Node {
 */
   neuter(): Bip32PublicNode;
 /**
+* @param {string} name 
+* @returns {string} 
+*/
+  toXprv(name: string): string;
+/**
+* @param {string} name 
+* @returns {string} 
+*/
+  toWif(name: string): string;
+/**
 * @returns {string} 
 */
   readonly path: string;
-/**
-* @returns {string} 
-*/
-  readonly to_wif: string;
-/**
-* @returns {string} 
-*/
-  readonly to_xprv: string;
 }
 /**
 */
@@ -69,17 +71,19 @@ export class Bip32PublicNode {
 */
   keyId(): SecpKeyId;
 /**
+* @param {string} name 
 * @returns {string} 
 */
-  readonly p2pkh: string;
+  toXpub(name: string): string;
+/**
+* @param {string} name 
+* @returns {string} 
+*/
+  toP2pkh(name: string): string;
 /**
 * @returns {string} 
 */
   readonly path: string;
-/**
-* @returns {string} 
-*/
-  readonly xpub: string;
 }
 /**
 */
@@ -477,6 +481,93 @@ export class KeyId {
 }
 /**
 */
+export class Morpheus {
+  free(): void;
+/**
+* @param {Seed} seed 
+* @returns {MorpheusRoot} 
+*/
+  static root(seed: Seed): MorpheusRoot;
+}
+/**
+*/
+export class MorpheusKind {
+  free(): void;
+/**
+* @param {number} idx 
+* @returns {MorpheusPrivateKey} 
+*/
+  key(idx: number): MorpheusPrivateKey;
+/**
+* @returns {string} 
+*/
+  readonly kind: string;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+}
+/**
+*/
+export class MorpheusPrivateKey {
+  free(): void;
+/**
+* @returns {MorpheusPublicKey} 
+*/
+  neuter(): MorpheusPublicKey;
+/**
+* @returns {PrivateKey} 
+*/
+  privateKey(): PrivateKey;
+/**
+* @returns {number} 
+*/
+  readonly idx: number;
+/**
+* @returns {string} 
+*/
+  readonly kind: string;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+}
+/**
+*/
+export class MorpheusPublicKey {
+  free(): void;
+/**
+* @returns {PublicKey} 
+*/
+  publicKey(): PublicKey;
+/**
+* @returns {number} 
+*/
+  readonly idx: number;
+/**
+* @returns {string} 
+*/
+  readonly kind: string;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+}
+/**
+*/
+export class MorpheusRoot {
+  free(): void;
+/**
+* @returns {MorpheusKind} 
+*/
+  personas(): MorpheusKind;
+/**
+* @returns {string} 
+*/
+  readonly path: string;
+}
+/**
+*/
 export class PrivateKey {
   free(): void;
 /**
@@ -492,7 +583,7 @@ export class PrivateKey {
 * @param {Uint8Array} data 
 * @returns {Signature} 
 */
-  validateEcdsa(data: Uint8Array): Signature;
+  signEcdsa(data: Uint8Array): Signature;
 }
 /**
 */
