@@ -32,7 +32,7 @@ export class SignedOperationAttemptsBuilder implements ISignedOperationBuilder {
 
   public constructor(
     private readonly finish: (operation: Layer1.ISignedOperationsData) => OperationAttemptsBuilder,
-    private readonly vault: Crypto.IVault,
+    private readonly signer: Crypto.IMorpheusSigner,
   ) {
   }
 
@@ -71,7 +71,7 @@ export class SignedOperationAttemptsBuilder implements ISignedOperationBuilder {
   public sign(keyId: KeyId): OperationAttemptsBuilder {
     const signableOperationDatas = this.signableOperations.map(toSignableData);
     const opBytes = Signed.serialize(signableOperationDatas);
-    const signedMessage = this.vault.signDidOperations(keyId, opBytes);
+    const signedMessage = this.signer.signDidOperations(keyId, opBytes);
     const signedOperationData: Layer1.ISignedOperationsData = {
       operation: OperationType.Signed,
       signables: signableOperationDatas,

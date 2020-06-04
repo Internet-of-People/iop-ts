@@ -706,6 +706,14 @@ export class Seed {
 */
   constructor(bytes: Uint8Array);
 /**
+* @returns {string} 
+*/
+  static demoPhrase(): string;
+/**
+* @returns {string} 
+*/
+  static legacyPassword(): string;
+/**
 * @returns {Uint8Array} 
 */
   toBytes(): Uint8Array;

@@ -8,23 +8,6 @@ type TransactionId = Types.Sdk.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 
-const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-const transactionId = 'someTransactionId';
-
-const rustVault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
-rustVault.createDid();
-rustVault.createDid();
-rustVault.createDid();
-
-const vault: Types.Crypto.IVault = {
-  signDidOperations: (keyId: Crypto.KeyId, message: Uint8Array): Crypto.SignedBytes => {
-    return rustVault.signDidOperations(keyId, message);
-  },
-};
-
-
 export class TransactionTestRepo implements ITransactionRepository {
   private transactions: { [txid: string]: Types.Layer1.IMorpheusAsset; } = {};
 
@@ -37,8 +20,17 @@ export class TransactionTestRepo implements ITransactionRepository {
   }
 }
 
-
-describe('DidOperationExtractor', () => {
+describe('DidOperationExtractor', async () => {
+  const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+  const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+  const transactionId = 'someTransactionId';
+  
+  const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
+  const m = await Crypto.morpheus(vault);
+  const signer = await m.priv();
+  await signer.personas.key(2); // creates 3 dids
+ 
   let extractor: DidOperationExtractor;
 
   const stateHandlerQueryMock = {
@@ -67,7 +59,7 @@ describe('DidOperationExtractor', () => {
 
     const txAsset = {
       operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(defaultDid, null)
         .addKey(keyId2)
         .addRight(keyId2, RightRegistry.systemRights.impersonate)

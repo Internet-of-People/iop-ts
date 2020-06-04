@@ -1898,6 +1898,32 @@ class Seed {
         return Seed.__wrap(ret);
     }
     /**
+    * @returns {string}
+    */
+    static demoPhrase() {
+        try {
+            wasm.seed_demoPhrase(8);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    static legacyPassword() {
+        try {
+            wasm.seed_legacyPassword(8);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
     * @returns {Uint8Array}
     */
     toBytes() {

@@ -20,30 +20,6 @@ import { TransactionTestRepo } from './did-operations.test';
 import { IDidOperation } from '../src/did-operations';
 import { assertStringlyEqual } from './utils';
 
-const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-const did2 = new Crypto.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX');
-const did3 = new Crypto.Did('did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W');
-const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-const keyId3 = new Crypto.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
-
-const contentId = 'myFavoriteContentId';
-const transactionId = 'myFavoriteTxid';
-const blockId = 'myFavoriteBlockId';
-const blockHeight = 5;
-
-const rustVault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
-rustVault.createDid();
-rustVault.createDid();
-rustVault.createDid();
-
-const vault: Types.Crypto.IVault = {
-  signDidOperations: (keyId: Crypto.KeyId, message: Uint8Array): Crypto.SignedBytes => {
-    return rustVault.signDidOperations(keyId, message);
-  },
-};
-
-
 class Fixture {
   public emitter: NodeJS.EventEmitter = new EventEmitter();
 
@@ -63,9 +39,26 @@ class Fixture {
 let hapiServer: HapiServer;
 let fixture: Fixture;
 
-describe('Layer2API', () => {
+describe('Layer2API', async () => {
   let lastTxId: TransactionId | null = null;
 
+  const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+  const did2 = new Crypto.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX');
+  const did3 = new Crypto.Did('did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W');
+  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+  const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+  const keyId3 = new Crypto.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
+  
+  const contentId = 'myFavoriteContentId';
+  const transactionId = 'myFavoriteTxid';
+  const blockId = 'myFavoriteBlockId';
+  const blockHeight = 5;
+  
+  const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
+  const m = await Crypto.morpheus(vault);
+  const signer = await m.priv();
+  await signer.personas.key(2); // creates 3 dids
+  
   const registerBeforeProof = (): void => {
     const registrationAttempt = new Layer1.OperationAttemptsBuilder()
       .registerBeforeProof(contentId)
@@ -82,14 +75,14 @@ describe('Layer2API', () => {
     key: Authentication,
     height: number,
     txId: string,
-    signer: Authentication,
+    auth: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(defaultDid, lastTxId)
         .addKey(key)
-        .sign(signer)
+        .sign(auth)
         .getAttempts(),
       },
       blockHeight: height,
@@ -102,14 +95,14 @@ describe('Layer2API', () => {
     key: Authentication,
     height: number,
     txId: string,
-    signer: Authentication,
+    auth: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(defaultDid, lastTxId)
         .revokeKey(key)
-        .sign(signer)
+        .sign(auth)
         .getAttempts(),
       },
       blockHeight: height,
@@ -122,14 +115,14 @@ describe('Layer2API', () => {
     key: Authentication,
     height: number,
     txId: string,
-    signer: Authentication,
+    auth: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(defaultDid, lastTxId)
         .addRight(key, RightRegistry.systemRights.update)
-        .sign(signer)
+        .sign(auth)
         .getAttempts(),
       },
       blockHeight: height,
@@ -142,14 +135,14 @@ describe('Layer2API', () => {
     key: Authentication,
     height: number,
     txId: string,
-    signer: Authentication,
+    auth: Authentication,
   ): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(defaultDid, lastTxId)
         .revokeRight(key, RightRegistry.systemRights.update)
-        .sign(signer)
+        .sign(auth)
         .getAttempts(),
       },
       blockHeight: height,
@@ -158,13 +151,13 @@ describe('Layer2API', () => {
     });
   };
 
-  const tombstoneDid = (height: number, txId: string, signer: Authentication): void => {
+  const tombstoneDid = (height: number, txId: string, auth: Authentication): void => {
     fixture.stateHandler.applyTransactionToState({
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(defaultDid, lastTxId)
         .tombstoneDid()
-        .sign(signer)
+        .sign(auth)
         .getAttempts(),
       },
       blockHeight: height,
@@ -558,7 +551,7 @@ describe('Layer2API', () => {
   const applyComplexTransactionSequence = (
   ): number => {
     const firstTxAttempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(defaultDid, null)
       .addKey(keyId2)
       .addRight(keyId2, RightRegistry.systemRights.impersonate)
@@ -576,7 +569,7 @@ describe('Layer2API', () => {
     lastTxId = firstTransaction.transactionId;
 
     const secondTxAttempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(defaultDid, 'firstTransactionId')
       .revokeKey(defaultKeyId)
       .on(did2, null)
@@ -594,7 +587,7 @@ describe('Layer2API', () => {
     lastTxId = secondTransaction.transactionId;
 
     const thirdTxAttempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(did2, 'secondTransactionId')
       .addKey(keyId3)
       .on(did3, null)
@@ -779,7 +772,7 @@ describe('Layer2API', () => {
 
   it('can check transaction validity', async() => {
     const attempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(defaultDid, null)
       .addRight(keyId2, RightRegistry.systemRights.update) // key is not yet added
       .sign(defaultKeyId)

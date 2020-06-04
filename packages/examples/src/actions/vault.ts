@@ -1,30 +1,34 @@
+import { Crypto } from "@internet-of-people/sdk";
+
 /* eslint no-undefined: 0 */
 import { IAction } from '../action';
 import { chooseAction } from '../utils';
-import { initDemoVault, loadVault } from '../vault';
+import { initDemoVault, morpheus } from '../vault';
 
 const initVault = async(): Promise<void> => {
-  const vault = initDemoVault();
-  const id = vault.createDid();
-  console.log('Vault created, 1st did is', id);
+  const vault = await initDemoVault();
+  const m = await Crypto.morpheus(vault);
+  const did = m.pub.personas.did(0);
+  console.log('Vault created, 1st did is', did);
 };
 
 const createDid = async(): Promise<void> => {
-  const vault = loadVault();
-  const id = vault.createDid();
+  const m = await morpheus();
+  const priv = await m.priv();
+  const id = await priv.personas.did(priv.personas.count);
   console.log('New did created', id);
 };
 
 const listKeyIds = async(): Promise<void> => {
-  const vault = loadVault();
-  vault.keyIds().forEach((id, idx) => {
+  const m = await morpheus();
+  m.pub.personas.keyIds().forEach((id, idx) => {
     console.log(`#${idx}: ${id}`);
   });
 };
 
 const listDids = async(): Promise<void> => {
-  const vault = loadVault();
-  vault.dids().forEach((did, idx) => {
+  const m = await morpheus();
+  m.pub.personas.dids().forEach((did, idx) => {
     console.log(`#${idx}: ${did}`);
   });
 };

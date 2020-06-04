@@ -1,16 +1,17 @@
-import { SecpPrivateKey, KeyId } from '@internet-of-people/morpheus-crypto-wasm';
 import {
-  PersistentVault,
-  hydra,
-  morpheus,
-  XVault,
   Coin,
+  hydra,
   IVaultState,
+  KeyId,
+  morpheus,
+  SecpPrivateKey,
+  Seed,
+  XVault,
 } from '../src';
 
 describe('Vault BIP44 plugins', () => {
   it('Hydra plugin', async() => {
-    const vault = await XVault.create(PersistentVault.DEMO_PHRASE, '');
+    const vault = await XVault.create(Seed.demoPhrase(), '');
     const account = await hydra(vault, { network: Coin.Hydra.Testnet, account: 0 });
 
     const pk0 = account.pub.key(0);
@@ -52,7 +53,7 @@ describe('Vault BIP44 plugins', () => {
       /* eslint no-undefined: 0 */
       stateString = JSON.stringify(state, undefined, 2);
     };
-    const vault = await XVault.create(PersistentVault.DEMO_PHRASE, '', { save });
+    const vault = await XVault.create(Seed.demoPhrase(), '', { save });
     const account = await hydra(vault, { network: Coin.Hydra.Testnet, account: 0 });
     const pk1 = account.pub.key(1);
 
@@ -98,7 +99,7 @@ describe('Vault BIP44 plugins', () => {
 
 describe('Vault Morpheus plugin', () => {
   it('Morpheus plugin', async() => {
-    const vault = await XVault.create(PersistentVault.DEMO_PHRASE, '');
+    const vault = await XVault.create(Seed.demoPhrase(), '');
     const m = await morpheus(vault);
 
     const { personas } = m.pub;
@@ -124,7 +125,7 @@ describe('Vault Morpheus plugin', () => {
       /* eslint no-undefined: 0 */
       stateString = JSON.stringify(state, undefined, 2);
     };
-    const vault = await XVault.create(PersistentVault.DEMO_PHRASE, '', { save });
+    const vault = await XVault.create(Seed.demoPhrase(), '', { save });
     const m = await morpheus(vault);
     expect(m.pub.personas.count).toBe(1);
 

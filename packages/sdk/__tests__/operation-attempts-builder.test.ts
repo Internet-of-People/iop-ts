@@ -42,7 +42,7 @@ describe('OperationAttemptsBuilder', () => {
 
   it('can sign an addKey with a vault', () => {
     const signMock = jest.fn<Crypto.SignedBytes, [Crypto.KeyId, Uint8Array]>();
-    const vault: Types.Crypto.IVault = {
+    const vault: Types.Crypto.IMorpheusSigner = {
       signDidOperations: signMock,
     };
     const expectedAddKeyData: Types.Layer1.IAddKeyData = {
@@ -68,7 +68,7 @@ describe('OperationAttemptsBuilder', () => {
       );
     });
     const attempts = builder
-      .withVault(vault)
+      .signWith(vault)
       .on(did, lastTxId)
       .addKey(keyId1, expectedAddKeyData.expiresAtHeight)
       .sign(defaultKeyId)

@@ -9,8 +9,8 @@ import { toData } from './to-data';
 export class OperationAttemptsBuilder {
   private readonly attempts: Operation[] = [];
 
-  public withVault(vault: Crypto.IVault): ISignedOperationBuilderNeedsDid {
-    return new SignedOperationAttemptsBuilder(this.signed.bind(this), vault);
+  public signWith(signer: Crypto.IMorpheusSigner): ISignedOperationBuilderNeedsDid {
+    return new SignedOperationAttemptsBuilder(this.signed.bind(this), signer);
   }
 
   public registerBeforeProof(contentId: string): OperationAttemptsBuilder {

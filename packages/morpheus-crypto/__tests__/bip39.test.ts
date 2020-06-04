@@ -1,4 +1,4 @@
-import { Bip39, PersistentVault, Bip44 } from '../src';
+import { Bip39, Bip44, Seed } from '../src';
 
 describe('Bip39', () => {
   it('can work with phrases', () => {
@@ -15,7 +15,7 @@ describe('Bip39', () => {
 
   it('can create seed', () => {
     const bip39 = new Bip39('en');
-    const seed = bip39.phrase(PersistentVault.DEMO_PHRASE).password('');
+    const seed = bip39.phrase(Seed.demoPhrase()).password('');
     const key = Bip44.network(seed, 'HYD testnet').account(0)
       .key(0);
     expect(key.neuter().address).toBe('tjMvaU79mMJ8fKwoLjFLn7rCTthpY6KxTx');

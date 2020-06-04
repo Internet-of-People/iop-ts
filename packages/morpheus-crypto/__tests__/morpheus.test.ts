@@ -1,10 +1,8 @@
-import { Morpheus, Did } from '@internet-of-people/morpheus-crypto-wasm';
-
-import { Bip39, PersistentVault } from '../src';
+import { Morpheus, Did, Bip39, Seed } from '../src';
 
 describe('morpheus', () => {
   it('derivation', () => {
-    const seed = new Bip39('en').phrase(PersistentVault.DEMO_PHRASE)
+    const seed = new Bip39('en').phrase(Seed.demoPhrase())
       .password('');
     const root = Morpheus.root(seed);
     const personas = root.personas();

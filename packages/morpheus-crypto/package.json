@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-crypto",
-  "version": "2.0.7",
+  "version": "3.0.0",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -31,7 +31,7 @@
     "test": "jest --detectOpenHandles --no-cache"
   },
   "dependencies": {
-    "@internet-of-people/morpheus-crypto-wasm": "file:../morpheus-crypto-wasm",
+    "@internet-of-people/morpheus-crypto-wasm": "3.0.0",
     "multibase": "0.6.0",
     "optional-js": "2.1.1"
   },

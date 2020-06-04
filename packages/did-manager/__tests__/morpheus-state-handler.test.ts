@@ -9,40 +9,41 @@ type TransactionId = Types.Sdk.TransactionId;
 import { IStateChange } from '../src/interfaces';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
 import { Operations } from '../src/morpheus-transaction';
-
-export const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-export const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-export const keyId1 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-export const keyId2 = new Crypto.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
+import { assertStringlyEqual, did, defaultKeyId, keyId1, keyId2 } from "./known-keys";
 
 const { RightRegistry } = Operations;
 
-export interface IToString {
-  toString(): string;
-}
-
-export const assertStringlyEqual = (actual: IToString, expected: IToString): void => {
-  expect(actual.toString()).toStrictEqual(expected.toString());
-};
-
 describe('StateHandler', () => {
-  const rustVault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
-  rustVault.createDid();
-  rustVault.createDid();
-  rustVault.createDid();
-
-  const vault: Types.Crypto.IVault = {
-    signDidOperations: (keyId: Crypto.KeyId, message: Uint8Array): Crypto.SignedBytes => {
-      return rustVault.signDidOperations(keyId, message);
-    },
-  };
-
-  let handler: MorpheusStateHandler;
   const contentId = 'myFavoriteContentId';
   const otherContentId = 'someOtherContentId';
   const transactionId = 'myFavoriteTxid';
   const blockId = 'myFavoriteBlockId';
+
+  const registrationAttempt = new Layer1.OperationAttemptsBuilder()
+    .registerBeforeProof(contentId)
+    .getAttempts();
+
+  let handler: MorpheusStateHandler;
+  let signer: Crypto.MorpheusPrivate;
   let lastTxId: TransactionId | null;
+
+  beforeAll(async () => {
+    const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
+    const m = await Crypto.morpheus(vault);
+    signer = await m.priv();
+    await signer.personas.key(2); // creates 3 dids
+  });
+
+  beforeEach(() => {
+    handler = new MorpheusStateHandler({
+      appName: 'state-handler-tests',
+      debug: jest.fn<void, [string]>(),
+      info: jest.fn<void, [string]>(),
+      warn: jest.fn<void, [string]>(),
+      error: jest.fn<void, [string]>(),
+    }, new EventEmitter());
+    lastTxId = null;
+  });
 
   const addKey = (
     blockHeight: number,
@@ -52,7 +53,7 @@ describe('StateHandler', () => {
   ): IStateChange => {
     const stateChange = {
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(did, lastTxId)
         .addKey(keyToAdd)
         .sign(signWith)
@@ -71,7 +72,7 @@ describe('StateHandler', () => {
   ): IStateChange => {
     const stateChange = {
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(did, lastTxId)
         .revokeKey(keyToRevoke)
         .sign(signWith)
@@ -90,7 +91,7 @@ describe('StateHandler', () => {
   ): IStateChange => {
     const stateChange = {
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(did, lastTxId)
         .addRight(toKey, RightRegistry.systemRights.update)
         .sign(signWith)
@@ -109,7 +110,7 @@ describe('StateHandler', () => {
   ): IStateChange => {
     const stateChange = {
       asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .withVault(vault)
+        .signWith(signer)
         .on(did, lastTxId)
         .revokeRight(toKey, RightRegistry.systemRights.update)
         .sign(signWith)
@@ -124,7 +125,7 @@ describe('StateHandler', () => {
     const stateChange = {
       asset: {
         operationAttempts: new Layer1.OperationAttemptsBuilder()
-          .withVault(vault)
+          .signWith(signer)
           .on(did, lastTxId)
           .tombstoneDid()
           .sign(defaultKeyId)
@@ -134,21 +135,6 @@ describe('StateHandler', () => {
     handler.applyTransactionToState(stateChange);
     return stateChange;
   };
-
-  beforeEach(() => {
-    handler = new MorpheusStateHandler({
-      appName: 'state-handler-tests',
-      debug: jest.fn<void, [string]>(),
-      info: jest.fn<void, [string]>(),
-      warn: jest.fn<void, [string]>(),
-      error: jest.fn<void, [string]>(),
-    }, new EventEmitter());
-    lastTxId = null;
-  });
-
-  const registrationAttempt = new Layer1.OperationAttemptsBuilder()
-    .registerBeforeProof(contentId)
-    .getAttempts();
 
   it('applies valid state change', () => {
     handler.applyTransactionToState({
@@ -224,7 +210,7 @@ describe('StateHandler', () => {
 
   it('authentication passes on signed operation', () => {
     const attempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(did, null)
       .sign(defaultKeyId)
       .getAttempts();
@@ -240,7 +226,7 @@ describe('StateHandler', () => {
 
   it('authentication fails on invalid signature', () => {
     const attempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(did, null)
       .sign(defaultKeyId)
       .getAttempts();
@@ -265,13 +251,13 @@ describe('StateHandler', () => {
 
   it('rights can be moved to a different key in a single transaction', () => {
     const attempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(did, null)
       .addKey(keyId1)
       .addRight(keyId1, RightRegistry.systemRights.impersonate)
       .addRight(keyId1, RightRegistry.systemRights.update)
       .sign(defaultKeyId)
-      .withVault(vault)
+      .signWith(signer)
       .on(did, null)
       .revokeKey(defaultKeyId)
       .sign(keyId1)
@@ -607,7 +593,7 @@ describe('StateHandler', () => {
     addKey(5, keyId2, defaultKeyId, transactionId);
 
     const errors = handler.dryRun(new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(did, transactionId)
       .addKey(keyId1)
       .sign(defaultKeyId)
@@ -619,7 +605,7 @@ describe('StateHandler', () => {
 
   it('dry run returns the same error that we will receive', () => {
     const attempts = new Layer1.OperationAttemptsBuilder()
-      .withVault(vault)
+      .signWith(signer)
       .on(did, null)
       .addRight(keyId1, RightRegistry.systemRights.update) // key is not yet added
       .sign(defaultKeyId)

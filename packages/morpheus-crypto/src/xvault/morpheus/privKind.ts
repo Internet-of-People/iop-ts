@@ -8,6 +8,7 @@ import {
 } from '@internet-of-people/morpheus-crypto-wasm';
 
 import { PublicKeyData } from '../../types';
+import { MorpheusPublicKind } from './pubKind';
 
 export class MorpheusPrivateKind {
   public constructor(
@@ -19,6 +20,10 @@ export class MorpheusPrivateKind {
 
   public get count(): number {
     return this.pubkeyDatas.length;
+  }
+
+  public get pub(): MorpheusPublicKind {
+    return new MorpheusPublicKind(this.pubkeyDatas, this.kind);
   }
 
   public async key(idx: number): Promise<PrivateKey> {

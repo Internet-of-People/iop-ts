@@ -3,13 +3,13 @@ import { Layer1, Types } from '@internet-of-people/sdk';
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askHeight, askSignerKeyId } from '../utils';
-import { loadVault } from '../vault';
+import { morpheus } from '../vault';
 
 const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
-  const vault = loadVault();
-  const keyIds = vault.keyIds();
+  const m = await morpheus();
+  const keyIds = m.pub.personas.keyIds();
 
-  dumpDids(vault.dids());
+  dumpDids(m.pub.personas.dids());
   const did = await askDid('add key to');
 
   dumpKeyIds(keyIds);
@@ -19,7 +19,7 @@ const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi)
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .withVault(vault)
+    .signWith(await m.priv())
     .on(did, lastTxId)
     .addKey(newAuth, expires)
     .sign(signerKeyId)
@@ -29,19 +29,19 @@ const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi)
 };
 
 const revokeKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
-  const vault = loadVault();
-  const vaultKeyIds = vault.keyIds();
+  const m = await morpheus();
+  const keyIds = m.pub.personas.keyIds();
 
-  dumpDids(vault.dids());
+  dumpDids(m.pub.personas.dids());
   const did = await askDid('revoke key from');
 
-  dumpKeyIds(vaultKeyIds);
+  dumpKeyIds(keyIds);
   const newAuth = await askAuth('revoke from that DID');
-  const signerKeyId = await askSignerKeyId(vaultKeyIds);
+  const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .withVault(vault)
+    .signWith(await m.priv())
     .on(did, lastTxId)
     .revokeKey(newAuth)
     .sign(signerKeyId)

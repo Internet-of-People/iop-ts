@@ -1,20 +1,20 @@
 import { Layer1, Types } from '@internet-of-people/sdk';
 import { IAction } from '../action';
-import { loadVault } from '../vault';
+import { morpheus } from '../vault';
 import { dumpDids, askDid, askSignerKeyId } from '../utils';
 import { processMorpheusTx } from '../transaction-sender';
 
 const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
-  const vault = loadVault();
-  const keyIds = vault.keyIds();
+  const m = await morpheus();
+  const keyIds = m.pub.personas.keyIds();
 
-  dumpDids(vault.dids());
+  dumpDids(m.pub.personas.dids());
   const did = await askDid('tombstone');
   const signerKeyId = await askSignerKeyId(keyIds);
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .withVault(vault)
+    .signWith(await m.priv())
     .on(did, lastTxId)
     .tombstoneDid()
     .sign(signerKeyId)

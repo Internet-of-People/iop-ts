@@ -3,8 +3,8 @@ import { Layer2 } from '@internet-of-people/sdk';
 import { MorpheusState } from '../src/morpheus-transaction/state';
 import { IMorpheusState } from '../src/interfaces';
 
-import { assertStringlyEqual, defaultKeyId, did, keyId1, keyId2 } from './morpheus-state-handler.test';
 import { Operations } from '../src/morpheus-transaction';
+import { assertStringlyEqual, did, defaultKeyId, keyId1, keyId2 } from "./known-keys";
 
 const { RightRegistry } = Operations;
 
