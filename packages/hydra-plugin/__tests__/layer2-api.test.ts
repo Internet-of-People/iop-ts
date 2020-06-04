@@ -19,6 +19,14 @@ import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { IDidOperation } from '../src/did-operations';
 import { assertStringlyEqual } from './utils';
+import {
+  defaultDid,
+  did2,
+  did3,
+  defaultKeyId,
+  keyId2,
+  keyId3,
+} from './known-keys';
 
 class Fixture {
   public emitter: NodeJS.EventEmitter = new EventEmitter();
@@ -36,29 +44,36 @@ class Fixture {
   public stateHandler = new MorpheusStateHandler(this.log, this.emitter);
 }
 
-let hapiServer: HapiServer;
-let fixture: Fixture;
-
-describe('Layer2API', async () => {
+describe('Layer2API', () => {
+  let signer: Crypto.MorpheusPrivate;
+  let hapiServer: HapiServer;
+  let fixture: Fixture;
   let lastTxId: TransactionId | null = null;
 
-  const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-  const did2 = new Crypto.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX');
-  const did3 = new Crypto.Did('did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W');
-  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-  const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-  const keyId3 = new Crypto.KeyId('iezkXs7Xd8SDWLaGKUAjEf53W');
-  
   const contentId = 'myFavoriteContentId';
   const transactionId = 'myFavoriteTxid';
   const blockId = 'myFavoriteBlockId';
   const blockHeight = 5;
-  
-  const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
-  const m = await Crypto.morpheus(vault);
-  const signer = await m.priv();
-  await signer.personas.key(2); // creates 3 dids
-  
+
+  beforeAll(async() => {
+    const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
+    const m = await Crypto.morpheus(vault);
+    signer = await m.priv();
+    await signer.personas.key(2); // creates 3 dids
+  });
+
+  beforeEach(async() => {
+    fixture = new Fixture();
+    lastTxId = null;
+    hapiServer = await createServer({ host: '0.0.0.0', port: '4703' });
+    const morpheusServer = new Layer2API(fixture.log, fixture.stateHandler, hapiServer, fixture.transactionRepo);
+    await morpheusServer.init();
+  });
+
+  afterEach(async() => {
+    await hapiServer.stop();
+  });
+
   const registerBeforeProof = (): void => {
     const registrationAttempt = new Layer1.OperationAttemptsBuilder()
       .registerBeforeProof(contentId)
@@ -165,18 +180,6 @@ describe('Layer2API', async () => {
       transactionId: txId,
     });
   };
-
-  beforeEach(async() => {
-    fixture = new Fixture();
-    lastTxId = null;
-    hapiServer = await createServer({ host: '0.0.0.0', port: '4703' });
-    const morpheusServer = new Layer2API(fixture.log, fixture.stateHandler, hapiServer, fixture.transactionRepo);
-    await morpheusServer.init();
-  });
-
-  afterEach(async() => {
-    await hapiServer.stop();
-  });
 
   it('plugin is only available via versioned api', async() => {
     const res = await hapiServer.inject({
@@ -613,9 +616,9 @@ describe('Layer2API', async () => {
       'blockHeight': 101,
       'data': {
         'operation': 'revokeKey',
-        'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'did': 'did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J',
         'lastTxId': 'firstTransactionId',
-        'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
+        'auth': 'iezqztJ6XX6GDxdSgdiySiT3J',
       },
       'valid': true,
     },
@@ -624,9 +627,9 @@ describe('Layer2API', async () => {
       'blockHeight': 100,
       'data': {
         'operation': 'addRight',
-        'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'did': 'did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J',
         'lastTxId': null,
-        'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
+        'auth': 'iezj3chiV25iVVhXjv73mqk8Z',
         'right': 'update',
       },
       'valid': true,
@@ -636,9 +639,9 @@ describe('Layer2API', async () => {
       'blockHeight': 100,
       'data': {
         'operation': 'addRight',
-        'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'did': 'did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J',
         'lastTxId': null,
-        'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
+        'auth': 'iezj3chiV25iVVhXjv73mqk8Z',
         'right': 'impersonate',
       },
       'valid': true,
@@ -648,9 +651,9 @@ describe('Layer2API', async () => {
       'blockHeight': 100,
       'data': {
         'operation': 'addKey',
-        'did': 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr',
+        'did': 'did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J',
         'lastTxId': null,
-        'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
+        'auth': 'iezj3chiV25iVVhXjv73mqk8Z',
       },
       'valid': true,
     },
@@ -685,9 +688,9 @@ describe('Layer2API', async () => {
         'blockHeight': 101,
         'data': {
           'operation': 'addKey',
-          'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'did': 'did:morpheus:ezj3chiV25iVVhXjv73mqk8Z',
           'lastTxId': null,
-          'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
+          'auth': 'iezqztJ6XX6GDxdSgdiySiT3J',
         },
         'valid': true,
       },
@@ -735,9 +738,9 @@ describe('Layer2API', async () => {
         'blockHeight': 102,
         'data': {
           'operation': 'addKey',
-          'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'did': 'did:morpheus:ezj3chiV25iVVhXjv73mqk8Z',
           'lastTxId': 'secondTransactionId',
-          'auth': 'iezkXs7Xd8SDWLaGKUAjEf53W',
+          'auth': 'iezxjqMH7vT8b8WFuKNSosYjo',
         },
         'valid': false,
       },
@@ -746,9 +749,9 @@ describe('Layer2API', async () => {
         'blockHeight': 101,
         'data': {
           'operation': 'addKey',
-          'did': 'did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'did': 'did:morpheus:ezj3chiV25iVVhXjv73mqk8Z',
           'lastTxId': null,
-          'auth': 'iezbeWGSY2dqcUBqT8K7R14xr',
+          'auth': 'iezqztJ6XX6GDxdSgdiySiT3J',
         },
         'valid': true,
       },
@@ -761,9 +764,9 @@ describe('Layer2API', async () => {
         'blockHeight': 102,
         'data': {
           'operation': 'addKey',
-          'did': 'did:morpheus:ezkXs7Xd8SDWLaGKUAjEf53W',
+          'did': 'did:morpheus:ezxjqMH7vT8b8WFuKNSosYjo',
           'lastTxId': null,
-          'auth': 'iez25N5WZ1Q6TQpgpyYgiu9gTX',
+          'auth': 'iezj3chiV25iVVhXjv73mqk8Z',
         },
         'valid': false,
       },

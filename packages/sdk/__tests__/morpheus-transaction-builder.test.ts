@@ -2,6 +2,7 @@ import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
 
 import { Crypto, Layer1, Layer2, Types } from '../src';
+import { defaultDid, defaultKeyId, keyId2 } from './known-keys';
 type TransactionId = Types.Sdk.TransactionId;
 
 describe('MorpheusTransactionBuilder', () => {
@@ -12,32 +13,28 @@ describe('MorpheusTransactionBuilder', () => {
     Managers.configManager.setHeight(2);
     Transactions.TransactionRegistry.registerTransactionType(Layer1.MorpheusTransaction);
   });
-  
+
   afterAll(() => {
     Transactions.TransactionRegistry.deregisterTransactionType(Layer1.MorpheusTransaction);
   });
 
-  const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-  const newKeyId = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-
   let signer: Crypto.MorpheusPrivate;
   let lastTxId: TransactionId | null;
 
-  beforeEach(async () => {
+  beforeEach(async() => {
     const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
     const m = await Crypto.morpheus(vault);
     signer = await m.priv();
     lastTxId = null;
   });
-  
+
   const verifyTransaction = (ops: Types.Layer1.IOperationData[]): void => {
     const builder = new Layer1.MorpheusTransactionBuilder();
     const actual = builder
       .fromOperationAttempts(ops)
       .nonce('42')
       .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire');
-  
+
     expect(actual.build().verified).toBeTrue();
     expect(actual.verify()).toBeTrue();
   };
@@ -52,8 +49,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('addKey verifies correctly', () => {
     const ops = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
-      .on(did, lastTxId)
-      .addKey(newKeyId)
+      .on(defaultDid, lastTxId)
+      .addKey(keyId2)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -62,8 +59,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('revokeKey verifies correctly', () => {
     const ops = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
-      .on(did, lastTxId)
-      .revokeKey(newKeyId)
+      .on(defaultDid, lastTxId)
+      .revokeKey(keyId2)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -72,8 +69,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('addRight verifies correctly', () => {
     const ops = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
-      .on(did, lastTxId)
-      .addRight(newKeyId, systemRights.update)
+      .on(defaultDid, lastTxId)
+      .addRight(keyId2, systemRights.update)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -82,8 +79,8 @@ describe('MorpheusTransactionBuilder', () => {
   it('revokeright verifies correctly', () => {
     const ops = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
-      .on(did, lastTxId)
-      .revokeRight(newKeyId, systemRights.update)
+      .on(defaultDid, lastTxId)
+      .revokeRight(keyId2, systemRights.update)
       .sign(defaultKeyId)
       .getAttempts();
     verifyTransaction(ops);
@@ -92,7 +89,7 @@ describe('MorpheusTransactionBuilder', () => {
   it('tombstoneDid verifies correctly', () => {
     const ops = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
-      .on(did, lastTxId)
+      .on(defaultDid, lastTxId)
       .tombstoneDid()
       .sign(defaultKeyId)
       .getAttempts();
@@ -102,11 +99,11 @@ describe('MorpheusTransactionBuilder', () => {
   it('multiple operations verify correctly', () => {
     const ops = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
-      .on(did, lastTxId)
-      .addKey(newKeyId)
-      .addRight(newKeyId, systemRights.update)
-      .revokeRight(newKeyId, systemRights.update)
-      .revokeKey(newKeyId)
+      .on(defaultDid, lastTxId)
+      .addKey(keyId2)
+      .addRight(keyId2, systemRights.update)
+      .revokeRight(keyId2, systemRights.update)
+      .revokeKey(keyId2)
       .tombstoneDid()
       .sign(defaultKeyId)
       .getAttempts();

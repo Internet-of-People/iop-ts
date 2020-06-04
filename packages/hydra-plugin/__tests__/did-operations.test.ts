@@ -7,6 +7,7 @@ const { Operations: { RightRegistry } } = MorpheusTransaction;
 type TransactionId = Types.Sdk.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
+import { defaultDid, did2, defaultKeyId, keyId2 } from './known-keys';
 
 export class TransactionTestRepo implements ITransactionRepository {
   private transactions: { [txid: string]: Types.Layer1.IMorpheusAsset; } = {};
@@ -20,17 +21,10 @@ export class TransactionTestRepo implements ITransactionRepository {
   }
 }
 
-describe('DidOperationExtractor', async () => {
-  const defaultDid = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-  const keyId2 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
+describe('DidOperationExtractor', () => {
   const transactionId = 'someTransactionId';
-  
-  const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
-  const m = await Crypto.morpheus(vault);
-  const signer = await m.priv();
-  await signer.personas.key(2); // creates 3 dids
- 
+
+  let signer: Crypto.MorpheusPrivate;
   let extractor: DidOperationExtractor;
 
   const stateHandlerQueryMock = {
@@ -53,6 +47,13 @@ describe('DidOperationExtractor', async () => {
     revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
   };
+
+  beforeAll(async() => {
+    const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
+    const m = await Crypto.morpheus(vault);
+    signer = await m.priv();
+    await signer.personas.key(2); // creates 3 dids
+  });
 
   beforeEach(async() => {
     const repo = new TransactionTestRepo();
@@ -89,7 +90,7 @@ describe('DidOperationExtractor', async () => {
     stateHandlerQueryMock.isConfirmed.mockImplementation(() => {
       return Optional.of(false);
     });
-    const didOps = await extractor.didOperationsOf(new Crypto.Did('did:morpheus:ez25N5WZ1Q6TQpgpyYgiu9gTX'), true, 0);
+    const didOps = await extractor.didOperationsOf(did2, true, 0);
     expect(didOps).toHaveLength(0);
   });
 });

@@ -2,6 +2,7 @@ import { Crypto, Layer1, Types } from '../src';
 type TransactionId = Types.Sdk.TransactionId;
 
 import { assertStringlyEqual } from './utils';
+import { defaultDid, defaultKeyId, keyId2 } from './known-keys';
 
 const assertSignedOperationsEqual = (
   actual: Types.Layer1.ISignedOperationsData,
@@ -19,10 +20,6 @@ const assertSignedOperationsEqual = (
 };
 
 describe('OperationAttemptsBuilder', () => {
-  const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
-  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-  const keyId1 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-
   const lastTxId: TransactionId | null = null;
 
   let builder: Layer1.OperationAttemptsBuilder;
@@ -47,9 +44,9 @@ describe('OperationAttemptsBuilder', () => {
     };
     const expectedAddKeyData: Types.Layer1.IAddKeyData = {
       operation: Layer1.SignableOperationType.AddKey,
-      did: did.toString(),
+      did: defaultDid.toString(),
       lastTxId,
-      auth: keyId1.toString(),
+      auth: keyId2.toString(),
       expiresAtHeight: 69,
     };
     const expectedOperationData: Types.Layer1.ISignedOperationsData = {
@@ -69,8 +66,8 @@ describe('OperationAttemptsBuilder', () => {
     });
     const attempts = builder
       .signWith(vault)
-      .on(did, lastTxId)
-      .addKey(keyId1, expectedAddKeyData.expiresAtHeight)
+      .on(defaultDid, lastTxId)
+      .addKey(keyId2, expectedAddKeyData.expiresAtHeight)
       .sign(defaultKeyId)
       .getAttempts();
     expect(attempts).toHaveLength(1);

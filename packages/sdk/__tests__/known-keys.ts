@@ -1,4 +1,4 @@
-import { Crypto } from '@internet-of-people/sdk';
+import { Crypto } from '../src';
 
 export const defaultDid = new Crypto.Did('did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J');
 export const did2 = new Crypto.Did('did:morpheus:ezj3chiV25iVVhXjv73mqk8Z');

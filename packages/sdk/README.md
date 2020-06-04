@@ -7,32 +7,41 @@ For more info please visit the [IoP Developer Portal](https://developer.iop.glob
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Prerequisites](#Prerequisites)
-- [Install](#Install)
-- [Usage](#Usage)
-- [Modules](#Modules)
-  - [Types Module](#Types-Module)
-  - [Layer-1 Module](#Layer-1-Module)
-    - [Transfer Hydra](#Transfer-Hydra)
-    - [Register Before-Proof Transaction](#Register-Before-Proof-Transaction)
-    - [Key and Right Management Transactions](#Key-and-Right-Management-Transactions)
-    - [Tombstone DID Transaction](#Tombstone-DID-Transaction)
-  - [Layer-2 Module](#Layer-2-Module)
-    - [Get Before-Proof History](#Get-Before-Proof-History)
-    - [Before-Proof Exists](#Before-Proof-Exists)
-    - [Get Transaction Status](#Get-Transaction-Status)
-    - [Get DID Document](#Get-DID-Document)
-    - [Get Last Transaction ID](#Get-Last-Transaction-ID)
-  - [Crypto Module](#Crypto-Module)
-    - [Utility Functions](#Utility-Functions)
-    - [JSON Masking](#JSON-Masking)
-    - [In-Memory Vault](#In-Memory-Vault)
-    - [Persistent Vault](#Persistent-Vault)
-  - [Authority Module](#Authority-Module)
-  - [Ark Module](#Ark-Module)
-  - [Network Module](#Network-Module)
-  - [Utils Module](#Utils-Module)
-- [Contribution and License](#Contribution-and-License)
+- [Prerequisites](#prerequisites)
+- [Install](#install)
+- [Usage](#usage)
+- [Modules](#modules)
+  - [Types Module](#types-module)
+    - [Usage](#usage-1)
+    - [Authority](#authority)
+    - [Crypto](#crypto)
+    - [Inspector](#inspector)
+    - [Layer1](#layer1)
+    - [Layer2](#layer2)
+    - [Sdk](#sdk)
+    - [Verifier](#verifier)
+  - [Layer-1 Module](#layer-1-module)
+    - [Transfer Hydra](#transfer-hydra)
+    - [Register Before-Proof Transaction](#register-before-proof-transaction)
+    - [Key and Right Management Transactions](#key-and-right-management-transactions)
+    - [Tombstone DID Transaction](#tombstone-did-transaction)
+  - [Layer-2 Module](#layer-2-module)
+    - [Get Before-Proof History](#get-before-proof-history)
+    - [Before-Proof Exists](#before-proof-exists)
+    - [Get Transaction Status](#get-transaction-status)
+    - [Get DID Document](#get-did-document)
+    - [Get Last Transaction ID](#get-last-transaction-id)
+  - [Crypto Module](#crypto-module)
+    - [Utility Functions](#utility-functions)
+    - [JSON Masking](#json-masking)
+    - [In-Memory Vault](#in-memory-vault)
+    - [Persistent Vault](#persistent-vault)
+  - [Authority Module](#authority-module)
+  - [Ark Module](#ark-module)
+  - [Network Module](#network-module)
+  - [Utils Module](#utils-module)
+    - [Log](#log)
+- [Contribution and License](#contribution-and-license)
 
 ## Prerequisites
 
@@ -270,7 +279,6 @@ Layer1 transactions are not found thus `Optional.empty()` is returned for them a
 For a description of our Layer2 transactions and consensus,
 [see the specification](https://developer.iop.global/#/dac?id=decentralized-ledger-dlt).
 
-
 #### Get DID Document
 
 ```typescript
@@ -302,10 +310,10 @@ import { Crypto } from '@internet-of-people/sdk';
 const nonce = Crypto.nonce264();
 
 // Create KeyId
-const keyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
+const keyId = new Crypto.KeyId('iezqztJ6XX6GDxdSgdiySiT3J');
 
-// Create DID wrapper
-const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
+// Create DID
+const did = new Crypto.Did('did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J');
 ```
 
 #### JSON Masking

@@ -35,7 +35,7 @@ export {
 } from '@internet-of-people/morpheus-crypto-wasm';
 
 import type * as Types from './types';
-import {  } from '@internet-of-people/morpheus-crypto-wasm';
+import { } from '@internet-of-people/morpheus-crypto-wasm';
 
 export type { Types };
 

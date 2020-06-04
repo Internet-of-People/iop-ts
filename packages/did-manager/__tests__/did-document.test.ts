@@ -1,12 +1,10 @@
-import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
+import { Layer2, Types } from '@internet-of-people/sdk';
 import { Operations } from '../src/morpheus-transaction';
+import { defaultDid, defaultKeyId, keyId2 } from './known-keys';
 
 const { RightRegistry } = Operations;
 
 describe('DidDocument', () => {
-  const did = 'did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr';
-  const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
-  const keyId1 = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
   const keys: Types.Layer2.IKeyData[] = [{
     index: 0,
     auth: defaultKeyId.toString(),
@@ -25,13 +23,20 @@ describe('DidDocument', () => {
 
   it('hasRight trivial', () => {
     const doc1 = new Layer2.DidDocument(
-      { did, keys, rights, queriedAtHeight, tombstonedAtHeight: null, tombstoned: false },
+      {
+        did: defaultDid.toString(),
+        keys,
+        rights,
+        queriedAtHeight,
+        tombstonedAtHeight: null,
+        tombstoned: false,
+      },
     );
 
     expect(doc1.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 1)).toBeTruthy();
     expect(doc1.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 1)).toBeTruthy();
-    expect(doc1.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 1)).toBeFalsy();
-    expect(doc1.hasRightAt(keyId1, RightRegistry.systemRights.update, 1)).toBeFalsy();
+    expect(doc1.hasRightAt(keyId2, RightRegistry.systemRights.impersonate, 1)).toBeFalsy();
+    expect(doc1.hasRightAt(keyId2, RightRegistry.systemRights.update, 1)).toBeFalsy();
   });
 
   it('hasRight complex', () => {
@@ -45,7 +50,7 @@ describe('DidDocument', () => {
       },
       {
         index: 1,
-        auth: keyId1.toString(),
+        auth: keyId2.toString(),
         validFromHeight: 2,
         validUntilHeight: null,
         valid: true,
@@ -88,7 +93,7 @@ describe('DidDocument', () => {
       },
     ];
     const doc10 = new Layer2.DidDocument({
-      did,
+      did: defaultDid.toString(),
       keys: keys2,
       rights: rights2,
       queriedAtHeight: 10,
@@ -99,21 +104,21 @@ describe('DidDocument', () => {
     expect(doc10.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 1)).toBeTruthy();
     expect(doc10.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 3)).toBeFalsy();
     expect(doc10.hasRightAt(defaultKeyId, RightRegistry.systemRights.impersonate, 10)).toBeFalsy();
-    expect(doc10.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 1)).toBeFalsy();
-    expect(doc10.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 2)).toBeTruthy();
-    expect(doc10.hasRightAt(keyId1, RightRegistry.systemRights.impersonate, 10)).toBeTruthy();
+    expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.impersonate, 1)).toBeFalsy();
+    expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.impersonate, 2)).toBeTruthy();
+    expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.impersonate, 10)).toBeTruthy();
     expect(doc10.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 1)).toBeTruthy();
     expect(doc10.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 6)).toBeFalsy();
     expect(doc10.hasRightAt(defaultKeyId, RightRegistry.systemRights.update, 10)).toBeFalsy();
-    expect(doc10.hasRightAt(keyId1, RightRegistry.systemRights.update, 1)).toBeFalsy();
-    expect(doc10.hasRightAt(keyId1, RightRegistry.systemRights.update, 2)).toBeFalsy();
-    expect(doc10.hasRightAt(keyId1, RightRegistry.systemRights.update, 3)).toBeTruthy();
-    expect(doc10.hasRightAt(keyId1, RightRegistry.systemRights.update, 10)).toBeTruthy();
+    expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.update, 1)).toBeFalsy();
+    expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.update, 2)).toBeFalsy();
+    expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.update, 3)).toBeTruthy();
+    expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
   });
 
   it('fromData restores data correctly', () => {
     const doc = new Layer2.DidDocument({
-      did,
+      did: defaultDid.toString(),
       keys: [],
       rights: {} as Types.Layer2.IRightsMap<Types.Layer2.IKeyRightHistory[]>,
       queriedAtHeight,
@@ -121,12 +126,12 @@ describe('DidDocument', () => {
       tombstoned: false,
     });
     expect(doc.toData().keys).toHaveLength(0);
-    expect(doc.toData().did).toBe(did);
+    expect(doc.toData().did).toBe(defaultDid.toString());
     expect(doc.toData().queriedAtHeight).toBe(1);
     expect(Object.keys(doc.toData().rights).length).toBe(0);
 
     doc.fromData({
-      did,
+      did: defaultDid.toString(),
       keys,
       rights,
       queriedAtHeight,
@@ -134,7 +139,7 @@ describe('DidDocument', () => {
       tombstoned: false,
     });
 
-    expect(doc.toData().did).toBe(did);
+    expect(doc.toData().did).toBe(defaultDid.toString());
     expect(doc.toData().keys).toHaveLength(1);
     expect(doc.toData().keys[0].auth).toBe(defaultKeyId.toString());
     expect(doc.toData().keys[0].validFromHeight).toBe(null);
@@ -156,7 +161,7 @@ describe('DidDocument', () => {
 
   it('did can be tombstoned', () => {
     const doc = new Layer2.DidDocument(
-      { did, keys, rights, queriedAtHeight: 3, tombstonedAtHeight: 2, tombstoned: true },
+      { did: defaultDid.toString(), keys, rights, queriedAtHeight: 3, tombstonedAtHeight: 2, tombstoned: true },
     );
 
     expect(doc.isTombstonedAt(1)).toBeFalsy();
@@ -168,7 +173,7 @@ describe('DidDocument', () => {
 
   it('throws if rights or tombstone state is queried ', () => {
     const doc = new Layer2.DidDocument(
-      { did, keys, rights, queriedAtHeight: 3, tombstonedAtHeight: null, tombstoned: false },
+      { did: defaultDid.toString(), keys, rights, queriedAtHeight: 3, tombstonedAtHeight: null, tombstoned: false },
     );
 
     expect(() => {

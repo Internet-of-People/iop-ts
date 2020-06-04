@@ -1,8 +1,19 @@
 // import cloneDeep from 'lodash.clonedeep';
 
-// import { digest, mask, XVault, SignedBytes, SignedJson, Types, Seed, morpheus, MorpheusPrivate, MorpheusPublic } from '../src';
+// import {
+//   digest,
+//   mask,
+//   XVault,
+//   SignedBytes,
+//   SignedJson,
+//   Types,
+//   Seed,
+//   morpheus,
+//   MorpheusPrivate,
+//   MorpheusPublic
+// } from '../src';
 
-import { digest, mask, XVault, Seed, morpheus, MorpheusPrivate, MorpheusPublic } from '../src';
+import { digest, mask } from '../src';
 
 const request = {
   'processId': 'cjunI8lB1BEtampkcvotOpF-zr1XmsCRNvntciGl3puOkg',
@@ -27,15 +38,15 @@ const request = {
 const requestId = digest(request);
 
 describe('SignedJson', () => {
-  let signer: MorpheusPrivate;
-  let mPub: MorpheusPublic;
+  // let signer: MorpheusPrivate;
+  // let mPub: MorpheusPublic;
 
-  beforeEach(async () => {
-    const vault = await XVault.create(Seed.demoPhrase(), '');
-    const m = await morpheus(vault);
-    signer = await m.priv();
-    mPub = m.pub;
-  });
+  // beforeEach(async() => {
+  //   const vault = await XVault.create(Seed.demoPhrase(), '');
+  //   const m = await morpheus(vault);
+  //   signer = await m.priv();
+  //   mPub = m.pub;
+  // });
 
   it('masking works', () => {
     expect(requestId).toStrictEqual('cjuzC-XxgzNMwYXtw8aMIAeS2Xjlw1hlSNKTvVtUwPuyYo');

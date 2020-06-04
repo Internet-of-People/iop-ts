@@ -1,4 +1,4 @@
-import { Crypto } from "@internet-of-people/sdk";
+import { Crypto } from '@internet-of-people/sdk';
 
 /* eslint no-undefined: 0 */
 import { IAction } from '../action';
@@ -9,14 +9,14 @@ const initVault = async(): Promise<void> => {
   const vault = await initDemoVault();
   const m = await Crypto.morpheus(vault);
   const did = m.pub.personas.did(0);
-  console.log('Vault created, 1st did is', did);
+  console.log('Vault created, 1st did is', did.toString());
 };
 
 const createDid = async(): Promise<void> => {
   const m = await morpheus();
   const priv = await m.priv();
-  const id = await priv.personas.did(priv.personas.count);
-  console.log('New did created', id);
+  const did = await priv.personas.did(priv.personas.count);
+  console.log('New did created', did.toString());
 };
 
 const listKeyIds = async(): Promise<void> => {
