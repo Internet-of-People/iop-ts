@@ -2,8 +2,9 @@ import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
 
 import { Crypto, Layer1, Layer2, Types } from '../src';
+type TransactionId = Types.Sdk.TransactionId;
 
-describe('MorpheusTransactionBuilder', async () => {
+describe('MorpheusTransactionBuilder', () => {
   const systemRights = new Layer2.SystemRights();
 
   beforeAll(() => {
@@ -15,15 +16,20 @@ describe('MorpheusTransactionBuilder', async () => {
   afterAll(() => {
     Transactions.TransactionRegistry.deregisterTransactionType(Layer1.MorpheusTransaction);
   });
-  
+
   const did = new Crypto.Did('did:morpheus:ezbeWGSY2dqcUBqT8K7R14xr');
   const defaultKeyId = new Crypto.KeyId('iezbeWGSY2dqcUBqT8K7R14xr');
   const newKeyId = new Crypto.KeyId('iez25N5WZ1Q6TQpgpyYgiu9gTX');
-  const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
-  const m = await Crypto.morpheus(vault);
-  const signer = await m.priv();
-  
-  const lastTxId: Types.Sdk.TransactionId | null = null;
+
+  let signer: Crypto.MorpheusPrivate;
+  let lastTxId: TransactionId | null;
+
+  beforeEach(async () => {
+    const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
+    const m = await Crypto.morpheus(vault);
+    signer = await m.priv();
+    lastTxId = null;
+  });
   
   const verifyTransaction = (ops: Types.Layer1.IOperationData[]): void => {
     const builder = new Layer1.MorpheusTransactionBuilder();
