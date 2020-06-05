@@ -46,4 +46,4 @@ export {
 export * from './coin';
 export * from './authentication';
 export * from './nonce';
-export * from './xvault';
+export * from './vault';

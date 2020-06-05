@@ -29,7 +29,7 @@ describe('StateHandler', () => {
   let lastTxId: TransactionId | null;
 
   beforeAll(async() => {
-    const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '');
+    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '');
     const m = await Crypto.morpheus(vault);
     signer = await m.priv();
     await signer.personas.key(2); // creates 3 dids

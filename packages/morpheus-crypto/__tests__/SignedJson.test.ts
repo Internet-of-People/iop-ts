@@ -3,7 +3,7 @@
 // import {
 //   digest,
 //   mask,
-//   XVault,
+//   Vault,
 //   SignedBytes,
 //   SignedJson,
 //   Types,
@@ -42,7 +42,7 @@ describe('SignedJson', () => {
   // let mPub: MorpheusPublic;
 
   // beforeEach(async() => {
-  //   const vault = await XVault.create(Seed.demoPhrase(), '');
+  //   const vault = await Vault.create(Seed.demoPhrase(), '');
   //   const m = await morpheus(vault);
   //   signer = await m.priv();
   //   mPub = m.pub;

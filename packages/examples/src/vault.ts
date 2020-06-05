@@ -12,13 +12,13 @@ export const save = async(state: Types.Crypto.IVaultState): Promise<void> => {
   writeFileSync(vaultPath(), serialized);
 };
 
-export const loadVault = (): Crypto.XVault => {
+export const loadVault = (): Crypto.Vault => {
   const serialized = readFileSync(vaultPath(), { encoding: 'utf-8' });
-  return Crypto.XVault.load(JSON.parse(serialized), { save });
+  return Crypto.Vault.load(JSON.parse(serialized), { save });
 };
 
-export const initDemoVault = async(): Promise<Crypto.XVault> => {
-  const vault = await Crypto.XVault.create(Crypto.Seed.demoPhrase(), '', { save });
+export const initDemoVault = async(): Promise<Crypto.Vault> => {
+  const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', { save });
   return vault;
 };
 

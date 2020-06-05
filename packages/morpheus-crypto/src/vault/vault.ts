@@ -41,7 +41,7 @@ const defaultAskUnlockPassword = async(_forDecrypt: boolean): Promise<string> =>
   return '';
 };
 
-export class XVault implements IPluginHolder, IPluginRuntime {
+export class Vault implements IPluginHolder, IPluginRuntime {
   public static readonly pluginFactories: IPluginFactory[] = [
     HydraPluginFactory.instance,
     MorpheusPluginFactory.instance,
@@ -59,7 +59,7 @@ export class XVault implements IPluginHolder, IPluginRuntime {
     this.contextAskUnlockPassword = context?.askUnlockPassword ?? defaultAskUnlockPassword;
 
     for (const plugin of plugins) {
-      const factory = XVault.pluginFactories.find((f) => {
+      const factory = Vault.pluginFactories.find((f) => {
         return f.name === plugin.pluginName;
       });
 
@@ -73,18 +73,18 @@ export class XVault implements IPluginHolder, IPluginRuntime {
     }
   }
 
-  public static async create(phrase: string, bip39Password: string, context?: IVaultContext): Promise<XVault> {
+  public static async create(phrase: string, bip39Password: string, context?: IVaultContext): Promise<Vault> {
     const seed = new Bip39('en')
       .phrase(phrase)
       .password(bip39Password);
     const contextAskUnlockPassword = context?.askUnlockPassword ?? defaultAskUnlockPassword;
     const unlockPassword = await contextAskUnlockPassword(false);
     const encryptedSeed = encrypt(seed, unlockPassword);
-    return new XVault(encryptedSeed, [], context);
+    return new Vault(encryptedSeed, [], context);
   }
 
-  public static load(data: IVaultState, context?: IVaultContext): XVault {
-    return new XVault(data.encryptedSeed, data.plugins, context);
+  public static load(data: IVaultState, context?: IVaultContext): Vault {
+    return new Vault(data.encryptedSeed, data.plugins, context);
   }
 
   public async unlock(): Promise<Seed> {
