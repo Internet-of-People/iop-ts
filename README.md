@@ -19,6 +19,7 @@ web-of-trust way. See the [specification](https://developer.iop.global/) or chec
     - [did-manager](#did-manager)
     - [hydra-plugin](#hydra-plugin)
     - [morpheus-crypto](#morpheus-crypto)
+    - [morpheus-crypto-wasm](#morpheus-crypto-wasm)
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [License](#license)
@@ -46,8 +47,8 @@ Morpheus forms the basis of secure transmission and validation of personal infor
 
 ## How to Use
 
-Morpheus will be used as by default plugin on the Hydra chain, hence will be shipped with the [Hydra core](https://github.com/Internet-of-People/hydra-core) code.
-However this repo can also be used standalone for demo and testing purposes until we provide an SDK.
+Morpheus is used as by default plugin on the Hydra chain, hence it is shipped with the [Hydra core](https://github.com/Internet-of-People/hydra-core) code.
+However this repo can also be used standalone for demo and testing purposes.
 
 Under the examples package you will see example codes for all available API.
 
@@ -137,7 +138,12 @@ This is a Hydra plugin that will be started up when your node is running. Receiv
 
 #### morpheus-crypto
 
-A wasm package and wrapper on top of [keyvault-rs](https://github.com/Internet-of-People/keyvault-rust). The SDK reexports it, so users don't need to use this package directly.
+It's a wrapper on top of `morpheus-crypto-wasm` to provide a more coherent interface for the wasm code.
+
+#### morpheus-crypto-wasm
+
+A wasm package of [keyvault-rs](https://github.com/Internet-of-People/keyvault-rust). The SDK reexports it, so users don't need to use this package directly.
+
 
 ## Maintainers
 

@@ -32,10 +32,10 @@ For more info please visit the [IoP Developer Portal](https://developer.iop.glob
     - [Get DID Document](#get-did-document)
     - [Get Last Transaction ID](#get-last-transaction-id)
   - [Crypto Module](#crypto-module)
-    - [Utility Functions](#utility-functions)
+    - [Low Level Functions](#low-level-functions)
     - [JSON Masking](#json-masking)
-    - [In-Memory Vault](#in-memory-vault)
-    - [Persistent Vault](#persistent-vault)
+    - [Vault](#in-memory-vault)
+    - [Crypto Plugins](#crypto-plugins)
   - [Authority Module](#authority-module)
   - [Ark Module](#ark-module)
   - [Network Module](#network-module)
@@ -124,17 +124,27 @@ This package contains all Typescript class and utils that you need to interact w
 #### Transfer Hydra
 
 ```typescript
-import { Ark, Layer1 } from '@internet-of-people/sdk';
+import { Layer1 } from '@internet-of-people/sdk';
 
 const api = await Layer1.createApi(Layer1.Network.Devnet);
 const amount = 10; // 10 HYD
 
-await api.sendTransferTx(
+// With passhprase...
+await api.sendTransferTxWithPassphrase(
   'SENDER_BIP38_PASSPHRASE',
   'RECIPIENT_ADDRESS',
-  Ark.Utils.BigNumber.make(amount).times(1e8),
+  BigInt(amount) * BigInt(1e8),
+);
+
+// ... or with WIF
+await api.sendTransferTxWithWIF(
+  'SENDER_WIF',
+  'RECIPIENT_ADDRESS',
+  BigInt(amount) * BigInt(1e8),
 );
 ```
+
+> Note, that we soon release a new version where we will be able to sign with the vault, not using any private credentials.
 
 #### Register Before-Proof Transaction
 
@@ -146,8 +156,20 @@ const opAttempts = new Layer1.OperationAttemptsBuilder()
     .registerBeforeProof('YOUR_CONTENT_ID')
     .getAttempts();
 
-const txId = await api.sendMorpheusTxWithPassphrase(opAttempts, 'SENDER_BIP38_PASSPHRASE');
+// With passhprase...
+const txId = await api.sendMorpheusTxWithPassphrase(
+  opAttempts,
+  'SENDER_BIP38_PASSPHRASE',
+);
+
+// ... or with WIF
+const txId = await api.sendMorpheusTxWithWIF(
+  'SENDER_WIF',
+  'RECIPIENT_ADDRESS',
+);
 ```
+
+> Note, that we soon release a new version where we will be able to sign with the vault, not using any private credentials.
 
 #### Key and Right Management Transactions
 
@@ -166,10 +188,16 @@ import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
 // Creating vault
 const layer1Api = await Layer1.createApi(Network.Devnet);
 const layer2Api = Layer2.createApi(Network.Devnet);
-const vault = Crypto.PersistentVault.fromSeedPhrase(Crypto.PersistentVault.DEMO_PHRASE, 'YOUR_VAULT_PATH');
+const vault = Crypto.Vault.create(
+  Crypto.Seed.demoPhrase(),
+  'OPTIONAL_BIP39_PASSWORD',
+);
+
+// Creating the Layer-2 plugin
+const morpheus = Crypto.morpheus(vault);
 
 // Collect transaction requirements
-const did = vault.createDid(); // let's use the first DID
+const did = morpheus.pub.personas.did(0); // let's use the first DID
 const firstKey = did.defaultKeyId(); // by default only the initial key has the right to update the DID document
 const secondaryKey = ...; // another key (one of your own or somebody else's)
 const expiresAtHeight = 42; // the key will not be valid after the 42th block height
@@ -178,6 +206,7 @@ const systemRights = new Layer2.SystemRights();
 // Adding the new key with rights
 const firstTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .withVault(vault)
+  .signWith(await morpheus.priv())
   .on(did, await layer2Api.getLastTxId(did))
   .addKey(secondaryKey, expiresAtHeight)
   .addRight(secondaryKey, systemRights.update)
@@ -189,7 +218,7 @@ const firstTxId = await layer1Api.sendMorpheusTxWithPassphrase(firstTxOpAttempts
 
 // Revoking the old key
 const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
-  .withVault(vault)
+  .signWith(await m.priv())
   .on(did, await layer2Api.getLastTxId(did))
   .revokeRight(firstKey, systemRights.update)
   .revokeRight(firstKey, systemRights.impersonate)
@@ -197,7 +226,10 @@ const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .sign(secondaryKey)
   .getAttempts();
 
-const secondTxId = await layer1Api.sendMorpheusTxWithPassphrase(secondTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
+const secondTxId = await layer1Api.sendMorpheusTxWithPassphrase(
+  secondTxOpAttempts,
+  'SENDER_BIP38_PASSPHRASE',
+);
 ```
 
 #### Tombstone DID Transaction
@@ -208,21 +240,30 @@ import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
 // Creating vault
 const layer1Api = await Layer1.createApi(Network.Devnet);
 const layer2Api = Layer2.createApi(Network.Devnet);
-const vault = Crypto.PersistentVault.loadFile('YOUR_VAULT_PATH');
+const vault = Crypto.Vault.create(
+  Crypto.Seed.demoPhrase(),
+  'OPTIONAL_BIP39_PASSWORD',
+);
+
+// Creating the Layer-2 plugin
+const morpheus = Crypto.morpheus(vault);
 
 // Collect transaction requirements
-const did = vault.activeDid();
-const firstKey = ...; // the currently active key of the DID
+const did = morpheus.pub.personas.did(0);
+const firstKey = did.defaultKeyId();
 
 // Adding the new key with rights
 const operationAttempts = new Layer1.OperationAttemptsBuilder()
-  .withVault(vault)
+  .signWith(await morpheus.priv())
   .on(did, await layer2Api.getLastTxId(did))
   .tombstoneDid()
   .sign(firstKey)
   .getAttempts();
 
-const txId = await layer1Api.sendMorpheusTxWithPassphrase(operationAttempts, 'SENDER_BIP38_PASSPHRASE');
+const txId = await layer1Api.sendMorpheusTxWithPassphrase(
+  operationAttempts,
+  'SENDER_BIP38_PASSPHRASE',
+);
 ```
 
 ### Layer-2 Module
@@ -301,20 +342,11 @@ const lastTxId = await api.getLastTxId('A_DID');
 
 Under this package we reexport our [morpheus-crypto package](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/morpheus-crypto)'s functionality.
 
-#### Utility Functions
+#### Low Level Functions
 
-```typescript
-import { Crypto } from '@internet-of-people/sdk';
+The package contains high level tools like the Vault or JSON masking and such. But, it also contains low level classes and utilities for wallet integrators or for people who really know what they're doing.
 
-// Generate a 45 character string with 264 bits of entropy to be used as a nonce.
-const nonce = Crypto.nonce264();
-
-// Create KeyId
-const keyId = new Crypto.KeyId('iezqztJ6XX6GDxdSgdiySiT3J');
-
-// Create DID
-const did = new Crypto.Did('did:morpheus:ezqztJ6XX6GDxdSgdiySiT3J');
-```
+You can inspect these APIs int the file we re-export from the sdk, [here](https://github.com/Internet-of-People/morpheus-ts/blob/master/packages/morpheus-crypto/src/index.ts).
 
 #### JSON Masking
 
@@ -340,91 +372,164 @@ const contentId = Crypto.digest(content);
 const maskedData = Crypto.mask(content, ".timestamp, .version");
 ```
 
+#### Vault
 
-#### In-Memory Vault
+The Vault is a general purpose hierarchical deterministic (HD) generator for asymmetric keys. Read more about in [its repository](https://github.com/Internet-of-People/keyvault-rust).
 
-An in-memory vault, that does not persist state, it your job via the `serialize` and `deserialize` methods.
-
-```typescript
-import { Crypto } from '@internet-of-people/sdk';
-
-// Create
-const vault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
-
-// Serialize vault
-const serialized = vault.serialize();
-
-// Deserialize vault
-const vault = Crypto.Vault.deserialize(serialized);
-
-// List KeyIds
-const keyIds = vault.keyIds();
-
-// List DIDs
-const dids = vault.dids();
-
-// Get active DID
-const activeDid = vault.activeDid();
-
-// Create DID
-const newDid = vault.createDid();
-const keyId = newDid.defaultKeyId();
-
-// Sign witness request
-vault.signWitnessRequest(keyId, 'A_JSON_WITNESS_REQUEST');
-
-// Sign witness statement
-vault.signWitnessStatement(keyId, 'A_JSON_WITNESS_STATEMENT');
-
-// Sign claim presentation
-vault.signClaimPresentation(keyId, 'A_JSON_CLAIM_PRESENTATION');
-
-// Sign DID operations
-vault.signDidOperations(keyId, 'TBD');
-```
-
-#### Persistent Vault
-
-A state-parsisted vault. In any case when you call its method which updates its state, it will automatically persist the state as well.
+##### Creating a Vault
 
 ```typescript
 import { Crypto } from '@internet-of-people/sdk';
 
-// Create
-const persistentFromFile = Crypto.PersistentVault.loadFile('YOUR_VAULT_PATH');
-const persistentFromSeed = Crypto.PersistentVault.fromSeedPhrase(Crypto.PersistentVault.DEMO_PHRASE, 'YOUR_VAULT_PATH');
+const vault = await Crypto.Vault.create(
+  'BIP39_MNEMONIC_SEED',
+  'BIP39_PASSWORD',
+);
 
-
-// Create and use vault
-const vault = new Crypto.Vault(Crypto.PersistentVault.DEMO_PHRASE);
-
-// List KeyIds
-const keyIds = vault.keyIds();
-
-// List DIDs
-const dids = vault.dids();
-
-// Get active DID
-const activeDid = vault.activeDid();
-
-// Create DID
-const newDid = vault.createDid();
-const keyId = newDid.defaultKeyId();
-
-// Sign DID operations
-vault.signDidOperations(keyId, 'TBD');
+// or you can load it from an alredy serialized state
+const vault = await Crypto.Vault.load(JSON.parse(serialized));
 ```
+
+This will create an in-memory vault with touching any storage.
+
+##### Options (save, unlock)
+
+The vault has an optional last parameter for both `create` and `load`, called `context`, where you can define how you'd like to persist the wallet and how you'd like to provide encryption password for it.
+
+By default both have a default implementation: no persist; no password.
+
+```typescript
+import { Crypto } from '@internet-of-people/sdk';
+
+const vault = await Crypto.Vault.create(
+  'BIP39_MNEMONIC_SEED',
+  'BIP39_PASSWORD',
+  {
+    askUnlockPassword: async (forDecrypt: boolean) => Promise<string> {
+      /* 
+      Here you can define how you'd like to provide a password to the wallet if it needs it for unlocking. Usually on the UI a dialog will appear that asks for the unlock password the user provided during the vault creation.
+      forDecrypt is false when creating the vault for the 1st time, true in all other cases
+      */
+    },
+    save: async (state: IVaultState) => Promise<void> {
+      /*
+        This method is called every time when the vault's state is changed for any reason. Hence, you can use this to persist the state if its changed. For serialization you can use JSON.stringify(state).
+      */
+    },
+  },
+);
+```
+
+##### Unlock for Seed
+
+You can unlock your wallet anytime to get your seed back.
+
+```typescript
+import { Crypto } from '@internet-of-people/sdk';
+
+const vault = await Crypto.Vault.create(
+  'BIP39_MNEMONIC_SEED',
+  'BIP39_PASSWORD',
+);
+
+const seed = await vault.unlock();
+```
+
+##### Trigger Save Manually
+
+Despite the `save` callback you provide is called anytime the state changes, you can also trigger it manually.
+
+```typescript
+import { Crypto } from '@internet-of-people/sdk';
+
+const vault = await Crypto.Vault.create(
+  'BIP39_MNEMONIC_SEED',
+  'BIP39_PASSWORD',
+);
+
+const seed = await vault.save();
+```
+
+#### Crypto Plugins
+
+The `Crypto` modul has a very modular approach to providing you plugins that might use the same shared `Vault`.
+
+All of these plugins are subtrees derived from your seed.
+
+All plugins provide you a public and a private interface to interact with. 
+For example the Hydra plugin provides you a `Bip44PublicAccount` and a `Bip44Account` for public and private interfaces, but it may differ for other plugins.
+
+##### Hydra Plugin
+
+The Hydra plugin is a Bip44 based implementation for - mainly - the Hydra Coin. You can create multiple Hydra accounts from a single seed and for all accounts you can create multiple addresses.
+
+An example for creating Hydra Testnet addresses:
+
+```typescript
+import { Crypto } from '@internet-of-people/sdk';
+
+const vault = await Crypto.Vault.create(
+  'BIP39_MNEMONIC_SEED',
+  'BIP39_PASSWORD',
+);
+
+const hydra = await Crypto.hydra(
+  vault,
+  {
+    network: Crypto.Coin.Hydra.Testnet, // it also supports BTC, Ark coins
+    account: 0 // you can have multiple accounts under the same Hydra subtree, we use the first one here
+  },
+);
+
+const firstAddress = hydra.pub.key(0);
+const secondAddress = hydra.pub.key(1);
+```
+
+The optional third parameter for `Crypto.hydra` is `IHydraContext` where you can specify your rewind process to be able to rewind the plugin's state from a ledger or other storages.
+
+To learn the Hydra plugin's public and private interface, please check [its repository](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/morpheus-crypto).
+
+- Public interface: `Bip44PublicAccount`
+- Private interface: `Bip44Account`
+
+##### Morpheus Plugin
+
+The Morpheus (or as we officially call, DAC) plugin is all about IoP DAC. If you are not familiar with DAC, we highly recommend you to visit our [developer portal](https://developer.iop.global/#/dac) for more information.
+
+
+Using this plugin you can create your own personas and its DIDs.
+
+An example for creating a DID and accessing its key:
+
+```typescript
+import { Crypto } from '@internet-of-people/sdk';
+
+const vault = await Crypto.Vault.create(
+  'BIP39_MNEMONIC_SEED',
+  'BIP39_PASSWORD',
+);
+
+const morpheus = await Crypto.morpheus(vault);
+const morpheusPrivate = await morpheus.priv();
+
+const did = morpheus.pub.personas.did(0);
+const keyId = did.defaultKeyId();
+const key = await morpheusPrivate.personas.key(0);
+const publicKey = key.publicKey();
+key.signEcdsa(Uint8Array);
+```
+
+The optional second parameter for `Crypto.morpheus` is `IMorpheusContext` where you can specify your rewind process to be able to rewind the plugin's state from a ledger or other storages.
 
 ### Authority Module
 
 Currently contains only one enum, `Status` which describes a possible status for a Witness Request.
 
-### Ark Module
+### Ark Module - DEPRECATED
 
 Under this module we reexport the complete [@arkecosystem/crypto](https://www.npmjs.com/package/@arkecosystem/crypto) package.
-It's useful, because some of our interfaces require for example `Utils.BigNumber` from this package.
 
-> Note, that the package version is fixed at `^2.6.31`.
+> Note, that the package version is fixed at `^2.6.31` and it will be removed as soon as we 100% integrate our own solutions.
 
 ### Network Module
 
