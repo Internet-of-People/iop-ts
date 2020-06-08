@@ -13,7 +13,7 @@ import { MorpheusPublicKind } from './pubKind';
 export class MorpheusPrivateKind {
   public constructor(
     private readonly pubkeyDatas: PublicKeyData[],
-    private readonly save: () => Promise<void>,
+    private readonly setDirty: () => void,
     private readonly xsk: MorpheusKind,
     public readonly kind: string,
   ) {}
@@ -35,7 +35,7 @@ export class MorpheusPrivateKind {
     }
 
     if (oldCount < this.count) {
-      await this.save();
+      this.setDirty();
     }
     return this.sk(idx);
   }

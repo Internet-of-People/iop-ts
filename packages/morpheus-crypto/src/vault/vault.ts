@@ -18,8 +18,6 @@ export interface IVaultState {
 }
 
 export interface IVaultContext {
-  save?: (state: IVaultState) => Promise<void>;
-  // forDecrypt is false when creating the vault for the 1st time, true in all other cases
   askUnlockPassword?: (forDecrypt: boolean) => Promise<string>;
 }
 
@@ -35,8 +33,6 @@ const encrypt = (seed: Seed, _unlockPassword: string): string => {
   return multibase.encode('base64url', encryptedData).toString('ascii');
 };
 
-const defaultSave = async(_state: IVaultState): Promise<void> => { /* we do not save anything here */ };
-
 const defaultAskUnlockPassword = async(_forDecrypt: boolean): Promise<string> => {
   return '';
 };
@@ -47,7 +43,8 @@ export class Vault implements IPluginHolder, IPluginRuntime {
     MorpheusPluginFactory.instance,
   ];
 
-  private readonly contextSave: (state: IVaultState) => Promise<void>;
+  private isDirty: boolean;
+
   private readonly contextAskUnlockPassword: (forDecrypt: boolean) => Promise<string>;
 
   private constructor(
@@ -55,7 +52,6 @@ export class Vault implements IPluginHolder, IPluginRuntime {
     private readonly plugins: IPluginState[],
     context?: IVaultContext,
   ) {
-    this.contextSave = context?.save ?? defaultSave;
     this.contextAskUnlockPassword = context?.askUnlockPassword ?? defaultAskUnlockPassword;
 
     for (const plugin of plugins) {
@@ -71,6 +67,7 @@ export class Vault implements IPluginHolder, IPluginRuntime {
       // Let the plugin validate the saved data and throw an exception if it cannot handle it.
       factory.validate(plugin.parameters, plugin.publicState);
     }
+    this.isDirty = false;
   }
 
   public static async create(phrase: string, bip39Password: string, context?: IVaultContext): Promise<Vault> {
@@ -87,18 +84,27 @@ export class Vault implements IPluginHolder, IPluginRuntime {
     return new Vault(data.encryptedSeed, data.plugins, context);
   }
 
+  public get dirty(): boolean {
+    return this.isDirty;
+  }
+
+  public setDirty(): void {
+    this.isDirty = true;
+  }
+
+  public save(): IVaultState {
+    const state = {
+      encryptedSeed: this.encryptedSeed,
+      plugins: [...this.plugins],
+    };
+    this.isDirty = false;
+    return state;
+  }
+
   public async unlock(): Promise<Seed> {
     const unlockPassword = await this.contextAskUnlockPassword(true);
     const seed = decrypt(this.encryptedSeed, unlockPassword);
     return seed;
-  }
-
-  public async save(): Promise<void> {
-    const state = {
-      encryptedSeed: this.encryptedSeed,
-      plugins: this.plugins,
-    };
-    await this.contextSave(state);
   }
 
   public pluginsByName(pluginName: string): IPluginState[] {
@@ -120,7 +126,7 @@ export class Vault implements IPluginHolder, IPluginRuntime {
       publicState,
     };
     this.plugins.push(instance);
-    await this.save();
+    this.isDirty = true;
     return instance;
   }
 

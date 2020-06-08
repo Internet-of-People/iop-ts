@@ -1,11 +1,12 @@
-import { Layer1, Types } from '@internet-of-people/sdk';
+import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 import { IAction } from '../action';
-import { morpheus } from '../vault';
+import { loadVault } from '../vault';
 import { dumpDids, askDid, askSignerKeyId } from '../utils';
 import { processMorpheusTx } from '../transaction-sender';
 
 const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
-  const m = await morpheus();
+  const vault = await loadVault();
+  const m = await Crypto.morpheus(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());

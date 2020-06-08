@@ -29,7 +29,7 @@ implements IPluginFactory, ITypedPluginFactory<void, IMorpheusPublicState, Morph
 
   public createPrivate(state: TypedPluginState<void, IMorpheusPublicState>, seed: Seed): MorpheusPrivate {
     const root = Morpheus.root(seed);
-    return new MorpheusPrivate(state.publicState, state.save, root);
+    return new MorpheusPrivate(state.publicState, state.setDirty, root);
   }
 }
 

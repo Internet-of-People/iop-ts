@@ -9,8 +9,8 @@ import { IMorpheusSigner } from '../../types';
 export class MorpheusPrivate implements IMorpheusSigner {
   public readonly personas: MorpheusPrivateKind;
 
-  public constructor(state: IMorpheusPublicState, save: () => Promise<void>, root: MorpheusRoot) {
-    this.personas = new MorpheusPrivateKind(state.personas, save, root.personas(), 'Persona');
+  public constructor(state: IMorpheusPublicState, setDirty: () => void, root: MorpheusRoot) {
+    this.personas = new MorpheusPrivateKind(state.personas, setDirty, root.personas(), 'Persona');
   }
 
   public signDidOperations(id: KeyId, message: Uint8Array): SignedBytes {

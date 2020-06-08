@@ -12,7 +12,7 @@ export interface IPluginState {
 }
 
 export interface IPluginRuntime {
-  save(): Promise<void>;
+  setDirty(): void;
   unlock(): Promise<Seed>;
 }
 
@@ -33,7 +33,7 @@ export class TypedPluginState<TParam, TState> {
   public constructor(
     public readonly parameters: TParam,
     public readonly publicState: TState,
-    public readonly save: () => Promise<void>,
+    public readonly setDirty: () => void,
   ) {}
 }
 

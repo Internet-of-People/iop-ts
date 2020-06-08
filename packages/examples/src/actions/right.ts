@@ -1,10 +1,10 @@
 import inquirer = require('inquirer');
 
-import { Layer1, Layer2, Types } from '@internet-of-people/sdk';
+import { Crypto, Layer1, Layer2, Types } from '@internet-of-people/sdk';
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askSignerKeyId, askHeight } from '../utils';
-import { morpheus } from '../vault';
+import { loadVault } from '../vault';
 
 const systemRights = new Layer2.SystemRights();
 
@@ -20,7 +20,8 @@ const askRight = async(): Promise<Types.Sdk.Right> => {
 };
 
 const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
-  const m = await morpheus();
+  const vault = await loadVault();
+  const m = await Crypto.morpheus(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());
@@ -43,7 +44,8 @@ const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IAp
 };
 
 const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
-  const m = await morpheus();
+  const vault = await loadVault();
+  const m = await Crypto.morpheus(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());
@@ -66,7 +68,8 @@ const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.
 };
 
 const queryRight = async(_: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
-  const m = await morpheus();
+  const vault = await loadVault();
+  const m = await Crypto.morpheus(vault);
 
   dumpDids(m.pub.personas.dids());
   const did = await askDid('query a right on');

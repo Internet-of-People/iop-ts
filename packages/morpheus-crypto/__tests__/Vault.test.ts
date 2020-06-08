@@ -1,7 +1,6 @@
 import {
   Coin,
   hydra,
-  IVaultState,
   KeyId,
   morpheus,
   SecpPrivateKey,
@@ -47,17 +46,15 @@ describe('Vault BIP44 plugins', () => {
   });
 
   it('Vault can be (de)serialized', async() => {
-    let stateString = '';
-
-    const save = async(state: IVaultState): Promise<void> => {
-      /* eslint no-undefined: 0 */
-      stateString = JSON.stringify(state, undefined, 2);
-    };
-    const vault = await Vault.create(Seed.demoPhrase(), '', { save });
+    const vault = await Vault.create(Seed.demoPhrase(), '');
     const account = await hydra(vault, { network: Coin.Hydra.Testnet, account: 0 });
     const pk1 = account.pub.key(1);
 
     expect(pk1.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
+
+    expect(vault.dirty).toBe(true);
+    /* eslint no-undefined: 0 */
+    const stateString = JSON.stringify(vault.save(), undefined, 2);
 
     console.log(stateString);
 
@@ -119,13 +116,7 @@ describe('Vault Morpheus plugin', () => {
   });
 
   it('can be serialized/deserialized', async() => {
-    let stateString = '';
-
-    const save = async(state: IVaultState): Promise<void> => {
-      /* eslint no-undefined: 0 */
-      stateString = JSON.stringify(state, undefined, 2);
-    };
-    const vault = await Vault.create(Seed.demoPhrase(), '', { save });
+    const vault = await Vault.create(Seed.demoPhrase(), '');
     const m = await morpheus(vault);
     expect(m.pub.personas.count).toBe(1);
 
@@ -133,6 +124,11 @@ describe('Vault Morpheus plugin', () => {
 
     const sk = await priv.personas.key(2);
     expect(sk.publicKey().toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');
+
+    expect(vault.dirty).toBe(true);
+
+    /* eslint no-undefined: 0 */
+    const stateString = JSON.stringify(vault.save(), undefined, 2);
 
     console.log(stateString);
 

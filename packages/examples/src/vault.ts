@@ -1,29 +1,23 @@
 import { join } from 'path';
-import { readFileSync, writeFileSync } from 'fs'; // TODO choose an async fs implementation among the many
+import { promises as asyncFs } from 'fs';
 import { config } from 'xdg-portable';
-import { Types, Crypto } from '@internet-of-people/sdk';
+import { Crypto } from '@internet-of-people/sdk';
 
 export const vaultPath = (): string => {
   return join(config(), '/prometheus/vault.dat');
 };
 
-export const save = async(state: Types.Crypto.IVaultState): Promise<void> => {
-  const serialized = JSON.stringify(state);
-  writeFileSync(vaultPath(), serialized);
+export const saveVault = async(vault: Crypto.Vault): Promise<void> => {
+  const serialized = JSON.stringify(vault.save());
+  await asyncFs.writeFile(vaultPath(), serialized, { encoding: 'utf-8' });
 };
 
-export const loadVault = (): Crypto.Vault => {
-  const serialized = readFileSync(vaultPath(), { encoding: 'utf-8' });
-  return Crypto.Vault.load(JSON.parse(serialized), { save });
+export const loadVault = async(): Promise<Crypto.Vault> => {
+  const serialized = await asyncFs.readFile(vaultPath(), { encoding: 'utf-8' });
+  return Crypto.Vault.load(JSON.parse(serialized));
 };
 
 export const initDemoVault = async(): Promise<Crypto.Vault> => {
-  const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', { save });
+  const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '');
   return vault;
-};
-
-export const morpheus = async(): Promise<Crypto.IPlugin<Crypto.MorpheusPublic, Crypto.MorpheusPrivate>> => {
-  const vault = loadVault();
-  const m = await Crypto.morpheus(vault);
-  return m;
 };

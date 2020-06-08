@@ -14,16 +14,16 @@ export class TypedPlugin<TParam, TState, TPublic, TPrivate> implements IPlugin<T
   ) { }
 
   public get pub(): TPublic {
-    const typedState = new TypedPluginState(this.param, this.state, async() => {
-      await this.vault.save();
+    const typedState = new TypedPluginState(this.param, this.state, () => {
+      return this.vault.setDirty();
     });
     return this.factory.createPublic(typedState);
   }
 
   public async priv(): Promise<TPrivate> {
     const seed = await this.vault.unlock();
-    const typedState = new TypedPluginState(this.param, this.state, async() => {
-      await this.vault.save();
+    const typedState = new TypedPluginState(this.param, this.state, () => {
+      return this.vault.setDirty();
     });
     return this.factory.createPrivate(typedState, seed);
   }
