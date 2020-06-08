@@ -3,7 +3,7 @@ import { Crypto } from '@internet-of-people/sdk';
 /* eslint no-undefined: 0 */
 import { IAction } from '../action';
 import { chooseAction } from '../utils';
-import { initDemoVault, loadVault, saveVault } from '../vault';
+import { initDemoVault, loadVault, saveVault, unlockPassword } from '../vault';
 
 const initVault = async(): Promise<void> => {
   const vault = await initDemoVault();
@@ -16,7 +16,7 @@ const initVault = async(): Promise<void> => {
 const createDid = async(): Promise<void> => {
   const vault = await loadVault();
   const m = await Crypto.morpheus(vault);
-  const priv = await m.priv();
+  const priv = await m.priv(unlockPassword);
   const did = await priv.personas.did(priv.personas.count);
   await saveVault(vault);
   console.log('New did created', did.toString());

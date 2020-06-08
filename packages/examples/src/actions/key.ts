@@ -20,7 +20,7 @@ const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi)
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv())
+    .signWith(await m.priv(''))
     .on(did, lastTxId)
     .addKey(newAuth, expires)
     .sign(signerKeyId)
@@ -43,7 +43,7 @@ const revokeKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IA
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv())
+    .signWith(await m.priv(''))
     .on(did, lastTxId)
     .revokeKey(newAuth)
     .sign(signerKeyId)

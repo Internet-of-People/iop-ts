@@ -6,12 +6,16 @@ import {
   SecpPrivateKey,
   Seed,
   Vault,
+  hydraDefaultRewind,
+  morpheusDefaultRewind,
 } from '../src';
 
 describe('Vault BIP44 plugins', () => {
   it('Hydra plugin', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '');
-    const account = await hydra(vault, { network: Coin.Hydra.Testnet, account: 0 });
+    const vault = await Vault.create(Seed.demoPhrase(), '', '');
+    const params = { network: Coin.Hydra.Testnet, account: 0 };
+    hydraDefaultRewind(vault, '', params);
+    const account = await hydra(vault, params);
 
     const pk0 = account.pub.key(0);
     expect(pk0.address).toBe('tjMvaU79mMJ8fKwoLjFLn7rCTthpY6KxTx');
@@ -21,7 +25,7 @@ describe('Vault BIP44 plugins', () => {
     expect(pk0.change).toBe(false);
     expect(pk0.key).toBe(0);
 
-    const priv = await account.priv();
+    const priv = await account.priv('');
 
     const sk1 = priv.key(1);
     expect(sk1.path).toBe(`m/44'/1'/0'/0/1`);
@@ -46,8 +50,10 @@ describe('Vault BIP44 plugins', () => {
   });
 
   it('Vault can be (de)serialized', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '');
-    const account = await hydra(vault, { network: Coin.Hydra.Testnet, account: 0 });
+    const vault = await Vault.create(Seed.demoPhrase(), '', '');
+    const params = { network: Coin.Hydra.Testnet, account: 0 };
+    hydraDefaultRewind(vault, '', params);
+    const account = await hydra(vault, params);
     const pk1 = account.pub.key(1);
 
     expect(pk1.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
@@ -96,7 +102,8 @@ describe('Vault BIP44 plugins', () => {
 
 describe('Vault Morpheus plugin', () => {
   it('Morpheus plugin', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '');
+    const vault = await Vault.create(Seed.demoPhrase(), '', '');
+    morpheusDefaultRewind(vault, '');
     const m = await morpheus(vault);
 
     const { personas } = m.pub;
@@ -107,7 +114,7 @@ describe('Vault Morpheus plugin', () => {
       return personas.key(1);
     }).toThrow();
 
-    const priv = await m.priv();
+    const priv = await m.priv('');
 
     const maybeSk = priv.personas.keyById(new KeyId('iezqztJ6XX6GDxdSgdiySiT3J'));
     expect(maybeSk.isPresent()).toBeTruthy();
@@ -116,11 +123,12 @@ describe('Vault Morpheus plugin', () => {
   });
 
   it('can be serialized/deserialized', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '');
+    const vault = await Vault.create(Seed.demoPhrase(), '', '');
+    morpheusDefaultRewind(vault, '');
     const m = await morpheus(vault);
     expect(m.pub.personas.count).toBe(1);
 
-    const priv = await m.priv();
+    const priv = await m.priv('');
 
     const sk = await priv.personas.key(2);
     expect(sk.publicKey().toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');

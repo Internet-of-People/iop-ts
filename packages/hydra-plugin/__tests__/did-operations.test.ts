@@ -8,6 +8,7 @@ type TransactionId = Types.Sdk.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 import { defaultDid, did2, defaultKeyId, keyId2 } from './known-keys';
+import { morpheusDefaultRewind } from '../../morpheus-crypto/dist';
 
 export class TransactionTestRepo implements ITransactionRepository {
   private transactions: { [txid: string]: Types.Layer1.IMorpheusAsset; } = {};
@@ -49,9 +50,11 @@ describe('DidOperationExtractor', () => {
   };
 
   beforeAll(async() => {
-    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '');
+    const unlockPassword = '';
+    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
+    morpheusDefaultRewind(vault, unlockPassword);
     const m = await Crypto.morpheus(vault);
-    signer = await m.priv();
+    signer = await m.priv(unlockPassword);
     await signer.personas.key(2); // creates 3 dids
   });
 

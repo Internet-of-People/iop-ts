@@ -3,6 +3,8 @@ import { promises as asyncFs } from 'fs';
 import { config } from 'xdg-portable';
 import { Crypto } from '@internet-of-people/sdk';
 
+export const unlockPassword = '';
+
 export const vaultPath = (): string => {
   return join(config(), '/prometheus/vault.dat');
 };
@@ -18,6 +20,7 @@ export const loadVault = async(): Promise<Crypto.Vault> => {
 };
 
 export const initDemoVault = async(): Promise<Crypto.Vault> => {
-  const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '');
+  const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
+  Crypto.morpheusDefaultRewind(vault, unlockPassword);
   return vault;
 };

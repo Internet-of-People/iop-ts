@@ -1,10 +1,11 @@
 import { Bip44, Bip44Account, Seed, Bip44PublicAccount } from '@internet-of-people/morpheus-crypto-wasm';
 
 import { IPlugin, IPluginFactory, ITypedPluginFactory, IPluginHolder, TypedPluginState } from '../plugin';
-import { IHydraContext, IHydraParameters, IHydraPublicState } from './types';
+import { IHydraParameters, IHydraPublicState } from './types';
 
-export class HydraPluginFactory
-implements IPluginFactory, ITypedPluginFactory<IHydraParameters, IHydraPublicState, Bip44PublicAccount, Bip44Account> {
+export class HydraPluginFactory implements
+  IPluginFactory,
+  ITypedPluginFactory<IHydraParameters, IHydraPublicState, Bip44PublicAccount, Bip44Account> {
   public static instance = new HydraPluginFactory();
 
   public readonly name = 'Hydra';
@@ -24,11 +25,16 @@ implements IPluginFactory, ITypedPluginFactory<IHydraParameters, IHydraPublicSta
     this.createXpk(p, s);
   }
 
-  public createPublic(state: TypedPluginState<IHydraParameters, IHydraPublicState>): Bip44PublicAccount {
+  public createPublic(
+    state: TypedPluginState<IHydraParameters, IHydraPublicState>,
+  ): Bip44PublicAccount {
     return this.createXpk(state.parameters, state.publicState);
   }
 
-  public createPrivate(state: TypedPluginState<IHydraParameters, IHydraPublicState>, seed: Seed): Bip44Account {
+  public createPrivate(
+    state: TypedPluginState<IHydraParameters, IHydraPublicState>,
+    seed: Seed,
+  ): Bip44Account {
     return this.createAccount(state.parameters, seed);
   }
 
@@ -44,17 +50,21 @@ implements IPluginFactory, ITypedPluginFactory<IHydraParameters, IHydraPublicSta
   }
 }
 
-const defaultRewind = async(parameters: IHydraParameters, seed: Seed): Promise<IHydraPublicState> => {
+export const hydraDefaultRewind = (
+  vault: IPluginHolder,
+  unlockPassword: string,
+  parameters: IHydraParameters,
+): void => {
+  const seed = vault.unlock(unlockPassword);
   const account = HydraPluginFactory.instance.createAccount(parameters, seed);
   const pk = account.neuter();
   const state: IHydraPublicState = { xpub: pk.xpub };
-  return state;
+  vault.createPluginState(HydraPluginFactory.instance.name, parameters, state);
 };
 
 export const hydra = async(
   vault: IPluginHolder,
   parameters: IHydraParameters,
-  context?: IHydraContext,
 ): Promise<IPlugin<Bip44PublicAccount, Bip44Account>> => {
   // if (...parameters.network) {
   //   throw new Error(`Network ${parameters.network} is not known`);
@@ -64,19 +74,14 @@ export const hydra = async(
   }
 
   const instances = vault.pluginsByName(HydraPluginFactory.instance.name);
-  let instance = instances.find((p) => {
+  const instance = instances.find((p) => {
     const h = p.parameters as IHydraParameters;
     return h.network === parameters.network &&
       h.account === parameters.account;
   });
 
   if (!instance) {
-    const rewind = context?.rewind ?? defaultRewind;
-    instance = await vault.createPluginState(
-      HydraPluginFactory.instance.name,
-      parameters,
-      rewind,
-    );
+    throw new Error(`Could not find account ${parameters.account} of ${parameters.network}`);
   }
   return vault.createTypedPlugin(HydraPluginFactory.instance, instance);
 };

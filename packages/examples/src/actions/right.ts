@@ -34,7 +34,7 @@ const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IAp
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv())
+    .signWith(await m.priv(''))
     .on(did, lastTxId)
     .addRight(auth, right)
     .sign(signerKeyId)
@@ -58,7 +58,7 @@ const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv())
+    .signWith(await m.priv(''))
     .on(did, lastTxId)
     .revokeRight(auth, right)
     .sign(signerKeyId)

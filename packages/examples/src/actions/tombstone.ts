@@ -15,7 +15,7 @@ const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): P
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv())
+    .signWith(await m.priv(''))
     .on(did, lastTxId)
     .tombstoneDid()
     .sign(signerKeyId)

@@ -27,6 +27,7 @@ import {
   keyId2,
   keyId3,
 } from './known-keys';
+import { morpheusDefaultRewind } from '../../morpheus-crypto/dist';
 
 class Fixture {
   public emitter: NodeJS.EventEmitter = new EventEmitter();
@@ -56,9 +57,11 @@ describe('Layer2API', () => {
   const blockHeight = 5;
 
   beforeAll(async() => {
-    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '');
+    const unlockPassword = '';
+    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
+    morpheusDefaultRewind(vault, unlockPassword);
     const m = await Crypto.morpheus(vault);
-    signer = await m.priv();
+    signer = await m.priv(unlockPassword);
     await signer.personas.key(2); // creates 3 dids
   });
 

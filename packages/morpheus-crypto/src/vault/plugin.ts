@@ -13,7 +13,7 @@ export interface IPluginState {
 
 export interface IPluginRuntime {
   setDirty(): void;
-  unlock(): Promise<Seed>;
+  unlock(unlockPassword: string): Seed;
 }
 
 export interface IPluginHolder extends IPluginRuntime {
@@ -24,8 +24,8 @@ export interface IPluginHolder extends IPluginRuntime {
   createPluginState<TParam, TState>(
     pluginName: string,
     parameters: TParam,
-    rewind: (parameters: TParam, seed: Seed) => Promise<TState>,
-  ): Promise<IPluginState>;
+    state: TState,
+  ): IPluginState;
   pluginsByName(name: string): IPluginState[];
 }
 
@@ -44,5 +44,5 @@ export interface ITypedPluginFactory<TParam, TState, TPublic, TPrivate> {
 
 export interface IPlugin<TPublic, TPrivate> {
   readonly pub: TPublic;
-  priv(): Promise<TPrivate>;
+  priv(unlockPassword: string): Promise<TPrivate>;
 }
