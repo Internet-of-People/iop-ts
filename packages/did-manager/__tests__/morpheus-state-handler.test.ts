@@ -11,7 +11,6 @@ import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler'
 import { Operations } from '../src/morpheus-transaction';
 import { assertStringlyEqual } from './utils';
 import { defaultDid, defaultKeyId, keyId2, keyId3 } from './known-keys';
-import { morpheusDefaultRewind } from '../../morpheus-crypto/dist';
 
 const { RightRegistry } = Operations;
 
@@ -29,13 +28,13 @@ describe('StateHandler', () => {
   let signer: Crypto.MorpheusPrivate;
   let lastTxId: TransactionId | null;
 
-  beforeAll(async() => {
+  beforeAll(() => {
     const unlockPassword = '';
-    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
-    morpheusDefaultRewind(vault, unlockPassword);
-    const m = await Crypto.morpheus(vault);
-    signer = await m.priv(unlockPassword);
-    await signer.personas.key(2); // creates 3 dids
+    const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
+    Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
+    const m = Crypto.MorpheusPlugin.get(vault);
+    signer = m.priv(unlockPassword);
+    signer.personas.key(2); // creates 3 dids
   });
 
   beforeEach(() => {

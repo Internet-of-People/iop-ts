@@ -26,7 +26,7 @@ export class MorpheusPrivateKind {
     return new MorpheusPublicKind(this.pubkeyDatas, this.kind);
   }
 
-  public async key(idx: number): Promise<PrivateKey> {
+  public key(idx: number): PrivateKey {
     const oldCount = this.count;
 
     for (let i = oldCount; i <= idx; ++i) {
@@ -40,8 +40,8 @@ export class MorpheusPrivateKind {
     return this.sk(idx);
   }
 
-  public async did(idx: number): Promise<Did> {
-    const key = await this.key(idx);
+  public did(idx: number): Did {
+    const key = this.key(idx);
     return Did.fromKeyId(key.publicKey().keyId());
   }
 

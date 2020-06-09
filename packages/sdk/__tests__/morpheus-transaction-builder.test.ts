@@ -22,10 +22,11 @@ describe('MorpheusTransactionBuilder', () => {
   let lastTxId: TransactionId | null;
 
   beforeEach(async() => {
-    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', '');
-    Crypto.morpheusDefaultRewind(vault, '');
-    const m = await Crypto.morpheus(vault);
-    signer = await m.priv('');
+    const unlockPassword = '';
+    const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
+    Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
+    const m = Crypto.MorpheusPlugin.get(vault);
+    signer = m.priv(unlockPassword);
     lastTxId = null;
   });
 

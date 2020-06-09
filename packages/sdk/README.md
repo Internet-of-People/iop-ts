@@ -34,10 +34,10 @@ For more info please visit the [IoP Developer Portal](https://developer.iop.glob
   - [Crypto Module](#crypto-module)
     - [Low Level Functions](#low-level-functions)
     - [JSON Masking](#json-masking)
-    - [Vault](#in-memory-vault)
+    - [Vault](#vault)
     - [Crypto Plugins](#crypto-plugins)
   - [Authority Module](#authority-module)
-  - [Ark Module](#ark-module)
+  - [Ark Module - DEPRECATED](#ark-module---deprecated)
   - [Network Module](#network-module)
   - [Utils Module](#utils-module)
     - [Log](#log)
@@ -131,7 +131,7 @@ const amount = 10; // 10 HYD
 
 // With passhprase...
 await api.sendTransferTxWithPassphrase(
-  'SENDER_BIP38_PASSPHRASE',
+  'SENDER_ARK_PASSPHRASE',
   'RECIPIENT_ADDRESS',
   BigInt(amount) * BigInt(1e8),
 );
@@ -159,17 +159,17 @@ const opAttempts = new Layer1.OperationAttemptsBuilder()
 // With passhprase...
 const txId = await api.sendMorpheusTxWithPassphrase(
   opAttempts,
-  'SENDER_BIP38_PASSPHRASE',
+  'SENDER_ARK_PASSPHRASE',
 );
 
 // ... or with WIF
 const txId = await api.sendMorpheusTxWithWIF(
+  opAttempts,
   'SENDER_WIF',
-  'RECIPIENT_ADDRESS',
 );
 ```
 
-> Note, that we soon release a new version where we will be able to sign with the vault, not using any private credentials.
+> Note, that we soon release a new version where you can sign with the vault without exporting a WIF first.
 
 #### Key and Right Management Transactions
 
@@ -188,13 +188,16 @@ import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
 // Creating vault
 const layer1Api = await Layer1.createApi(Network.Devnet);
 const layer2Api = Layer2.createApi(Network.Devnet);
+const unlockPassword = 'correct horse battery staple';
 const vault = Crypto.Vault.create(
   Crypto.Seed.demoPhrase(),
   'OPTIONAL_BIP39_PASSWORD',
+  unlockPassword
 );
 
 // Creating the Layer-2 plugin
-const morpheus = Crypto.morpheus(vault);
+Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
+const morpheus = Crypto.MorpheusPlugin.get(vault);
 
 // Collect transaction requirements
 const did = morpheus.pub.personas.did(0); // let's use the first DID
@@ -206,7 +209,7 @@ const systemRights = new Layer2.SystemRights();
 // Adding the new key with rights
 const firstTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .withVault(vault)
-  .signWith(await morpheus.priv())
+  .signWith(morpheus.priv(unlockPassword))
   .on(did, await layer2Api.getLastTxId(did))
   .addKey(secondaryKey, expiresAtHeight)
   .addRight(secondaryKey, systemRights.update)
@@ -214,11 +217,11 @@ const firstTxOpAttempts = new Layer1.OperationAttemptsBuilder()
   .sign(firstKey)
   .getAttempts();
 
-const firstTxId = await layer1Api.sendMorpheusTxWithPassphrase(firstTxOpAttempts, 'SENDER_BIP38_PASSPHRASE');
+const firstTxId = await layer1Api.sendMorpheusTxWithPassphrase(firstTxOpAttempts, 'SENDER_ARK_PASSPHRASE');
 
 // Revoking the old key
 const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
-  .signWith(await m.priv())
+  .signWith(morpheus.priv(unlockPassword))
   .on(did, await layer2Api.getLastTxId(did))
   .revokeRight(firstKey, systemRights.update)
   .revokeRight(firstKey, systemRights.impersonate)
@@ -228,7 +231,7 @@ const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
 
 const secondTxId = await layer1Api.sendMorpheusTxWithPassphrase(
   secondTxOpAttempts,
-  'SENDER_BIP38_PASSPHRASE',
+  'SENDER_ARK_PASSPHRASE',
 );
 ```
 
@@ -240,13 +243,16 @@ import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
 // Creating vault
 const layer1Api = await Layer1.createApi(Network.Devnet);
 const layer2Api = Layer2.createApi(Network.Devnet);
+const unlockPassword = 'correct horse battery staple';
 const vault = Crypto.Vault.create(
   Crypto.Seed.demoPhrase(),
   'OPTIONAL_BIP39_PASSWORD',
+  unlockPassword,
 );
 
 // Creating the Layer-2 plugin
-const morpheus = Crypto.morpheus(vault);
+Crypto.MorpheusPlugin.rewind(vault, unlockPassword)
+const morpheus = Crypto.MorpheusPlugin.get(vault);
 
 // Collect transaction requirements
 const did = morpheus.pub.personas.did(0);
@@ -254,7 +260,7 @@ const firstKey = did.defaultKeyId();
 
 // Adding the new key with rights
 const operationAttempts = new Layer1.OperationAttemptsBuilder()
-  .signWith(await morpheus.priv())
+  .signWith(morpheus.priv(unlockPassword))
   .on(did, await layer2Api.getLastTxId(did))
   .tombstoneDid()
   .sign(firstKey)
@@ -262,7 +268,7 @@ const operationAttempts = new Layer1.OperationAttemptsBuilder()
 
 const txId = await layer1Api.sendMorpheusTxWithPassphrase(
   operationAttempts,
-  'SENDER_BIP38_PASSPHRASE',
+  'SENDER_ARK_PASSPHRASE',
 );
 ```
 
@@ -496,7 +502,6 @@ To learn the Hydra plugin's public and private interface, please check [its repo
 
 The Morpheus (or as we officially call, DAC) plugin is all about IoP DAC. If you are not familiar with DAC, we highly recommend you to visit our [developer portal](https://developer.iop.global/#/dac) for more information.
 
-
 Using this plugin you can create your own personas and its DIDs.
 
 An example for creating a DID and accessing its key:
@@ -504,13 +509,16 @@ An example for creating a DID and accessing its key:
 ```typescript
 import { Crypto } from '@internet-of-people/sdk';
 
+const unlockPassword = 'correct horse battery staple';
 const vault = await Crypto.Vault.create(
   'BIP39_MNEMONIC_SEED',
   'BIP39_PASSWORD',
+  unlockPassword
 );
 
-const morpheus = await Crypto.morpheus(vault);
-const morpheusPrivate = await morpheus.priv();
+Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
+const morpheus = Crypto.MorpheusPlugin.get(vault);
+const morpheusPrivate = morpheus.priv(unlockPassword);
 
 const did = morpheus.pub.personas.did(0);
 const keyId = did.defaultKeyId();
@@ -519,7 +527,9 @@ const publicKey = key.publicKey();
 key.signEcdsa(Uint8Array);
 ```
 
-The optional second parameter for `Crypto.morpheus` is `IMorpheusContext` where you can specify your rewind process to be able to rewind the plugin's state from a ledger or other storages.
+Study the implementation of `Crypto.MorpheusPlugin.rewind` to create a better implementation that
+discovers traces of existing DIDs on the storage your application is using and adds them to the
+public state of the vault that later can be used without unlocking it.
 
 ### Authority Module
 

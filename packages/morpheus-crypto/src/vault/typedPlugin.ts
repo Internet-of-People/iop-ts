@@ -20,7 +20,7 @@ export class TypedPlugin<TParam, TState, TPublic, TPrivate> implements IPlugin<T
     return this.factory.createPublic(typedState);
   }
 
-  public async priv(unlockPassword: string): Promise<TPrivate> {
+  public priv(unlockPassword: string): TPrivate {
     const seed = this.vault.unlock(unlockPassword);
     const typedState = new TypedPluginState(this.param, this.state, () => {
       return this.vault.setDirty();

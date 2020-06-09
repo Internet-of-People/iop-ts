@@ -57,7 +57,7 @@ export class Vault implements IPluginHolder, IPluginRuntime {
     this.isDirty = false;
   }
 
-  public static async create(phrase: string, bip39Password: string, unlockPassword: string): Promise<Vault> {
+  public static create(phrase: string, bip39Password: string, unlockPassword: string): Vault {
     const seed = new Bip39('en')
       .phrase(phrase)
       .password(bip39Password);

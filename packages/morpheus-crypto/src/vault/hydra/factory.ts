@@ -1,6 +1,6 @@
 import { Bip44, Bip44Account, Seed, Bip44PublicAccount } from '@internet-of-people/morpheus-crypto-wasm';
 
-import { IPlugin, IPluginFactory, ITypedPluginFactory, IPluginHolder, TypedPluginState } from '../plugin';
+import { IPluginFactory, ITypedPluginFactory, TypedPluginState } from '../plugin';
 import { IHydraParameters, IHydraPublicState } from './types';
 
 export class HydraPluginFactory implements
@@ -49,39 +49,3 @@ export class HydraPluginFactory implements
     return Bip44PublicAccount.fromXpub(acc, xpub, net);
   }
 }
-
-export const hydraDefaultRewind = (
-  vault: IPluginHolder,
-  unlockPassword: string,
-  parameters: IHydraParameters,
-): void => {
-  const seed = vault.unlock(unlockPassword);
-  const account = HydraPluginFactory.instance.createAccount(parameters, seed);
-  const pk = account.neuter();
-  const state: IHydraPublicState = { xpub: pk.xpub };
-  vault.createPluginState(HydraPluginFactory.instance.name, parameters, state);
-};
-
-export const hydra = async(
-  vault: IPluginHolder,
-  parameters: IHydraParameters,
-): Promise<IPlugin<Bip44PublicAccount, Bip44Account>> => {
-  // if (...parameters.network) {
-  //   throw new Error(`Network ${parameters.network} is not known`);
-  // }
-  if (!Number.isSafeInteger(parameters.account) && parameters.account >= 0) {
-    throw new Error('Account index must be a non-negative integer');
-  }
-
-  const instances = vault.pluginsByName(HydraPluginFactory.instance.name);
-  const instance = instances.find((p) => {
-    const h = p.parameters as IHydraParameters;
-    return h.network === parameters.network &&
-      h.account === parameters.account;
-  });
-
-  if (!instance) {
-    throw new Error(`Could not find account ${parameters.account} of ${parameters.network}`);
-  }
-  return vault.createTypedPlugin(HydraPluginFactory.instance, instance);
-};

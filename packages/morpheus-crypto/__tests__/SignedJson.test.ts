@@ -8,7 +8,7 @@
 //   SignedJson,
 //   Types,
 //   Seed,
-//   morpheus,
+//   Morpheus,
 //   MorpheusPrivate,
 //   MorpheusPublic
 // } from '../src';
@@ -42,9 +42,11 @@ describe('SignedJson', () => {
   // let mPub: MorpheusPublic;
 
   // beforeEach(async() => {
-  //   const vault = await Vault.create(Seed.demoPhrase(), '');
-  //   const m = await morpheus(vault);
-  //   signer = await m.priv();
+  //   const unlockPassword = '';
+  //   const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
+  //   Morpheus.rewind(vault, unlockPassword);
+  //   const m = Morpheus.get(vault);
+  //   signer = m.priv(unlockPassword);
   //   mPub = m.pub;
   // });
 

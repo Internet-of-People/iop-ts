@@ -8,7 +8,6 @@ type TransactionId = Types.Sdk.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 import { defaultDid, did2, defaultKeyId, keyId2 } from './known-keys';
-import { morpheusDefaultRewind } from '../../morpheus-crypto/dist';
 
 export class TransactionTestRepo implements ITransactionRepository {
   private transactions: { [txid: string]: Types.Layer1.IMorpheusAsset; } = {};
@@ -49,13 +48,13 @@ describe('DidOperationExtractor', () => {
     revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
   };
 
-  beforeAll(async() => {
+  beforeAll(() => {
     const unlockPassword = '';
-    const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
-    morpheusDefaultRewind(vault, unlockPassword);
-    const m = await Crypto.morpheus(vault);
-    signer = await m.priv(unlockPassword);
-    await signer.personas.key(2); // creates 3 dids
+    const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
+    Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
+    const m = Crypto.MorpheusPlugin.get(vault);
+    signer = m.priv(unlockPassword);
+    signer.personas.key(2); // creates 3 dids
   });
 
   beforeEach(async() => {

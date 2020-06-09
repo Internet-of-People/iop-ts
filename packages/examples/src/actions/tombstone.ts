@@ -6,7 +6,7 @@ import { processMorpheusTx } from '../transaction-sender';
 
 const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());
@@ -15,7 +15,7 @@ const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): P
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv(''))
+    .signWith(m.priv(''))
     .on(did, lastTxId)
     .tombstoneDid()
     .sign(signerKeyId)

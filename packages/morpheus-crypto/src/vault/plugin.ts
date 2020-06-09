@@ -44,5 +44,5 @@ export interface ITypedPluginFactory<TParam, TState, TPublic, TPrivate> {
 
 export interface IPlugin<TPublic, TPrivate> {
   readonly pub: TPublic;
-  priv(unlockPassword: string): Promise<TPrivate>;
+  priv(unlockPassword: string): TPrivate;
 }

@@ -1,21 +1,19 @@
 import {
   Coin,
-  hydra,
+  HydraPlugin,
   KeyId,
-  morpheus,
+  MorpheusPlugin,
   SecpPrivateKey,
   Seed,
   Vault,
-  hydraDefaultRewind,
-  morpheusDefaultRewind,
 } from '../src';
 
 describe('Vault BIP44 plugins', () => {
-  it('Hydra plugin', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '', '');
+  it('Hydra plugin', () => {
+    const vault = Vault.create(Seed.demoPhrase(), '', '');
     const params = { network: Coin.Hydra.Testnet, account: 0 };
-    hydraDefaultRewind(vault, '', params);
-    const account = await hydra(vault, params);
+    HydraPlugin.rewind(vault, '', params);
+    const account = HydraPlugin.get(vault, params);
 
     const pk0 = account.pub.key(0);
     expect(pk0.address).toBe('tjMvaU79mMJ8fKwoLjFLn7rCTthpY6KxTx');
@@ -25,7 +23,7 @@ describe('Vault BIP44 plugins', () => {
     expect(pk0.change).toBe(false);
     expect(pk0.key).toBe(0);
 
-    const priv = await account.priv('');
+    const priv = account.priv('');
 
     const sk1 = priv.key(1);
     expect(sk1.path).toBe(`m/44'/1'/0'/0/1`);
@@ -49,11 +47,11 @@ describe('Vault BIP44 plugins', () => {
     expect(pk1.publicKey().validateEcdsa(data, sig)).toBeTruthy();
   });
 
-  it('Vault can be (de)serialized', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '', '');
+  it('Vault can be (de)serialized', () => {
+    const vault = Vault.create(Seed.demoPhrase(), '', '');
     const params = { network: Coin.Hydra.Testnet, account: 0 };
-    hydraDefaultRewind(vault, '', params);
-    const account = await hydra(vault, params);
+    HydraPlugin.rewind(vault, '', params);
+    const account = HydraPlugin.get(vault, params);
     const pk1 = account.pub.key(1);
 
     expect(pk1.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
@@ -61,12 +59,15 @@ describe('Vault BIP44 plugins', () => {
     expect(vault.dirty).toBe(true);
     /* eslint no-undefined: 0 */
     const stateString = JSON.stringify(vault.save(), undefined, 2);
+    expect(vault.dirty).toBe(false);
 
     console.log(stateString);
 
+    // Notice how unlockPassword is not needed to use the public API
     const vaultRestored = Vault.load(JSON.parse(stateString));
-    const accountRestored = await hydra(vaultRestored, { network: Coin.Hydra.Testnet, account: 0 });
+    const accountRestored = HydraPlugin.get(vaultRestored, { network: Coin.Hydra.Testnet, account: 0 });
     const pk1Restored = accountRestored.pub.key(1);
+    expect(vaultRestored.dirty).toBe(false);
 
     expect(pk1Restored.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
   });
@@ -101,10 +102,11 @@ describe('Vault BIP44 plugins', () => {
 });
 
 describe('Vault Morpheus plugin', () => {
-  it('Morpheus plugin', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '', '');
-    morpheusDefaultRewind(vault, '');
-    const m = await morpheus(vault);
+  it('Morpheus plugin', () => {
+    const unlockPassword = '';
+    const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
+    MorpheusPlugin.rewind(vault, unlockPassword);
+    const m = MorpheusPlugin.get(vault);
 
     const { personas } = m.pub;
     expect(personas.count).toBe(1);
@@ -114,7 +116,7 @@ describe('Vault Morpheus plugin', () => {
       return personas.key(1);
     }).toThrow();
 
-    const priv = await m.priv('');
+    const priv = m.priv(unlockPassword);
 
     const maybeSk = priv.personas.keyById(new KeyId('iezqztJ6XX6GDxdSgdiySiT3J'));
     expect(maybeSk.isPresent()).toBeTruthy();
@@ -122,28 +124,32 @@ describe('Vault Morpheus plugin', () => {
     expect(sk.publicKey().toString()).toBe('pez2CLkBUjHB8w8G87D3YkREjpRuiqPu6BrRsgHMQy2Pzt6');
   });
 
-  it('can be serialized/deserialized', async() => {
-    const vault = await Vault.create(Seed.demoPhrase(), '', '');
-    morpheusDefaultRewind(vault, '');
-    const m = await morpheus(vault);
+  it('can be serialized/deserialized', () => {
+    const unlockPassword = '';
+    const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
+    MorpheusPlugin.rewind(vault, unlockPassword);
+    const m = MorpheusPlugin.get(vault);
     expect(m.pub.personas.count).toBe(1);
 
-    const priv = await m.priv('');
+    const priv = m.priv(unlockPassword);
 
-    const sk = await priv.personas.key(2);
+    const sk = priv.personas.key(2);
     expect(sk.publicKey().toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');
 
     expect(vault.dirty).toBe(true);
 
     /* eslint no-undefined: 0 */
     const stateString = JSON.stringify(vault.save(), undefined, 2);
+    expect(vault.dirty).toBe(false);
 
     console.log(stateString);
 
+    // Notice how unlockPassword is not needed to use the public API
     const vaultRestored = Vault.load(JSON.parse(stateString));
-    const mRestored = await morpheus(vaultRestored);
+    const mRestored = MorpheusPlugin.get(vaultRestored);
     const pk1Restored = mRestored.pub.personas.key(2);
 
+    expect(vaultRestored.dirty).toBe(false);
     expect(pk1Restored.toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');
   });
 });

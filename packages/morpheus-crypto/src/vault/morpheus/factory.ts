@@ -1,5 +1,6 @@
 import { Seed, Morpheus } from '@internet-of-people/morpheus-crypto-wasm';
-import { IPlugin, IPluginFactory, ITypedPluginFactory, IPluginHolder, TypedPluginState } from '../plugin';
+
+import { IPluginFactory, ITypedPluginFactory, TypedPluginState } from '../plugin';
 import { IMorpheusParameters, IMorpheusPublicState } from './types';
 import { MorpheusPublic } from './pub';
 import { MorpheusPrivate } from './priv';
@@ -29,30 +30,3 @@ export class MorpheusPluginFactory implements
     return new MorpheusPrivate(state.publicState, state.setDirty, root);
   }
 }
-
-export const morpheusDefaultRewind = (
-  vault: IPluginHolder,
-  unlockPassword: string,
-  parameters: IMorpheusParameters,
-): void => {
-  const seed = vault.unlock(unlockPassword);
-  const persona0 = Morpheus.root(seed).personas()
-    .key(0)
-    .neuter();
-  const state: IMorpheusPublicState = {
-    personas: [persona0.publicKey().toString()],
-  };
-  vault.createPluginState(MorpheusPluginFactory.instance.name, parameters, state);
-};
-
-export const morpheus = async(
-  vault: IPluginHolder,
-): Promise<IPlugin<MorpheusPublic, MorpheusPrivate>> => {
-  const instances = vault.pluginsByName(MorpheusPluginFactory.instance.name);
-  const [instance] = instances;
-
-  if (!instance) {
-    throw new Error(`Could not find Morpheus`);
-  }
-  return vault.createTypedPlugin(MorpheusPluginFactory.instance, instance);
-};

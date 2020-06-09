@@ -7,7 +7,7 @@ import { loadVault } from '../vault';
 
 const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());
@@ -20,7 +20,7 @@ const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi)
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv(''))
+    .signWith(m.priv(''))
     .on(did, lastTxId)
     .addKey(newAuth, expires)
     .sign(signerKeyId)
@@ -31,7 +31,7 @@ const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi)
 
 const revokeKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());
@@ -43,7 +43,7 @@ const revokeKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IA
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv(''))
+    .signWith(m.priv(''))
     .on(did, lastTxId)
     .revokeKey(newAuth)
     .sign(signerKeyId)

@@ -20,7 +20,7 @@ export const loadVault = async(): Promise<Crypto.Vault> => {
 };
 
 export const initDemoVault = async(): Promise<Crypto.Vault> => {
-  const vault = await Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
-  Crypto.morpheusDefaultRewind(vault, unlockPassword);
+  const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
+  Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
   return vault;
 };

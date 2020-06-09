@@ -7,7 +7,7 @@ import { initDemoVault, loadVault, saveVault, unlockPassword } from '../vault';
 
 const initVault = async(): Promise<void> => {
   const vault = await initDemoVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   const did = m.pub.personas.did(0);
   await saveVault(vault);
   console.log('Vault created, 1st did is', did.toString());
@@ -15,16 +15,16 @@ const initVault = async(): Promise<void> => {
 
 const createDid = async(): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
-  const priv = await m.priv(unlockPassword);
-  const did = await priv.personas.did(priv.personas.count);
+  const m = Crypto.MorpheusPlugin.get(vault);
+  const priv = m.priv(unlockPassword);
+  const did = priv.personas.did(priv.personas.count);
   await saveVault(vault);
   console.log('New did created', did.toString());
 };
 
 const listKeyIds = async(): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   m.pub.personas.keyIds().forEach((id, idx) => {
     console.log(`#${idx}: ${id}`);
   });
@@ -32,7 +32,7 @@ const listKeyIds = async(): Promise<void> => {
 
 const listDids = async(): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   m.pub.personas.dids().forEach((did, idx) => {
     console.log(`#${idx}: ${did}`);
   });

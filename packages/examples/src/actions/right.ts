@@ -21,7 +21,7 @@ const askRight = async(): Promise<Types.Sdk.Right> => {
 
 const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());
@@ -34,7 +34,7 @@ const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IAp
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv(''))
+    .signWith(m.priv(''))
     .on(did, lastTxId)
     .addRight(auth, right)
     .sign(signerKeyId)
@@ -45,7 +45,7 @@ const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IAp
 
 const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
   const keyIds = m.pub.personas.keyIds();
 
   dumpDids(m.pub.personas.dids());
@@ -58,7 +58,7 @@ const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(await m.priv(''))
+    .signWith(m.priv(''))
     .on(did, lastTxId)
     .revokeRight(auth, right)
     .sign(signerKeyId)
@@ -69,7 +69,7 @@ const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.
 
 const queryRight = async(_: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
-  const m = await Crypto.morpheus(vault);
+  const m = Crypto.MorpheusPlugin.get(vault);
 
   dumpDids(m.pub.personas.dids());
   const did = await askDid('query a right on');
