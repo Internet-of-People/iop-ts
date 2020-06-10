@@ -1,4 +1,10 @@
-import { Bip44, Bip44Account, Seed, Bip44PublicAccount } from '@internet-of-people/morpheus-crypto-wasm';
+import {
+  Bip44,
+  Bip44Account,
+  Seed,
+  Bip44PublicAccount,
+  validateNetworkName,
+} from '@internet-of-people/morpheus-crypto-wasm';
 
 import { IPluginFactory, ITypedPluginFactory, TypedPluginState } from '../plugin';
 import { IHydraParameters, IHydraPublicState } from './types';
@@ -13,14 +19,22 @@ export class HydraPluginFactory implements
   public validate(parameters: unknown, state: unknown): void {
     const p = parameters as IHydraParameters;
 
-    if (typeof p.network !== 'string') {
+    const { network } = p;
+
+    if (typeof network !== 'string') {
       throw new Error(`Network name must be a string.`);
     }
+
+    if (!validateNetworkName(network)) {
+      throw new Error(`Account for unknown network ${network} found in wallet.`);
+    }
+
     const idx = p.account;
 
     if (!Number.isSafeInteger(idx) || idx < 0 || idx >= Math.pow(2, 31)) {
       throw new Error(`Account number ${idx} is invalid.`);
     }
+
     const s = state as IHydraPublicState;
     this.createXpk(p, s);
   }
