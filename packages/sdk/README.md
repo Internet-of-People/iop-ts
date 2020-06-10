@@ -387,43 +387,32 @@ The Vault is a general purpose hierarchical deterministic (HD) generator for asy
 ```typescript
 import { Crypto } from '@internet-of-people/sdk';
 
-const vault = await Crypto.Vault.create(
-  'BIP39_MNEMONIC_SEED',
-  'BIP39_PASSWORD',
+const unlockPassword = 'correct horse battery staple';
+
+const vault = Crypto.Vault.create(
+  'BIP39_MNEMONIC_SEED', // your seed
+  'OPTIONAL_BIP39_PASSWORD', // an optional password for plausible deniability. It's like a salt when you hash a password (or seed in this case)
+  unlockPassword, // this encrypts the seed in the state with XChaCha20Poly1305 & Argon2i
 );
 
 // or you can load it from an alredy serialized state
-const vault = await Crypto.Vault.load(JSON.parse(serialized));
+const vault = Crypto.Vault.load(JSON.parse(serialized));
 ```
 
 This will create an in-memory vault with touching any storage.
 
-##### Options (save, unlock)
+##### Save State
 
-The vault has an optional last parameter for both `create` and `load`, called `context`, where you can define how you'd like to persist the wallet and how you'd like to provide encryption password for it.
-
-By default both have a default implementation: no persist; no password.
+By default the wallet is in-memory and does not persist its state, but it provides you a clear interface to do it.
 
 ```typescript
-import { Crypto } from '@internet-of-people/sdk';
+// The save will return the current state and marks it as "saved" internally
+const state = JSON.stringify(vault.save());
+```
 
-const vault = await Crypto.Vault.create(
-  'BIP39_MNEMONIC_SEED',
-  'BIP39_PASSWORD',
-  {
-    askUnlockPassword: async (forDecrypt: boolean) => Promise<string> {
-      /* 
-      Here you can define how you'd like to provide a password to the wallet if it needs it for unlocking. Usually on the UI a dialog will appear that asks for the unlock password the user provided during the vault creation.
-      forDecrypt is false when creating the vault for the 1st time, true in all other cases
-      */
-    },
-    save: async (state: IVaultState) => Promise<void> {
-      /*
-        This method is called every time when the vault's state is changed for any reason. Hence, you can use this to persist the state if its changed. For serialization you can use JSON.stringify(state).
-      */
-    },
-  },
-);
+```typescript
+// Check if the state is changed since the last save call
+const changed = vault.isDirty;
 ```
 
 ##### Unlock for Seed
@@ -433,27 +422,13 @@ You can unlock your wallet anytime to get your seed back.
 ```typescript
 import { Crypto } from '@internet-of-people/sdk';
 
-const vault = await Crypto.Vault.create(
+const vault = Crypto.Vault.create(
   'BIP39_MNEMONIC_SEED',
-  'BIP39_PASSWORD',
+  'OPTIONAL_BIP39_PASSWORD',
+  'UNLOCK_PASSWORD',
 );
 
-const seed = await vault.unlock();
-```
-
-##### Trigger Save Manually
-
-Despite the `save` callback you provide is called anytime the state changes, you can also trigger it manually.
-
-```typescript
-import { Crypto } from '@internet-of-people/sdk';
-
-const vault = await Crypto.Vault.create(
-  'BIP39_MNEMONIC_SEED',
-  'BIP39_PASSWORD',
-);
-
-const seed = await vault.save();
+const seed = vault.unlock('UNLOCK_PASSWORD');
 ```
 
 #### Crypto Plugins
@@ -474,24 +449,23 @@ An example for creating Hydra Testnet addresses:
 ```typescript
 import { Crypto } from '@internet-of-people/sdk';
 
-const vault = await Crypto.Vault.create(
+const vault = Crypto.Vault.create(
   'BIP39_MNEMONIC_SEED',
-  'BIP39_PASSWORD',
+  'OPTIONAL_BIP39_PASSWORD',
+  'UNLOCK_PASSWORD',
 );
 
-const hydra = await Crypto.hydra(
-  vault,
-  {
-    network: Crypto.Coin.Hydra.Testnet, // it also supports BTC, Ark coins
-    account: 0 // you can have multiple accounts under the same Hydra subtree, we use the first one here
-  },
-);
+const hydraParams = {
+  network: Crypto.Coin.Hydra.Testnet, // it also supports BTC, Ark coins
+  account: 0 // you can have multiple accounts under the same Hydra subtree, we use the first one here
+};
+
+Crypto.HydraPlugin.rewind(vault, 'UNLOCK_PASSWORD', hydraParams); // you have to first rewind the vault's state in order to access sub-trees
+const hydra = Crypto.HydraPlugin.get(vault, hydraParams);
 
 const firstAddress = hydra.pub.key(0);
 const secondAddress = hydra.pub.key(1);
 ```
-
-The optional third parameter for `Crypto.hydra` is `IHydraContext` where you can specify your rewind process to be able to rewind the plugin's state from a ledger or other storages.
 
 To learn the Hydra plugin's public and private interface, please check [its repository](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/morpheus-crypto).
 
@@ -510,7 +484,7 @@ An example for creating a DID and accessing its key:
 import { Crypto } from '@internet-of-people/sdk';
 
 const unlockPassword = 'correct horse battery staple';
-const vault = await Crypto.Vault.create(
+const vault = Crypto.Vault.create(
   'BIP39_MNEMONIC_SEED',
   'BIP39_PASSWORD',
   unlockPassword
@@ -522,7 +496,7 @@ const morpheusPrivate = morpheus.priv(unlockPassword);
 
 const did = morpheus.pub.personas.did(0);
 const keyId = did.defaultKeyId();
-const key = await morpheusPrivate.personas.key(0);
+const key = morpheusPrivate.personas.key(0);
 const publicKey = key.publicKey();
 key.signEcdsa(Uint8Array);
 ```
@@ -554,7 +528,6 @@ console.log(allNetworks); // will print out an array containing all field in the
 
 const host = schemaAndHost(Network.LocalTestnet); // will be 'http://127.0.0.1'
 ```
-
 
 ### Utils Module
 
