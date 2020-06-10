@@ -1,4 +1,7 @@
+import multibase from 'multibase';
 import { Bip39, Seed } from '@internet-of-people/morpheus-crypto-wasm';
+
+import { decrypt, encrypt } from '../encrypt';
 import {
   IPlugin,
   IPluginHolder,
@@ -10,23 +13,22 @@ import {
 import { TypedPlugin } from './typedPlugin';
 import { HydraPluginFactory } from './hydra';
 import { MorpheusPluginFactory } from './morpheus';
-import multibase from 'multibase';
 
 export interface IVaultState {
   readonly encryptedSeed: string;
   readonly plugins: IPluginState[];
 }
 
-const decrypt = (encryptedSeed: string, _unlockPassword: string): Seed => {
+const decryptSeed = (encryptedSeed: string, unlockPassword: string): Seed => {
   const encryptedData = Uint8Array.from(multibase.decode(encryptedSeed));
-  const decryptedData = encryptedData; // TODO encrypt with password
+  const decryptedData = decrypt(encryptedData, unlockPassword);
   return new Seed(decryptedData);
 };
 
-const encrypt = (seed: Seed, _unlockPassword: string): string => {
+const encryptSeed = (seed: Seed, unlockPassword: string): string => {
   const decryptedData = Buffer.from(seed.toBytes());
-  const encryptedData = decryptedData; // TODO encrypt with password
-  return multibase.encode('base64url', encryptedData).toString('ascii');
+  const encryptedData = encrypt(decryptedData, unlockPassword);
+  return multibase.encode('base64url', Buffer.from(encryptedData)).toString('ascii');
 };
 
 export class Vault implements IPluginHolder, IPluginRuntime {
@@ -61,7 +63,7 @@ export class Vault implements IPluginHolder, IPluginRuntime {
     const seed = new Bip39('en')
       .phrase(phrase)
       .password(bip39Password);
-    const encryptedSeed = encrypt(seed, unlockPassword);
+    const encryptedSeed = encryptSeed(seed, unlockPassword);
     return new Vault(encryptedSeed, []);
   }
 
@@ -87,7 +89,7 @@ export class Vault implements IPluginHolder, IPluginRuntime {
   }
 
   public unlock(password: string): Seed {
-    const seed = decrypt(this.encryptedSeed, password);
+    const seed = decryptSeed(this.encryptedSeed, password);
     return seed;
   }
 

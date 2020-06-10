@@ -12,6 +12,24 @@ export function mask(data: any, keep_properties_list: string): string;
 */
 export function digest(data: any): string;
 /**
+* @param {string} name 
+* @returns {boolean} 
+*/
+export function validateNetworkName(name: string): boolean;
+/**
+* @param {Uint8Array} plain_text 
+* @param {string} password 
+* @param {Uint8Array} nonce 
+* @returns {Uint8Array} 
+*/
+export function encrypt(plain_text: Uint8Array, password: string, nonce: Uint8Array): Uint8Array;
+/**
+* @param {Uint8Array} cipher_text 
+* @param {string} password 
+* @returns {Uint8Array} 
+*/
+export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
+/**
 */
 export class Bip32 {
   free(): void;
@@ -841,56 +859,12 @@ export class ValidationResult {
 export class Vault {
   free(): void;
 /**
-* @param {string} seed_phrase 
+* @param {Function | undefined} save 
+* @param {Function | undefined} ask_unlock_password 
 */
-  constructor(seed_phrase: string);
+  constructor(save?: Function, ask_unlock_password?: Function);
 /**
-* @returns {string} 
+* @returns {any} 
 */
-  serialize(): string;
-/**
-* @param {string} from 
-* @returns {Vault} 
-*/
-  static deserialize(from: string): Vault;
-/**
-* @returns {any[]} 
-*/
-  keyIds(): any[];
-/**
-* @returns {any[]} 
-*/
-  dids(): any[];
-/**
-* @returns {Did | undefined} 
-*/
-  activeDid(): Did | undefined;
-/**
-* @returns {Did} 
-*/
-  createDid(): Did;
-/**
-* @param {KeyId} key_id 
-* @param {any} js_req 
-* @returns {SignedJson} 
-*/
-  signWitnessRequest(key_id: KeyId, js_req: any): SignedJson;
-/**
-* @param {KeyId} key_id 
-* @param {any} js_stmt 
-* @returns {SignedJson} 
-*/
-  signWitnessStatement(key_id: KeyId, js_stmt: any): SignedJson;
-/**
-* @param {KeyId} key_id 
-* @param {any} js_presentation 
-* @returns {SignedJson} 
-*/
-  signClaimPresentation(key_id: KeyId, js_presentation: any): SignedJson;
-/**
-* @param {KeyId} key_id 
-* @param {Uint8Array} js_operations 
-* @returns {SignedBytes} 
-*/
-  signDidOperations(key_id: KeyId, js_operations: Uint8Array): SignedBytes;
+  test(): any;
 }

@@ -42,6 +42,7 @@ export {
   Bip39,
 } from './Bip39';
 
+export * from './encrypt';
 export * from './coin';
 export * from './authentication';
 export * from './nonce';
