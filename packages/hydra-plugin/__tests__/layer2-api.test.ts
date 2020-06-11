@@ -56,7 +56,7 @@ describe('Layer2API', () => {
   const blockHeight = 5;
 
   beforeAll(() => {
-    const unlockPassword = '';
+    const unlockPassword = 'an_unlock_password';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
     Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
     const m = Crypto.MorpheusPlugin.get(vault);

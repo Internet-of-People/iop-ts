@@ -10,9 +10,9 @@ import {
 
 describe('Vault BIP44 plugins', () => {
   it('Hydra plugin', () => {
-    const vault = Vault.create(Seed.demoPhrase(), '', '');
+    const vault = Vault.create(Seed.demoPhrase(), '', 'an_unlock_password');
     const params = { network: Coin.Hydra.Testnet, account: 0 };
-    HydraPlugin.rewind(vault, '', params);
+    HydraPlugin.rewind(vault, 'an_unlock_password', params);
     const account = HydraPlugin.get(vault, params);
 
     const pk0 = account.pub.key(0);
@@ -23,7 +23,7 @@ describe('Vault BIP44 plugins', () => {
     expect(pk0.change).toBe(false);
     expect(pk0.key).toBe(0);
 
-    const priv = account.priv('');
+    const priv = account.priv('an_unlock_password');
 
     const sk1 = priv.key(1);
     expect(sk1.path).toBe(`m/44'/1'/0'/0/1`);
@@ -48,9 +48,9 @@ describe('Vault BIP44 plugins', () => {
   });
 
   it('Vault can be (de)serialized', () => {
-    const vault = Vault.create(Seed.demoPhrase(), '', '');
+    const vault = Vault.create(Seed.demoPhrase(), '', 'an_unlock_password');
     const params = { network: Coin.Hydra.Testnet, account: 0 };
-    HydraPlugin.rewind(vault, '', params);
+    HydraPlugin.rewind(vault, 'an_unlock_password', params);
     const account = HydraPlugin.get(vault, params);
     const pk1 = account.pub.key(1);
 
@@ -103,7 +103,7 @@ describe('Vault BIP44 plugins', () => {
 
 describe('Vault Morpheus plugin', () => {
   it('Morpheus plugin', () => {
-    const unlockPassword = '';
+    const unlockPassword = 'an_unlock_password';
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     MorpheusPlugin.rewind(vault, unlockPassword);
     const m = MorpheusPlugin.get(vault);
@@ -125,7 +125,7 @@ describe('Vault Morpheus plugin', () => {
   });
 
   it('can be serialized/deserialized', () => {
-    const unlockPassword = '';
+    const unlockPassword = 'an_unlock_password';
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     MorpheusPlugin.rewind(vault, unlockPassword);
     const m = MorpheusPlugin.get(vault);
