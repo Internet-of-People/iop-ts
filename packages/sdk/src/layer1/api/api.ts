@@ -182,7 +182,10 @@ export const createApi = async(network: Network): Promise<Types.Layer1.IApi> => 
     Transactions.TransactionRegistry.registerTransactionType(MorpheusTransaction);
   } catch (e) {
     // using the SDK hot reloaders might call this multiple times in one iteration
-    if (!(e instanceof Errors.TransactionAlreadyRegisteredError)) {
+    if (
+      !(e instanceof Errors.TransactionAlreadyRegisteredError) &&
+      (e.message && e.message.indexOf('Error.captureStackTrace is not a function') === -1)
+    ) {
       throw e;
     }
   }
