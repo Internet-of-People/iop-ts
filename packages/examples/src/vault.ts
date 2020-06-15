@@ -3,7 +3,7 @@ import { promises as asyncFs } from 'fs';
 import { config } from 'xdg-portable';
 import { Crypto } from '@internet-of-people/sdk';
 
-export const unlockPassword = '';
+export const unlockPassword = 'correct horse battery staple';
 
 export const vaultPath = (): string => {
   return join(config(), '/prometheus/vault.dat');

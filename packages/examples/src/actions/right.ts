@@ -4,7 +4,7 @@ import { Crypto, Layer1, Layer2, Types } from '@internet-of-people/sdk';
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askSignerKeyId, askHeight } from '../utils';
-import { loadVault } from '../vault';
+import { loadVault, unlockPassword } from '../vault';
 
 const systemRights = new Layer2.SystemRights();
 
@@ -34,7 +34,7 @@ const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IAp
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(m.priv(''))
+    .signWith(m.priv(unlockPassword))
     .on(did, lastTxId)
     .addRight(auth, right)
     .sign(signerKeyId)
@@ -58,7 +58,7 @@ const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(m.priv(''))
+    .signWith(m.priv(unlockPassword))
     .on(did, lastTxId)
     .revokeRight(auth, right)
     .sign(signerKeyId)

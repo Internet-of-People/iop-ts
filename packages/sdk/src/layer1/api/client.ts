@@ -20,7 +20,7 @@ export class AxiosClient implements Layer1.IClient {
   }
 
   public async sendTx(tx: Interfaces.ITransactionJson): Promise<string> {
-    console.log('Sending tx...');
+    console.log('Sending tx...'); // JSON.stringify({ transactions: [tx] })
     const resp = await apiPost(this.api, '/transactions', JSON.stringify({ transactions: [tx] }));
 
     if (resp.data.data.invalid && resp.data.data.invalid.length > 0) {

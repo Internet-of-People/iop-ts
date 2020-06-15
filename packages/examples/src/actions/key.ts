@@ -3,7 +3,7 @@ import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 import { IAction } from '../action';
 import { processMorpheusTx } from '../transaction-sender';
 import { chooseAction, dumpDids, askDid, dumpKeyIds, askAuth, askHeight, askSignerKeyId } from '../utils';
-import { loadVault } from '../vault';
+import { loadVault, unlockPassword } from '../vault';
 
 const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
@@ -20,7 +20,7 @@ const addKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi)
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(m.priv(''))
+    .signWith(m.priv(unlockPassword))
     .on(did, lastTxId)
     .addKey(newAuth, expires)
     .sign(signerKeyId)
@@ -43,7 +43,7 @@ const revokeKey = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IA
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(m.priv(''))
+    .signWith(m.priv(unlockPassword))
     .on(did, lastTxId)
     .revokeKey(newAuth)
     .sign(signerKeyId)

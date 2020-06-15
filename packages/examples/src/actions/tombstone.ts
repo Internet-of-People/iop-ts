@@ -1,6 +1,6 @@
 import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 import { IAction } from '../action';
-import { loadVault } from '../vault';
+import { loadVault, unlockPassword } from '../vault';
 import { dumpDids, askDid, askSignerKeyId } from '../utils';
 import { processMorpheusTx } from '../transaction-sender';
 
@@ -15,7 +15,7 @@ const run = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): P
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .signWith(m.priv(''))
+    .signWith(m.priv(unlockPassword))
     .on(did, lastTxId)
     .tombstoneDid()
     .sign(signerKeyId)
