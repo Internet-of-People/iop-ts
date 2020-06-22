@@ -38,6 +38,31 @@ describe('DidDocumentState', () => {
     didState = new DidDocumentState(defaultDid);
   });
 
+  it('cloneable', () => {
+    didState.apply.addKey(2, keyId2);
+    didState.apply.addRight(2, keyId2, updateRight);
+
+    const state1 = didState.query.getAt(2).toData();
+    expect(state1.keys.length).toBe(2);
+    expect(state1.keys[0].validFromHeight).toBeNull();
+    expect(state1.keys[0].validUntilHeight).toBeNull();
+    expect(state1.keys[1].validFromHeight).toBe(2);
+    expect(state1.keys[1].validUntilHeight).toBeNull();
+
+    console.log(didState.query.getAt(2).toData());
+
+    const cloned = didState.clone();
+    cloned.apply.revokeKey(2, keyId2);
+    console.log(didState.query.getAt(2).toData());
+
+    const state2 = didState.query.getAt(2).toData();
+    expect(state2.keys.length).toBe(2);
+    expect(state2.keys[0].validFromHeight).toBeNull();
+    expect(state2.keys[0].validUntilHeight).toBeNull();
+    expect(state2.keys[1].validFromHeight).toBe(2);
+    expect(state2.keys[1].validUntilHeight).toBeNull();
+  });
+
   it('can query implicit document', () => {
     const didDoc = didState.query.getAt(1);
     expect(didDoc.height).toBe(1);

@@ -1,4 +1,3 @@
-import cloneDeep from 'lodash.clonedeep';
 import Optional from 'optional-js';
 
 import { Crypto, Layer2, Types } from '@internet-of-people/sdk';
@@ -293,7 +292,24 @@ export class DidDocumentState implements IDidDocumentState {
   }
 
   public clone(): IDidDocumentState {
-    return new DidDocumentState(this.did, cloneDeep(this.keyStack), this.tombstoneHistory.clone());
+    const keyStack: Readonly<IKeyEntry>[] = [];
+
+    for (const entry of this.keyStack) {
+      const rights: Types.Layer2.IRightsMap<ITimeSeries> = {};
+
+      for (const right in entry.rights) {
+        rights[right] = entry.rights[right].clone();
+      }
+
+      keyStack.push({
+        auth: entry.auth,
+        addedAtHeight: entry.addedAtHeight,
+        expiresAtHeight: entry.expiresAtHeight,
+        revoked: entry.revoked.clone(),
+        rights,
+      });
+    }
+    return new DidDocumentState(this.did, keyStack, this.tombstoneHistory.clone());
   }
 
   private ensureMinHeight(height: number): void {

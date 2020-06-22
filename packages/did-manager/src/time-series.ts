@@ -22,6 +22,9 @@ export interface ITimeSeriesOperations<T> {
 
 export type ITimeSeries<T = boolean> = IState<ITimeSeriesQueries<T>, ITimeSeriesOperations<T>>;
 
+// TODO: T must be cloneable with deepClone!
+// In the future we have to have an interface that implements clone and does
+// manual cloning instead of relying on deepClone
 export class TimeSeries<T = boolean> implements ITimeSeries<T> {
   public readonly apply: ITimeSeriesOperations<T> = {
     set: (height: number, value: T): void => {
