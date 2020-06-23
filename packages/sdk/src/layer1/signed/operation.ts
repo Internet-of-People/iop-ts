@@ -39,7 +39,8 @@ export class Signed extends Operation {
   }
 
   public static serialize(ops: ISignableOperationData[]): Uint8Array {
-    const buffer = toBuffer(stringify(ops));
+    // Note: stringify is required here to keep the JSON serialization strict in order
+    const buffer = toBuffer(JSON.parse(stringify(ops)));
     buffer.flip();
     const bytes = Uint8Array.from(buffer.toBuffer());
     return bytes;
