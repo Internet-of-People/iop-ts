@@ -18,7 +18,7 @@ type TransactionId = Types.Sdk.TransactionId;
 import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { IDidOperation } from '../src/did-operations';
-import { assertStringlyEqual } from './utils';
+import { assertStringlyEqual, installWindowCrypto } from './utils';
 import {
   defaultDid,
   did2,
@@ -27,6 +27,8 @@ import {
   keyId2,
   keyId3,
 } from './known-keys';
+
+installWindowCrypto();
 
 class Fixture {
   public emitter: NodeJS.EventEmitter = new EventEmitter();
@@ -56,7 +58,7 @@ describe('Layer2API', () => {
   const blockHeight = 5;
 
   beforeAll(() => {
-    const unlockPassword = 'an_unlock_password';
+    const unlockPassword = 'correct horse battery staple';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
     Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
     const m = Crypto.MorpheusPlugin.get(vault);

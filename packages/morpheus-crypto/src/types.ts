@@ -1,13 +1,5 @@
 import { KeyId, PublicKey, SignedBytes } from '@internet-of-people/morpheus-crypto-wasm';
 
-export type {
-  IHydraParameters,
-  IHydraPublicState,
-  IMorpheusParameters,
-  IMorpheusPublicState,
-  IVaultState,
-} from './vault';
-
 export interface IMorpheusSigner {
   signDidOperations(id: KeyId, message: Uint8Array): SignedBytes;
 }

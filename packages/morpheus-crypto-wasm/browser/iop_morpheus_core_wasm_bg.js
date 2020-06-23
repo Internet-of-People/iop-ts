@@ -108,31 +108,11 @@ function takeObject(idx) {
     return ret;
 }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
-function makeMutClosure(arg0, arg1, dtor, f) {
-    const state = { a: arg0, b: arg1, cnt: 1 };
-    const real = (...args) => {
-        // First up with a closure we increment the internal reference
-        // count. This ensures that the Rust closure environment won't
-        // be deallocated while we're invoking it.
-        state.cnt++;
-        const a = state.a;
-        state.a = 0;
-        try {
-            return f(a, state.b, ...args);
-        } finally {
-            if (--state.cnt === 0) wasm.__wbindgen_export_2.get(dtor)(a, state.b);
-            else state.a = a;
-        }
-    };
-    real.original = state;
-    return real;
-}
-function __wbg_adapter_18(arg0, arg1, arg2) {
-    wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__he7879292e6acac65(arg0, arg1, addHeapObject(arg2));
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
 }
 
 let stack_pointer = 32;
@@ -177,13 +157,6 @@ export function digest(data) {
     }
 }
 
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
-}
-
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1);
     getUint8Memory0().set(arg, ptr / 1);
@@ -193,6 +166,10 @@ function passArray8ToWasm0(arg, malloc) {
 
 function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
+}
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
 
 let cachegetUint32Memory0 = null;
@@ -226,22 +203,19 @@ export function validateNetworkName(name) {
 /**
 * @param {Uint8Array} plain_text
 * @param {string} password
-* @param {Uint8Array} nonce
 * @returns {Uint8Array}
 */
-export function encrypt(plain_text, password, nonce) {
+export function encrypt(plain_text, password) {
     var ptr0 = passArray8ToWasm0(plain_text, wasm.__wbindgen_malloc);
     var len0 = WASM_VECTOR_LEN;
     var ptr1 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     var len1 = WASM_VECTOR_LEN;
-    var ptr2 = passArray8ToWasm0(nonce, wasm.__wbindgen_malloc);
-    var len2 = WASM_VECTOR_LEN;
-    wasm.encrypt(8, ptr0, len0, ptr1, len1, ptr2, len2);
+    wasm.encrypt(8, ptr0, len0, ptr1, len1);
     var r0 = getInt32Memory0()[8 / 4 + 0];
     var r1 = getInt32Memory0()[8 / 4 + 1];
-    var v3 = getArrayU8FromWasm0(r0, r1).slice();
+    var v2 = getArrayU8FromWasm0(r0, r1).slice();
     wasm.__wbindgen_free(r0, r1 * 1);
-    return v3;
+    return v2;
 }
 
 /**
@@ -272,10 +246,6 @@ function handleError(f) {
         }
     };
 }
-function __wbg_adapter_184(arg0, arg1, arg2, arg3) {
-    wasm.wasm_bindgen__convert__closures__invoke2_mut__h6d208716a3a74dc8(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
-}
-
 /**
 */
 export class Bip32 {
@@ -490,6 +460,13 @@ export class Bip39 {
         var len0 = WASM_VECTOR_LEN;
         var ret = wasm.bip39_new(ptr0, len0);
         return Bip39.__wrap(ret);
+    }
+    /**
+    * @returns {Bip39Phrase}
+    */
+    generate() {
+        var ret = wasm.bip39_generate(this.ptr);
+        return Bip39Phrase.__wrap(ret);
     }
     /**
     * @param {Uint8Array} entropy
@@ -1313,6 +1290,160 @@ export class Did {
         }
     }
 }
+/**
+*/
+export class HydraParameters {
+
+    static __wrap(ptr) {
+        const obj = Object.create(HydraParameters.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_hydraparameters_free(ptr);
+    }
+    /**
+    * @param {string} network
+    * @param {number} account
+    */
+    constructor(network, account) {
+        var ptr0 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.hydraparameters_new(ptr0, len0, account);
+        return HydraParameters.__wrap(ret);
+    }
+}
+/**
+*/
+export class HydraPlugin {
+
+    static __wrap(ptr) {
+        const obj = Object.create(HydraPlugin.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_hydraplugin_free(ptr);
+    }
+    /**
+    * @param {Vault} vault
+    * @param {string} unlock_password
+    * @param {HydraParameters} parameters
+    */
+    static rewind(vault, unlock_password, parameters) {
+        _assertClass(vault, Vault);
+        var ptr0 = passStringToWasm0(unlock_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        _assertClass(parameters, HydraParameters);
+        wasm.hydraplugin_rewind(vault.ptr, ptr0, len0, parameters.ptr);
+    }
+    /**
+    * @param {Vault} vault
+    * @param {HydraParameters} parameters
+    * @returns {HydraPlugin}
+    */
+    static get(vault, parameters) {
+        _assertClass(vault, Vault);
+        _assertClass(parameters, HydraParameters);
+        var ret = wasm.hydraplugin_get(vault.ptr, parameters.ptr);
+        return HydraPlugin.__wrap(ret);
+    }
+    /**
+    * @returns {HydraPublic}
+    */
+    get pub() {
+        var ret = wasm.hydraplugin_public(this.ptr);
+        return HydraPublic.__wrap(ret);
+    }
+    /**
+    * @param {string} unlock_password
+    * @returns {HydraPrivate}
+    */
+    priv(unlock_password) {
+        var ptr0 = passStringToWasm0(unlock_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.hydraplugin_priv(this.ptr, ptr0, len0);
+        return HydraPrivate.__wrap(ret);
+    }
+}
+/**
+*/
+export class HydraPrivate {
+
+    static __wrap(ptr) {
+        const obj = Object.create(HydraPrivate.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_hydraprivate_free(ptr);
+    }
+    /**
+    * @returns {HydraPublic}
+    */
+    get pub() {
+        var ret = wasm.hydraprivate_neuter(this.ptr);
+        return HydraPublic.__wrap(ret);
+    }
+    /**
+    * @param {number} idx
+    * @returns {Bip44Key}
+    */
+    key(idx) {
+        var ret = wasm.hydraprivate_key(this.ptr, idx);
+        return Bip44Key.__wrap(ret);
+    }
+    /**
+    * @param {SecpPublicKey} id
+    * @returns {Bip44Key}
+    */
+    keyByPublicKey(id) {
+        _assertClass(id, SecpPublicKey);
+        var ret = wasm.hydraprivate_keyByPublicKey(this.ptr, id.ptr);
+        return Bip44Key.__wrap(ret);
+    }
+}
+/**
+*/
+export class HydraPublic {
+
+    static __wrap(ptr) {
+        const obj = Object.create(HydraPublic.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_hydrapublic_free(ptr);
+    }
+    /**
+    * @param {number} idx
+    * @returns {Bip44PublicKey}
+    */
+    key(idx) {
+        var ret = wasm.hydrapublic_key(this.ptr, idx);
+        return Bip44PublicKey.__wrap(ret);
+    }
+}
 
 export class JsBip32 {
 
@@ -1471,6 +1602,122 @@ export class MorpheusKind {
 }
 /**
 */
+export class MorpheusPlugin {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusPlugin.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheusplugin_free(ptr);
+    }
+    /**
+    * @param {Vault} vault
+    * @param {string} unlock_password
+    */
+    static rewind(vault, unlock_password) {
+        _assertClass(vault, Vault);
+        var ptr0 = passStringToWasm0(unlock_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.morpheusplugin_rewind(vault.ptr, ptr0, len0);
+    }
+    /**
+    * @param {Vault} vault
+    * @returns {MorpheusPlugin}
+    */
+    static get(vault) {
+        _assertClass(vault, Vault);
+        var ret = wasm.morpheusplugin_get(vault.ptr);
+        return MorpheusPlugin.__wrap(ret);
+    }
+    /**
+    * @returns {MorpheusPublic}
+    */
+    get pub() {
+        var ret = wasm.morpheusplugin_public(this.ptr);
+        return MorpheusPublic.__wrap(ret);
+    }
+    /**
+    * @param {string} unlock_password
+    * @returns {MorpheusPrivate}
+    */
+    priv(unlock_password) {
+        var ptr0 = passStringToWasm0(unlock_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusplugin_priv(this.ptr, ptr0, len0);
+        return MorpheusPrivate.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusPrivate {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusPrivate.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheusprivate_free(ptr);
+    }
+    /**
+    * @returns {MorpheusPublic}
+    */
+    get pub() {
+        var ret = wasm.morpheusprivate_neuter(this.ptr);
+        return MorpheusPublic.__wrap(ret);
+    }
+    /**
+    * @returns {MorpheusPrivateKind}
+    */
+    get personas() {
+        var ret = wasm.morpheusprivate_personas(this.ptr);
+        return MorpheusPrivateKind.__wrap(ret);
+    }
+    /**
+    * @param {PublicKey} pk
+    * @returns {MorpheusPrivateKey}
+    */
+    keyByPublicKey(pk) {
+        _assertClass(pk, PublicKey);
+        var ret = wasm.morpheusprivate_keyByPublicKey(this.ptr, pk.ptr);
+        return MorpheusPrivateKey.__wrap(ret);
+    }
+    /**
+    * @param {KeyId} id
+    * @returns {MorpheusPrivateKey}
+    */
+    keyById(id) {
+        _assertClass(id, KeyId);
+        var ret = wasm.morpheusprivate_keyById(this.ptr, id.ptr);
+        return MorpheusPrivateKey.__wrap(ret);
+    }
+    /**
+    * @param {KeyId} id
+    * @param {Uint8Array} message
+    * @returns {SignedBytes}
+    */
+    signDidOperations(id, message) {
+        _assertClass(id, KeyId);
+        var ptr0 = passArray8ToWasm0(message, wasm.__wbindgen_malloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusprivate_signDidOperations(this.ptr, id.ptr, ptr0, len0);
+        return SignedBytes.__wrap(ret);
+    }
+}
+/**
+*/
 export class MorpheusPrivateKey {
 
     static __wrap(ptr) {
@@ -1536,6 +1783,110 @@ export class MorpheusPrivateKey {
 }
 /**
 */
+export class MorpheusPrivateKind {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusPrivateKind.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheusprivatekind_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get kind() {
+        try {
+            wasm.morpheusprivatekind_kind(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {number}
+    */
+    get count() {
+        var ret = wasm.morpheusprivatekind_count(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @returns {MorpheusPublicKind}
+    */
+    get pub() {
+        var ret = wasm.morpheusprivatekind_neuter(this.ptr);
+        return MorpheusPublicKind.__wrap(ret);
+    }
+    /**
+    * @param {number} idx
+    * @returns {MorpheusPrivateKey}
+    */
+    key(idx) {
+        var ret = wasm.morpheusprivatekind_key(this.ptr, idx);
+        return MorpheusPrivateKey.__wrap(ret);
+    }
+    /**
+    * @param {number} idx
+    * @returns {Did}
+    */
+    did(idx) {
+        var ret = wasm.morpheusprivatekind_did(this.ptr, idx);
+        return Did.__wrap(ret);
+    }
+    /**
+    * @param {PublicKey} id
+    * @returns {MorpheusPrivateKey}
+    */
+    keyByPublicKey(id) {
+        _assertClass(id, PublicKey);
+        var ret = wasm.morpheusprivatekind_keyByPublicKey(this.ptr, id.ptr);
+        return MorpheusPrivateKey.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusPublic {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusPublic.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheuspublic_free(ptr);
+    }
+    /**
+    * @returns {MorpheusPublicKind}
+    */
+    get personas() {
+        var ret = wasm.morpheuspublic_personas(this.ptr);
+        return MorpheusPublicKind.__wrap(ret);
+    }
+    /**
+    * @param {KeyId} id
+    * @returns {PublicKey}
+    */
+    keyById(id) {
+        _assertClass(id, KeyId);
+        var ret = wasm.morpheuspublic_keyById(this.ptr, id.ptr);
+        return PublicKey.__wrap(ret);
+    }
+}
+/**
+*/
 export class MorpheusPublicKey {
 
     static __wrap(ptr) {
@@ -1589,6 +1940,69 @@ export class MorpheusPublicKey {
     */
     publicKey() {
         var ret = wasm.morpheuspublickey_publicKey(this.ptr);
+        return PublicKey.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusPublicKind {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusPublicKind.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheuspublickind_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get kind() {
+        try {
+            wasm.morpheuspublickind_kind(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {number}
+    */
+    get count() {
+        var ret = wasm.morpheuspublickind_count(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @param {number} idx
+    * @returns {PublicKey}
+    */
+    key(idx) {
+        var ret = wasm.morpheuspublickind_key(this.ptr, idx);
+        return PublicKey.__wrap(ret);
+    }
+    /**
+    * @param {number} idx
+    * @returns {Did}
+    */
+    did(idx) {
+        var ret = wasm.morpheuspublickind_did(this.ptr, idx);
+        return Did.__wrap(ret);
+    }
+    /**
+    * @param {KeyId} id
+    * @returns {PublicKey}
+    */
+    keyById(id) {
+        _assertClass(id, KeyId);
+        var ret = wasm.morpheuspublickind_keyById(this.ptr, id.ptr);
         return PublicKey.__wrap(ret);
     }
 }
@@ -2345,26 +2759,66 @@ export class Vault {
         wasm.__wbg_vault_free(ptr);
     }
     /**
-    * @param {Function | undefined} save
-    * @param {Function | undefined} ask_unlock_password
+    * @param {string} phrase
+    * @param {string} bip39_password
+    * @param {string} unlock_password
+    * @returns {Vault}
     */
-    constructor(save, ask_unlock_password) {
-        var ret = wasm.vault_new(isLikeNone(save) ? 0 : addHeapObject(save), isLikeNone(ask_unlock_password) ? 0 : addHeapObject(ask_unlock_password));
+    static create(phrase, bip39_password, unlock_password) {
+        var ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ptr1 = passStringToWasm0(bip39_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        var ptr2 = passStringToWasm0(unlock_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len2 = WASM_VECTOR_LEN;
+        var ret = wasm.vault_create(ptr0, len0, ptr1, len1, ptr2, len2);
         return Vault.__wrap(ret);
+    }
+    /**
+    * @param {any} data
+    * @returns {Vault}
+    */
+    static load(data) {
+        try {
+            var ret = wasm.vault_load(addBorrowedObject(data));
+            return Vault.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
     }
     /**
     * @returns {any}
     */
-    test() {
-        var ptr = this.ptr;
-        this.ptr = 0;
-        var ret = wasm.vault_test(ptr);
+    save() {
+        var ret = wasm.vault_save(this.ptr);
         return takeObject(ret);
+    }
+    /**
+    * @returns {boolean}
+    */
+    get dirty() {
+        var ret = wasm.vault_is_dirty(this.ptr);
+        return ret !== 0;
+    }
+    /**
+    */
+    setDirty() {
+        wasm.vault_setDirty(this.ptr);
+    }
+    /**
+    * @param {string} password
+    * @returns {Seed}
+    */
+    unlock(password) {
+        var ptr0 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.vault_unlock(this.ptr, ptr0, len0);
+        return Seed.__wrap(ret);
     }
 }
 
-export const __wbindgen_json_parse = function(arg0, arg1) {
-    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+export const __wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
     return addHeapObject(ret);
 };
 
@@ -2377,8 +2831,17 @@ export const __wbindgen_json_serialize = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
+export const __wbindgen_object_drop_ref = function(arg0) {
+    takeObject(arg0);
+};
+
 export const __wbg_validationissue_new = function(arg0) {
     var ret = ValidationIssue.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
+export const __wbindgen_json_parse = function(arg0, arg1) {
+    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
@@ -2387,76 +2850,37 @@ export const __wbg_validationresult_new = function(arg0) {
     return addHeapObject(ret);
 };
 
-export const __wbindgen_object_drop_ref = function(arg0) {
-    takeObject(arg0);
+export const __wbg_getRandomValues_f5e14ab7ac8e995d = function(arg0, arg1, arg2) {
+    getObject(arg0).getRandomValues(getArrayU8FromWasm0(arg1, arg2));
 };
 
-export const __wbindgen_cb_drop = function(arg0) {
-    const obj = takeObject(arg0).original;
-    if (obj.cnt-- == 1) {
-        obj.a = 0;
-        return true;
-    }
-    var ret = false;
-    return ret;
+export const __wbg_randomFillSync_d5bd2d655fdf256a = function(arg0, arg1, arg2) {
+    getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
 };
 
-export const __wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
-    return addHeapObject(ret);
-};
-
-export const __wbg_call_49bac88c9eff93af = handleError(function(arg0, arg1, arg2) {
-    var ret = getObject(arg0).call(getObject(arg1), getObject(arg2));
+export const __wbg_self_1b7a39e3a92c949c = handleError(function() {
+    var ret = self.self;
     return addHeapObject(ret);
 });
 
-export const __wbg_instanceof_Promise_3d882ab1a47a630f = function(arg0) {
-    var ret = getObject(arg0) instanceof Promise;
+export const __wbg_require_604837428532a733 = function(arg0, arg1) {
+    var ret = require(getStringFromWasm0(arg0, arg1));
+    return addHeapObject(ret);
+};
+
+export const __wbg_crypto_968f1772287e2df0 = function(arg0) {
+    var ret = getObject(arg0).crypto;
+    return addHeapObject(ret);
+};
+
+export const __wbindgen_is_undefined = function(arg0) {
+    var ret = getObject(arg0) === undefined;
     return ret;
 };
 
-export const __wbg_new_261626435fed913c = function(arg0, arg1) {
-    try {
-        var state0 = {a: arg0, b: arg1};
-        var cb0 = (arg0, arg1) => {
-            const a = state0.a;
-            state0.a = 0;
-            try {
-                return __wbg_adapter_184(a, state0.b, arg0, arg1);
-            } finally {
-                state0.a = a;
-            }
-        };
-        var ret = new Promise(cb0);
-        return addHeapObject(ret);
-    } finally {
-        state0.a = state0.b = 0;
-    }
-};
-
-export const __wbg_resolve_430b2f40a51592cc = function(arg0) {
-    var ret = Promise.resolve(getObject(arg0));
+export const __wbg_getRandomValues_a3d34b4fee3c2869 = function(arg0) {
+    var ret = getObject(arg0).getRandomValues;
     return addHeapObject(ret);
-};
-
-export const __wbg_then_a9485ea9ef567f90 = function(arg0, arg1) {
-    var ret = getObject(arg0).then(getObject(arg1));
-    return addHeapObject(ret);
-};
-
-export const __wbg_then_b114127b40814c36 = function(arg0, arg1, arg2) {
-    var ret = getObject(arg0).then(getObject(arg1), getObject(arg2));
-    return addHeapObject(ret);
-};
-
-export const __wbindgen_string_get = function(arg0, arg1) {
-    const obj = getObject(arg1);
-    var ret = typeof(obj) === 'string' ? obj : undefined;
-    var ptr0 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    getInt32Memory0()[arg0 / 4 + 1] = len0;
-    getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
 export const __wbindgen_throw = function(arg0, arg1) {
@@ -2465,10 +2889,5 @@ export const __wbindgen_throw = function(arg0, arg1) {
 
 export const __wbindgen_rethrow = function(arg0) {
     throw takeObject(arg0);
-};
-
-export const __wbindgen_closure_wrapper1468 = function(arg0, arg1, arg2) {
-    var ret = makeMutClosure(arg0, arg1, 436, __wbg_adapter_18);
-    return addHeapObject(ret);
 };
 

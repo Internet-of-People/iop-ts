@@ -1,4 +1,7 @@
 import { Bip39, Bip44, Seed } from '../src';
+import { installWindowCrypto } from './utils';
+
+installWindowCrypto();
 
 describe('Bip39', () => {
   it('can work with phrases', () => {

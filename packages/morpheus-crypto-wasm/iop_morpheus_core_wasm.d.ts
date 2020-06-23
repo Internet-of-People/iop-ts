@@ -19,10 +19,9 @@ export function validateNetworkName(name: string): boolean;
 /**
 * @param {Uint8Array} plain_text 
 * @param {string} password 
-* @param {Uint8Array} nonce 
 * @returns {Uint8Array} 
 */
-export function encrypt(plain_text: Uint8Array, password: string, nonce: Uint8Array): Uint8Array;
+export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 /**
 * @param {Uint8Array} cipher_text 
 * @param {string} password 
@@ -111,6 +110,10 @@ export class Bip39 {
 * @param {string} lang_code 
 */
   constructor(lang_code: string);
+/**
+* @returns {Bip39Phrase} 
+*/
+  generate(): Bip39Phrase;
 /**
 * @param {Uint8Array} entropy 
 * @returns {Bip39Phrase} 
@@ -466,6 +469,71 @@ export class Did {
 */
   toString(): string;
 }
+/**
+*/
+export class HydraParameters {
+  free(): void;
+/**
+* @param {string} network 
+* @param {number} account 
+*/
+  constructor(network: string, account: number);
+}
+/**
+*/
+export class HydraPlugin {
+  free(): void;
+/**
+* @param {Vault} vault 
+* @param {string} unlock_password 
+* @param {HydraParameters} parameters 
+*/
+  static rewind(vault: Vault, unlock_password: string, parameters: HydraParameters): void;
+/**
+* @param {Vault} vault 
+* @param {HydraParameters} parameters 
+* @returns {HydraPlugin} 
+*/
+  static get(vault: Vault, parameters: HydraParameters): HydraPlugin;
+/**
+* @param {string} unlock_password 
+* @returns {HydraPrivate} 
+*/
+  priv(unlock_password: string): HydraPrivate;
+/**
+* @returns {HydraPublic} 
+*/
+  readonly pub: HydraPublic;
+}
+/**
+*/
+export class HydraPrivate {
+  free(): void;
+/**
+* @param {number} idx 
+* @returns {Bip44Key} 
+*/
+  key(idx: number): Bip44Key;
+/**
+* @param {SecpPublicKey} id 
+* @returns {Bip44Key} 
+*/
+  keyByPublicKey(id: SecpPublicKey): Bip44Key;
+/**
+* @returns {HydraPublic} 
+*/
+  readonly pub: HydraPublic;
+}
+/**
+*/
+export class HydraPublic {
+  free(): void;
+/**
+* @param {number} idx 
+* @returns {Bip44PublicKey} 
+*/
+  key(idx: number): Bip44PublicKey;
+}
 export class JsBip32 {
   free(): void;
 /**
@@ -527,6 +595,59 @@ export class MorpheusKind {
 }
 /**
 */
+export class MorpheusPlugin {
+  free(): void;
+/**
+* @param {Vault} vault 
+* @param {string} unlock_password 
+*/
+  static rewind(vault: Vault, unlock_password: string): void;
+/**
+* @param {Vault} vault 
+* @returns {MorpheusPlugin} 
+*/
+  static get(vault: Vault): MorpheusPlugin;
+/**
+* @param {string} unlock_password 
+* @returns {MorpheusPrivate} 
+*/
+  priv(unlock_password: string): MorpheusPrivate;
+/**
+* @returns {MorpheusPublic} 
+*/
+  readonly pub: MorpheusPublic;
+}
+/**
+*/
+export class MorpheusPrivate {
+  free(): void;
+/**
+* @param {PublicKey} pk 
+* @returns {MorpheusPrivateKey} 
+*/
+  keyByPublicKey(pk: PublicKey): MorpheusPrivateKey;
+/**
+* @param {KeyId} id 
+* @returns {MorpheusPrivateKey} 
+*/
+  keyById(id: KeyId): MorpheusPrivateKey;
+/**
+* @param {KeyId} id 
+* @param {Uint8Array} message 
+* @returns {SignedBytes} 
+*/
+  signDidOperations(id: KeyId, message: Uint8Array): SignedBytes;
+/**
+* @returns {MorpheusPrivateKind} 
+*/
+  readonly personas: MorpheusPrivateKind;
+/**
+* @returns {MorpheusPublic} 
+*/
+  readonly pub: MorpheusPublic;
+}
+/**
+*/
 export class MorpheusPrivateKey {
   free(): void;
 /**
@@ -552,6 +673,52 @@ export class MorpheusPrivateKey {
 }
 /**
 */
+export class MorpheusPrivateKind {
+  free(): void;
+/**
+* @param {number} idx 
+* @returns {MorpheusPrivateKey} 
+*/
+  key(idx: number): MorpheusPrivateKey;
+/**
+* @param {number} idx 
+* @returns {Did} 
+*/
+  did(idx: number): Did;
+/**
+* @param {PublicKey} id 
+* @returns {MorpheusPrivateKey} 
+*/
+  keyByPublicKey(id: PublicKey): MorpheusPrivateKey;
+/**
+* @returns {number} 
+*/
+  readonly count: number;
+/**
+* @returns {string} 
+*/
+  readonly kind: string;
+/**
+* @returns {MorpheusPublicKind} 
+*/
+  readonly pub: MorpheusPublicKind;
+}
+/**
+*/
+export class MorpheusPublic {
+  free(): void;
+/**
+* @param {KeyId} id 
+* @returns {PublicKey} 
+*/
+  keyById(id: KeyId): PublicKey;
+/**
+* @returns {MorpheusPublicKind} 
+*/
+  readonly personas: MorpheusPublicKind;
+}
+/**
+*/
 export class MorpheusPublicKey {
   free(): void;
 /**
@@ -570,6 +737,34 @@ export class MorpheusPublicKey {
 * @returns {string} 
 */
   readonly path: string;
+}
+/**
+*/
+export class MorpheusPublicKind {
+  free(): void;
+/**
+* @param {number} idx 
+* @returns {PublicKey} 
+*/
+  key(idx: number): PublicKey;
+/**
+* @param {number} idx 
+* @returns {Did} 
+*/
+  did(idx: number): Did;
+/**
+* @param {KeyId} id 
+* @returns {PublicKey} 
+*/
+  keyById(id: KeyId): PublicKey;
+/**
+* @returns {number} 
+*/
+  readonly count: number;
+/**
+* @returns {string} 
+*/
+  readonly kind: string;
 }
 /**
 */
@@ -859,12 +1054,31 @@ export class ValidationResult {
 export class Vault {
   free(): void;
 /**
-* @param {Function | undefined} save 
-* @param {Function | undefined} ask_unlock_password 
+* @param {string} phrase 
+* @param {string} bip39_password 
+* @param {string} unlock_password 
+* @returns {Vault} 
 */
-  constructor(save?: Function, ask_unlock_password?: Function);
+  static create(phrase: string, bip39_password: string, unlock_password: string): Vault;
+/**
+* @param {any} data 
+* @returns {Vault} 
+*/
+  static load(data: any): Vault;
 /**
 * @returns {any} 
 */
-  test(): any;
+  save(): any;
+/**
+*/
+  setDirty(): void;
+/**
+* @param {string} password 
+* @returns {Seed} 
+*/
+  unlock(password: string): Seed;
+/**
+* @returns {boolean} 
+*/
+  readonly dirty: boolean;
 }

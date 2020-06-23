@@ -1,4 +1,7 @@
 import { encrypt, decrypt, encryptString, decryptString } from '../src';
+import { installWindowCrypto } from './utils';
+
+installWindowCrypto();
 
 describe('encrypt', () => {
   it('roundtrip text', () => {

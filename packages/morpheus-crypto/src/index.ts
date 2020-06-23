@@ -2,24 +2,34 @@ export {
   Bip32,
   Bip32Node,
   Bip32PublicNode,
+  Bip39,
   Bip39Phrase,
   Bip44,
-  Bip44Coin,
   Bip44Account,
-  Bip44PublicAccount,
-  Bip44SubAccount,
-  Bip44PublicSubAccount,
+  Bip44Coin,
   Bip44Key,
+  Bip44PublicAccount,
   Bip44PublicKey,
+  Bip44PublicSubAccount,
+  Bip44SubAccount,
   Did,
   digest,
+  HydraParameters,
+  HydraPlugin,
+  HydraPrivate,
+  HydraPublic,
   KeyId,
   mask,
   Morpheus,
-  MorpheusRoot,
   MorpheusKind,
+  MorpheusPlugin,
+  MorpheusPrivate,
   MorpheusPrivateKey,
+  MorpheusPrivateKind,
+  MorpheusPublic,
   MorpheusPublicKey,
+  MorpheusPublicKind,
+  MorpheusRoot,
   PrivateKey,
   PublicKey,
   SecpKeyId,
@@ -28,22 +38,18 @@ export {
   SecpSignature,
   Seed,
   Signature,
-  SignedJson,
   SignedBytes,
+  SignedJson,
   ValidationIssue,
   ValidationResult,
+  Vault,
 } from '@internet-of-people/morpheus-crypto-wasm';
 
 import type * as Types from './types';
 
 export type { Types };
 
-export {
-  Bip39,
-} from './Bip39';
-
 export * from './encrypt';
 export * from './coin';
 export * from './authentication';
 export * from './nonce';
-export * from './vault';

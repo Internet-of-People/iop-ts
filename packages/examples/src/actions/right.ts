@@ -22,15 +22,14 @@ const askRight = async(): Promise<Types.Sdk.Right> => {
 const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
   const m = Crypto.MorpheusPlugin.get(vault);
-  const keyIds = m.pub.personas.keyIds();
 
-  dumpDids(m.pub.personas.dids());
+  dumpDids(m.pub.personas);
   const did = await askDid('change rights on');
 
-  dumpKeyIds(keyIds);
+  dumpKeyIds(m.pub.personas);
   const auth = await askAuth('add a right to');
   const right = await askRight();
-  const signerKeyId = await askSignerKeyId(keyIds);
+  const signerKeyId = await askSignerKeyId(m.pub.personas);
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
@@ -46,15 +45,14 @@ const addRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IAp
 const revokeRight = async(layer1Api: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Promise<void> => {
   const vault = await loadVault();
   const m = Crypto.MorpheusPlugin.get(vault);
-  const keyIds = m.pub.personas.keyIds();
 
-  dumpDids(m.pub.personas.dids());
+  dumpDids(m.pub.personas);
   const did = await askDid('change rights on');
 
-  dumpKeyIds(keyIds);
+  dumpKeyIds(m.pub.personas);
   const auth = await askAuth('revoke a right from');
   const right = await askRight();
-  const signerKeyId = await askSignerKeyId(keyIds);
+  const signerKeyId = await askSignerKeyId(m.pub.personas);
 
   const lastTxId = await layer2Api.getLastTxId(did);
   const opAttempts = new Layer1.OperationAttemptsBuilder()
@@ -71,7 +69,7 @@ const queryRight = async(_: Types.Layer1.IApi, layer2Api: Types.Layer2.IApi): Pr
   const vault = await loadVault();
   const m = Crypto.MorpheusPlugin.get(vault);
 
-  dumpDids(m.pub.personas.dids());
+  dumpDids(m.pub.personas);
   const did = await askDid('query a right on');
   // const right = await askRight();
   const height = await askHeight();

@@ -4,18 +4,30 @@ import { allNetworks, Crypto, Network, Types } from '@internet-of-people/sdk';
 
 import { IAction } from './action';
 
-export const dumpDids = (dids: Crypto.Did[]): void => {
+export const keyIds = (kind: Crypto.MorpheusPublicKind): Crypto.KeyId[] => {
+  const result = [];
+
+  for (let i = 0; i < kind.count; ++i) {
+    const pk = kind.key(i);
+    const id = pk.keyId();
+    result.push(id);
+  }
+  return result;
+};
+
+export const dumpDids = (kind: Crypto.MorpheusPublicKind): void => {
   console.log('These are the dids based on your private keys:');
 
-  for (const did of dids) {
+  for (const id of keyIds(kind)) {
+    const did = Crypto.Did.fromKeyId(id);
     console.log(did.toString());
   }
 };
 
-export const dumpKeyIds = (keyIds: Crypto.KeyId[]): void => {
+export const dumpKeyIds = (kind: Crypto.MorpheusPublicKind): void => {
   console.log('These are the key ids based on your private keys:');
 
-  for (const id of keyIds) {
+  for (const id of keyIds(kind)) {
     console.log(id.toString());
   }
 };
@@ -54,7 +66,8 @@ export const askHeight = async(): Promise<number | undefined> => {
   return height;
 };
 
-export const askSignerKeyId = async(ids: Crypto.KeyId[]): Promise<Crypto.KeyId> => {
+export const askSignerKeyId = async(kind: Crypto.MorpheusPublicKind): Promise<Crypto.KeyId> => {
+  const ids = keyIds(kind);
   const { signerKeyId }: { signerKeyId: Crypto.KeyId; } = await inquirer.prompt([{
     name: 'signerKeyId',
     message: 'Choose id to sign with:',

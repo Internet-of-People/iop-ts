@@ -2,8 +2,11 @@ import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
 
 import { Crypto, Layer1, Layer2, Types } from '../src';
+import { installWindowCrypto } from './utils';
 import { defaultDid, defaultKeyId, keyId2 } from './known-keys';
 type TransactionId = Types.Sdk.TransactionId;
+
+installWindowCrypto();
 
 describe('MorpheusTransactionBuilder', () => {
   const systemRights = new Layer2.SystemRights();
@@ -22,7 +25,7 @@ describe('MorpheusTransactionBuilder', () => {
   let lastTxId: TransactionId | null;
 
   beforeEach(async() => {
-    const unlockPassword = 'an_unlock_password';
+    const unlockPassword = 'correct horse battery staple';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
     Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
     const m = Crypto.MorpheusPlugin.get(vault);

@@ -6,13 +6,19 @@ import {
   SecpPrivateKey,
   Seed,
   Vault,
+  HydraParameters,
 } from '../src';
+import { installWindowCrypto } from './utils';
+
+installWindowCrypto();
+const unlockPassword = 'correct horse battery staple';
 
 describe('Vault BIP44 plugins', () => {
+
   it('Hydra plugin', () => {
-    const vault = Vault.create(Seed.demoPhrase(), '', 'an_unlock_password');
-    const params = { network: Coin.Hydra.Testnet, account: 0 };
-    HydraPlugin.rewind(vault, 'an_unlock_password', params);
+    const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
+    const params = new HydraParameters(Coin.Hydra.Testnet, 0);
+    HydraPlugin.rewind(vault, unlockPassword, params);
     const account = HydraPlugin.get(vault, params);
 
     const pk0 = account.pub.key(0);
@@ -23,7 +29,7 @@ describe('Vault BIP44 plugins', () => {
     expect(pk0.change).toBe(false);
     expect(pk0.key).toBe(0);
 
-    const priv = account.priv('an_unlock_password');
+    const priv = account.priv(unlockPassword);
 
     const sk1 = priv.key(1);
     expect(sk1.path).toBe(`m/44'/1'/0'/0/1`);
@@ -48,9 +54,9 @@ describe('Vault BIP44 plugins', () => {
   });
 
   it('Vault can be (de)serialized', () => {
-    const vault = Vault.create(Seed.demoPhrase(), '', 'an_unlock_password');
-    const params = { network: Coin.Hydra.Testnet, account: 0 };
-    HydraPlugin.rewind(vault, 'an_unlock_password', params);
+    const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
+    const params = new HydraParameters(Coin.Hydra.Testnet, 0);
+    HydraPlugin.rewind(vault, unlockPassword, params);
     const account = HydraPlugin.get(vault, params);
     const pk1 = account.pub.key(1);
 
@@ -65,8 +71,9 @@ describe('Vault BIP44 plugins', () => {
 
     // Notice how unlockPassword is not needed to use the public API
     const vaultRestored = Vault.load(JSON.parse(stateString));
-    const accountRestored = HydraPlugin.get(vaultRestored, { network: Coin.Hydra.Testnet, account: 0 });
+    const accountRestored = HydraPlugin.get(vaultRestored, params);
     const pk1Restored = accountRestored.pub.key(1);
+
     expect(vaultRestored.dirty).toBe(false);
 
     expect(pk1Restored.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
@@ -102,8 +109,8 @@ describe('Vault BIP44 plugins', () => {
 });
 
 describe('Vault Morpheus plugin', () => {
+
   it('Morpheus plugin', () => {
-    const unlockPassword = 'an_unlock_password';
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     MorpheusPlugin.rewind(vault, unlockPassword);
     const m = MorpheusPlugin.get(vault);
@@ -118,14 +125,14 @@ describe('Vault Morpheus plugin', () => {
 
     const priv = m.priv(unlockPassword);
 
-    const maybeSk = priv.personas.keyById(new KeyId('iezqztJ6XX6GDxdSgdiySiT3J'));
-    expect(maybeSk.isPresent()).toBeTruthy();
-    const sk = maybeSk.get();
-    expect(sk.publicKey().toString()).toBe('pez2CLkBUjHB8w8G87D3YkREjpRuiqPu6BrRsgHMQy2Pzt6');
+    const pk = priv.pub.keyById(new KeyId('iezqztJ6XX6GDxdSgdiySiT3J'));
+    expect(pk.toString()).toBe('pez2CLkBUjHB8w8G87D3YkREjpRuiqPu6BrRsgHMQy2Pzt6');
+    const sk = priv.keyByPublicKey(pk);
+    expect(sk.kind).toBe('Persona');
+    expect(sk.idx).toBe(0);
   });
 
   it('can be serialized/deserialized', () => {
-    const unlockPassword = 'an_unlock_password';
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     MorpheusPlugin.rewind(vault, unlockPassword);
     const m = MorpheusPlugin.get(vault);
@@ -134,7 +141,8 @@ describe('Vault Morpheus plugin', () => {
     const priv = m.priv(unlockPassword);
 
     const sk = priv.personas.key(2);
-    expect(sk.publicKey().toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');
+    expect(sk.neuter().publicKey()
+      .toString()).toBe('pezsfLDb1fngso3J7TXU6jP3nSr2iubcJZ4KXanxrhs9gr');
 
     expect(vault.dirty).toBe(true);
 

@@ -2,7 +2,7 @@ import { Crypto } from '@internet-of-people/sdk';
 
 /* eslint no-undefined: 0 */
 import { IAction } from '../action';
-import { chooseAction } from '../utils';
+import { chooseAction, keyIds } from '../utils';
 import { initDemoVault, loadVault, saveVault, unlockPassword } from '../vault';
 
 const initVault = async(): Promise<void> => {
@@ -25,7 +25,7 @@ const createDid = async(): Promise<void> => {
 const listKeyIds = async(): Promise<void> => {
   const vault = await loadVault();
   const m = Crypto.MorpheusPlugin.get(vault);
-  m.pub.personas.keyIds().forEach((id, idx) => {
+  keyIds(m.pub.personas).forEach((id, idx) => {
     console.log(`#${idx}: ${id}`);
   });
 };
@@ -33,9 +33,12 @@ const listKeyIds = async(): Promise<void> => {
 const listDids = async(): Promise<void> => {
   const vault = await loadVault();
   const m = Crypto.MorpheusPlugin.get(vault);
-  m.pub.personas.dids().forEach((did, idx) => {
-    console.log(`#${idx}: ${did}`);
-  });
+  keyIds(m.pub.personas).map((id) => {
+    return Crypto.Did.fromKeyId(id);
+  })
+    .forEach((did, idx) => {
+      console.log(`#${idx}: ${did}`);
+    });
 };
 
 const run = async(): Promise<void> => {

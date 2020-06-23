@@ -8,6 +8,9 @@ type TransactionId = Types.Sdk.TransactionId;
 
 import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 import { defaultDid, did2, defaultKeyId, keyId2 } from './known-keys';
+import { installWindowCrypto } from './utils';
+
+installWindowCrypto();
 
 export class TransactionTestRepo implements ITransactionRepository {
   private transactions: { [txid: string]: Types.Layer1.IMorpheusAsset; } = {};
@@ -49,7 +52,7 @@ describe('DidOperationExtractor', () => {
   };
 
   beforeAll(() => {
-    const unlockPassword = 'an_unlock_password';
+    const unlockPassword = 'correct horse battery staple';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
     Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
     const m = Crypto.MorpheusPlugin.get(vault);

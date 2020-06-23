@@ -9,10 +9,12 @@ type TransactionId = Types.Sdk.TransactionId;
 import { IStateChange } from '../src/interfaces';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
 import { Operations } from '../src/morpheus-transaction';
-import { assertStringlyEqual } from './utils';
+import { assertStringlyEqual, installWindowCrypto } from './utils';
 import { defaultDid, defaultKeyId, keyId2, keyId3 } from './known-keys';
 
 const { RightRegistry } = Operations;
+
+installWindowCrypto();
 
 describe('StateHandler', () => {
   const contentId = 'myFavoriteContentId';
@@ -29,7 +31,7 @@ describe('StateHandler', () => {
   let lastTxId: TransactionId | null;
 
   beforeAll(() => {
-    const unlockPassword = 'an_unlock_password';
+    const unlockPassword = 'correct horse battery staple';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
     Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
     const m = Crypto.MorpheusPlugin.get(vault);
