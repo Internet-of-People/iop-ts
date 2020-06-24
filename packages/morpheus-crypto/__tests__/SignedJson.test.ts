@@ -1,8 +1,8 @@
 // import cloneDeep from 'lodash.clonedeep';
 
 // import {
-//   digest,
-//   mask,
+//   digestJson,
+//   selectiveDigestJson,
 //   Vault,
 //   SignedBytes,
 //   SignedJson,
@@ -13,7 +13,7 @@
 //   MorpheusPublic
 // } from '../src';
 
-import { digest, mask } from '../src';
+import { digestJson, selectiveDigestJson } from '../src';
 
 const request = {
   'processId': 'cjunI8lB1BEtampkcvotOpF-zr1XmsCRNvntciGl3puOkg',
@@ -35,7 +35,7 @@ const request = {
   'nonce': 'u1U9fIy/AE2sIA1Xi3523NzSsMnJrVU3Tv+q4rlGyhluQ',
 };
 
-const requestId = digest(request);
+const requestId = digestJson(request);
 
 describe('SignedJson', () => {
   // let signer: MorpheusPrivate;
@@ -50,11 +50,11 @@ describe('SignedJson', () => {
   //   mPub = m.pub;
   // });
 
-  it('masking works', () => {
+  it('digesting works', () => {
     expect(requestId).toStrictEqual('cjuzC-XxgzNMwYXtw8aMIAeS2Xjlw1hlSNKTvVtUwPuyYo');
 
-    const maskedRequest = mask(request, '.evidence , .claim.subject');
-    expect(maskedRequest).toStrictEqual(
+    const digestedRequest = selectiveDigestJson(request, '.evidence , .claim.subject');
+    expect(digestedRequest).toStrictEqual(
       '{' +
         '"claim":{' +
           '"content":"cjub8nDXTl3S-6052q4P4FCSAYeuVBRQm8lTDQZuPyk44E",' +
@@ -91,7 +91,7 @@ describe('SignedJson', () => {
     // expect(tamperedSignedJson.validateWithKeyId(keyId)).toBeFalsy();
   });
 
-  it.skip('validation passes with masked content', () => {
+  it.skip('validation passes with digested content', () => {
     // const [keyId] = mPub.personas.keyIds();
     // const signedJson = signer.signWitnessRequest(keyId, request);
 

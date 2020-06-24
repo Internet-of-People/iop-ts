@@ -8,13 +8,13 @@ export interface IStorage {
 }
 
 export const addPublicBlob = async(storage: IStorage, content: Types.Sdk.IContent): Promise<Types.Sdk.ContentId> => {
-  const contentId = Crypto.digest(content);
+  const contentId = Crypto.digestJson(content);
   await storage.setPublicBlob(contentId, content);
   return contentId;
 };
 
 export const addScenario = async(storage: IStorage, scenario: Types.Sdk.IScenario): Promise<Types.Sdk.ContentId> => {
-  const contentId = Crypto.digest(scenario);
+  const contentId = Crypto.digestJson(scenario);
 
   scenario.prerequisites = await Promise.all(scenario.prerequisites.map(async(prerequisite) => {
     const result = prerequisite;

@@ -5,8 +5,6 @@ export function __wbg_hydraprivate_free(a: number): void;
 export function hydraprivate_neuter(a: number): number;
 export function hydraprivate_key(a: number, b: number): number;
 export function hydraprivate_keyByPublicKey(a: number, b: number): number;
-export function mask(a: number, b: number, c: number, d: number): void;
-export function digest(a: number, b: number): void;
 export function __wbg_vault_free(a: number): void;
 export function vault_create(a: number, b: number, c: number, d: number, e: number, f: number): number;
 export function vault_load(a: number): number;
@@ -36,6 +34,9 @@ export function morpheusprivatekind_keyByPublicKey(a: number, b: number): number
 export function __wbg_morpheuspublic_free(a: number): void;
 export function morpheuspublic_personas(a: number): number;
 export function morpheuspublic_keyById(a: number, b: number): number;
+export function selectiveDigestJson(a: number, b: number, c: number, d: number): void;
+export function digestJson(a: number, b: number): void;
+export function stringifyJson(a: number, b: number): void;
 export function __wbg_morpheuspublickind_free(a: number): void;
 export function morpheuspublickind_kind(a: number, b: number): void;
 export function morpheuspublickind_count(a: number): number;

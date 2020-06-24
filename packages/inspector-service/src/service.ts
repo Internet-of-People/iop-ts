@@ -23,7 +23,7 @@ export class Service implements Types.Inspector.IApi {
   public async uploadPresentation(
     presentation: Types.Sdk.ISigned<Types.Sdk.IPresentation>,
   ): Promise<Types.Sdk.ContentId> {
-    const contentId = Crypto.digest(presentation);
+    const contentId = Crypto.digestJson(presentation);
     const existingContent = await this.storage.getPublicBlob(contentId);
 
     if (existingContent) {

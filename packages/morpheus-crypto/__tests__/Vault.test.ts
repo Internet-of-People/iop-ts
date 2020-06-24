@@ -14,7 +14,6 @@ installWindowCrypto();
 const unlockPassword = 'correct horse battery staple';
 
 describe('Vault BIP44 plugins', () => {
-
   it('Hydra plugin', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     const params = new HydraParameters(Coin.Hydra.Testnet, 0);
@@ -109,7 +108,6 @@ describe('Vault BIP44 plugins', () => {
 });
 
 describe('Vault Morpheus plugin', () => {
-
   it('Morpheus plugin', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     MorpheusPlugin.rewind(vault, unlockPassword);

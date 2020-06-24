@@ -1,6 +1,4 @@
-import stringify from 'json-stable-stringify';
-
-import { PublicKey, Signature, SignedBytes } from '@internet-of-people/morpheus-crypto';
+import { PublicKey, Signature, SignedBytes, stringifyJson } from '@internet-of-people/morpheus-crypto';
 import {
   IOperationVisitor,
   ISignedOperationsData,
@@ -40,7 +38,8 @@ export class Signed extends Operation {
 
   public static serialize(ops: ISignableOperationData[]): Uint8Array {
     // Note: stringify is required here to keep the JSON serialization strict in order
-    const buffer = toBuffer(JSON.parse(stringify(ops)));
+    const buffer = toBuffer(JSON.parse(stringifyJson(ops)));
+
     buffer.flip();
     const bytes = Uint8Array.from(buffer.toBuffer());
     return bytes;

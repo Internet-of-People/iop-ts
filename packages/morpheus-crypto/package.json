@@ -31,7 +31,7 @@
     "test": "jest --detectOpenHandles --no-cache"
   },
   "dependencies": {
-    "@internet-of-people/morpheus-crypto-wasm": "3.0.1",
+    "@internet-of-people/morpheus-crypto-wasm": "0.0.1",
     "multibase": "0.6.0",
     "optional-js": "2.1.1"
   },

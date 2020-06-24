@@ -29,13 +29,13 @@ export interface IStorage {
 }
 
 export const addPublicBlob = async(s: IStorage, c: Types.Sdk.IContent): Promise<Types.Sdk.ContentId> => {
-  const contentId = Crypto.digest(c);
+  const contentId = Crypto.digestJson(c);
   await s.setPublicBlob(contentId, c);
   return contentId;
 };
 
 export const addProcessSchemas = async(s: IStorage, p: Types.Sdk.IProcess): Promise<Types.Sdk.ContentId> => {
-  const contentId = Crypto.digest(p);
+  const contentId = Crypto.digestJson(p);
 
   /* eslint require-atomic-updates: 0 */
   const { claimSchema, evidenceSchema, constraintsSchema } = p;

@@ -22,7 +22,7 @@ export class Service implements Types.Authority.IApi {
   public async sendRequest(
     witnessRequest: Types.Sdk.ISigned<Types.Sdk.IWitnessRequest>,
   ): Promise<Types.Authority.CapabilityLink> {
-    const requestId = Crypto.digest(witnessRequest);
+    const requestId = Crypto.digestJson(witnessRequest);
 
     const existingRequestData = await this.storage.getRequestById(requestId);
 

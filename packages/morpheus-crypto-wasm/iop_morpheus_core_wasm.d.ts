@@ -5,12 +5,17 @@
 * @param {string} keep_properties_list 
 * @returns {string} 
 */
-export function mask(data: any, keep_properties_list: string): string;
+export function selectiveDigestJson(data: any, keep_properties_list: string): string;
 /**
 * @param {any} data 
 * @returns {string} 
 */
-export function digest(data: any): string;
+export function digestJson(data: any): string;
+/**
+* @param {any} data 
+* @returns {string} 
+*/
+export function stringifyJson(data: any): string;
 /**
 * @param {string} name 
 * @returns {boolean} 

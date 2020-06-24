@@ -33,7 +33,7 @@ For more info please visit the [IoP Developer Portal](https://developer.iop.glob
     - [Get Last Transaction ID](#get-last-transaction-id)
   - [Crypto Module](#crypto-module)
     - [Low Level Functions](#low-level-functions)
-    - [JSON Masking](#json-masking)
+    - [JSON Digesting](#json-digesting)
     - [Vault](#vault)
     - [Crypto Plugins](#crypto-plugins)
   - [Authority Module](#authority-module)
@@ -350,32 +350,32 @@ Under this package we reexport our [morpheus-crypto package](https://github.com/
 
 #### Low Level Functions
 
-The package contains high level tools like the Vault or JSON masking and such. But, it also contains low level classes and utilities for wallet integrators or for people who really know what they're doing.
+The package contains high level tools like the Vault or JSON digesting and such. But, it also contains low level classes and utilities for wallet integrators or for people who really know what they're doing.
 
 You can inspect these APIs int the file we re-export from the sdk, [here](https://github.com/Internet-of-People/morpheus-ts/blob/master/packages/morpheus-crypto/src/index.ts).
 
-#### JSON Masking
+#### JSON Digesting
 
-For a basic understanding of our data masking solution, consult
+For a basic understanding of our data digesting solution, consult
 [the specification](https://developer.iop.global/#/glossary?id=masked-claim-presentation).
 
-Function `mask` provides a generic solution for masking JSON documents.
+Function `selectiveDigestJson` provides a generic solution for digesting JSON documents.
 Argument `json` is the serialized Json document as a string to be processed.
 In argument `keepPaths` you can specify a string containing a comma-separated list of paths.
 Collapsing the Merkle-tree will stop at these nodes, their whole Json subtrees will be kept untouched.
 All other paths will be recursively collapsed, keeping only the specified paths open.
 The format of the Json path list was built on the path concepts of the
 [JQ (Json Query) tool](https://stedolan.github.io/jq/manual/#Basicfilters).
-The function returns the masked Json document as a string on success.
+The function returns the digested Json document as a string on success.
 
-Function `digest` is just an alias for a special case when the whole document is to be collapsed masking all details and only a single content ID of the root remains.
+Function `digestJson` is just an alias for a special case when the whole document is to be collapsed digesting all details and only a single content ID of the root remains.
 
 ```typescript
 import { Crypto, Types } from '@internet-of-people/sdk';
 
 const content = {"data": {"key": "value"}, "timestamp": "2020.02.02 02:02:02", "version": 1};
-const contentId = Crypto.digest(content);
-const maskedData = Crypto.mask(content, ".timestamp, .version");
+const contentId = Crypto.digestJson(content);
+const digestedData = Crypto.selectiveDigestJson(content, ".timestamp, .version");
 ```
 
 #### Vault

@@ -58,7 +58,7 @@ describe('Service', () => {
   });
 
   it('presenation can be sent', async() => {
-    const contentId = Crypto.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
+    const contentId = Crypto.digestJson(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
     await request(fixture.app)
       .post('/presentation')
       .send(presenation1)
@@ -70,13 +70,13 @@ describe('Service', () => {
   });
 
   it('presenation can be retrieved', async() => {
-    const contentId = Crypto.digest(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
+    const contentId = Crypto.digestJson(presenation1 as Types.Sdk.ISigned<Types.Sdk.IPresentation>);
     await request(fixture.app)
       .get(`/blob/${contentId}`)
       .expect((res: request.Response) => {
         expect(res.status).toBe(200);
         const signedPresentation: Types.Sdk.ISigned<Types.Sdk.IPresentation> = res.body;
-        expect(Crypto.digest(signedPresentation)).toBe(contentId);
+        expect(Crypto.digestJson(signedPresentation)).toBe(contentId);
       });
   });
 
