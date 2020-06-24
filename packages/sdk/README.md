@@ -437,7 +437,7 @@ The `Crypto` modul has a very modular approach to providing you plugins that mig
 
 All of these plugins are subtrees derived from your seed.
 
-All plugins provide you a public and a private interface to interact with. 
+All plugins provide you a public and a private interface to interact with.
 For example the Hydra plugin provides you a `Bip44PublicAccount` and a `Bip44Account` for public and private interfaces, but it may differ for other plugins.
 
 ##### Hydra Plugin
@@ -455,16 +455,20 @@ const vault = Crypto.Vault.create(
   'UNLOCK_PASSWORD',
 );
 
-const hydraParams = {
-  network: Crypto.Coin.Hydra.Testnet, // it also supports BTC, Ark coins
-  account: 0 // you can have multiple accounts under the same Hydra subtree, we use the first one here
-};
+const hydraParams = new Crypto.HydraParameters(
+  Crypto.Coin.Hydra.Testnet, // it also supports BTC, Ark coins
+  0 // you can have multiple accounts under the same Hydra subtree, we use the first one here
+);
 
-Crypto.HydraPlugin.rewind(vault, 'UNLOCK_PASSWORD', hydraParams); // you have to first rewind the vault's state in order to access sub-trees
+// You have to rewind the state of the account in order to access it. We provided a mock implementation
+// that does not look at the blockchain, just adds 1 receiving address.
+Crypto.HydraPlugin.rewind(vault, 'UNLOCK_PASSWORD', hydraParams);
 const hydra = Crypto.HydraPlugin.get(vault, hydraParams);
 
 const firstAddress = hydra.pub.key(0);
 const secondAddress = hydra.pub.key(1);
+// The vault remembers that you accessed this 2nd receiving address, so it sets isDirty, which is
+// only cleared by saving the vault save.
 ```
 
 To learn the Hydra plugin's public and private interface, please check [its repository](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/morpheus-crypto).
