@@ -643,6 +643,24 @@ export class MorpheusPrivate {
 */
   signDidOperations(id: KeyId, message: Uint8Array): SignedBytes;
 /**
+* @param {KeyId} id 
+* @param {any} js_req 
+* @returns {SignedJson} 
+*/
+  signWitnessRequest(id: KeyId, js_req: any): SignedJson;
+/**
+* @param {KeyId} id 
+* @param {any} js_stmt 
+* @returns {SignedJson} 
+*/
+  signWitnessStatement(id: KeyId, js_stmt: any): SignedJson;
+/**
+* @param {KeyId} id 
+* @param {any} js_presentation 
+* @returns {SignedJson} 
+*/
+  signClaimPresentation(id: KeyId, js_presentation: any): SignedJson;
+/**
 * @returns {MorpheusPrivateKind} 
 */
   readonly personas: MorpheusPrivateKind;

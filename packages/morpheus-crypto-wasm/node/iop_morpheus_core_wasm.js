@@ -82,19 +82,19 @@ function _assertClass(instance, klass) {
     return instance.ptr;
 }
 
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1);
+    getUint8Memory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+
 let stack_pointer = 32;
 
 function addBorrowedObject(obj) {
     if (stack_pointer == 1) throw new Error('out of js stack');
     heap[--stack_pointer] = obj;
     return stack_pointer;
-}
-
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1);
-    getUint8Memory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
 }
 /**
 * @param {any} data
@@ -1721,6 +1721,48 @@ class MorpheusPrivate {
         var ret = wasm.morpheusprivate_signDidOperations(this.ptr, id.ptr, ptr0, len0);
         return SignedBytes.__wrap(ret);
     }
+    /**
+    * @param {KeyId} id
+    * @param {any} js_req
+    * @returns {SignedJson}
+    */
+    signWitnessRequest(id, js_req) {
+        try {
+            _assertClass(id, KeyId);
+            var ret = wasm.morpheusprivate_signWitnessRequest(this.ptr, id.ptr, addBorrowedObject(js_req));
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+    /**
+    * @param {KeyId} id
+    * @param {any} js_stmt
+    * @returns {SignedJson}
+    */
+    signWitnessStatement(id, js_stmt) {
+        try {
+            _assertClass(id, KeyId);
+            var ret = wasm.morpheusprivate_signWitnessStatement(this.ptr, id.ptr, addBorrowedObject(js_stmt));
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+    /**
+    * @param {KeyId} id
+    * @param {any} js_presentation
+    * @returns {SignedJson}
+    */
+    signClaimPresentation(id, js_presentation) {
+        try {
+            _assertClass(id, KeyId);
+            var ret = wasm.morpheusprivate_signClaimPresentation(this.ptr, id.ptr, addBorrowedObject(js_presentation));
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
 }
 module.exports.MorpheusPrivate = MorpheusPrivate;
 /**
@@ -2856,23 +2898,23 @@ module.exports.__wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
 };
 
-module.exports.__wbg_validationissue_new = function(arg0) {
-    var ret = ValidationIssue.__wrap(arg0);
-    return addHeapObject(ret);
-};
-
 module.exports.__wbindgen_json_parse = function(arg0, arg1) {
     var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_validationresult_new = function(arg0) {
-    var ret = ValidationResult.__wrap(arg0);
+module.exports.__wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
+module.exports.__wbg_validationissue_new = function(arg0) {
+    var ret = ValidationIssue.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
+module.exports.__wbg_validationresult_new = function(arg0) {
+    var ret = ValidationResult.__wrap(arg0);
     return addHeapObject(ret);
 };
 
