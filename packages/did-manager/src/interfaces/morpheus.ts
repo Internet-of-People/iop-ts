@@ -1,9 +1,6 @@
 import Optional from 'optional-js';
 
-import { Crypto, Layer1, Layer2, Types } from '@internet-of-people/sdk';
-
-import { ITransactionIdHeight } from './did-transactions';
-import { IState } from './state';
+import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 
 export interface IBlockHeightChange {
   blockHeight: number;
@@ -92,10 +89,10 @@ export interface IMorpheusQueries {
     includeAttempts: boolean,
     fromHeightIncl: number,
     untilHeightIncl?: number,
-  ): ITransactionIdHeight[];
+  ): Types.Layer2.ITransactionIdHeight[];
 }
 
-export type IMorpheusState = IState<IMorpheusQueries, IMorpheusOperations>;
+export type IMorpheusState = Types.Layer2.IState<IMorpheusQueries, IMorpheusOperations>;
 
 export const enum MorpheusEvents {
   StateCorrupted = 'morpheus.state.corrupted',

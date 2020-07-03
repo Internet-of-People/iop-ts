@@ -28,7 +28,7 @@ class Fixture {
       getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
       getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
-      getDidTransactionIds: jest.fn<Interfaces.ITransactionIdHeight[], [Crypto.Did, boolean, number, number]>(),
+      getDidTransactionIds: jest.fn<Types.Layer2.ITransactionIdHeight[], [Crypto.Did, boolean, number, number]>(),
     },
     applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),

@@ -1,5 +1,4 @@
 import { Types } from '@internet-of-people/sdk';
-import { IState } from './state';
 
 export interface IDidDocumentQueries {
   getAt(height: number): Types.Layer2.IDidDocument;
@@ -13,4 +12,4 @@ export interface IDidDocumentOperations {
   tombstone(height: number): void;
 }
 
-export type IDidDocumentState = IState<IDidDocumentQueries, IDidDocumentOperations>;
+export type IDidDocumentState = Types.Layer2.IState<IDidDocumentQueries, IDidDocumentOperations>;

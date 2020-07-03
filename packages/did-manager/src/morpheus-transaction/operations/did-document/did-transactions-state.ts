@@ -6,17 +6,9 @@ type Did = Crypto.Did;
 type DidData = Types.Crypto.DidData;
 type TransactionId = Types.Sdk.TransactionId;
 
-import {
-  IDidTransactionsOperations,
-  IDidTransactionsQueries,
-  IDidTransactionsState,
-  ITransactionIdHeight,
-} from '../../../interfaces';
-
-
-export class DidTransactionsState implements IDidTransactionsState {
-  public readonly query: IDidTransactionsQueries = {
-    getBetween: (did: Did, fromHeightInc: number, untilHeightExc?: number): ITransactionIdHeight[] => {
+export class DidTransactionsState implements Types.Layer2.IDidTransactionsState {
+  public readonly query: Types.Layer2.IDidTransactionsQueries = {
+    getBetween: (did: Did, fromHeightInc: number, untilHeightExc?: number): Types.Layer2.ITransactionIdHeight[] => {
       const transactions = this.getOrCreateDidTransactionEntries(did);
       const entriesInRange = transactions.filter((entry) => {
         return Layer2.isHeightInRangeInclUntil(
@@ -29,7 +21,7 @@ export class DidTransactionsState implements IDidTransactionsState {
     },
   };
 
-  public readonly apply: IDidTransactionsOperations = {
+  public readonly apply: Types.Layer2.IDidTransactionsOperations = {
     registerOperationAttempt: (height: number, did: Did, transactionId: TransactionId): void => {
       const transactions = this.getOrCreateDidTransactionEntries(did);
 
@@ -42,7 +34,7 @@ export class DidTransactionsState implements IDidTransactionsState {
     },
   };
 
-  public readonly revert: IDidTransactionsOperations = {
+  public readonly revert: Types.Layer2.IDidTransactionsOperations = {
     registerOperationAttempt: (_height: number, did: Did, transactionId: TransactionId): void => {
       const transactions = this.getOrCreateDidTransactionEntries(did);
       const index = transactions.findIndex((entry) => {
@@ -59,14 +51,14 @@ export class DidTransactionsState implements IDidTransactionsState {
     },
   };
 
-  private readonly didTransactions: Map<DidData, ITransactionIdHeight[]>;
+  private readonly didTransactions: Map<DidData, Types.Layer2.ITransactionIdHeight[]>;
 
-  public constructor(didTransactions?: Map<DidData, ITransactionIdHeight[]>) {
+  public constructor(didTransactions?: Map<DidData, Types.Layer2.ITransactionIdHeight[]>) {
     this.didTransactions = didTransactions ?? new Map();
   }
 
-  public clone(): IDidTransactionsState {
-    const clonedDidTransactions = new Map<DidData, ITransactionIdHeight[]>();
+  public clone(): Types.Layer2.IDidTransactionsState {
+    const clonedDidTransactions = new Map<DidData, Types.Layer2.ITransactionIdHeight[]>();
 
     for (const [ key, value ] of this.didTransactions.entries()) {
       clonedDidTransactions.set(key, cloneDeep(value));
@@ -75,7 +67,7 @@ export class DidTransactionsState implements IDidTransactionsState {
   }
 
 
-  private getOrCreateDidTransactionEntries(did: Did): ITransactionIdHeight[] {
+  private getOrCreateDidTransactionEntries(did: Did): Types.Layer2.ITransactionIdHeight[] {
     const didData = did.toString();
     let transactionEntries = this.didTransactions.get(didData);
 

@@ -1,5 +1,4 @@
 import { Types } from '@internet-of-people/sdk';
-import { IState } from './state';
 
 export interface IBeforeProofQueries {
   existsAt(height?: number): boolean;
@@ -10,4 +9,4 @@ export interface IBeforeProofOperations {
   register(height: number): void;
 }
 
-export type IBeforeProofState = IState<IBeforeProofQueries, IBeforeProofOperations>;
+export type IBeforeProofState = Types.Layer2.IState<IBeforeProofQueries, IBeforeProofOperations>;

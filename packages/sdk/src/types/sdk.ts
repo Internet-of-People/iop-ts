@@ -1,5 +1,9 @@
 import * as Crypto from './crypto';
 
+export interface IClonable<T> {
+  clone(): T;
+}
+
 export interface IContent {
   nonce?: Crypto.Nonce;
 }

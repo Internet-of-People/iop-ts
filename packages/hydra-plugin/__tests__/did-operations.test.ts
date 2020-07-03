@@ -37,7 +37,7 @@ describe('DidOperationExtractor', () => {
     getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
     getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
     getDidTransactionIds: jest.fn<
-    Interfaces.ITransactionIdHeight[],
+    Types.Layer2.ITransactionIdHeight[],
     [Crypto.Did, boolean, number, number | undefined]
     >(),
   };

@@ -1,7 +1,6 @@
 import deepClone from 'lodash.clonedeep';
 import Optional from 'optional-js';
-
-import { IState } from './interfaces';
+import { Types } from '@internet-of-people/sdk';
 
 export interface IPoint<T> {
   height: number;
@@ -20,7 +19,7 @@ export interface ITimeSeriesOperations<T> {
   set(height: number, value: T): void;
 }
 
-export type ITimeSeries<T = boolean> = IState<ITimeSeriesQueries<T>, ITimeSeriesOperations<T>>;
+export type ITimeSeries<T = boolean> = Types.Layer2.IState<ITimeSeriesQueries<T>, ITimeSeriesOperations<T>>;
 
 // TODO: T must be cloneable with deepClone!
 // In the future we have to have an interface that implements clone and does

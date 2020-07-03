@@ -81,6 +81,29 @@ export class Api {
       throw e;
     }
   }
+
+  public async getDidTransactionIds(
+    did: Crypto.Did,
+    fromHeight: number,
+    untilHeight?: number,
+  ): Promise<Types.Layer2.ITransactionIdHeight[] | null> {
+    console.log(`Getting transaction ids for ${did}...`);
+
+    try {
+      let url = `/did/${did}/${fromHeight}`;
+
+      if (untilHeight) {
+        url = `${url}/${untilHeight}`;
+      }
+      const resp = await apiGet(this.api, url);
+      return resp.data;
+    } catch (e) {
+      if (e instanceof HttpError && e.statusCode === 404) {
+        return null;
+      }
+      throw e;
+    }
+  }
 }
 
 export const createApi = (network: Network): Types.Layer2.IApi => {

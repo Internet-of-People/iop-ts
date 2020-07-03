@@ -14,11 +14,8 @@ import {
   IMorpheusOperations,
   IMorpheusQueries,
   IMorpheusState,
-  ITransactionIdHeight,
   IDidDocumentState,
-  IDidTransactionsState,
   IBeforeProofState,
-  IDidTransactionsOperations,
 } from '../interfaces';
 import {
   BeforeProofState,
@@ -58,12 +55,12 @@ export class MorpheusState implements IMorpheusState {
       includeAttempts: boolean,
       fromHeightInc: number,
       untilHeightInc?: number,
-    ): ITransactionIdHeight[] => {
+    ): Types.Layer2.ITransactionIdHeight[] => {
       let transactionIdHeights = this.didTransactions.query.getBetween(did, fromHeightInc, untilHeightInc);
 
       if (!includeAttempts) {
         transactionIdHeights = transactionIdHeights.filter(
-          (trIdHeight: ITransactionIdHeight) => {
+          (trIdHeight: Types.Layer2.ITransactionIdHeight) => {
             return this.query.isConfirmed(trIdHeight.transactionId).orElse(false);
           });
       }
@@ -287,7 +284,7 @@ export class MorpheusState implements IMorpheusState {
   private confirmedTxs: Map<TransactionId, boolean> = new Map();
   private beforeProofs: Map<Types.Sdk.ContentId, IBeforeProofState> = new Map();
   private didDocuments: Map<Types.Crypto.DidData, IDidDocumentState> = new Map();
-  private didTransactions: IDidTransactionsState = new DidTransactionsState();
+  private didTransactions: Types.Layer2.IDidTransactionsState = new DidTransactionsState();
   private lastSeenBlockHeight = 0;
 
   public clone(): IMorpheusState {
@@ -376,7 +373,7 @@ export class MorpheusState implements IMorpheusState {
   }
 
   private visitorRegisterSignedOperationAttemptAtHeight(height: number,
-    state: IDidTransactionsOperations, transactionId: string): ISignableOperationVisitor<void> {
+    state: Types.Layer2.IDidTransactionsOperations, transactionId: string): ISignableOperationVisitor<void> {
     return {
       addKey: (
         did: Did,
@@ -419,7 +416,7 @@ export class MorpheusState implements IMorpheusState {
   }
 
   private visitorRegisterOperationAttemptAtHeight(height: number,
-    state: IDidTransactionsOperations, transactionId: string): IOperationVisitor<void> {
+    state: Types.Layer2.IDidTransactionsOperations, transactionId: string): IOperationVisitor<void> {
     return {
       signed: (operations: ISignedOperationsData): void => {
         const signableOperations = Layer1.Signed.getOperationsUnsafeWithoutSignatureChecking(operations);
