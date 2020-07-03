@@ -525,9 +525,27 @@ export class HydraPrivate {
 */
   keyByPublicKey(id: SecpPublicKey): Bip44Key;
 /**
+* @param {string} hyd_addr 
+* @param {any} tx 
+* @returns {any} 
+*/
+  signHydraTransaction(hyd_addr: string, tx: any): any;
+/**
+* @returns {number} 
+*/
+  readonly changeKeys: number;
+/**
 * @returns {HydraPublic} 
 */
   readonly pub: HydraPublic;
+/**
+* @returns {number} 
+*/
+  readonly receiveKeys: number;
+/**
+* @returns {string} 
+*/
+  readonly xpub: string;
 }
 /**
 */
@@ -538,6 +556,23 @@ export class HydraPublic {
 * @returns {Bip44PublicKey} 
 */
   key(idx: number): Bip44PublicKey;
+/**
+* @param {string} addr 
+* @returns {Bip44PublicKey} 
+*/
+  keyByAddress(addr: string): Bip44PublicKey;
+/**
+* @returns {number} 
+*/
+  readonly changeKeys: number;
+/**
+* @returns {number} 
+*/
+  readonly receiveKeys: number;
+/**
+* @returns {string} 
+*/
+  readonly xpub: string;
 }
 export class JsBip32 {
   free(): void;
@@ -1080,9 +1115,10 @@ export class Vault {
 * @param {string} phrase 
 * @param {string} bip39_password 
 * @param {string} unlock_password 
+* @param {string | undefined} language 
 * @returns {Vault} 
 */
-  static create(phrase: string, bip39_password: string, unlock_password: string): Vault;
+  static create(phrase: string, bip39_password: string, unlock_password: string, language?: string): Vault;
 /**
 * @param {any} data 
 * @returns {Vault} 

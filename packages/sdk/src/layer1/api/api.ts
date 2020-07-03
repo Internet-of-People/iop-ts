@@ -1,5 +1,6 @@
 import { Identities, Interfaces, Transactions, Managers, Errors } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
+import { HydraPrivate } from '@internet-of-people/morpheus-crypto';
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
@@ -39,6 +40,25 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.getWalletBalance(address);
   }
 
+  public async sendTransferTx(
+    fromAddress: string,
+    toAddress: string,
+    amountFlake: BigInt,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string> {
+    const tx = await this.buildTransferTxWithAddress(fromAddress, toAddress, amountFlake, nonce);
+    const bip44Key = hydraPrivate.pub.keyByAddress(fromAddress);
+    hydraPrivate.pub.key(bip44Key.key);
+
+    const txData = tx
+      .senderPublicKey(bip44Key.publicKey().toString())
+      .build()
+      .data;
+    const signedTx = hydraPrivate.signHydraTransaction(fromAddress, txData);
+    return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  }
+
   public async sendTransferTxWithWIF(
     fromWIF: string,
     toAddress: string,
@@ -46,7 +66,8 @@ export class Api implements Types.Layer1.IApi {
     nonce?: BigInt,
   ): Promise<string> {
     const senderKeys = Identities.Keys.fromWIF(fromWIF);
-    const tx = await this.buildTransferTx(senderKeys, toAddress, amountFlake, nonce);
+    const address = Identities.Address.fromPublicKey(senderKeys.publicKey);
+    const tx = await this.buildTransferTxWithAddress(address, toAddress, amountFlake, nonce);
 
     const signedTx = tx
       .signWithWif(fromWIF)
@@ -62,7 +83,8 @@ export class Api implements Types.Layer1.IApi {
     nonce?: BigInt,
   ): Promise<string> {
     const senderKeys = Identities.Keys.fromPassphrase(fromPassphrase);
-    const tx = await this.buildTransferTx(senderKeys, toAddress, amountFlake, nonce);
+    const address = Identities.Address.fromPublicKey(senderKeys.publicKey);
+    const tx = await this.buildTransferTxWithAddress(address, toAddress, amountFlake, nonce);
 
     const signedTx = tx
       .sign(fromPassphrase)
@@ -110,8 +132,7 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx);
   }
 
-  public async nextWalletNonce(publicKey: string): Promise<BigInt> {
-    const address = Identities.Address.fromPublicKey(publicKey);
+  public async nextWalletNonceByAddress(address: string): Promise<BigInt> {
     const currentNonce = await this.clientInstance.getWalletNonce(address);
     const nextNonce = currentNonce as bigint + BigInt(1);
     console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
@@ -147,8 +168,8 @@ export class Api implements Types.Layer1.IApi {
     return unsignedTx;
   }
 
-  private async buildTransferTx(
-    from: Interfaces.IKeyPair,
+  private async buildTransferTxWithAddress(
+    address: string,
     toAddress: string,
     amountFlake: BigInt,
     nonce?: BigInt,
@@ -157,7 +178,7 @@ export class Api implements Types.Layer1.IApi {
     let nextNonce = nonce;
 
     if (!nextNonce) {
-      nextNonce = await this.nextWalletNonce(from.publicKey);
+      nextNonce = await this.nextWalletNonceByAddress(address);
     }
 
     return Transactions.BuilderFactory.transfer()

@@ -36,20 +36,6 @@ function getInt32Memory0() {
     return cachegetInt32Memory0;
 }
 
-let heap_next = heap.length;
-
-function dropObject(idx) {
-    if (idx < 36) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
-}
-
 let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 
 cachedTextDecoder.decode();
@@ -66,6 +52,8 @@ function getStringFromWasm0(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
 
+let heap_next = heap.length;
+
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -75,18 +63,16 @@ function addHeapObject(obj) {
     return idx;
 }
 
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
+function dropObject(idx) {
+    if (idx < 36) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
 }
 
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1);
-    getUint8Memory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
 }
 
 let stack_pointer = 32;
@@ -146,6 +132,20 @@ module.exports.stringifyJson = function(data) {
         wasm.__wbindgen_free(r0, r1);
     }
 };
+
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
+}
+
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1);
+    getUint8Memory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
 
 function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
@@ -1416,6 +1416,48 @@ class HydraPrivate {
         var ret = wasm.hydraprivate_keyByPublicKey(this.ptr, id.ptr);
         return Bip44Key.__wrap(ret);
     }
+    /**
+    * @returns {string}
+    */
+    get xpub() {
+        try {
+            wasm.hydraprivate_xpub(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {number}
+    */
+    get receiveKeys() {
+        var ret = wasm.hydraprivate_receive_keys(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @returns {number}
+    */
+    get changeKeys() {
+        var ret = wasm.hydraprivate_change_keys(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @param {string} hyd_addr
+    * @param {any} tx
+    * @returns {any}
+    */
+    signHydraTransaction(hyd_addr, tx) {
+        try {
+            var ptr0 = passStringToWasm0(hyd_addr, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            var ret = wasm.hydraprivate_signHydraTransaction(this.ptr, ptr0, len0, addBorrowedObject(tx));
+            return takeObject(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
 }
 module.exports.HydraPrivate = HydraPrivate;
 /**
@@ -1441,6 +1483,43 @@ class HydraPublic {
     */
     key(idx) {
         var ret = wasm.hydrapublic_key(this.ptr, idx);
+        return Bip44PublicKey.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get xpub() {
+        try {
+            wasm.hydrapublic_xpub(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {number}
+    */
+    get receiveKeys() {
+        var ret = wasm.hydrapublic_receive_keys(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @returns {number}
+    */
+    get changeKeys() {
+        var ret = wasm.hydrapublic_change_keys(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @param {string} addr
+    * @returns {Bip44PublicKey}
+    */
+    keyByAddress(addr) {
+        var ptr0 = passStringToWasm0(addr, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.hydrapublic_keyByAddress(this.ptr, ptr0, len0);
         return Bip44PublicKey.__wrap(ret);
     }
 }
@@ -2829,16 +2908,19 @@ class Vault {
     * @param {string} phrase
     * @param {string} bip39_password
     * @param {string} unlock_password
+    * @param {string | undefined} language
     * @returns {Vault}
     */
-    static create(phrase, bip39_password, unlock_password) {
+    static create(phrase, bip39_password, unlock_password, language) {
         var ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len0 = WASM_VECTOR_LEN;
         var ptr1 = passStringToWasm0(bip39_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len1 = WASM_VECTOR_LEN;
         var ptr2 = passStringToWasm0(unlock_password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len2 = WASM_VECTOR_LEN;
-        var ret = wasm.vault_create(ptr0, len0, ptr1, len1, ptr2, len2);
+        var ptr3 = isLikeNone(language) ? 0 : passStringToWasm0(language, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len3 = WASM_VECTOR_LEN;
+        var ret = wasm.vault_create(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
         return Vault.__wrap(ret);
     }
     /**
@@ -2894,12 +2976,8 @@ module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
-module.exports.__wbindgen_object_drop_ref = function(arg0) {
-    takeObject(arg0);
-};
-
-module.exports.__wbindgen_json_parse = function(arg0, arg1) {
-    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+module.exports.__wbg_validationissue_new = function(arg0) {
+    var ret = ValidationIssue.__wrap(arg0);
     return addHeapObject(ret);
 };
 
@@ -2908,14 +2986,26 @@ module.exports.__wbindgen_string_new = function(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_validationissue_new = function(arg0) {
-    var ret = ValidationIssue.__wrap(arg0);
+module.exports.__wbindgen_json_parse = function(arg0, arg1) {
+    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
 module.exports.__wbg_validationresult_new = function(arg0) {
     var ret = ValidationResult.__wrap(arg0);
     return addHeapObject(ret);
+};
+
+module.exports.__wbindgen_object_drop_ref = function(arg0) {
+    takeObject(arg0);
+};
+
+module.exports.__wbg_getRandomValues_f5e14ab7ac8e995d = function(arg0, arg1, arg2) {
+    getObject(arg0).getRandomValues(getArrayU8FromWasm0(arg1, arg2));
+};
+
+module.exports.__wbg_randomFillSync_d5bd2d655fdf256a = function(arg0, arg1, arg2) {
+    getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
 };
 
 module.exports.__wbg_self_1b7a39e3a92c949c = handleError(function() {
@@ -2941,14 +3031,6 @@ module.exports.__wbindgen_is_undefined = function(arg0) {
 module.exports.__wbg_getRandomValues_a3d34b4fee3c2869 = function(arg0) {
     var ret = getObject(arg0).getRandomValues;
     return addHeapObject(ret);
-};
-
-module.exports.__wbg_getRandomValues_f5e14ab7ac8e995d = function(arg0, arg1, arg2) {
-    getObject(arg0).getRandomValues(getArrayU8FromWasm0(arg1, arg2));
-};
-
-module.exports.__wbg_randomFillSync_d5bd2d655fdf256a = function(arg0, arg1, arg2) {
-    getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
 };
 
 module.exports.__wbindgen_throw = function(arg0, arg1) {

@@ -121,23 +121,50 @@ All interfaces and types that needed to be able to communicate with a Verifier e
 
 This package contains all Typescript class and utils that you need to interact with the DAC Layer-1 API. Below we provide you example how can you interact with Layer-1 APIs.
 
+For more detailed examples please visit our [tutorial center](https://developer.iop.global/#/sdk/dac?id=tutorial-center).
+
 #### Transfer Hydra
 
 ```typescript
-import { Layer1 } from '@internet-of-people/sdk';
+import { Layer1, Crypto } from '@internet-of-people/sdk';
+import {
+  Coin,
+  HydraPlugin,
+  Seed,
+  Vault,
+  HydraParameters,
+} from '../src';
 
 const api = await Layer1.createApi(Layer1.Network.Devnet);
 const amount = 10; // 10 HYD
 
-// With passhprase...
-await api.sendTransferTxWithPassphrase(
+// With a vault
+const vault = Crypto.Vault.create('BIP39_PHRASE', 'BIP_39_PASSWORD', 'UNLOCK_PASSWORD');
+const accountIndex = 0;
+const params = new Crypto.HydraParameters(Crypto.Coin.Hydra.Testnet, accountIndex);
+Crypto.HydraPlugin.rewind(vault, 'UNLOCK_PASSWORD', params);
+const hydraPlugin = Crypto.HydraPlugin.get(vault, params);
+
+const hydraPrivate = account.priv(unlockPassword);
+const publicKeyAtIndex0 = priv.pub.key(0); // you have to call key(X) in order to access the address at index X
+const fromAddressAtIndex0 = publicKeyAtIndex0.address;
+
+const txId = await api.sendTransferTx(
+  fromAddressAtIndex0,
+  'TO_ADDRESS',
+  BigInt(amount) * BigInt(1e8),
+  hydraPrivate,
+);
+
+// ... or with passhprase...
+const txId = await api.sendTransferTxWithPassphrase(
   'SENDER_ARK_PASSPHRASE',
   'RECIPIENT_ADDRESS',
   BigInt(amount) * BigInt(1e8),
 );
 
 // ... or with WIF
-await api.sendTransferTxWithWIF(
+const txId = await api.sendTransferTxWithWIF(
   'SENDER_WIF',
   'RECIPIENT_ADDRESS',
   BigInt(amount) * BigInt(1e8),

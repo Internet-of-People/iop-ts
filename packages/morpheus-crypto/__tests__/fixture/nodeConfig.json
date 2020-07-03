@@ -1,0 +1,134 @@
+{
+  "exceptions": {},
+  "genesisBlock": {
+    "version": 0,
+    "totalAmount": "33500000000000000",
+    "totalFee": "0",
+    "reward": "0",
+    "payloadHash": "4e0c60c1aac313d3c6b6dec58dc73b0a7ef4a8ead50b714b94be7d22f6e3e4aa",
+    "timestamp": 0,
+    "numberOfTransactions": 54,
+    "payloadLength": 11831,
+    "previousBlock": "0000000000000000000000000000000000000000000000000000000000000000",
+    "generatorPublicKey": "03fdd54ddd9e0328aadeb306f5db47a4cbb6ecc11e3a155cd873b2ef24e283647a",
+    "transactions": [],
+    "height": 1,
+    "id": "ef63bdba0e3d6ed53f14ad7daade810d3a96f055e49ee63d2c9d7ddf36accd36",
+    "blockSignature": "3044022005c57e16fce8593113c6542ca138cae744f0354e15505e85c9f821e260cb9a8102204a80549d2d43d6283b515594d3ba476a75dabd4de1e7922038952420e719ada5"
+  },
+  "milestones": [
+    {
+      "height": 1,
+      "reward": 0,
+      "activeDelegates": 53,
+      "blocktime": 12,
+      "block": {
+        "version": 0,
+        "maxTransactions": 250,
+        "maxPayload": 8388608,
+        "idFullSha256": true
+      },
+      "epoch": "2019-08-01T08:00:00.000Z",
+      "fees": {
+        "staticFees": {
+          "transfer": 10000000,
+          "secondSignature": 500000000,
+          "delegateRegistration": 2500000000,
+          "vote": 100000000,
+          "multiSignature": 500000000,
+          "ipfs": 500000000,
+          "multiPayment": 10000000,
+          "delegateResignation": 2500000000,
+          "htlcLock": 10000000,
+          "htlcClaim": 0,
+          "htlcRefund": 0
+        }
+      },
+      "multiPaymentLimit": 256,
+      "vendorFieldLength": 255,
+      "aip11": false,
+      "htlcEnabled": false
+    },
+    {
+      "height": 2,
+      "reward": 0,
+      "activeDelegates": 53,
+      "blocktime": 12,
+      "block": {
+        "version": 0,
+        "maxTransactions": 250,
+        "maxPayload": 8388608,
+        "idFullSha256": true
+      },
+      "epoch": "2019-08-01T08:00:00.000Z",
+      "fees": {
+        "staticFees": {
+          "transfer": 10000000,
+          "secondSignature": 500000000,
+          "delegateRegistration": 2500000000,
+          "vote": 100000000,
+          "multiSignature": 500000000,
+          "ipfs": 500000000,
+          "multiPayment": 10000000,
+          "delegateResignation": 2500000000,
+          "htlcLock": 10000000,
+          "htlcClaim": 0,
+          "htlcRefund": 0
+        }
+      },
+      "multiPaymentLimit": 256,
+      "vendorFieldLength": 255,
+      "aip11": true
+    },
+    {
+      "height": 7201,
+      "reward": 800000000,
+      "activeDelegates": 53,
+      "blocktime": 12,
+      "block": {
+        "version": 0,
+        "maxTransactions": 250,
+        "maxPayload": 8388608,
+        "idFullSha256": true
+      },
+      "epoch": "2019-08-01T08:00:00.000Z",
+      "fees": {
+        "staticFees": {
+          "transfer": 10000000,
+          "secondSignature": 500000000,
+          "delegateRegistration": 2500000000,
+          "vote": 100000000,
+          "multiSignature": 500000000,
+          "ipfs": 500000000,
+          "multiPayment": 10000000,
+          "delegateResignation": 2500000000,
+          "htlcLock": 10000000,
+          "htlcClaim": 0,
+          "htlcRefund": 0
+        }
+      },
+      "multiPaymentLimit": 256,
+      "vendorFieldLength": 255,
+      "aip11": true,
+      "htlcEnabled": true
+    }
+  ],
+  "network": {
+    "name": "testnet",
+    "messagePrefix": "HYD message:\n",
+    "bip32": {
+      "public": 3238356586,
+      "private": 1307006829
+    },
+    "pubKeyHash": 128,
+    "nethash": "4e0c60c1aac313d3c6b6dec58dc73b0a7ef4a8ead50b714b94be7d22f6e3e4aa",
+    "wif": 179,
+    "slip44": 1,
+    "aip20": 0,
+    "client": {
+      "token": "THYD",
+      "symbol": "TĦ",
+      "explorer": "http://test.hydra.iop.global"
+    }
+  }
+}
