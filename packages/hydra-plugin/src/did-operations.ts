@@ -4,14 +4,6 @@ import { Layer1, Crypto, Types } from '@internet-of-people/sdk';
 
 const { Operations: { visitorFilterDid } } = MorpheusTransaction;
 
-export interface IDidOperation {
-  transactionId: Types.Sdk.TransactionId;
-  blockHeight: number;
-  data: Types.Layer1.ISignableOperationData;
-  valid: boolean;
-}
-
-
 export interface ITransactionRepository {
   getMorpheusTransaction(txId: Types.Sdk.TransactionId): Promise<Optional<Types.Layer1.IMorpheusAsset>>;
 }
@@ -26,12 +18,12 @@ export class DidOperationExtractor {
     includeAttempts: boolean,
     fromHeightInc: number,
     untilHeightInc?: number,
-  ): Promise<IDidOperation[]> {
+  ): Promise<Types.Layer2.IDidOperation[]> {
     const transactionIdHeightsDesc = this.stateHandler.query.getDidTransactionIds(did,
       includeAttempts, fromHeightInc, untilHeightInc);
     const transactionIdHeightsAsc = transactionIdHeightsDesc.reverse();
 
-    const resultAsc = new Array<IDidOperation>();
+    const resultAsc = new Array<Types.Layer2.IDidOperation>();
 
     for (const transactionIdHeight of transactionIdHeightsAsc) {
       const { transactionId } = transactionIdHeight;
@@ -47,7 +39,7 @@ export class DidOperationExtractor {
         return Layer1.fromData(item).accept(visitor);
       });
       const signedOpsFlattened = new Array<Layer1.SignableOperation>().concat(...signedOperationsHierarchy);
-      const didOperations: IDidOperation[] = signedOpsFlattened.map((attempt) => {
+      const didOperations: Types.Layer2.IDidOperation[] = signedOpsFlattened.map((attempt) => {
         return {
           transactionId,
           blockHeight: transactionIdHeight.height,

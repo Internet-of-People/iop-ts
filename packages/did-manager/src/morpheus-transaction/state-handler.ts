@@ -11,7 +11,6 @@ type ISignedOperationsData = Types.Layer1.ISignedOperationsData;
 import { MorpheusState } from './state';
 import {
   IBlockHeightChange,
-  IDryRunOperationError,
   IMorpheusOperations,
   IMorpheusQueries,
   IMorpheusState,
@@ -38,7 +37,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
   ) {
   }
 
-  public dryRun(operationAttempts: IOperationData[]): IDryRunOperationError[] {
+  public dryRun(operationAttempts: IOperationData[]): Types.Layer2.IDryRunOperationError[] {
     if (this.corrupted) {
       return [{
         /* eslint no-undefined: 0 */
@@ -47,7 +46,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
       }];
     }
 
-    const errors: IDryRunOperationError[] = [];
+    const errors: Types.Layer2.IDryRunOperationError[] = [];
     let lastSuccessIndex = 0;
 
     try {

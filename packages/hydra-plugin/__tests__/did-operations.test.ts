@@ -44,7 +44,7 @@ describe('DidOperationExtractor', () => {
 
   const stateHandler = {
     query: stateHandlerQueryMock,
-    dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
+    dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
     applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
     revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),

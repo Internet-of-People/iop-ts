@@ -5,7 +5,7 @@ import { EventEmitter } from 'events';
 import { Server as HapiServer } from '@hapi/hapi';
 
 import { Crypto, Layer1, Layer2, Types, Utils } from '@internet-of-people/sdk';
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { MorpheusTransaction } from '@internet-of-people/did-manager';
 const {
   Operations: { RightRegistry },
   MorpheusStateHandler: { MorpheusStateHandler },
@@ -17,7 +17,6 @@ type TransactionId = Types.Sdk.TransactionId;
 
 import { Layer2API, safePathInt } from '../src/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
-import { IDidOperation } from '../src/did-operations';
 import { assertStringlyEqual, installWindowCrypto } from './utils';
 import {
   defaultDid,
@@ -536,7 +535,7 @@ describe('Layer2API', () => {
   };
 
   const getDidOperations = async(includeAttempts: boolean, did: Crypto.Did,
-    fromHeight: number, untilHeight?: number): Promise<IDidOperation[]> => {
+    fromHeight: number, untilHeight?: number): Promise<Types.Layer2.IDidOperation[]> => {
     const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
     let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
 
@@ -545,7 +544,7 @@ describe('Layer2API', () => {
     }
     const res = await hapiServer.inject({ method: 'get', url });
     expect(res.statusCode).toBe(200);
-    const data = JSON.parse(res.payload) as IDidOperation[];
+    const data = JSON.parse(res.payload) as Types.Layer2.IDidOperation[];
     return data;
   };
 
@@ -789,7 +788,7 @@ describe('Layer2API', () => {
       url: `/morpheus/v1/check-transaction-validity`,
       payload: attempts,
     });
-    const errors = JSON.parse(res.payload) as Interfaces.IDryRunOperationError[];
+    const errors = JSON.parse(res.payload) as Types.Layer2.IDryRunOperationError[];
     expect(errors).toHaveLength(1);
     expect(errors[0].message).toBe(`DID ${defaultDid} has no valid key matching ${keyId2} at height 0`);
     expect(errors[0].invalidOperationAttempt).toStrictEqual(attempts[0]);

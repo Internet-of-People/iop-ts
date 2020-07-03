@@ -34,7 +34,7 @@ class Fixture {
     applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
     revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
     revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
-    dryRun: jest.fn<Interfaces.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
+    dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
   };
   public stateHandler = this.stateHandlerMock as Interfaces.IMorpheusStateHandler;
 

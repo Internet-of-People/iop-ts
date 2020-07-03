@@ -3,7 +3,7 @@ import Optional from 'optional-js';
 import * as Crypto from '@internet-of-people/morpheus-crypto';
 import * as Layer2 from '../../layer2';
 import * as Types from '../../types';
-import { apiGet, HttpError } from '../../internal/http';
+import { apiGet, HttpError, apiPost } from '../../internal/http';
 import { Network, schemaAndHost } from '../../network';
 
 export class Api {
@@ -41,12 +41,10 @@ export class Api {
 
   public async getDidDocument(did: Crypto.Did, height?: number): Promise<Types.Layer2.IDidDocument> {
     console.log(`Getting Did document ${did} at ${height || 'now'}...`);
-    let url = `/did/${did}/document`;
-
-    if (height) {
-      url = `${url}/${height}`;
-    }
-    const resp = await apiGet(this.api, url);
+    const resp = await apiGet(this.api, this.withUntilHeight(
+      `/did/${did}/document`,
+      height,
+    ));
     const documentData: Types.Layer2.IDidDocumentData = resp.data;
     const result = new Layer2.DidDocument(documentData);
     return result;
@@ -86,23 +84,94 @@ export class Api {
     did: Crypto.Did,
     fromHeight: number,
     untilHeight?: number,
-  ): Promise<Types.Layer2.ITransactionIdHeight[] | null> {
+  ): Promise<Types.Layer2.ITransactionIdHeight[]> {
     console.log(`Getting transaction ids for ${did}...`);
+    return this.didTransactionIdsQuery(false, did, fromHeight, untilHeight);
+  }
 
+  public async getDidTransactionAttemptIds(
+    did: Crypto.Did,
+    fromHeight: number,
+    untilHeight?: number,
+  ): Promise<Types.Layer2.ITransactionIdHeight[]> {
+    console.log(`Getting transaction attempt ids for ${did}...`);
+    return this.didTransactionIdsQuery(true, did, fromHeight, untilHeight);
+  }
+
+  public async getDidOperations(
+    did: Crypto.Did,
+    fromHeight: number,
+    untilHeight?: number,
+  ): Promise<Types.Layer2.IDidOperation[]> {
+    console.log(`Getting did operations for ${did}...`);
+    return this.didOperationQuery(false, did, fromHeight, untilHeight);
+  }
+
+  public async getDidOperationAttempts(
+    did: Crypto.Did,
+    fromHeight: number,
+    untilHeight?: number,
+  ): Promise<Types.Layer2.IDidOperation[]> {
+    console.log(`Getting did operations for ${did}...`);
+    return this.didOperationQuery(true, did, fromHeight, untilHeight);
+  }
+
+  public async checkTransactionValidity(
+    operationAttempts: Types.Layer1.IOperationData[],
+  ): Promise<Types.Layer2.IDryRunOperationError[]> {
+    console.log('Checking operation attempts\' validity...');
+    const resp = await apiPost(
+      this.api,
+      '/check-transaction-validity',
+      JSON.stringify(operationAttempts),
+    );
+    return resp.data;
+  }
+
+  private async didTransactionIdsQuery(
+    includeAttempts: boolean,
+    did: Crypto.Did,
+    fromHeight: number,
+    untilHeight?: number,
+  ): Promise<Types.Layer2.ITransactionIdHeight[]> {
     try {
-      let url = `/did/${did}/${fromHeight}`;
-
-      if (untilHeight) {
-        url = `${url}/${untilHeight}`;
-      }
-      const resp = await apiGet(this.api, url);
+      const path = includeAttempts ? 'transaction-attempts' : 'transactions';
+      const resp = await apiGet(
+        this.api,
+        this.withUntilHeight(`/did/${did}/${path}/${fromHeight}`, untilHeight),
+      );
       return resp.data;
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
-        return null;
+        return [];
       }
       throw e;
     }
+  }
+
+  private async didOperationQuery(
+    includeAttempts: boolean,
+    did: Crypto.Did,
+    fromHeight: number,
+    untilHeight?: number,
+  ): Promise<Types.Layer2.IDidOperation[]> {
+    try {
+      const path = includeAttempts ? 'operation-attempts' : 'operations';
+      const resp = await apiGet(
+        this.api,
+        this.withUntilHeight(`/did/${did}/${path}/${fromHeight}`, untilHeight),
+      );
+      return resp.data;
+    } catch (e) {
+      if (e instanceof HttpError && e.statusCode === 404) {
+        return [];
+      }
+      throw e;
+    }
+  }
+
+  private withUntilHeight(url: string, height?: number): string {
+    return height ? `${url}/${height}` : url;
   }
 }
 

@@ -16,7 +16,7 @@ export const MORPHEUS_STATE_HANDLER_COMPONENT_NAME = 'morpheus-state-handler';
 
 export interface IMorpheusStateHandler {
   readonly query: IMorpheusQueries;
-  dryRun(operationAttempts: Types.Layer1.IOperationData[]): IDryRunOperationError[];
+  dryRun(operationAttempts: Types.Layer1.IOperationData[]): Types.Layer2.IDryRunOperationError[];
   applyEmptyBlockToState(change: IBlockHeightChange): void;
   applyTransactionToState(stateChange: IStateChange): void;
   revertEmptyBlockFromState(change: IBlockHeightChange): void;
@@ -96,10 +96,4 @@ export type IMorpheusState = Types.Layer2.IState<IMorpheusQueries, IMorpheusOper
 
 export const enum MorpheusEvents {
   StateCorrupted = 'morpheus.state.corrupted',
-}
-
-export interface IDryRunOperationError {
-  invalidOperationAttempt: Types.Layer1.IOperationData | undefined;
-  // code: number; TODO: later we need exact error codes
-  message: string;
 }
