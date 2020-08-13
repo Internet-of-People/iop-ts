@@ -41,7 +41,7 @@ export class AxiosClient implements Layer1.IClient {
     return accept[0];
   }
 
-  public async getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Interfaces.ITransactionJson>> {
+  public async getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Layer1.ITransactionStatus>> {
     console.log(`Getting txn layer1 status for ${txId}...`);
 
     try {

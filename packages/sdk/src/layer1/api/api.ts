@@ -24,7 +24,7 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.getCurrentHeight();
   }
 
-  public async getTxnStatus(txId: string): Promise<Optional<Interfaces.ITransactionJson>> {
+  public async getTxnStatus(txId: string): Promise<Optional<Types.Layer1.ITransactionStatus>> {
     return this.clientInstance.getTxnStatus(txId);
   }
 

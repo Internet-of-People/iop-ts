@@ -3,10 +3,37 @@ import Optional from 'optional-js';
 import { IOperationData } from './operation-data';
 import { Sdk } from '../index';
 
+export interface ITimestamp {
+  epoch: number;
+  unix: number;
+  human: string;
+}
+
+export interface ITransactionStatus {
+  id?: string;
+  blockId?: string;
+  version?: number;
+  type: number;
+  typeGroup?: number;
+  amount: string;
+  fee: string;
+  sender: string;
+  senderPublicKey: string;
+  recipient: string;
+  signature?: string;
+  signSignature?: string;
+  signatures?: string[];
+  vendorField?: string;
+  asset?: Interfaces.ITransactionAsset;
+  confirmations: number;
+  timestamp?: ITimestamp;
+  nonce?: string;
+}
+
 export interface IClient {
   sendTx(tx: Interfaces.ITransactionJson): Promise<string>;
 
-  getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Interfaces.ITransactionJson>>;
+  getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<ITransactionStatus>>;
 
   getWallet(address: string): Promise<Optional<IWalletResponse>>;
 
@@ -52,7 +79,7 @@ export interface IApi {
 
   getTxnStatus(
     txId: Sdk.TransactionId,
-  ): Promise<Optional<Interfaces.ITransactionJson>>;
+  ): Promise<Optional<ITransactionStatus>>;
 
   getWallet(
     address: string,
