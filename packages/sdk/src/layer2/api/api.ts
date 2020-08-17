@@ -6,6 +6,8 @@ import * as Types from '../../types';
 import { apiGet, HttpError, apiPost } from '../../internal/http';
 import { Network, schemaAndHost } from '../../network';
 
+const { log } = Crypto;
+
 export class Api {
   private readonly api: AxiosInstance;
 
@@ -20,7 +22,7 @@ export class Api {
   }
 
   public async getBeforeProofHistory(contentId: string): Promise<Types.Layer2.IBeforeProofHistory> {
-    console.log(`Getting history of ${contentId}...`);
+    log(`Getting history of ${contentId}...`);
     const url = `/before-proof/${contentId}/history`;
     const resp = await apiGet(this.api, url);
     const history: Types.Layer2.IBeforeProofHistory = resp.data;
@@ -28,7 +30,7 @@ export class Api {
   }
 
   public async beforeProofExists(contentId: string, height?: number): Promise<boolean> {
-    console.log(`Getting if content ${contentId} exists at ${height || 'now'}...`);
+    log(`Getting if content ${contentId} exists at ${height || 'now'}...`);
     let url = `/before-proof/${contentId}/exists`;
 
     if (height) {
@@ -40,7 +42,7 @@ export class Api {
   }
 
   public async getDidDocument(did: Crypto.Did, height?: number): Promise<Types.Layer2.IDidDocument> {
-    console.log(`Getting Did document ${did} at ${height || 'now'}...`);
+    log(`Getting Did document ${did} at ${height || 'now'}...`);
     const resp = await apiGet(this.api, this.withUntilHeight(
       `/did/${did}/document`,
       height,
@@ -53,7 +55,7 @@ export class Api {
   // NOTE that layer2 status is returned here, i.e. Morpheus/DAC transactions are expected.
   //      Layer1 (e.g. transfer) transactions are not found thus Optional.empty() is returned for them.
   public async getTxnStatus(morpheusTxId: Types.Sdk.TransactionId): Promise<Optional<boolean>> {
-    console.log(`Getting txn layer2 status for ${morpheusTxId}...`);
+    log(`Getting txn layer2 status for ${morpheusTxId}...`);
 
     try {
       const resp = await apiGet(this.api, `/txn-status/${morpheusTxId}`);
@@ -67,7 +69,7 @@ export class Api {
   }
 
   public async getLastTxId(did: Crypto.Did): Promise<Types.Sdk.TransactionId | null> {
-    console.log(`Getting last txn id for ${did}...`);
+    log(`Getting last txn id for ${did}...`);
 
     try {
       const resp = await apiGet(this.api, `/did/${did}/transactions/last`);
@@ -85,7 +87,7 @@ export class Api {
     fromHeight: number,
     untilHeight?: number,
   ): Promise<Types.Layer2.ITransactionIdHeight[]> {
-    console.log(`Getting transaction ids for ${did}...`);
+    log(`Getting transaction ids for ${did}...`);
     return this.didTransactionIdsQuery(false, did, fromHeight, untilHeight);
   }
 
@@ -94,7 +96,7 @@ export class Api {
     fromHeight: number,
     untilHeight?: number,
   ): Promise<Types.Layer2.ITransactionIdHeight[]> {
-    console.log(`Getting transaction attempt ids for ${did}...`);
+    log(`Getting transaction attempt ids for ${did}...`);
     return this.didTransactionIdsQuery(true, did, fromHeight, untilHeight);
   }
 
@@ -103,7 +105,7 @@ export class Api {
     fromHeight: number,
     untilHeight?: number,
   ): Promise<Types.Layer2.IDidOperation[]> {
-    console.log(`Getting did operations for ${did}...`);
+    log(`Getting did operations for ${did}...`);
     return this.didOperationQuery(false, did, fromHeight, untilHeight);
   }
 
@@ -112,14 +114,14 @@ export class Api {
     fromHeight: number,
     untilHeight?: number,
   ): Promise<Types.Layer2.IDidOperation[]> {
-    console.log(`Getting did operations for ${did}...`);
+    log(`Getting did operations for ${did}...`);
     return this.didOperationQuery(true, did, fromHeight, untilHeight);
   }
 
   public async checkTransactionValidity(
     operationAttempts: Types.Layer1.IOperationData[],
   ): Promise<Types.Layer2.IDryRunOperationError[]> {
-    console.log('Checking operation attempts\' validity...');
+    log('Checking operation attempts\' validity...');
     const resp = await apiPost(
       this.api,
       '/check-transaction-validity',

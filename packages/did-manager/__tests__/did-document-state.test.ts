@@ -6,6 +6,7 @@ import { assertStringlyEqual } from './utils';
 import { defaultDid, defaultKeyId, keyId2, keyId3 } from './known-keys';
 
 const { DidDocumentState, RightRegistry } = Operations;
+const { log } = Crypto;
 
 const updateRight = RightRegistry.systemRights.update;
 
@@ -49,11 +50,11 @@ describe('DidDocumentState', () => {
     expect(state1.keys[1].validFromHeight).toBe(2);
     expect(state1.keys[1].validUntilHeight).toBeNull();
 
-    console.log(didState.query.getAt(2).toData());
+    log(didState.query.getAt(2).toData());
 
     const cloned = didState.clone();
     cloned.apply.revokeKey(2, keyId2);
-    console.log(didState.query.getAt(2).toData());
+    log(didState.query.getAt(2).toData());
 
     const state2 = didState.query.getAt(2).toData();
     expect(state2.keys.length).toBe(2);

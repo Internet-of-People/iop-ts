@@ -54,3 +54,4 @@ export * from './encrypt';
 export * from './coin';
 export * from './authentication';
 export * from './nonce';
+export * from './log';

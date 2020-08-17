@@ -1,6 +1,7 @@
 import { Interfaces } from '@arkecosystem/crypto';
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
+import { log } from '@internet-of-people/morpheus-crypto';
 import { schemaAndHost, Network } from '../../network';
 import { Layer1, Sdk } from '../../types';
 import { apiGet, apiPost, HttpError } from '../../internal/http';
@@ -20,7 +21,7 @@ export class AxiosClient implements Layer1.IClient {
   }
 
   public async sendTx(tx: Interfaces.ITransactionJson): Promise<string> {
-    console.log('Sending tx...'); // JSON.stringify({ transactions: [tx] })
+    log('Sending tx...'); // JSON.stringify({ transactions: [tx] })
     const resp = await apiPost(this.api, '/transactions', JSON.stringify({ transactions: [tx] }));
 
     if (resp.data.data.invalid && resp.data.data.invalid.length > 0) {
@@ -37,12 +38,12 @@ export class AxiosClient implements Layer1.IClient {
       );
     }
 
-    console.log('Tx sent, id:', accept[0]);
+    log('Tx sent, id:', accept[0]);
     return accept[0];
   }
 
   public async getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Layer1.ITransactionStatus>> {
-    console.log(`Getting txn layer1 status for ${txId}...`);
+    log(`Getting txn layer1 status for ${txId}...`);
 
     try {
       const resp = await apiGet(this.api, `/transactions/${txId}`);
@@ -56,15 +57,15 @@ export class AxiosClient implements Layer1.IClient {
   }
 
   public async getWallet(address: string): Promise<Optional<Layer1.IWalletResponse>> {
-    console.log(`Getting wallet of ${address}...`);
+    log(`Getting wallet of ${address}...`);
 
     try {
       const resp = await apiGet(this.api, `/wallets/${address}`);
       return Optional.of(resp.data.data);
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
-        console.log(`Could not get wallet for ${address}, probably a cold wallet.`);
-        console.log(`Balance of ${address} is 0`);
+        log(`Could not get wallet for ${address}, probably a cold wallet.`);
+        log(`Balance of ${address} is 0`);
         return Optional.empty();
       }
       throw e;
@@ -72,22 +73,22 @@ export class AxiosClient implements Layer1.IClient {
   }
 
   public async getWalletNonce(address: string): Promise<BigInt> {
-    console.log(`Getting wallet nonce of ${address}...`);
+    log(`Getting wallet nonce of ${address}...`);
 
     const wallet = await this.getWallet(address);
 
     if (wallet.isPresent()) {
       const nonce = BigInt(wallet.get().nonce);
-      console.log(`Nonce of ${address} is ${nonce.toLocaleString()}`);
+      log(`Nonce of ${address} is ${nonce.toLocaleString()}`);
       return nonce;
     }
 
-    console.log(`Nonce of ${address} is 0`);
+    log(`Nonce of ${address} is 0`);
     return BigInt(0);
   }
 
   public async getWalletBalance(address: string): Promise<BigInt> {
-    console.log(`Getting wallet balance of ${address}...`);
+    log(`Getting wallet balance of ${address}...`);
 
     const wallet = await this.getWallet(address);
 
@@ -99,16 +100,16 @@ export class AxiosClient implements Layer1.IClient {
   }
 
   public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {
-    console.log('Getting node crypto config...');
+    log('Getting node crypto config...');
     const resp = await apiGet(this.api, '/node/configuration/crypto');
     return resp.data.data;
   }
 
   public async getCurrentHeight(): Promise<number> {
-    console.log('Getting current height...');
+    log('Getting current height...');
     const resp = await apiGet(this.api, '/blockchain');
     const { height } = resp.data.data.block;
-    console.log(`Height is ${height}`);
+    log(`Height is ${height}`);
     return height;
   }
 }

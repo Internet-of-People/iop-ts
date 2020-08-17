@@ -20,7 +20,7 @@ export const addProcesses = async(folder: string, storage: SqliteStorage): Promi
       const processId = await addProcessSchemas(storage, processObj);
       await storage.addProcess(processId);
     } catch (e) {
-      console.log(`Already existed: ${e}`);
+      console.log(`Process already exists: ${e}`);
     }
   }
 };

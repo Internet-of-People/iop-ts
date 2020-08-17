@@ -1,6 +1,6 @@
 import { Identities, Interfaces, Transactions, Managers, Errors } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
-import { HydraPrivate } from '@internet-of-people/morpheus-crypto';
+import { log, HydraPrivate } from '@internet-of-people/morpheus-crypto';
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
@@ -135,7 +135,7 @@ export class Api implements Types.Layer1.IApi {
   public async nextWalletNonceByAddress(address: string): Promise<BigInt> {
     const currentNonce = await this.clientInstance.getWalletNonce(address);
     const nextNonce = currentNonce as bigint + BigInt(1);
-    console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+    log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
     return nextNonce;
   }
 
@@ -161,7 +161,7 @@ export class Api implements Types.Layer1.IApi {
     if (!nextNonce) {
       const currentNonce = wallet.isPresent() ? BigInt(wallet.get().nonce) : BigInt(0);
       nextNonce = currentNonce + BigInt(1);
-      console.log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+      log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
     }
     unsignedTx.nonce(nextNonce.toString());
 

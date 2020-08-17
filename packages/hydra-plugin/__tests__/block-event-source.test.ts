@@ -4,10 +4,12 @@ import { EventEmitter } from 'events';
 
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { Utils } from '@internet-of-people/sdk';
+import { Crypto, Utils } from '@internet-of-people/sdk';
 
 import { BlockEventSource, IBlockListener } from '../src/block-event-source';
 import { Scheduler, Task } from '../src/scheduler';
+
+const { log } = Crypto;
 
 class DummyScheduler {
   private tasks: [string, Task][];
@@ -21,7 +23,7 @@ class DummyScheduler {
   }
 
   public dump(): void {
-    console.log(`tasks pending: ${ JSON.stringify(this.tasks.map((name, _) => {
+    log(`tasks pending: ${ JSON.stringify(this.tasks.map((name, _) => {
       return name;
     }))}`);
   }
