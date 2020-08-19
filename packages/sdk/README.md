@@ -62,6 +62,8 @@ import { Ark, Authority, Crypto, Layer1, Layer2, Network, Types, Utils } from '@
 
 For more information about the modules, check the corresponding module section below.
 
+Please note that despite our best efforts, changes we cannot control deep down in the dependency chain of our library might still cause problems for the client using our SDK. To avoid many of those problems, we recommend adding `"skipLibCheck": true,` to your `tsconfig.json`. You might also fix the encountered problems manually instead. For example, we've recently experienced Typescript definition dependencies missing from a faulty package and had to add `"@types/socketcluster-client": "^13.0.3",` to `devDependencies` in the `package.json` of a client using our SDK.
+
 ## Modules
 
 The SDK has several modules you can use. As the SDK's structure is a bit complex, we had hard time to figure it out that how can we form it into a hierarchy which is usable due to the Typescript import/export weaknesses.
