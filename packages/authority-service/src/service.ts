@@ -77,7 +77,7 @@ export class Service implements Types.Authority.IApi {
     return status;
   }
 
-  public async listRequests(): Promise<Types.Authority.IRequestEntry[]> {
+  public async listRequests(_clerkPk: string): Promise<Types.Authority.IRequestEntry[]> {
     // TODO authenticate in middleware
     const datas = await this.storage.getRequests();
     return datas.map((data) => {
@@ -93,7 +93,7 @@ export class Service implements Types.Authority.IApi {
     });
   }
 
-  public async getPrivateBlob(contentId: Types.Sdk.ContentId): Promise<unknown> {
+  public async getPrivateBlob(_clerkPk: string, contentId: Types.Sdk.ContentId): Promise<unknown> {
     // TODO authenticate in middleware
     const content = await this.storage.getPrivateBlob(contentId);
 
@@ -104,6 +104,7 @@ export class Service implements Types.Authority.IApi {
   }
 
   public async approveRequest(
+    _clerkPk: string,
     capabilityLink: Types.Authority.CapabilityLink,
     signedStatement: Types.Sdk.ISigned<Types.Sdk.IWitnessStatement>,
   ): Promise<void> {
@@ -132,7 +133,11 @@ export class Service implements Types.Authority.IApi {
     return this.storage.updateRequest(data);
   }
 
-  public async rejectRequest(capabilityLink: Types.Authority.CapabilityLink, rejectionReason: string): Promise<void> {
+  public async rejectRequest(
+    _clerkPk: string,
+    capabilityLink: Types.Authority.CapabilityLink,
+    rejectionReason: string,
+  ): Promise<void> {
     // TODO authenticate in middleware
     const data = await this.storage.getRequestByLink(capabilityLink);
 

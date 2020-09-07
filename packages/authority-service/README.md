@@ -10,6 +10,7 @@ our SDK instead of using a separate workflow system we build for them.
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)
+- [Environment](#environment)
 - [Usage](#usage)
 - [API](#api)
   - [List Processes](#list-processes)
@@ -29,6 +30,31 @@ Run in the root of the `morpheus-ts` project.
 npm install
 npm run build
 ```
+
+## Environment
+
+There are some environment variables read by the service upon startup. Their default values follow:
+
+```bash
+# Database file that stores all requests and their status:
+export AUTHORITY_DB='./db/authority.sqlite'
+# Folder that contains all migration scripts for that database:
+export AUTHORITY_MIGRATIONS='./migrations/'
+# Processes and their schemas, which will be inserted into the database if they are not in there yet:
+export AUTHORITY_PROCESSES='./processes/'
+# List of public keys authorized to access REST endpoints only available for clerks
+export AUTHORITY_PUBKEYS=''
+```
+
+The most important is to configure the public keys of the clerks allowed to list, approve and reject requests in the name
+of the authority:
+
+```bash
+export AUTHORITY_PUBKEYS='pez2CLkBUjHB8w8G87D3YkREjpRuiqPu6BrRsgHMQy2Pzt6,pezDj6ea4tVfNRUTMyssVDepAAzPW67Fe3yHtuHL6ZNtcfJ'
+```
+
+In a docker environment it is easier to pass in environment variables to built images than to rebuild the image every
+time a public key needs to be added or removed from that list.
 
 ## Usage
 

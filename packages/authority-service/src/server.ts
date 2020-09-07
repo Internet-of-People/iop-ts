@@ -2,6 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { Types } from '@internet-of-people/sdk';
 
+import { IAuth } from './jwt-auth';
+
 type AsyncRequestHandler = (req: express.Request, res: express.Response) => Promise<void>;
 
 const handleAsync = (f: AsyncRequestHandler): express.RequestHandler => {
@@ -25,7 +27,7 @@ export class Server {
   public readonly app: express.Application;
   private readonly api: Types.Authority.IApi;
 
-  public constructor(api: Types.Authority.IApi) {
+  public constructor(api: Types.Authority.IApi, clerkAuth: IAuth) {
     this.api = api;
     this.app = express();
     this.app.use(handleError);
@@ -49,7 +51,7 @@ export class Server {
       }
     }));
 
-    this.app.post('/requests', jsonBody, handleAsync(async(req, res): Promise<void> => {
+    this.app.post('/requests', jsonBody, clerkAuth.auth, handleAsync(async(req, res): Promise<void> => {
       try {
         const capabilityLink = await this.api.sendRequest(req.body);
         res.status(202).json({ capabilityLink });
@@ -71,44 +73,54 @@ export class Server {
       }
     }));
 
-    this.app.get('/requests', handleAsync(async(req, res): Promise<void> => {
-      const requests = await this.api.listRequests();
+    this.app.get('/requests', clerkAuth.auth, handleAsync(async(req, res): Promise<void> => {
+      const requests = await this.api.listRequests(clerkAuth.pubKey(req));
       res.status(200).json({ requests });
     }));
 
-    this.app.post('/requests/:capabilityLink/approve', jsonBody, handleAsync(async(req, res): Promise<void> => {
-      const { capabilityLink } = req.params;
+    this.app.post(
+      '/requests/:capabilityLink/approve',
+      jsonBody,
+      clerkAuth.auth,
+      handleAsync(async(req, res): Promise<void> => {
+        const { capabilityLink } = req.params;
 
-      try {
-        await this.api.approveRequest(capabilityLink, req.body);
-        res.status(200).json({ success: true });
-      } catch (err) {
-        const { message }: { message: string; } = err;
-        const status = message.includes('Unknown') ? 404 : 400;
-        res.status(status).json({ error: message });
-      }
-    }));
+        try {
+          await this.api.approveRequest(clerkAuth.pubKey(req), capabilityLink, req.body);
+          res.status(200).json({ success: true });
+        } catch (err) {
+          const { message }: { message: string; } = err;
+          const status = message.includes('Unknown') ? 404 : 400;
+          res.status(status).json({ error: message });
+        }
+      }),
+    );
 
-    this.app.post('/requests/:capabilityLink/reject', jsonBody, handleAsync(async(req, res): Promise<void> => {
-      const { capabilityLink } = req.params;
-      const { rejectionReason } = req.body;
+    this.app.post(
+      '/requests/:capabilityLink/reject',
+      jsonBody,
+      clerkAuth.auth,
+      handleAsync(async(req, res): Promise<void> => {
+        const { capabilityLink } = req.params;
+        const { rejectionReason } = req.body;
 
-      try {
-        await this.api.rejectRequest(capabilityLink, rejectionReason);
-        res.status(200).json({ success: true });
-      } catch (err) {
-        const { message }: { message: string; } = err;
-        const status = message.includes('Unknown') ? 404 : 400;
-        res.status(status).json({ error: message });
-      }
-    }));
+        try {
+          await this.api.rejectRequest(clerkAuth.pubKey(req), capabilityLink, rejectionReason);
+          res.status(200).json({ success: true });
+        } catch (err) {
+          const { message }: { message: string; } = err;
+          const status = message.includes('Unknown') ? 404 : 400;
+          res.status(status).json({ error: message });
+        }
+      }),
+    );
 
     this.app.get('/private-blob/:contentId', handleAsync(async(req, res): Promise<void> => {
       const { contentId } = req.params;
       console.log(`Serving private blob/${contentId}...`);
 
       try {
-        const blob = await this.api.getPrivateBlob(contentId);
+        const blob = await this.api.getPrivateBlob(clerkAuth.pubKey(req), contentId);
         res.status(200).json(blob);
       } catch (err) {
         console.log(err);

@@ -5,6 +5,8 @@ import { Service } from './service';
 import { SqliteStorage } from './storage-sqlite';
 import { IStorage } from './storage';
 import { addProcesses } from './config';
+import { JwtAuth } from './jwt-auth';
+import { FixedUsers } from './fixed-users';
 
 const createStorage = async(): Promise<IStorage> => {
   const dbFileName = process.env['AUTHORITY_DB'] || './db/authority.sqlite';
@@ -34,7 +36,10 @@ const createStorage = async(): Promise<IStorage> => {
 const mainAsync = async(): Promise<void> => {
   const storage = await createStorage();
   console.log('opened database');
-  const server = new Server(new Service(storage));
+  const pubKeys = process.env['AUTHORITY_PUBKEYS'] || '';
+  const users = new FixedUsers(pubKeys);
+  const jwtAuth = new JwtAuth(users.checker);
+  const server = new Server(new Service(storage), jwtAuth);
   server.start(8080, '0.0.0.0');
 };
 

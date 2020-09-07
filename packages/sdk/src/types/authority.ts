@@ -27,10 +27,23 @@ export interface IPublicApi {
 }
 
 export interface IPrivateApi {
-  listRequests(): Promise<IRequestEntry[]>;
-  getPrivateBlob(contentId: Sdk.ContentId): Promise<unknown>; // ISigned<IWitnessRequest> download
-  approveRequest(capabilityLink: CapabilityLink, signedStatement: Sdk.ISigned<Sdk.IWitnessStatement>): Promise<void>;
-  rejectRequest(capabilityLink: CapabilityLink, rejectionReason: string): Promise<void>;
+  listRequests(
+    clerkPk: string,
+  ): Promise<IRequestEntry[]>;
+  getPrivateBlob(
+    clerkPk: string,
+    contentId: Sdk.ContentId,
+  ): Promise<unknown>; // ISigned<IWitnessRequest> download
+  approveRequest(
+    clerkPk: string,
+    capabilityLink: CapabilityLink,
+    signedStatement: Sdk.ISigned<Sdk.IWitnessStatement>,
+  ): Promise<void>;
+  rejectRequest(
+    clerkPk: string,
+    capabilityLink: CapabilityLink,
+    rejectionReason: string,
+  ): Promise<void>;
 }
 
-export interface IApi extends IPublicApi, IPrivateApi {}
+export interface IApi extends IPublicApi, IPrivateApi { }

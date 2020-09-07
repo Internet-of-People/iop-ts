@@ -20,6 +20,8 @@ export {
   HydraPlugin,
   HydraPrivate,
   HydraPublic,
+  JwtBuilder,
+  JwtParser,
   KeyId,
   Morpheus,
   MorpheusKind,

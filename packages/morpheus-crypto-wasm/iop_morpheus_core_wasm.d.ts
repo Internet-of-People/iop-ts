@@ -1,38 +1,38 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {any} data 
-* @param {string} keep_properties_list 
-* @returns {string} 
+* @param {any} data
+* @param {string} keep_properties_list
+* @returns {string}
 */
 export function selectiveDigestJson(data: any, keep_properties_list: string): string;
 /**
-* @param {any} data 
-* @returns {string} 
+* @param {any} data
+* @returns {string}
 */
 export function digestJson(data: any): string;
 /**
-* @param {any} data 
-* @returns {string} 
+* @param {any} data
+* @returns {string}
 */
 export function stringifyJson(data: any): string;
 /**
-* @param {string} name 
-* @returns {boolean} 
-*/
-export function validateNetworkName(name: string): boolean;
-/**
-* @param {Uint8Array} plain_text 
-* @param {string} password 
-* @returns {Uint8Array} 
+* @param {Uint8Array} plain_text
+* @param {string} password
+* @returns {Uint8Array}
 */
 export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 /**
-* @param {Uint8Array} cipher_text 
-* @param {string} password 
-* @returns {Uint8Array} 
+* @param {Uint8Array} cipher_text
+* @param {string} password
+* @returns {Uint8Array}
 */
 export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
+/**
+* @param {string} name
+* @returns {boolean}
+*/
+export function validateNetworkName(name: string): boolean;
 /**
 */
 export class Bip32 {
@@ -43,35 +43,35 @@ export class Bip32 {
 export class Bip32Node {
   free(): void;
 /**
-* @param {number} idx 
-* @returns {Bip32Node} 
+* @param {number} idx
+* @returns {Bip32Node}
 */
   deriveNormal(idx: number): Bip32Node;
 /**
-* @param {number} idx 
-* @returns {Bip32Node} 
+* @param {number} idx
+* @returns {Bip32Node}
 */
   deriveHardened(idx: number): Bip32Node;
 /**
-* @returns {SecpPrivateKey} 
+* @returns {SecpPrivateKey}
 */
   privateKey(): SecpPrivateKey;
 /**
-* @returns {Bip32PublicNode} 
+* @returns {Bip32PublicNode}
 */
   neuter(): Bip32PublicNode;
 /**
-* @param {string} name 
-* @returns {string} 
+* @param {string} name
+* @returns {string}
 */
   toXprv(name: string): string;
 /**
-* @param {string} name 
-* @returns {string} 
+* @param {string} name
+* @returns {string}
 */
   toWif(name: string): string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 }
@@ -80,30 +80,30 @@ export class Bip32Node {
 export class Bip32PublicNode {
   free(): void;
 /**
-* @param {number} idx 
-* @returns {Bip32PublicNode} 
+* @param {number} idx
+* @returns {Bip32PublicNode}
 */
   deriveNormal(idx: number): Bip32PublicNode;
 /**
-* @returns {SecpPublicKey} 
+* @returns {SecpPublicKey}
 */
   publicKey(): SecpPublicKey;
 /**
-* @returns {SecpKeyId} 
+* @returns {SecpKeyId}
 */
   keyId(): SecpKeyId;
 /**
-* @param {string} name 
-* @returns {string} 
+* @param {string} name
+* @returns {string}
 */
   toXpub(name: string): string;
 /**
-* @param {string} name 
-* @returns {string} 
+* @param {string} name
+* @returns {string}
 */
   toP2pkh(name: string): string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 }
@@ -112,30 +112,30 @@ export class Bip32PublicNode {
 export class Bip39 {
   free(): void;
 /**
-* @param {string} lang_code 
+* @param {string} lang_code
 */
   constructor(lang_code: string);
 /**
-* @returns {Bip39Phrase} 
+* @returns {Bip39Phrase}
 */
   generate(): Bip39Phrase;
 /**
-* @param {Uint8Array} entropy 
-* @returns {Bip39Phrase} 
+* @param {Uint8Array} entropy
+* @returns {Bip39Phrase}
 */
   entropy(entropy: Uint8Array): Bip39Phrase;
 /**
-* @param {string} phrase 
+* @param {string} phrase
 */
   validatePhrase(phrase: string): void;
 /**
-* @param {string} prefix 
-* @returns {any[]} 
+* @param {string} prefix
+* @returns {any[]}
 */
   listWords(prefix: string): any[];
 /**
-* @param {string} phrase 
-* @returns {Bip39Phrase} 
+* @param {string} phrase
+* @returns {Bip39Phrase}
 */
   phrase(phrase: string): Bip39Phrase;
 }
@@ -144,12 +144,12 @@ export class Bip39 {
 export class Bip39Phrase {
   free(): void;
 /**
-* @param {string} password 
-* @returns {Seed} 
+* @param {string} password
+* @returns {Seed}
 */
   password(password: string): Seed;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly phrase: string;
 }
@@ -158,9 +158,9 @@ export class Bip39Phrase {
 export class Bip44 {
   free(): void;
 /**
-* @param {Seed} seed 
-* @param {string} name 
-* @returns {Bip44Coin} 
+* @param {Seed} seed
+* @param {string} name
+* @returns {Bip44Coin}
 */
   static network(seed: Seed, name: string): Bip44Coin;
 }
@@ -169,44 +169,44 @@ export class Bip44 {
 export class Bip44Account {
   free(): void;
 /**
-* @returns {Bip32Node} 
+* @returns {Bip32Node}
 */
   node(): Bip32Node;
 /**
-* @param {boolean} change 
-* @returns {Bip44SubAccount} 
+* @param {boolean} change
+* @returns {Bip44SubAccount}
 */
   chain(change: boolean): Bip44SubAccount;
 /**
-* @param {number} idx 
-* @returns {Bip44Key} 
+* @param {number} idx
+* @returns {Bip44Key}
 */
   key(idx: number): Bip44Key;
 /**
-* @returns {Bip44PublicAccount} 
+* @returns {Bip44PublicAccount}
 */
   neuter(): Bip44PublicAccount;
 /**
-* @param {number} account 
-* @param {string} xprv 
-* @param {string} network 
-* @returns {Bip44Account} 
+* @param {number} account
+* @param {string} xprv
+* @param {string} network
+* @returns {Bip44Account}
 */
   static fromXprv(account: number, xprv: string, network: string): Bip44Account;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly account: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly slip44: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly xprv: string;
 }
@@ -215,24 +215,24 @@ export class Bip44Account {
 export class Bip44Coin {
   free(): void;
 /**
-* @returns {Bip32Node} 
+* @returns {Bip32Node}
 */
   node(): Bip32Node;
 /**
-* @param {number} account 
-* @returns {Bip44Account} 
+* @param {number} account
+* @returns {Bip44Account}
 */
   account(account: number): Bip44Account;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly slip44: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly xprv: string;
 }
@@ -241,39 +241,39 @@ export class Bip44Coin {
 export class Bip44Key {
   free(): void;
 /**
-* @returns {Bip32Node} 
+* @returns {Bip32Node}
 */
   node(): Bip32Node;
 /**
-* @returns {SecpPrivateKey} 
+* @returns {SecpPrivateKey}
 */
   privateKey(): SecpPrivateKey;
 /**
-* @returns {Bip44PublicKey} 
+* @returns {Bip44PublicKey}
 */
   neuter(): Bip44PublicKey;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly account: number;
 /**
-* @returns {boolean} 
+* @returns {boolean}
 */
   readonly change: boolean;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly key: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly slip44: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly wif: string;
 }
@@ -282,40 +282,40 @@ export class Bip44Key {
 export class Bip44PublicAccount {
   free(): void;
 /**
-* @returns {Bip32PublicNode} 
+* @returns {Bip32PublicNode}
 */
   node(): Bip32PublicNode;
 /**
-* @param {boolean} change 
-* @returns {Bip44PublicSubAccount} 
+* @param {boolean} change
+* @returns {Bip44PublicSubAccount}
 */
   chain(change: boolean): Bip44PublicSubAccount;
 /**
-* @param {number} idx 
-* @returns {Bip44PublicKey} 
+* @param {number} idx
+* @returns {Bip44PublicKey}
 */
   key(idx: number): Bip44PublicKey;
 /**
-* @param {number} account 
-* @param {string} xpub 
-* @param {string} network 
-* @returns {Bip44PublicAccount} 
+* @param {number} account
+* @param {string} xpub
+* @param {string} network
+* @returns {Bip44PublicAccount}
 */
   static fromXpub(account: number, xpub: string, network: string): Bip44PublicAccount;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly account: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly slip44: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly xpub: string;
 }
@@ -324,39 +324,39 @@ export class Bip44PublicAccount {
 export class Bip44PublicKey {
   free(): void;
 /**
-* @returns {Bip32PublicNode} 
+* @returns {Bip32PublicNode}
 */
   node(): Bip32PublicNode;
 /**
-* @returns {SecpPublicKey} 
+* @returns {SecpPublicKey}
 */
   publicKey(): SecpPublicKey;
 /**
-* @returns {SecpKeyId} 
+* @returns {SecpKeyId}
 */
   keyId(): SecpKeyId;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly account: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly address: string;
 /**
-* @returns {boolean} 
+* @returns {boolean}
 */
   readonly change: boolean;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly key: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly slip44: number;
 }
@@ -365,40 +365,40 @@ export class Bip44PublicKey {
 export class Bip44PublicSubAccount {
   free(): void;
 /**
-* @returns {Bip32PublicNode} 
+* @returns {Bip32PublicNode}
 */
   node(): Bip32PublicNode;
 /**
-* @param {number} idx 
-* @returns {Bip44PublicKey} 
+* @param {number} idx
+* @returns {Bip44PublicKey}
 */
   key(idx: number): Bip44PublicKey;
 /**
-* @param {number} account 
-* @param {boolean} change 
-* @param {string} xpub 
-* @param {string} network 
-* @returns {Bip44PublicSubAccount} 
+* @param {number} account
+* @param {boolean} change
+* @param {string} xpub
+* @param {string} network
+* @returns {Bip44PublicSubAccount}
 */
   static fromXpub(account: number, change: boolean, xpub: string, network: string): Bip44PublicSubAccount;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly account: number;
 /**
-* @returns {boolean} 
+* @returns {boolean}
 */
   readonly change: boolean;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly slip44: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly xpub: string;
 }
@@ -407,44 +407,44 @@ export class Bip44PublicSubAccount {
 export class Bip44SubAccount {
   free(): void;
 /**
-* @returns {Bip32Node} 
+* @returns {Bip32Node}
 */
   node(): Bip32Node;
 /**
-* @param {number} idx 
-* @returns {Bip44Key} 
+* @param {number} idx
+* @returns {Bip44Key}
 */
   key(idx: number): Bip44Key;
 /**
-* @returns {Bip44PublicSubAccount} 
+* @returns {Bip44PublicSubAccount}
 */
   neuter(): Bip44PublicSubAccount;
 /**
-* @param {number} account 
-* @param {boolean} change 
-* @param {string} xprv 
-* @param {string} network 
-* @returns {Bip44SubAccount} 
+* @param {number} account
+* @param {boolean} change
+* @param {string} xprv
+* @param {string} network
+* @returns {Bip44SubAccount}
 */
   static fromXprv(account: number, change: boolean, xprv: string, network: string): Bip44SubAccount;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly account: number;
 /**
-* @returns {boolean} 
+* @returns {boolean}
 */
   readonly change: boolean;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly slip44: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly xprv: string;
 }
@@ -453,24 +453,24 @@ export class Bip44SubAccount {
 export class Did {
   free(): void;
 /**
-* @param {string} did_str 
+* @param {string} did_str
 */
   constructor(did_str: string);
 /**
-* @returns {string} 
+* @returns {string}
 */
   static prefix(): string;
 /**
-* @param {KeyId} key_id 
-* @returns {Did} 
+* @param {KeyId} key_id
+* @returns {Did}
 */
   static fromKeyId(key_id: KeyId): Did;
 /**
-* @returns {KeyId} 
+* @returns {KeyId}
 */
   defaultKeyId(): KeyId;
 /**
-* @returns {string} 
+* @returns {string}
 */
   toString(): string;
 }
@@ -479,8 +479,8 @@ export class Did {
 export class HydraParameters {
   free(): void;
 /**
-* @param {string} network 
-* @param {number} account 
+* @param {string} network
+* @param {number} account
 */
   constructor(network: string, account: number);
 }
@@ -489,24 +489,24 @@ export class HydraParameters {
 export class HydraPlugin {
   free(): void;
 /**
-* @param {Vault} vault 
-* @param {string} unlock_password 
-* @param {HydraParameters} parameters 
+* @param {Vault} vault
+* @param {string} unlock_password
+* @param {HydraParameters} parameters
 */
   static rewind(vault: Vault, unlock_password: string, parameters: HydraParameters): void;
 /**
-* @param {Vault} vault 
-* @param {HydraParameters} parameters 
-* @returns {HydraPlugin} 
+* @param {Vault} vault
+* @param {HydraParameters} parameters
+* @returns {HydraPlugin}
 */
   static get(vault: Vault, parameters: HydraParameters): HydraPlugin;
 /**
-* @param {string} unlock_password 
-* @returns {HydraPrivate} 
+* @param {string} unlock_password
+* @returns {HydraPrivate}
 */
   priv(unlock_password: string): HydraPrivate;
 /**
-* @returns {HydraPublic} 
+* @returns {HydraPublic}
 */
   readonly pub: HydraPublic;
 }
@@ -515,35 +515,35 @@ export class HydraPlugin {
 export class HydraPrivate {
   free(): void;
 /**
-* @param {number} idx 
-* @returns {Bip44Key} 
+* @param {number} idx
+* @returns {Bip44Key}
 */
   key(idx: number): Bip44Key;
 /**
-* @param {SecpPublicKey} id 
-* @returns {Bip44Key} 
+* @param {SecpPublicKey} id
+* @returns {Bip44Key}
 */
   keyByPublicKey(id: SecpPublicKey): Bip44Key;
 /**
-* @param {string} hyd_addr 
-* @param {any} tx 
-* @returns {any} 
+* @param {string} hyd_addr
+* @param {any} tx
+* @returns {any}
 */
   signHydraTransaction(hyd_addr: string, tx: any): any;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly changeKeys: number;
 /**
-* @returns {HydraPublic} 
+* @returns {HydraPublic}
 */
   readonly pub: HydraPublic;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly receiveKeys: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly xpub: string;
 }
@@ -552,56 +552,95 @@ export class HydraPrivate {
 export class HydraPublic {
   free(): void;
 /**
-* @param {number} idx 
-* @returns {Bip44PublicKey} 
+* @param {number} idx
+* @returns {Bip44PublicKey}
 */
   key(idx: number): Bip44PublicKey;
 /**
-* @param {string} addr 
-* @returns {Bip44PublicKey} 
+* @param {string} addr
+* @returns {Bip44PublicKey}
 */
   keyByAddress(addr: string): Bip44PublicKey;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly changeKeys: number;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly receiveKeys: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly xpub: string;
 }
 export class JsBip32 {
   free(): void;
 /**
-* @param {Seed} seed 
-* @param {string} name 
-* @returns {Bip32Node} 
+* @param {Seed} seed
+* @param {string} name
+* @returns {Bip32Node}
 */
   static master(seed: Seed, name: string): Bip32Node;
+}
+/**
+*/
+export class JwtBuilder {
+  free(): void;
+/**
+*/
+  constructor();
+/**
+* @param {string} content_id
+* @returns {JwtBuilder}
+*/
+  static withContentId(content_id: string): JwtBuilder;
+/**
+* @param {PrivateKey} sk
+* @returns {string}
+*/
+  sign(sk: PrivateKey): string;
+}
+/**
+*/
+export class JwtParser {
+  free(): void;
+/**
+* @param {string} token
+*/
+  constructor(token: string);
+/**
+* @returns {BigInt}
+*/
+  readonly createdAt: BigInt;
+/**
+* @returns {PublicKey}
+*/
+  readonly publicKey: PublicKey;
+/**
+* @returns {BigInt}
+*/
+  readonly timeToLive: BigInt;
 }
 /**
 */
 export class KeyId {
   free(): void;
 /**
-* @param {string} key_id_str 
+* @param {string} key_id_str
 */
   constructor(key_id_str: string);
 /**
-* @param {SecpKeyId} secp 
-* @returns {KeyId} 
+* @param {SecpKeyId} secp
+* @returns {KeyId}
 */
   static fromSecp(secp: SecpKeyId): KeyId;
 /**
-* @returns {string} 
+* @returns {string}
 */
   static prefix(): string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   toString(): string;
 }
@@ -610,8 +649,8 @@ export class KeyId {
 export class Morpheus {
   free(): void;
 /**
-* @param {Seed} seed 
-* @returns {MorpheusRoot} 
+* @param {Seed} seed
+* @returns {MorpheusRoot}
 */
   static root(seed: Seed): MorpheusRoot;
 }
@@ -620,16 +659,16 @@ export class Morpheus {
 export class MorpheusKind {
   free(): void;
 /**
-* @param {number} idx 
-* @returns {MorpheusPrivateKey} 
+* @param {number} idx
+* @returns {MorpheusPrivateKey}
 */
   key(idx: number): MorpheusPrivateKey;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly kind: string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 }
@@ -638,22 +677,22 @@ export class MorpheusKind {
 export class MorpheusPlugin {
   free(): void;
 /**
-* @param {Vault} vault 
-* @param {string} unlock_password 
+* @param {Vault} vault
+* @param {string} unlock_password
 */
   static rewind(vault: Vault, unlock_password: string): void;
 /**
-* @param {Vault} vault 
-* @returns {MorpheusPlugin} 
+* @param {Vault} vault
+* @returns {MorpheusPlugin}
 */
   static get(vault: Vault): MorpheusPlugin;
 /**
-* @param {string} unlock_password 
-* @returns {MorpheusPrivate} 
+* @param {string} unlock_password
+* @returns {MorpheusPrivate}
 */
   priv(unlock_password: string): MorpheusPrivate;
 /**
-* @returns {MorpheusPublic} 
+* @returns {MorpheusPublic}
 */
   readonly pub: MorpheusPublic;
 }
@@ -662,45 +701,45 @@ export class MorpheusPlugin {
 export class MorpheusPrivate {
   free(): void;
 /**
-* @param {PublicKey} pk 
-* @returns {MorpheusPrivateKey} 
+* @param {PublicKey} pk
+* @returns {MorpheusPrivateKey}
 */
   keyByPublicKey(pk: PublicKey): MorpheusPrivateKey;
 /**
-* @param {KeyId} id 
-* @returns {MorpheusPrivateKey} 
+* @param {KeyId} id
+* @returns {MorpheusPrivateKey}
 */
   keyById(id: KeyId): MorpheusPrivateKey;
 /**
-* @param {KeyId} id 
-* @param {Uint8Array} message 
-* @returns {SignedBytes} 
+* @param {KeyId} id
+* @param {Uint8Array} message
+* @returns {SignedBytes}
 */
   signDidOperations(id: KeyId, message: Uint8Array): SignedBytes;
 /**
-* @param {KeyId} id 
-* @param {any} js_req 
-* @returns {SignedJson} 
+* @param {KeyId} id
+* @param {any} js_req
+* @returns {SignedJson}
 */
   signWitnessRequest(id: KeyId, js_req: any): SignedJson;
 /**
-* @param {KeyId} id 
-* @param {any} js_stmt 
-* @returns {SignedJson} 
+* @param {KeyId} id
+* @param {any} js_stmt
+* @returns {SignedJson}
 */
   signWitnessStatement(id: KeyId, js_stmt: any): SignedJson;
 /**
-* @param {KeyId} id 
-* @param {any} js_presentation 
-* @returns {SignedJson} 
+* @param {KeyId} id
+* @param {any} js_presentation
+* @returns {SignedJson}
 */
   signClaimPresentation(id: KeyId, js_presentation: any): SignedJson;
 /**
-* @returns {MorpheusPrivateKind} 
+* @returns {MorpheusPrivateKind}
 */
   readonly personas: MorpheusPrivateKind;
 /**
-* @returns {MorpheusPublic} 
+* @returns {MorpheusPublic}
 */
   readonly pub: MorpheusPublic;
 }
@@ -709,23 +748,23 @@ export class MorpheusPrivate {
 export class MorpheusPrivateKey {
   free(): void;
 /**
-* @returns {MorpheusPublicKey} 
+* @returns {MorpheusPublicKey}
 */
   neuter(): MorpheusPublicKey;
 /**
-* @returns {PrivateKey} 
+* @returns {PrivateKey}
 */
   privateKey(): PrivateKey;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly idx: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly kind: string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 }
@@ -734,30 +773,30 @@ export class MorpheusPrivateKey {
 export class MorpheusPrivateKind {
   free(): void;
 /**
-* @param {number} idx 
-* @returns {MorpheusPrivateKey} 
+* @param {number} idx
+* @returns {MorpheusPrivateKey}
 */
   key(idx: number): MorpheusPrivateKey;
 /**
-* @param {number} idx 
-* @returns {Did} 
+* @param {number} idx
+* @returns {Did}
 */
   did(idx: number): Did;
 /**
-* @param {PublicKey} id 
-* @returns {MorpheusPrivateKey} 
+* @param {PublicKey} id
+* @returns {MorpheusPrivateKey}
 */
   keyByPublicKey(id: PublicKey): MorpheusPrivateKey;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly count: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly kind: string;
 /**
-* @returns {MorpheusPublicKind} 
+* @returns {MorpheusPublicKind}
 */
   readonly pub: MorpheusPublicKind;
 }
@@ -766,12 +805,12 @@ export class MorpheusPrivateKind {
 export class MorpheusPublic {
   free(): void;
 /**
-* @param {KeyId} id 
-* @returns {PublicKey} 
+* @param {KeyId} id
+* @returns {PublicKey}
 */
   keyById(id: KeyId): PublicKey;
 /**
-* @returns {MorpheusPublicKind} 
+* @returns {MorpheusPublicKind}
 */
   readonly personas: MorpheusPublicKind;
 }
@@ -780,19 +819,19 @@ export class MorpheusPublic {
 export class MorpheusPublicKey {
   free(): void;
 /**
-* @returns {PublicKey} 
+* @returns {PublicKey}
 */
   publicKey(): PublicKey;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly idx: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly kind: string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 }
@@ -801,26 +840,26 @@ export class MorpheusPublicKey {
 export class MorpheusPublicKind {
   free(): void;
 /**
-* @param {number} idx 
-* @returns {PublicKey} 
+* @param {number} idx
+* @returns {PublicKey}
 */
   key(idx: number): PublicKey;
 /**
-* @param {number} idx 
-* @returns {Did} 
+* @param {number} idx
+* @returns {Did}
 */
   did(idx: number): Did;
 /**
-* @param {KeyId} id 
-* @returns {PublicKey} 
+* @param {KeyId} id
+* @returns {PublicKey}
 */
   keyById(id: KeyId): PublicKey;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly count: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly kind: string;
 }
@@ -829,11 +868,11 @@ export class MorpheusPublicKind {
 export class MorpheusRoot {
   free(): void;
 /**
-* @returns {MorpheusKind} 
+* @returns {MorpheusKind}
 */
   personas(): MorpheusKind;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly path: string;
 }
@@ -842,17 +881,17 @@ export class MorpheusRoot {
 export class PrivateKey {
   free(): void;
 /**
-* @param {SecpPrivateKey} sk 
-* @returns {PrivateKey} 
+* @param {SecpPrivateKey} sk
+* @returns {PrivateKey}
 */
   static fromSecp(sk: SecpPrivateKey): PrivateKey;
 /**
-* @returns {PublicKey} 
+* @returns {PublicKey}
 */
   publicKey(): PublicKey;
 /**
-* @param {Uint8Array} data 
-* @returns {Signature} 
+* @param {Uint8Array} data
+* @returns {Signature}
 */
   signEcdsa(data: Uint8Array): Signature;
 }
@@ -861,35 +900,35 @@ export class PrivateKey {
 export class PublicKey {
   free(): void;
 /**
-* @param {string} pub_key_str 
+* @param {string} pub_key_str
 */
   constructor(pub_key_str: string);
 /**
-* @param {SecpPublicKey} pk 
-* @returns {PublicKey} 
+* @param {SecpPublicKey} pk
+* @returns {PublicKey}
 */
   static fromSecp(pk: SecpPublicKey): PublicKey;
 /**
-* @returns {string} 
+* @returns {string}
 */
   static prefix(): string;
 /**
-* @returns {KeyId} 
+* @returns {KeyId}
 */
   keyId(): KeyId;
 /**
-* @param {KeyId} key_id 
-* @returns {boolean} 
+* @param {KeyId} key_id
+* @returns {boolean}
 */
   validateId(key_id: KeyId): boolean;
 /**
-* @param {Uint8Array} data 
-* @param {Signature} signature 
-* @returns {boolean} 
+* @param {Uint8Array} data
+* @param {Signature} signature
+* @returns {boolean}
 */
   validateEcdsa(data: Uint8Array, signature: Signature): boolean;
 /**
-* @returns {string} 
+* @returns {string}
 */
   toString(): string;
 }
@@ -903,22 +942,22 @@ export class SecpKeyId {
 export class SecpPrivateKey {
   free(): void;
 /**
-* @param {string} phrase 
-* @returns {SecpPrivateKey} 
+* @param {string} phrase
+* @returns {SecpPrivateKey}
 */
   static fromArkPassphrase(phrase: string): SecpPrivateKey;
 /**
-* @param {string} network 
-* @returns {string} 
+* @param {string} network
+* @returns {string}
 */
   toWif(network: string): string;
 /**
-* @returns {SecpPublicKey} 
+* @returns {SecpPublicKey}
 */
   publicKey(): SecpPublicKey;
 /**
-* @param {Uint8Array} data 
-* @returns {SecpSignature} 
+* @param {Uint8Array} data
+* @returns {SecpSignature}
 */
   signEcdsa(data: Uint8Array): SecpSignature;
 }
@@ -927,26 +966,35 @@ export class SecpPrivateKey {
 export class SecpPublicKey {
   free(): void;
 /**
-* @param {string} key 
+* @param {string} key
 */
   constructor(key: string);
 /**
-* @returns {SecpKeyId} 
+* @returns {SecpKeyId}
 */
   keyId(): SecpKeyId;
 /**
-* @param {SecpKeyId} key_id 
-* @returns {boolean} 
+* @returns {SecpKeyId}
+*/
+  arkKeyId(): SecpKeyId;
+/**
+* @param {SecpKeyId} key_id
+* @returns {boolean}
 */
   validateId(key_id: SecpKeyId): boolean;
 /**
-* @param {Uint8Array} data 
-* @param {SecpSignature} signature 
-* @returns {boolean} 
+* @param {SecpKeyId} key_id
+* @returns {boolean}
+*/
+  validateArkId(key_id: SecpKeyId): boolean;
+/**
+* @param {Uint8Array} data
+* @param {SecpSignature} signature
+* @returns {boolean}
 */
   validateEcdsa(data: Uint8Array, signature: SecpSignature): boolean;
 /**
-* @returns {string} 
+* @returns {string}
 */
   toString(): string;
 }
@@ -955,16 +1003,16 @@ export class SecpPublicKey {
 export class SecpSignature {
   free(): void;
 /**
-* @param {Uint8Array} bytes 
-* @returns {SecpSignature} 
+* @param {Uint8Array} bytes
+* @returns {SecpSignature}
 */
   static fromDer(bytes: Uint8Array): SecpSignature;
 /**
-* @returns {Uint8Array} 
+* @returns {Uint8Array}
 */
   toDer(): Uint8Array;
 /**
-* @returns {string} 
+* @returns {string}
 */
   toString(): string;
 }
@@ -973,19 +1021,19 @@ export class SecpSignature {
 export class Seed {
   free(): void;
 /**
-* @param {Uint8Array} bytes 
+* @param {Uint8Array} bytes
 */
   constructor(bytes: Uint8Array);
 /**
-* @returns {string} 
+* @returns {string}
 */
   static demoPhrase(): string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   static legacyPassword(): string;
 /**
-* @returns {Uint8Array} 
+* @returns {Uint8Array}
 */
   toBytes(): Uint8Array;
 }
@@ -994,20 +1042,20 @@ export class Seed {
 export class Signature {
   free(): void;
 /**
-* @param {string} sign_str 
+* @param {string} sign_str
 */
   constructor(sign_str: string);
 /**
-* @param {SecpSignature} secp 
-* @returns {Signature} 
+* @param {SecpSignature} secp
+* @returns {Signature}
 */
   static fromSecp(secp: SecpSignature): Signature;
 /**
-* @returns {string} 
+* @returns {string}
 */
   static prefix(): string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   toString(): string;
 }
@@ -1016,25 +1064,37 @@ export class Signature {
 export class SignedBytes {
   free(): void;
 /**
-* @param {PublicKey} public_key 
-* @param {Uint8Array} content 
-* @param {Signature} signature 
+* @param {PublicKey} public_key
+* @param {Uint8Array} content
+* @param {Signature} signature
 */
   constructor(public_key: PublicKey, content: Uint8Array, signature: Signature);
 /**
-* @returns {boolean} 
+* @returns {boolean}
 */
   validate(): boolean;
 /**
-* @returns {Uint8Array} 
+* @param {KeyId} signer_id
+* @returns {boolean}
+*/
+  validateWithKeyId(signer_id: KeyId): boolean;
+/**
+* @param {string} did_doc_str
+* @param {number | undefined} from_height_inc
+* @param {number | undefined} until_height_exc
+* @returns {any}
+*/
+  validateWithDidDoc(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
+/**
+* @returns {Uint8Array}
 */
   readonly content: Uint8Array;
 /**
-* @returns {PublicKey} 
+* @returns {PublicKey}
 */
   readonly publicKey: PublicKey;
 /**
-* @returns {Signature} 
+* @returns {Signature}
 */
   readonly signature: Signature;
 }
@@ -1043,37 +1103,37 @@ export class SignedBytes {
 export class SignedJson {
   free(): void;
 /**
-* @param {PublicKey} public_key 
-* @param {any} content 
-* @param {Signature} signature 
+* @param {PublicKey} public_key
+* @param {any} content
+* @param {Signature} signature
 */
   constructor(public_key: PublicKey, content: any, signature: Signature);
 /**
-* @returns {boolean} 
+* @returns {boolean}
 */
   validate(): boolean;
 /**
-* @param {KeyId} signer_id 
-* @returns {boolean} 
+* @param {KeyId} signer_id
+* @returns {boolean}
 */
   validateWithKeyId(signer_id: KeyId): boolean;
 /**
-* @param {string} did_doc_str 
-* @param {number | undefined} from_height_inc 
-* @param {number | undefined} until_height_exc 
-* @returns {any} 
+* @param {string} did_doc_str
+* @param {number | undefined} from_height_inc
+* @param {number | undefined} until_height_exc
+* @returns {any}
 */
   validateWithDidDoc(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
 /**
-* @returns {any} 
+* @returns {any}
 */
   readonly content: any;
 /**
-* @returns {PublicKey} 
+* @returns {PublicKey}
 */
   readonly publicKey: PublicKey;
 /**
-* @returns {Signature} 
+* @returns {Signature}
 */
   readonly signature: Signature;
 }
@@ -1082,15 +1142,15 @@ export class SignedJson {
 export class ValidationIssue {
   free(): void;
 /**
-* @returns {number} 
+* @returns {number}
 */
   readonly code: number;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly reason: string;
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly severity: string;
 }
@@ -1099,11 +1159,11 @@ export class ValidationIssue {
 export class ValidationResult {
   free(): void;
 /**
-* @returns {any[]} 
+* @returns {any[]}
 */
   readonly messages: any[];
 /**
-* @returns {string} 
+* @returns {string}
 */
   readonly status: string;
 }
@@ -1112,32 +1172,32 @@ export class ValidationResult {
 export class Vault {
   free(): void;
 /**
-* @param {string} phrase 
-* @param {string} bip39_password 
-* @param {string} unlock_password 
-* @param {string | undefined} language 
-* @returns {Vault} 
+* @param {string} phrase
+* @param {string} bip39_password
+* @param {string} unlock_password
+* @param {string | undefined} language
+* @returns {Vault}
 */
   static create(phrase: string, bip39_password: string, unlock_password: string, language?: string): Vault;
 /**
-* @param {any} data 
-* @returns {Vault} 
+* @param {any} data
+* @returns {Vault}
 */
   static load(data: any): Vault;
 /**
-* @returns {any} 
+* @returns {any}
 */
   save(): any;
 /**
 */
   setDirty(): void;
 /**
-* @param {string} password 
-* @returns {Seed} 
+* @param {string} password
+* @returns {Seed}
 */
   unlock(password: string): Seed;
 /**
-* @returns {boolean} 
+* @returns {boolean}
 */
   readonly dirty: boolean;
 }
