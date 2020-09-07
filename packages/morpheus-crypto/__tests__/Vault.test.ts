@@ -3,12 +3,14 @@ import {
   HydraPlugin,
   KeyId,
   MorpheusPlugin,
-  SecpPrivateKey,
   Seed,
   Vault,
   HydraParameters,
+  SecpKeyId,
+  HydraSigner,
 } from '../src';
 import { installWindowCrypto } from './utils';
+import { HydraTxBuilder } from '@internet-of-people/morpheus-crypto-wasm';
 
 installWindowCrypto();
 const unlockPassword = 'correct horse battery staple';
@@ -66,7 +68,7 @@ describe('Vault BIP44 plugins', () => {
     const stateString = JSON.stringify(vault.save(), undefined, 2);
     expect(vault.dirty).toBe(false);
 
-    console.log(stateString);
+    // console.log(stateString);
 
     // Notice how unlockPassword is not needed to use the public API
     const vaultRestored = Vault.load(JSON.parse(stateString));
@@ -78,32 +80,71 @@ describe('Vault BIP44 plugins', () => {
     expect(pk1Restored.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
   });
 
-  // TODO Currently we do not have the transaction serializer in morpheus-crypto-wasm, therefore we would have to
-  // rely on @ark-ecosystem/crypto to build the transfer transaction object...
-  it.skip('ARK passphrase', () => {
-    const phrase = 'scout try doll stuff cake welcome random taste load town clerk ostrich';
-    const sig = '3044' +
-    '02207a0f32cc466b820ca9f76fbe595f7ac091144b89a7a9ff75df6f55ad17d4e311' +
-    '02204e1123a2741e1dee12ad985b194b2ed600ecad0765f2d3f2c6c18e46b0c3fce0';
-    const sk = SecpPrivateKey.fromArkPassphrase(phrase);
-    const transfer = {
-      transactions: [
-        {
-          version: 2,
-          network: 128,
-          typeGroup: 1,
-          type: 0,
-          nonce: 69,
-          senderPublicKey: '03d4bda72219264ff106e21044b047b6c6b2c0dde8f49b42c848e086b97920adbf',
-          fee: 10000000,
-          amount: 100000000,
-          recipientId: 'tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J',
-          id: 'b9e4c443071c166ca76a225a55e193deff837c5168818b715f5221b66e6f302c',
-          signature: sig,
-        },
-      ],
-    };
-    sk.signEcdsa(Uint8Array.from(Buffer.from(JSON.stringify(transfer), 'utf-8')));
+  it('Vault can sign Hydra transactions', () => {
+    const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
+    const params = new HydraParameters(Coin.Hydra.Testnet, 0);
+    HydraPlugin.rewind(vault, unlockPassword, params);
+    const account = HydraPlugin.get(vault, params);
+
+    const bip44Key = account.priv(unlockPassword).key(0);
+    const sk = bip44Key.privateKey();
+    const pk = sk.publicKey();
+    const signer = new HydraSigner(sk);
+
+    const { network } = bip44Key;
+    const builder = new HydraTxBuilder(network);
+
+    // const recipient = pk.arkKeyId();
+    const recipient = SecpKeyId.fromAddress('tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J', network);
+    const transfer = builder.transfer(recipient, pk, BigInt(100000000), BigInt(69));
+    expect(JSON.stringify(transfer, null, 2)).toBe(
+      '{\n' +
+        '  "version": 2,\n' +
+        '  "network": 128,\n' +
+        '  "typeGroup": 1,\n' +
+        '  "type": 0,\n' +
+        '  "nonce": "69",\n' +
+        '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
+        '  "fee": "10000000",\n' +
+        '  "amount": "100000000",\n' +
+        '  "recipientId": "tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J"\n' +
+        '}');
+
+    const signedTransfer = signer.signHydraTransaction(transfer);
+
+    expect(signedTransfer.id).toBe('b82eb0a55edc52f6700f7ca8bcf77d24491f9b256e98f2655d1943ae6f36d998');
+    expect(signedTransfer.signature).toBe(
+      '3045' +
+      '022100daabffa197f8eab8540c8c010f99b1cea3378ecad5c683c0792861f38270be69' +
+      '02203e4146b141234d028a44398cb0edc2c2e768e95ca0d7a8996c39c3764ed95a8f',
+    );
+
+    const vote = builder.vote(pk, pk, BigInt(69));
+    expect(JSON.stringify(vote, null, 2)).toBe(
+      '{\n' +
+        '  "version": 2,\n' +
+        '  "network": 128,\n' +
+        '  "typeGroup": 1,\n' +
+        '  "type": 3,\n' +
+        '  "nonce": "69",\n' +
+        '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
+        '  "fee": "100000000",\n' +
+        '  "amount": "0",\n' +
+        '  "asset": {\n' +
+        '    "votes": [\n' +
+        '      "+02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7"\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}');
+
+    const signedVote = signer.signHydraTransaction(vote);
+
+    expect(signedVote.id).toBe('5906c4029b4af11951e87db86214250843fb56bb35a7436fbbe8bf59209102b2');
+    expect(signedVote.signature).toBe(
+      '3045' +
+      '022100e58086aadc80b23d5f61ad83de83802e6c75ecd6a9ce611f0409fbeb67dd9762' +
+      '0220125712f47c5147348fc934e14bcb7b73109149d5ed466d63bb20b948d728fb93',
+    );
   });
 });
 
@@ -148,7 +189,7 @@ describe('Vault Morpheus plugin', () => {
     const stateString = JSON.stringify(vault.save(), undefined, 2);
     expect(vault.dirty).toBe(false);
 
-    console.log(stateString);
+    // console.log(stateString);
 
     // Notice how unlockPassword is not needed to use the public API
     const vaultRestored = Vault.load(JSON.parse(stateString));

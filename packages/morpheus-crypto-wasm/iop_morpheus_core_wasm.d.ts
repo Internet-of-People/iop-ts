@@ -73,6 +73,10 @@ export class Bip32Node {
 /**
 * @returns {string}
 */
+  readonly network: string;
+/**
+* @returns {string}
+*/
   readonly path: string;
 }
 /**
@@ -102,6 +106,10 @@ export class Bip32PublicNode {
 * @returns {string}
 */
   toP2pkh(name: string): string;
+/**
+* @returns {string}
+*/
+  readonly network: string;
 /**
 * @returns {string}
 */
@@ -200,6 +208,10 @@ export class Bip44Account {
 /**
 * @returns {string}
 */
+  readonly network: string;
+/**
+* @returns {string}
+*/
   readonly path: string;
 /**
 * @returns {number}
@@ -223,6 +235,10 @@ export class Bip44Coin {
 * @returns {Bip44Account}
 */
   account(account: number): Bip44Account;
+/**
+* @returns {string}
+*/
+  readonly network: string;
 /**
 * @returns {string}
 */
@@ -267,6 +283,10 @@ export class Bip44Key {
 /**
 * @returns {string}
 */
+  readonly network: string;
+/**
+* @returns {string}
+*/
   readonly path: string;
 /**
 * @returns {number}
@@ -306,6 +326,10 @@ export class Bip44PublicAccount {
 * @returns {number}
 */
   readonly account: number;
+/**
+* @returns {string}
+*/
+  readonly network: string;
 /**
 * @returns {string}
 */
@@ -354,6 +378,10 @@ export class Bip44PublicKey {
 /**
 * @returns {string}
 */
+  readonly network: string;
+/**
+* @returns {string}
+*/
   readonly path: string;
 /**
 * @returns {number}
@@ -389,6 +417,10 @@ export class Bip44PublicSubAccount {
 * @returns {boolean}
 */
   readonly change: boolean;
+/**
+* @returns {string}
+*/
+  readonly network: string;
 /**
 * @returns {string}
 */
@@ -435,6 +467,10 @@ export class Bip44SubAccount {
 * @returns {boolean}
 */
   readonly change: boolean;
+/**
+* @returns {string}
+*/
+  readonly network: string;
 /**
 * @returns {string}
 */
@@ -535,6 +571,10 @@ export class HydraPrivate {
 */
   readonly changeKeys: number;
 /**
+* @returns {string}
+*/
+  readonly network: string;
+/**
 * @returns {HydraPublic}
 */
   readonly pub: HydraPublic;
@@ -542,6 +582,10 @@ export class HydraPrivate {
 * @returns {number}
 */
   readonly receiveKeys: number;
+/**
+* @returns {string}
+*/
+  readonly xprv: string;
 /**
 * @returns {string}
 */
@@ -566,6 +610,10 @@ export class HydraPublic {
 */
   readonly changeKeys: number;
 /**
+* @returns {string}
+*/
+  readonly network: string;
+/**
 * @returns {number}
 */
   readonly receiveKeys: number;
@@ -573,6 +621,58 @@ export class HydraPublic {
 * @returns {string}
 */
   readonly xpub: string;
+}
+/**
+*/
+export class HydraSigner {
+  free(): void;
+/**
+* @param {SecpPrivateKey} inner
+*/
+  constructor(inner: SecpPrivateKey);
+/**
+* @param {any} transaction
+* @returns {any}
+*/
+  signHydraTransaction(transaction: any): any;
+}
+/**
+*/
+export class HydraTxBuilder {
+  free(): void;
+/**
+* @param {string} network_name
+*/
+  constructor(network_name: string);
+/**
+* @param {SecpKeyId} recipient_id
+* @param {SecpPublicKey} sender_pubkey
+* @param {BigInt} amount_flake
+* @param {BigInt} nonce
+* @returns {any}
+*/
+  transfer(recipient_id: SecpKeyId, sender_pubkey: SecpPublicKey, amount_flake: BigInt, nonce: BigInt): any;
+/**
+* @param {SecpPublicKey} delegate
+* @param {SecpPublicKey} sender_pubkey
+* @param {BigInt} nonce
+* @returns {any}
+*/
+  vote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt): any;
+/**
+* @param {SecpPublicKey} delegate
+* @param {SecpPublicKey} sender_pubkey
+* @param {BigInt} nonce
+* @returns {any}
+*/
+  unvote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt): any;
+/**
+* @param {SecpPublicKey} sender_pubkey
+* @param {string} delegate_name
+* @param {BigInt} nonce
+* @returns {any}
+*/
+  registerDelegate(sender_pubkey: SecpPublicKey, delegate_name: string, nonce: BigInt): any;
 }
 export class JsBip32 {
   free(): void;
@@ -936,6 +1036,12 @@ export class PublicKey {
 */
 export class SecpKeyId {
   free(): void;
+/**
+* @param {string} address
+* @param {string} network
+* @returns {SecpKeyId}
+*/
+  static fromAddress(address: string, network: string): SecpKeyId;
 }
 /**
 */
@@ -946,6 +1052,12 @@ export class SecpPrivateKey {
 * @returns {SecpPrivateKey}
 */
   static fromArkPassphrase(phrase: string): SecpPrivateKey;
+/**
+* @param {string} wif
+* @param {string} network
+* @returns {SecpPrivateKey}
+*/
+  static fromWif(wif: string, network: string): SecpPrivateKey;
 /**
 * @param {string} network
 * @returns {string}

@@ -1,6 +1,6 @@
 import { Identities, Interfaces, Transactions, Managers, Errors } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
-import { log, HydraPrivate } from '@internet-of-people/morpheus-crypto';
+import { log, HydraPrivate, HydraTxBuilder, SecpKeyId, SecpPublicKey } from '@internet-of-people/morpheus-crypto';
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
@@ -47,15 +47,55 @@ export class Api implements Types.Layer1.IApi {
     hydraPrivate: HydraPrivate,
     nonce?: BigInt,
   ): Promise<string> {
-    const tx = await this.buildTransferTxWithAddress(fromAddress, toAddress, amountFlake, nonce);
-    const bip44Key = hydraPrivate.pub.keyByAddress(fromAddress);
-    hydraPrivate.pub.key(bip44Key.key);
+    const { network } = hydraPrivate;
+    const tx = new HydraTxBuilder(network)
+      .transfer(
+        SecpKeyId.fromAddress(toAddress, network),
+        hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
+        amountFlake,
+        nonce ?? await this.nextWalletNonceByAddress(fromAddress),
+      );
 
-    const txData = tx
-      .senderPublicKey(bip44Key.publicKey().toString())
-      .build()
-      .data;
-    const signedTx = hydraPrivate.signHydraTransaction(fromAddress, txData);
+    const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
+
+    return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  }
+
+  public async sendVoteTx(
+    fromAddress: string,
+    delegate: SecpPublicKey,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string> {
+    const { network } = hydraPrivate;
+    const tx = new HydraTxBuilder(network)
+      .vote(
+        delegate,
+        hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
+        nonce ?? await this.nextWalletNonceByAddress(fromAddress),
+      );
+
+    const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
+
+    return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  }
+
+  public async sendUnvoteTx(
+    fromAddress: string,
+    delegate: SecpPublicKey,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string> {
+    const { network } = hydraPrivate;
+    const tx = new HydraTxBuilder(network)
+      .unvote(
+        delegate,
+        hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
+        nonce ?? await this.nextWalletNonceByAddress(fromAddress),
+      );
+
+    const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
+
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
@@ -93,6 +133,25 @@ export class Api implements Types.Layer1.IApi {
 
     return this.clientInstance.sendTx(signedTx);
   }
+
+  // public async sendMorpheusTx(
+  //   gasAddress: string,
+  //   attempts: Types.Layer1.IOperationData[],
+  //   hydraPrivate: HydraPrivate,
+  //   nonce?: BigInt,
+  // ): Promise<string> {
+  //   const network = hydraPrivate.network;
+  //   const tx = new MorpheusTxBuilder(network)
+  //     .build(
+  //       attempts,
+  //       hydraPrivate.pub.keyByAddress(gasAddress).publicKey(),
+  //       nonce ?? await this.nextWalletNonceByAddress(gasAddress)
+  //     );
+
+  //   const signedTx = hydraPrivate.signHydraTransaction(gasAddress, tx);
+
+  //   return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  // }
 
   public async sendMorpheusTxWithWIF(
     attempts: Types.Layer1.IOperationData[],

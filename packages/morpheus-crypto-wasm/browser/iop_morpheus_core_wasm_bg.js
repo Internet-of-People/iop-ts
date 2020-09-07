@@ -1,6 +1,8 @@
 import * as wasm from './iop_morpheus_core_wasm_bg.wasm';
 
-let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+const lTextDecoder = typeof TextDecoder === 'undefined' ? (0, module.require)('util').TextDecoder : TextDecoder;
+
+let cachedTextDecoder = new lTextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 
 cachedTextDecoder.decode();
 
@@ -35,7 +37,9 @@ function getObject(idx) { return heap[idx]; }
 
 let WASM_VECTOR_LEN = 0;
 
-let cachedTextEncoder = new TextEncoder('utf-8');
+const lTextEncoder = typeof TextEncoder === 'undefined' ? (0, module.require)('util').TextEncoder : TextEncoder;
+
+let cachedTextEncoder = new lTextEncoder('utf-8');
 
 const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
     ? function (arg, view) {
@@ -114,10 +118,6 @@ function _assertClass(instance, klass) {
     }
     return instance.ptr;
 }
-
-const u32CvtShim = new Uint32Array(2);
-
-const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 
 let stack_pointer = 32;
 
@@ -209,6 +209,12 @@ function getArrayJsValueFromWasm0(ptr, len) {
     }
     return result;
 }
+
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+
+const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 /**
 * @param {Uint8Array} plain_text
 * @param {string} password
@@ -293,6 +299,19 @@ export class Bip32Node {
         this.ptr = 0;
 
         wasm.__wbg_bip32node_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip32node_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
     /**
     * @returns {string}
@@ -386,6 +405,19 @@ export class Bip32PublicNode {
         this.ptr = 0;
 
         wasm.__wbg_bip32publicnode_free(ptr);
+    }
+    /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip32publicnode_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
     /**
     * @returns {string}
@@ -620,6 +652,19 @@ export class Bip44Account {
         return Bip32Node.__wrap(ret);
     }
     /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip44account_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
     * @param {boolean} change
     * @returns {Bip44SubAccount}
     */
@@ -722,6 +767,19 @@ export class Bip44Coin {
         return Bip32Node.__wrap(ret);
     }
     /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip44coin_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
     * @param {number} account
     * @returns {Bip44Account}
     */
@@ -786,6 +844,19 @@ export class Bip44Key {
     node() {
         var ret = wasm.bip44key_node(this.ptr);
         return Bip32Node.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip44key_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
     /**
     * @returns {SecpPrivateKey}
@@ -879,6 +950,19 @@ export class Bip44PublicAccount {
     node() {
         var ret = wasm.bip44publicaccount_node(this.ptr);
         return Bip32PublicNode.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip44publicaccount_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
     /**
     * @param {boolean} change
@@ -976,6 +1060,19 @@ export class Bip44PublicKey {
         return Bip32PublicNode.__wrap(ret);
     }
     /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip44publickey_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
     * @returns {SecpPublicKey}
     */
     publicKey() {
@@ -1067,6 +1164,19 @@ export class Bip44PublicSubAccount {
     node() {
         var ret = wasm.bip44publicsubaccount_node(this.ptr);
         return Bip32PublicNode.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip44publicsubaccount_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
     /**
     * @param {number} idx
@@ -1162,6 +1272,19 @@ export class Bip44SubAccount {
     node() {
         var ret = wasm.bip44subaccount_node(this.ptr);
         return Bip32Node.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.bip44subaccount_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
     /**
     * @param {number} idx
@@ -1421,6 +1544,19 @@ export class HydraPrivate {
         return HydraPublic.__wrap(ret);
     }
     /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.hydraprivate_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
     * @param {number} idx
     * @returns {Bip44Key}
     */
@@ -1443,6 +1579,19 @@ export class HydraPrivate {
     get xpub() {
         try {
             wasm.hydraprivate_xpub(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
+    * @returns {string}
+    */
+    get xprv() {
+        try {
+            wasm.hydraprivate_xprv(8, this.ptr);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -1498,6 +1647,19 @@ export class HydraPublic {
         wasm.__wbg_hydrapublic_free(ptr);
     }
     /**
+    * @returns {string}
+    */
+    get network() {
+        try {
+            wasm.hydrapublic_network(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
+    /**
     * @param {number} idx
     * @returns {Bip44PublicKey}
     */
@@ -1541,6 +1703,138 @@ export class HydraPublic {
         var len0 = WASM_VECTOR_LEN;
         var ret = wasm.hydrapublic_keyByAddress(this.ptr, ptr0, len0);
         return Bip44PublicKey.__wrap(ret);
+    }
+}
+/**
+*/
+export class HydraSigner {
+
+    static __wrap(ptr) {
+        const obj = Object.create(HydraSigner.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_hydrasigner_free(ptr);
+    }
+    /**
+    * @param {SecpPrivateKey} inner
+    */
+    constructor(inner) {
+        _assertClass(inner, SecpPrivateKey);
+        var ptr0 = inner.ptr;
+        inner.ptr = 0;
+        var ret = wasm.hydrasigner_new(ptr0);
+        return HydraSigner.__wrap(ret);
+    }
+    /**
+    * @param {any} transaction
+    * @returns {any}
+    */
+    signHydraTransaction(transaction) {
+        try {
+            var ret = wasm.hydrasigner_signHydraTransaction(this.ptr, addBorrowedObject(transaction));
+            return takeObject(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+}
+/**
+*/
+export class HydraTxBuilder {
+
+    static __wrap(ptr) {
+        const obj = Object.create(HydraTxBuilder.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_hydratxbuilder_free(ptr);
+    }
+    /**
+    * @param {string} network_name
+    */
+    constructor(network_name) {
+        var ptr0 = passStringToWasm0(network_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.hydratxbuilder_new(ptr0, len0);
+        return HydraTxBuilder.__wrap(ret);
+    }
+    /**
+    * @param {SecpKeyId} recipient_id
+    * @param {SecpPublicKey} sender_pubkey
+    * @param {BigInt} amount_flake
+    * @param {BigInt} nonce
+    * @returns {any}
+    */
+    transfer(recipient_id, sender_pubkey, amount_flake, nonce) {
+        _assertClass(recipient_id, SecpKeyId);
+        _assertClass(sender_pubkey, SecpPublicKey);
+        uint64CvtShim[0] = amount_flake;
+        const low0 = u32CvtShim[0];
+        const high0 = u32CvtShim[1];
+        uint64CvtShim[0] = nonce;
+        const low1 = u32CvtShim[0];
+        const high1 = u32CvtShim[1];
+        var ret = wasm.hydratxbuilder_transfer(this.ptr, recipient_id.ptr, sender_pubkey.ptr, low0, high0, low1, high1);
+        return takeObject(ret);
+    }
+    /**
+    * @param {SecpPublicKey} delegate
+    * @param {SecpPublicKey} sender_pubkey
+    * @param {BigInt} nonce
+    * @returns {any}
+    */
+    vote(delegate, sender_pubkey, nonce) {
+        _assertClass(delegate, SecpPublicKey);
+        _assertClass(sender_pubkey, SecpPublicKey);
+        uint64CvtShim[0] = nonce;
+        const low0 = u32CvtShim[0];
+        const high0 = u32CvtShim[1];
+        var ret = wasm.hydratxbuilder_vote(this.ptr, delegate.ptr, sender_pubkey.ptr, low0, high0);
+        return takeObject(ret);
+    }
+    /**
+    * @param {SecpPublicKey} delegate
+    * @param {SecpPublicKey} sender_pubkey
+    * @param {BigInt} nonce
+    * @returns {any}
+    */
+    unvote(delegate, sender_pubkey, nonce) {
+        _assertClass(delegate, SecpPublicKey);
+        _assertClass(sender_pubkey, SecpPublicKey);
+        uint64CvtShim[0] = nonce;
+        const low0 = u32CvtShim[0];
+        const high0 = u32CvtShim[1];
+        var ret = wasm.hydratxbuilder_unvote(this.ptr, delegate.ptr, sender_pubkey.ptr, low0, high0);
+        return takeObject(ret);
+    }
+    /**
+    * @param {SecpPublicKey} sender_pubkey
+    * @param {string} delegate_name
+    * @param {BigInt} nonce
+    * @returns {any}
+    */
+    registerDelegate(sender_pubkey, delegate_name, nonce) {
+        _assertClass(sender_pubkey, SecpPublicKey);
+        var ptr0 = passStringToWasm0(delegate_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        uint64CvtShim[0] = nonce;
+        const low1 = u32CvtShim[0];
+        const high1 = u32CvtShim[1];
+        var ret = wasm.hydratxbuilder_registerDelegate(this.ptr, sender_pubkey.ptr, ptr0, len0, low1, high1);
+        return takeObject(ret);
     }
 }
 
@@ -2443,6 +2737,19 @@ export class SecpKeyId {
 
         wasm.__wbg_secpkeyid_free(ptr);
     }
+    /**
+    * @param {string} address
+    * @param {string} network
+    * @returns {SecpKeyId}
+    */
+    static fromAddress(address, network) {
+        var ptr0 = passStringToWasm0(address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        var ret = wasm.secpkeyid_fromAddress(ptr0, len0, ptr1, len1);
+        return SecpKeyId.__wrap(ret);
+    }
 }
 /**
 */
@@ -2469,6 +2776,19 @@ export class SecpPrivateKey {
         var ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len0 = WASM_VECTOR_LEN;
         var ret = wasm.secpprivatekey_fromArkPassphrase(ptr0, len0);
+        return SecpPrivateKey.__wrap(ret);
+    }
+    /**
+    * @param {string} wif
+    * @param {string} network
+    * @returns {SecpPrivateKey}
+    */
+    static fromWif(wif, network) {
+        var ptr0 = passStringToWasm0(wif, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        var ret = wasm.secpprivatekey_fromWif(ptr0, len0, ptr1, len1);
         return SecpPrivateKey.__wrap(ret);
     }
     /**
@@ -3105,21 +3425,6 @@ export class Vault {
     }
 }
 
-export const __wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
-    return addHeapObject(ret);
-};
-
-export const __wbg_validationissue_new = function(arg0) {
-    var ret = ValidationIssue.__wrap(arg0);
-    return addHeapObject(ret);
-};
-
-export const __wbg_validationresult_new = function(arg0) {
-    var ret = ValidationResult.__wrap(arg0);
-    return addHeapObject(ret);
-};
-
 export const __wbindgen_json_parse = function(arg0, arg1) {
     var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
@@ -3134,8 +3439,23 @@ export const __wbindgen_json_serialize = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
+export const __wbg_validationissue_new = function(arg0) {
+    var ret = ValidationIssue.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
+export const __wbg_validationresult_new = function(arg0) {
+    var ret = ValidationResult.__wrap(arg0);
+    return addHeapObject(ret);
+};
+
 export const __wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
+};
+
+export const __wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
+    return addHeapObject(ret);
 };
 
 export const __wbg_getTime_8e7a0578598e5039 = function(arg0) {

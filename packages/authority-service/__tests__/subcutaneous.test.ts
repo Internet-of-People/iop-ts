@@ -56,11 +56,11 @@ describe('Service', () => {
   let cap1: Types.Authority.CapabilityLink | null = null;
   let cap2: Types.Authority.CapabilityLink | null = null;
 
-  const createStorage = async (): Promise<SqliteStorage> => {
+  const createStorage = async(): Promise<SqliteStorage> => {
     return SqliteStorage.open(dbFilename);
   };
 
-  const createServer = async (): Promise<Server> => {
+  const createServer = async(): Promise<Server> => {
     const storage = await createStorage();
     const users = new FixedUsers(persona(0).neuter()
       .publicKey()
@@ -70,7 +70,7 @@ describe('Service', () => {
     return new Server(service, jwtAuth);
   };
 
-  beforeAll(async (): Promise<void> => {
+  beforeAll(async(): Promise<void> => {
     try {
       unlinkSync(dbFilename);
     } catch (error) {
@@ -81,7 +81,7 @@ describe('Service', () => {
     await addProcesses('./processes/', storage);
   });
 
-  it('returns processes', async () => {
+  it('returns processes', async() => {
     const server = await createServer();
     await request(server.app)
       .get('/processes')
@@ -94,7 +94,7 @@ describe('Service', () => {
       });
   });
 
-  it('has process blob', async () => {
+  it('has process blob', async() => {
     const server = await createServer();
     await request(server.app)
       .get('/blob/cjuc1fS3_nrxuK0bRr3P3jZeFeT51naOCMXDPekX8rPqho')
@@ -110,7 +110,7 @@ describe('Service', () => {
       });
   });
 
-  it('request can be sent', async () => {
+  it('request can be sent', async() => {
     const server = await createServer();
     await postAuth(server.app, '/requests', req1)
       .expect((res: request.Response) => {
@@ -121,7 +121,7 @@ describe('Service', () => {
       });
   });
 
-  it('request status can be queried', async () => {
+  it('request status can be queried', async() => {
     const server = await createServer();
     expect(cap1).not.toBeNull();
     await request(server.app)
@@ -135,7 +135,7 @@ describe('Service', () => {
       });
   });
 
-  it('resending request returns same capabilityLink', async () => {
+  it('resending request returns same capabilityLink', async() => {
     const server = await createServer();
     expect(cap1).not.toBeNull();
     await postAuth(server.app, '/requests', req1)
@@ -146,14 +146,14 @@ describe('Service', () => {
       });
   });
 
-  it('rejecting request', async () => {
+  it('rejecting request', async() => {
     const server = await createServer();
     expect(cap1).not.toBeNull();
     await postAuth(server.app, `/requests/${cap1}/reject`, { rejectionReason: 'Just because' })
       .expect(200);
   });
 
-  it('rejected request status has reason', async () => {
+  it('rejected request status has reason', async() => {
     const server = await createServer();
     expect(cap1).not.toBeNull();
     await request(server.app)
@@ -167,7 +167,7 @@ describe('Service', () => {
       });
   });
 
-  it('tampering with the request after signing is rejected', async () => {
+  it('tampering with the request after signing is rejected', async() => {
     const server = await createServer();
     const req1mod: Types.Sdk.ISigned<Types.Sdk.IWitnessRequest> = deepClone(req1);
     (req1mod.content as Types.Sdk.IWitnessRequest).nonce = Crypto.nonce264();
@@ -178,7 +178,7 @@ describe('Service', () => {
       });
   });
 
-  it('request is accepted again signed with a different nonce', async () => {
+  it('request is accepted again signed with a different nonce', async() => {
     const server = await createServer();
     expect(cap1).not.toBeNull();
     await postAuth(server.app, '/requests', req2)
@@ -191,7 +191,7 @@ describe('Service', () => {
       });
   });
 
-  it('approving request without authorization fails', async () => {
+  it('approving request without authorization fails', async() => {
     const server = await createServer();
     expect(cap2).not.toBeNull();
     await request(server.app)
@@ -202,7 +202,7 @@ describe('Service', () => {
       });
   });
 
-  it('approving request with unauthorized key fails', async () => {
+  it('approving request with unauthorized key fails', async() => {
     const server = await createServer();
     expect(cap2).not.toBeNull();
     await authApp(server.app, persona(1).privateKey())
@@ -212,7 +212,7 @@ describe('Service', () => {
       });
   });
 
-  it('approving request 2', async () => {
+  it('approving request 2', async() => {
     const server = await createServer();
     expect(cap2).not.toBeNull();
     await postAuth(server.app, `/requests/${cap2}/approve`, stmt2)
@@ -221,7 +221,7 @@ describe('Service', () => {
       });
   });
 
-  it('rejecting approved request fails', async () => {
+  it('rejecting approved request fails', async() => {
     const server = await createServer();
     expect(cap2).not.toBeNull();
     await postAuth(server.app, `/requests/${cap2}/reject`, { rejectionReason: 'Cause I can' })

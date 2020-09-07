@@ -1,5 +1,6 @@
 import { Interfaces } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
+import { HydraPrivate, SecpPublicKey } from '@internet-of-people/morpheus-crypto';
 import { IOperationData } from './operation-data';
 import { Sdk } from '../index';
 
@@ -50,6 +51,28 @@ export interface IApi {
   getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig>;
 
   getCurrentHeight(): Promise<number>;
+
+  sendTransferTx(
+    fromAddress: string,
+    toAddress: string,
+    amountFlake: BigInt,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string>;
+
+  sendVoteTx(
+    fromAddress: string,
+    delegate: SecpPublicKey,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string>;
+
+  sendUnvoteTx(
+    fromAddress: string,
+    delegate: SecpPublicKey,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string>;
 
   sendTransferTxWithWIF(
     fromWIF: string,

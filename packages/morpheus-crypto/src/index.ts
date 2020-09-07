@@ -20,6 +20,8 @@ export {
   HydraPlugin,
   HydraPrivate,
   HydraPublic,
+  HydraSigner,
+  HydraTxBuilder,
   JwtBuilder,
   JwtParser,
   KeyId,
