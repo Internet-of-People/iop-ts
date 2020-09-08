@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/did-manager",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "private": true,
   "author": {
     "url": "https://iop.global/dsf",
@@ -34,7 +34,7 @@
     "testPathIgnorePatterns": ["__tests__/utils.ts"]
   },
   "dependencies": {
-    "@internet-of-people/sdk": "3.1.1",
+    "@internet-of-people/sdk": "3.2.0",
     "bytebuffer": "5.0.1",
     "lodash.clonedeep": "4.5.0",
     "optional-js": "2.1.1"
