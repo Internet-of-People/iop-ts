@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-git checkout master
-
-declare -a packages=("sdk" "morpheus-crypto")
+declare -a packages=("morpheus-crypto-wasm" "morpheus-crypto" "did-manager" "sdk" "hydra-plugin")
 
 for package in "${packages[@]}"; do
     cd packages/$package
