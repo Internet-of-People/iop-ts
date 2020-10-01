@@ -5,11 +5,16 @@ import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces'
 import { Managers, Transactions, Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Wallets } from '@arkecosystem/core-state';
 
-import { Interfaces } from '@internet-of-people/did-manager';
 import { Crypto, Layer1, Types, Utils } from '@internet-of-people/sdk';
+import { ITransactionReader, READER_FACTORY_COMPONENT_NAME } from '@internet-of-people/hydra-plugin-core';
 
-import { MorpheusTransactionHandler } from '../src/transaction-handler';
-import { COMPONENT_NAME as READER_FACTORY_COMPONENT, ITransactionReader } from '../src/transaction-reader-factory';
+import { TransactionHandler } from '../src/node/transaction-handler';
+import {
+  IBlockHeightChange,
+  IMorpheusStateHandler,
+  IStateChange,
+  MORPHEUS_STATE_HANDLER_COMPONENT_NAME,
+} from '../src/interfaces/morpheus';
 
 class Fixture {
   public logMock = {
@@ -30,13 +35,13 @@ class Fixture {
       getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
       getDidTransactionIds: jest.fn<Types.Layer2.ITransactionIdHeight[], [Crypto.Did, boolean, number, number]>(),
     },
-    applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
-    applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
-    revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
-    revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
+    applyEmptyBlockToState: jest.fn<void, [IBlockHeightChange]>(),
+    applyTransactionToState: jest.fn<void, [IStateChange]>(),
+    revertEmptyBlockFromState: jest.fn<void, [IBlockHeightChange]>(),
+    revertTransactionFromState: jest.fn<void, [IStateChange]>(),
     dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
   };
-  public stateHandler = this.stateHandlerMock as Interfaces.IMorpheusStateHandler;
+  public stateHandler = this.stateHandlerMock as IMorpheusStateHandler;
 
   public transactionReaderMock = {
     hasNext: jest.fn<boolean, []>(),
@@ -46,8 +51,8 @@ class Fixture {
 
   public constructor() {
     try {
-      app.register(Interfaces.MORPHEUS_STATE_HANDLER_COMPONENT_NAME, asValue(this.stateHandler));
-      app.register(READER_FACTORY_COMPONENT, asValue(() => {
+      app.register(MORPHEUS_STATE_HANDLER_COMPONENT_NAME, asValue(this.stateHandler));
+      app.register(READER_FACTORY_COMPONENT_NAME, asValue(() => {
         return this.transactionReader;
       }));
       app.register(Utils.LOGGER_COMPONENT_NAME, asValue(this.log));
@@ -56,8 +61,8 @@ class Fixture {
     }
   }
 
-  public createSut(): MorpheusTransactionHandler {
-    return new MorpheusTransactionHandler();
+  public createSut(): TransactionHandler {
+    return new TransactionHandler();
   }
 
   public mockTransactionReader(txns: Database.IBootstrapTransaction[]): void {
@@ -103,7 +108,7 @@ beforeAll(() => {
 
 describe('TransactionHandler', () => {
   let fixture: Fixture;
-  let txHandler: MorpheusTransactionHandler;
+  let txHandler: TransactionHandler;
   beforeEach(() => {
     fixture = new Fixture();
     txHandler = fixture.createSut();

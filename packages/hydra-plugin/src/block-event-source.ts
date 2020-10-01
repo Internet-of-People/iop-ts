@@ -1,19 +1,9 @@
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
+import { IBlockEventSource, IBlockListener } from '@internet-of-people/hydra-plugin-core';
 import { Utils } from '@internet-of-people/sdk';
 
-import { IInitializable } from './main';
 import { Scheduler } from './scheduler';
-
-export interface IBlockListener {
-  onBlockApplied(block: CryptoIf.IBlockData): Promise<void>;
-  onBlockReverted(block: CryptoIf.IBlockData): Promise<void>;
-}
-
-export interface IBlockEventSource extends IInitializable {
-  subscribe(name: string, listener: IBlockListener): void;
-  unsubscribe(name: string): void;
-}
 
 export class BlockEventSource implements IBlockEventSource {
   private listeners: [string, IBlockListener][];

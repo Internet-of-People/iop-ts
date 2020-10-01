@@ -5,17 +5,14 @@ import { EventEmitter } from 'events';
 import { Server as HapiServer } from '@hapi/hapi';
 
 import { Crypto, Layer1, Layer2, Types, Utils } from '@internet-of-people/sdk';
-import { MorpheusTransaction } from '@internet-of-people/did-manager';
-const {
-  Operations: { RightRegistry },
-  MorpheusStateHandler: { MorpheusStateHandler },
-} = MorpheusTransaction;
+import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
+
 type IDidDocumentData = Types.Layer2.IDidDocumentData;
 type IBeforeProofHistory = Types.Layer2.IBeforeProofHistory;
 type Authentication = Types.Crypto.Authentication;
 type TransactionId = Types.Sdk.TransactionId;
 
-import { Layer2API, safePathInt } from '../src/layer2-api';
+import { Layer2API, safePathInt } from '../src/node/layer2-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { assertStringlyEqual, installWindowCrypto } from './utils';
 import {
@@ -26,6 +23,7 @@ import {
   keyId2,
   keyId3,
 } from './known-keys';
+import { RightRegistry } from '../src/morpheus-transaction/operations/did-document/right-registry';
 
 installWindowCrypto();
 

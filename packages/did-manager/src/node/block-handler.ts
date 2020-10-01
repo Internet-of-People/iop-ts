@@ -1,14 +1,14 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { Interfaces } from '@internet-of-people/did-manager';
+import { IBlockListener } from '@internet-of-people/hydra-plugin-core';
 import { Layer1, Types, Utils } from '@internet-of-people/sdk';
-import { IBlockListener } from './block-event-source';
+import { IMorpheusStateHandler } from '../interfaces/morpheus';
 
 /**
  * Handles Morpheus custom transactions on Layer 2 (IMorpheusState)
  */
 export class BlockHandler implements IBlockListener {
   public constructor(
-    private readonly stateHandler: Interfaces.IMorpheusStateHandler,
+    private readonly stateHandler: IMorpheusStateHandler,
     private readonly log: Utils.IAppLog,
   ) {}
 

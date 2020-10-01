@@ -12,7 +12,7 @@ export type TransactionReaderFactory = (
   constructor: typeof Transactions.Transaction,
 ) => Promise<ITransactionReader>;
 
-export const COMPONENT_NAME = 'morpheus-transaction-reader-factory';
+export const READER_FACTORY_COMPONENT_NAME = 'hydra-transaction-reader-factory';
 
 export const transactionReaderFactory: TransactionReaderFactory = async(connection, constructor) => {
   return TransactionReader.create(connection, constructor);

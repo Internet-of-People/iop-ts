@@ -1,26 +1,30 @@
 import { Utils } from '@internet-of-people/sdk';
 import { Interfaces } from '@internet-of-people/did-manager';
-import { IBlockEventSource, IBlockListener } from './block-event-source';
-import { IInitializable } from './main';
+import { IBlockEventSource, IBlockListener, IInitializable } from '@internet-of-people/hydra-plugin-core';
 
-export class MorpheusArkConnector implements IInitializable {
-  public static readonly SUBSCRIPTION_ID: string = 'Morpheus block-handler';
+export interface IBlockSubscriber {
+  subscriptionId: string;
+  listener: IBlockListener;
+}
 
+export class ArkConnector implements IInitializable {
   public constructor(
     private readonly eventEmitter: NodeJS.EventEmitter,
     private readonly log: Utils.IAppLog,
-    private readonly blockHandler: IBlockListener,
+    private readonly subscribers: IBlockSubscriber[],
     private readonly blockEventSource: IBlockEventSource,
   ) {}
 
   public async init(): Promise<void> {
-    this.log.info('Starting up Morpheus Connector');
+    this.log.info('Starting up Ark Connector');
 
-    this.blockEventSource.subscribe(MorpheusArkConnector.SUBSCRIPTION_ID, this.blockHandler);
+    for (const subscriber of this.subscribers) {
+      this.blockEventSource.subscribe(subscriber.subscriptionId, subscriber.listener);
 
-    this.eventEmitter.on(Interfaces.MorpheusEvents.StateCorrupted, () => {
-      this.blockEventSource.unsubscribe(MorpheusArkConnector.SUBSCRIPTION_ID);
-      this.log.error('State is corrupted, BlockHandler is unsubscribed');
-    });
+      this.eventEmitter.on(Interfaces.MorpheusEvents.StateCorrupted, () => {
+        this.blockEventSource.unsubscribe(subscriber.subscriptionId);
+        this.log.error('Morpheus\'s State is corrupted, BlockHandler is unsubscribed');
+      });
+    }
   }
 }

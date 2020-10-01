@@ -1,14 +1,14 @@
 import Optional from 'optional-js';
 
 import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
+import { DidOperationExtractor, ITransactionRepository } from '../src/node/did-operations';
 
-const { Operations: { RightRegistry } } = MorpheusTransaction;
 type TransactionId = Types.Sdk.TransactionId;
 
-import { DidOperationExtractor, ITransactionRepository } from '../src/did-operations';
 import { defaultDid, did2, defaultKeyId, keyId2 } from './known-keys';
 import { installWindowCrypto } from './utils';
+import { IBlockHeightChange, IStateChange } from '../src/interfaces/morpheus';
+import { RightRegistry } from '../src/morpheus-transaction/operations/did-document/right-registry';
 
 installWindowCrypto();
 
@@ -45,10 +45,10 @@ describe('DidOperationExtractor', () => {
   const stateHandler = {
     query: stateHandlerQueryMock,
     dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
-    applyEmptyBlockToState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
-    applyTransactionToState: jest.fn<void, [Interfaces.IStateChange]>(),
-    revertEmptyBlockFromState: jest.fn<void, [Interfaces.IBlockHeightChange]>(),
-    revertTransactionFromState: jest.fn<void, [Interfaces.IStateChange]>(),
+    applyEmptyBlockToState: jest.fn<void, [IBlockHeightChange]>(),
+    applyTransactionToState: jest.fn<void, [IStateChange]>(),
+    revertEmptyBlockFromState: jest.fn<void, [IBlockHeightChange]>(),
+    revertTransactionFromState: jest.fn<void, [IStateChange]>(),
   };
 
   beforeAll(() => {

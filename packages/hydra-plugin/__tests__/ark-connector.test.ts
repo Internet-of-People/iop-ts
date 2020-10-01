@@ -1,9 +1,9 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Interfaces } from '@internet-of-people/did-manager';
+import { IBlockEventSource, IBlockListener } from '@internet-of-people/hydra-plugin-core';
 import { Utils } from '@internet-of-people/sdk';
 import { EventEmitter } from 'events';
-import { MorpheusArkConnector } from '../src/ark-connector';
-import { IBlockEventSource, IBlockListener } from '../src/block-event-source';
+import { ArkConnector } from '../src/ark-connector';
 
 class Fixture {
   public eventEmitter: NodeJS.EventEmitter;
@@ -36,15 +36,18 @@ class Fixture {
 }
 
 describe('ArkConnector', () => {
-  let arkConnector: MorpheusArkConnector;
+  let arkConnector: ArkConnector;
   let fixture: Fixture;
 
   beforeEach(() => {
     fixture = new Fixture();
-    arkConnector = new MorpheusArkConnector(
+    arkConnector = new ArkConnector(
       fixture.eventEmitter,
       fixture.log,
-      fixture.blockListener,
+      [{
+        subscriptionId: 'subscription',
+        listener: fixture.blockListener,
+      }],
       fixture.blockEventSource,
     );
   });
@@ -56,7 +59,7 @@ describe('ArkConnector', () => {
     await arkConnector.init();
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledTimes(1);
     expect(fixture.blockEventSourceMock.subscribe).toHaveBeenCalledWith(
-      MorpheusArkConnector.SUBSCRIPTION_ID,
+      'subscription',
       fixture.blockListener,
     );
     expect(fixture.eventEmitter.listenerCount(Interfaces.MorpheusEvents.StateCorrupted)).toBe(1);
@@ -67,6 +70,6 @@ describe('ArkConnector', () => {
     expect(fixture.blockEventSourceMock.unsubscribe).not.toHaveBeenCalled();
     fixture.eventEmitter.emit(Interfaces.MorpheusEvents.StateCorrupted);
     expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledTimes(1);
-    expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledWith(MorpheusArkConnector.SUBSCRIPTION_ID);
+    expect(fixture.blockEventSourceMock.unsubscribe).toHaveBeenCalledWith('subscription');
   });
 });

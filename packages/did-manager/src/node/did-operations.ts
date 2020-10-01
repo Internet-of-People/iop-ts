@@ -1,17 +1,17 @@
 import Optional from 'optional-js';
-import { Interfaces, MorpheusTransaction } from '@internet-of-people/did-manager';
 import { Layer1, Crypto, Types } from '@internet-of-people/sdk';
-
-const { Operations: { visitorFilterDid } } = MorpheusTransaction;
+import { IMorpheusStateHandler } from '../interfaces/morpheus';
+import { visitorFilterDid } from '../morpheus-transaction/operations/filter-did';
 
 export interface ITransactionRepository {
   getMorpheusTransaction(txId: Types.Sdk.TransactionId): Promise<Optional<Types.Layer1.IMorpheusAsset>>;
 }
 
 export class DidOperationExtractor {
-  public constructor(private readonly transactions: ITransactionRepository,
-    private readonly stateHandler: Interfaces.IMorpheusStateHandler) {
-  }
+  public constructor(
+    private readonly transactions: ITransactionRepository,
+    private readonly stateHandler: IMorpheusStateHandler,
+  ) {}
 
   public async didOperationsOf(
     did: Crypto.Did,

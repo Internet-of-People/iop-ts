@@ -1,0 +1,33 @@
+{
+  "name": "@internet-of-people/hydra-plugin-core",
+  "version": "3.3.1",
+  "private": false,
+  "author": {
+    "url": "https://iop.global/dsf",
+    "name": "Internet of People",
+    "email": "prometheus@iop-ventures.com"
+  },
+  "description": "Core components for the Hydra plugin and its sub components",
+  "repository": "https://github.com/internet-of-people/morpheus-ts",
+  "license": "GPL-3.0-or-later",
+  "main": "./dist/index",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npm run build:src",
+    "build:src": "tsc -p . ",
+    "lint": "npm run lint:src",
+    "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
+    "clean": "rimraf dist && rimraf node_modules",
+    "test": "echo ignore"
+  },
+  "dependencies": {
+    "@arkecosystem/core-interfaces": "^2.6.31",
+    "@arkecosystem/core-transactions": "^2.6.31",
+    "@arkecosystem/crypto": "^2.6.31"
+  },
+  "devDependencies": {
+    "typescript": "3.8.3"
+  }
+}

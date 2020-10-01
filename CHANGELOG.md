@@ -1,8 +1,9 @@
 # Changelog
 
-## 3.3.0
+## 3.3.1
 
-TODO
+- Hydra plugin and DID manager are now publicly available
+- Coeus Plugin added
 
 ## 3.2.0
 

@@ -5,8 +5,9 @@ import { EventEmitter } from 'events';
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Crypto, Utils } from '@internet-of-people/sdk';
+import { IBlockListener } from '@internet-of-people/hydra-plugin-core';
 
-import { BlockEventSource, IBlockListener } from '../src/block-event-source';
+import { BlockEventSource } from '../src/block-event-source';
 import { Scheduler, Task } from '../src/scheduler';
 
 const { log } = Crypto;
