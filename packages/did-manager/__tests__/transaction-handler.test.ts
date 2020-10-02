@@ -5,8 +5,13 @@ import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces'
 import { Managers, Transactions, Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Wallets } from '@arkecosystem/core-state';
 
-import { Crypto, Layer1, Types, Utils } from '@internet-of-people/sdk';
-import { ITransactionReader, READER_FACTORY_COMPONENT_NAME } from '@internet-of-people/hydra-plugin-core';
+import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
+import {
+  IAppLog,
+  ITransactionReader,
+  MORPHEUS_LOGGER_COMPONENT_NAME,
+  READER_FACTORY_COMPONENT_NAME,
+} from '@internet-of-people/hydra-plugin-core';
 
 import { TransactionHandler } from '../src/node/transaction-handler';
 import {
@@ -24,7 +29,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as Utils.IAppLog;
+  public log = this.logMock as IAppLog;
 
   public stateHandlerMock = {
     query: {
@@ -55,7 +60,7 @@ class Fixture {
       app.register(READER_FACTORY_COMPONENT_NAME, asValue(() => {
         return this.transactionReader;
       }));
-      app.register(Utils.LOGGER_COMPONENT_NAME, asValue(this.log));
+      app.register(MORPHEUS_LOGGER_COMPONENT_NAME, asValue(this.log));
     } catch (e) {
       console.log(`Error in fixture setup: ${e}`);
     }

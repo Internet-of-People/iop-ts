@@ -1,7 +1,6 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 import { Interfaces } from '@internet-of-people/did-manager';
-import { IBlockEventSource, IBlockListener } from '@internet-of-people/hydra-plugin-core';
-import { Utils } from '@internet-of-people/sdk';
+import { IAppLog, IBlockEventSource, IBlockListener } from '@internet-of-people/hydra-plugin-core';
 import { EventEmitter } from 'events';
 import { ArkConnector } from '../src/ark-connector';
 
@@ -15,7 +14,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as Utils.IAppLog;
+  public log = this.logMock as IAppLog;
 
   public blockEventSourceMock = {
     init: jest.fn<Promise<void>, []>(),

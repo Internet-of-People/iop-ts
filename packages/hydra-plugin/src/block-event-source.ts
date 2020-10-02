@@ -1,7 +1,6 @@
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { IBlockEventSource, IBlockListener } from '@internet-of-people/hydra-plugin-core';
-import { Utils } from '@internet-of-people/sdk';
+import { IAppLog, IBlockEventSource, IBlockListener } from '@internet-of-people/hydra-plugin-core';
 
 import { Scheduler } from './scheduler';
 
@@ -9,7 +8,7 @@ export class BlockEventSource implements IBlockEventSource {
   private listeners: [string, IBlockListener][];
 
   public constructor(
-    private readonly log: Utils.IAppLog,
+    private readonly log: IAppLog,
     private readonly emitter: NodeJS.EventEmitter,
     private readonly schedule: Scheduler,
   ) {

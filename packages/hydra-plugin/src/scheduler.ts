@@ -1,11 +1,10 @@
+import { IAppLog } from '@internet-of-people/hydra-plugin-core';
 import Queue from 'p-queue';
-
-import { Utils } from '@internet-of-people/sdk';
 
 const queue = new Queue({ concurrency: 1 });
 
 export type Task = () => Promise<void>;
-export type Scheduler = (log: Utils.IAppLog, name: string, task: Task) => void;
+export type Scheduler = (log: IAppLog, name: string, task: Task) => void;
 
 export const timeout = async(name: string, ms: number): Promise<void> => {
   return new Promise<void>(
@@ -25,7 +24,7 @@ export const timeout = async(name: string, ms: number): Promise<void> => {
  * Until the current running task is not completed, the next will not be started.
  * If any of the tasks is stuck for at least 5secs, it will fail and let the queue proceed.
  */
-export const schedule = (log: Utils.IAppLog, name: string, task: Task): void => {
+export const schedule = (log: IAppLog, name: string, task: Task): void => {
   setImmediate(() => {
     log.debug(`Task ${name} started`);
 

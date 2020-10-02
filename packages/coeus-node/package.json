@@ -1,5 +1,5 @@
 {
-  "name": "@internet-of-people/hydra-plugin-core",
+  "name": "@internet-of-people/coeus-node",
   "version": "3.3.1",
   "private": false,
   "author": {
@@ -7,10 +7,13 @@
     "name": "Internet of People",
     "email": "dev@iop-ventures.com"
   },
-  "description": "Core components for the Hydra plugin and its sub components",
+  "description": "TODO",
   "repository": "https://github.com/internet-of-people/morpheus-ts",
-  "license": "GPL-3.0-or-later",
-  "main": "./dist/index",
+  "license": "LGPL-3.0-or-later",
+  "main": "dist/index",
+  "module": "dist/index",
+  "browser": "dist/index",
+  "types": "dist/index",
   "files": [
     "dist"
   ],
@@ -23,9 +26,13 @@
     "test": "echo ignore"
   },
   "dependencies": {
+    "@arkecosystem/core-container": "^2.6.31",
     "@arkecosystem/core-interfaces": "^2.6.31",
     "@arkecosystem/core-transactions": "^2.6.31",
-    "@arkecosystem/crypto": "^2.6.31"
+    "@arkecosystem/crypto": "^2.6.31",
+    "@internet-of-people/hydra-plugin-core": "3.3.1",
+    "@internet-of-people/coeus-proto": "3.3.1",
+    "bytebuffer": "5.0.1"
   },
   "devDependencies": {
     "typescript": "3.8.3"

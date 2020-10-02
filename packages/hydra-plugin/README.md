@@ -21,7 +21,7 @@ You have to add the following lines into the `plugins.js` file:
 
 ```javascript
 // Example options
-"@internet-of-people/morpheus-hydra-plugin": {}
+"@internet-of-people/hydra-plugin": {}
 ```
 
 If you are not sure where is your `plugins.js` file and you **have not modified** it, you can reset it which will put these lines to the right place:

@@ -4,8 +4,8 @@ import { EventEmitter } from 'events';
 
 import { ApplicationEvents } from '@arkecosystem/core-event-emitter';
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { Crypto, Utils } from '@internet-of-people/sdk';
-import { IBlockListener } from '@internet-of-people/hydra-plugin-core';
+import { Crypto } from '@internet-of-people/sdk';
+import { IAppLog, IBlockListener } from '@internet-of-people/hydra-plugin-core';
 
 import { BlockEventSource } from '../src/block-event-source';
 import { Scheduler, Task } from '../src/scheduler';
@@ -29,7 +29,7 @@ class DummyScheduler {
     }))}`);
   }
 
-  public schedule(_: Utils.IAppLog, name: string, task: Task): void {
+  public schedule(_: IAppLog, name: string, task: Task): void {
     this.tasks.push([ name, task ]);
   }
 
@@ -54,7 +54,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as Utils.IAppLog;
+  public log = this.logMock as IAppLog;
 
   public createListener(): IBlockListener {
     return {

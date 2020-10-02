@@ -1,4 +1,4 @@
-import { Crypto, Layer1, Types, Utils } from '@internet-of-people/sdk';
+import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
 type Authentication = Types.Crypto.Authentication;
 type Did = Crypto.Did;
 type Right = Types.Sdk.Right;
@@ -18,6 +18,7 @@ import {
   IStateChange,
   MorpheusEvents,
 } from '../interfaces';
+import { IAppLog } from '@internet-of-people/hydra-plugin-core';
 
 export class MorpheusStateHandler implements IMorpheusStateHandler {
   public get query(): IMorpheusQueries {
@@ -32,7 +33,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
   private corrupted = false;
 
   public constructor(
-    private readonly logger: Utils.IAppLog,
+    private readonly logger: IAppLog,
     private readonly eventEmitter: NodeJS.EventEmitter,
   ) {
   }

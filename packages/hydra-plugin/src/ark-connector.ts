@@ -1,6 +1,5 @@
-import { Utils } from '@internet-of-people/sdk';
 import { Interfaces } from '@internet-of-people/did-manager';
-import { IBlockEventSource, IBlockListener, IInitializable } from '@internet-of-people/hydra-plugin-core';
+import { IAppLog, IBlockEventSource, IBlockListener, IInitializable } from '@internet-of-people/hydra-plugin-core';
 
 export interface IBlockSubscriber {
   subscriptionId: string;
@@ -10,7 +9,7 @@ export interface IBlockSubscriber {
 export class ArkConnector implements IInitializable {
   public constructor(
     private readonly eventEmitter: NodeJS.EventEmitter,
-    private readonly log: Utils.IAppLog,
+    private readonly log: IAppLog,
     private readonly subscribers: IBlockSubscriber[],
     private readonly blockEventSource: IBlockEventSource,
   ) {}

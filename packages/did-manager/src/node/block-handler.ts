@@ -1,6 +1,6 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
-import { IBlockListener } from '@internet-of-people/hydra-plugin-core';
-import { Layer1, Types, Utils } from '@internet-of-people/sdk';
+import { IAppLog, IBlockListener } from '@internet-of-people/hydra-plugin-core';
+import { Layer1, Types } from '@internet-of-people/sdk';
 import { IMorpheusStateHandler } from '../interfaces/morpheus';
 
 /**
@@ -9,7 +9,7 @@ import { IMorpheusStateHandler } from '../interfaces/morpheus';
 export class BlockHandler implements IBlockListener {
   public constructor(
     private readonly stateHandler: IMorpheusStateHandler,
-    private readonly log: Utils.IAppLog,
+    private readonly log: IAppLog,
   ) {}
 
   public async onBlockApplied(blockData: CryptoIf.IBlockData): Promise<void> {

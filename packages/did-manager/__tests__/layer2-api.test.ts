@@ -4,7 +4,7 @@ import Optional from 'optional-js';
 import { EventEmitter } from 'events';
 import { Server as HapiServer } from '@hapi/hapi';
 
-import { Crypto, Layer1, Layer2, Types, Utils } from '@internet-of-people/sdk';
+import { Crypto, Layer1, Layer2, Types } from '@internet-of-people/sdk';
 import { MorpheusStateHandler } from '../src/morpheus-transaction/state-handler';
 
 type IDidDocumentData = Types.Layer2.IDidDocumentData;
@@ -24,6 +24,7 @@ import {
   keyId3,
 } from './known-keys';
 import { RightRegistry } from '../src/morpheus-transaction/operations/did-document/right-registry';
+import { IAppLog } from '@internet-of-people/hydra-plugin-core';
 
 installWindowCrypto();
 
@@ -37,7 +38,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as Utils.IAppLog;
+  public log = this.logMock as IAppLog;
   public transactionRepo = new TransactionTestRepo();
 
   public stateHandler = new MorpheusStateHandler(this.log, this.emitter);

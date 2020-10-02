@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/unbound-method: 0 */
-import { Utils } from '@internet-of-people/sdk';
+import { IAppLog } from '@internet-of-people/hydra-plugin-core';
 import { schedule } from '../src/scheduler';
 
 class Fixture {
@@ -10,7 +10,7 @@ class Fixture {
     warn: jest.fn<void, [string]>(),
     error: jest.fn<void, [string]>(),
   };
-  public log = this.logMock as Utils.IAppLog;
+  public log = this.logMock as IAppLog;
 
   public constructor() {
     jest.useFakeTimers();
