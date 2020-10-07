@@ -15,7 +15,6 @@ web-of-trust way. See the [specification](https://developer.iop.global/) or chec
     - [authority-service](#authority-service)
     - [inspector-service](#inspector-service)
     - [sdk](#sdk)
-    - [examples](#examples)
     - [did-manager](#did-manager)
     - [hydra-plugin](#hydra-plugin)
     - [morpheus-crypto](#morpheus-crypto)
@@ -50,7 +49,7 @@ Morpheus forms the basis of secure transmission and validation of personal infor
 Morpheus is used as by default plugin on the Hydra chain, hence it is shipped with the [Hydra core](https://github.com/Internet-of-People/hydra-core) code.
 However this repo can also be used standalone for demo and testing purposes.
 
-Under the examples package you will see example codes for all available API.
+In the [Typescript examples repo](https://github.com/Internet-of-People/ts-examples) you will see example codes for all available API.
 
 ### Install
 
@@ -121,12 +120,6 @@ This package contains a WIP PoC for the Inspector/Verifier entity described in t
 #### sdk
 
 Contains all interfaces and tool needed for communication with Morpheus, Authorities or Inspectors.
-
-#### examples
-
-This package contains a command line NodeJS application where you can try out the available endpoints. There you can also observe the code to see how the components (like did-manager) are used. For more details how to use it, please check its [README](packages/examples/README.md).
-
-Note: it requires a node running that supports Morpheus.
 
 #### did-manager
 

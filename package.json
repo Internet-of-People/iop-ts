@@ -30,15 +30,13 @@
     "body-parser": "1.19.0",
     "bytebuffer": "5.0.1",
     "express": "4.17.1",
-    "inquirer": "7.0.0",
     "lodash.clonedeep": "4.5.0",
     "moment": "2.24.0",
     "multibase": "0.6.0",
     "optional-js": "2.1.1",
     "p-queue": "6.2.1",
     "sqlite": "3.0.3",
-    "sql-template-strings": "2.2.2",
-    "xdg-portable": "7.2.1"
+    "sql-template-strings": "2.2.2"
   },
   "devDependencies": {
     "@arkecosystem/core-http-utils": "^2.6.31",
@@ -46,7 +44,6 @@
     "@types/axios": "0.14.0",
     "@types/express": "4.17.1",
     "@types/hapi__hapi": "^18.2.5",
-    "@types/inquirer": "6.5.0",
     "@types/jest": "24.9.0",
     "@types/lodash.clonedeep": "4.5.6",
     "@types/multibase": "0.6.0",
