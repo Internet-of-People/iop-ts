@@ -11,4 +11,5 @@ before_script:
 build:
   stage: test
   script:
-  - npm run test
+    - ./package-check.py
+    - npm run test
