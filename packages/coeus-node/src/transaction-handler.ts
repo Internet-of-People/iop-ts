@@ -9,7 +9,9 @@ import {
   IAppLog,
   COEUS_LOGGER_COMPONENT_NAME,
 } from '@internet-of-people/hydra-plugin-core';
-import { CoeusTransaction } from './transaction';
+import { CoeusTransaction, ICoeusAsset } from '@internet-of-people/coeus-proto';
+import { StateHandler } from './state-handler';
+import { SignedOperations } from '@internet-of-people/sdk-wasm';
 
 export class TransactionHandler extends Handlers.TransactionHandler {
   public getConstructor(): typeof Transactions.Transaction {
@@ -26,20 +28,25 @@ export class TransactionHandler extends Handlers.TransactionHandler {
 
   public async bootstrap(connection: Database.IConnection, _: State.IWalletManager): Promise<void> {
     const logger: IAppLog = app.resolve(COEUS_LOGGER_COMPONENT_NAME);
-    logger.info('Bootstrapping Morpheus plugin...');
-
+    logger.info('Bootstrapping Coeus plugin...');
+    
     // Note: here we assume that when a block is reverted, the fact of the revert is NOT stored in the database.
     // This means, when a node is bootstrapped from scratch, it will not see any reverted blocks.
     const readerFactory: TransactionReaderFactory = app.resolve(READER_FACTORY_COMPONENT_NAME);
     const reader: ITransactionReader = await readerFactory(connection, this.getConstructor());
+    const stateHandler: StateHandler = app.resolve(StateHandler.COMPONENT_NAME);
 
     while (reader.hasNext()) {
       const transactions = await reader.read();
       logger.debug(`Processing ${transactions.length} transactions in batch...`);
 
       for (const transaction of transactions) {
-        // TODO
-        console.log(transaction);
+        stateHandler.applyTransactionToState({
+          asset: transaction.asset as ICoeusAsset,
+          blockHeight: transaction.blockHeight,
+          blockId: transaction.blockId,
+          transactionId: transaction.id,
+        });
       }
     }
   }
@@ -49,7 +56,31 @@ export class TransactionHandler extends Handlers.TransactionHandler {
     _pool: TransactionPool.IConnection,
     _processor: TransactionPool.IProcessor,
   ): Promise<{ type: string; message: string; } | null> {
-    return null;
+    try {
+      const stateHandler: StateHandler = app.resolve(StateHandler.COMPONENT_NAME);
+      const asset = _data.asset as ICoeusAsset;
+
+      const expectedFee = asset
+        .signedOperations
+        .map(ops => new SignedOperations(ops).price(stateHandler.state).fee)
+        .reduce((total: BigInt, currentVal: BigInt) => {
+          return BigInt(total) + BigInt(currentVal);
+        });
+
+      if (_data.fee.isLessThan(expectedFee)) {
+        return {
+          type: 'ERR_LOW_FEE',
+          message: `The fee for this transaction must be at least ${expectedFee}`,
+        };
+      }
+
+      return null;
+    } catch (e) {
+      return {
+        type: 'ERR_INVALID_TX',
+        message: e.message,
+      };
+    }
   }
 
   public async isActivated(): Promise<boolean> {

@@ -61,6 +61,10 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
+  public async sendTx(signedTx: Interfaces.ITransactionData): Promise<string> {
+    return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  }
+
   public async sendVoteTx(
     fromAddress: string,
     delegate: SecpPublicKey,

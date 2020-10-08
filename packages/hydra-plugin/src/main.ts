@@ -98,16 +98,20 @@ const register = async(container: Container.IContainer): Promise<Composite> => {
   // (the framework instantiates the handlers). We have to put its dependencies
   // into the container, so the transaction handler can resolve them from there.
   hydraLog.info('Creating Morpheus handlers...');
-  const stateHandler = new MorpheusStateHandler(morpheusLog, eventEmitter);
-  container.register(Interfaces.MORPHEUS_STATE_HANDLER_COMPONENT_NAME, asValue(stateHandler));
+  const morpheusStateHandler = new MorpheusStateHandler(morpheusLog, eventEmitter);
+  const coeusStateHandler = new CoeusNode.StateHandler(coeusLog);
+  container.register(Interfaces.MORPHEUS_STATE_HANDLER_COMPONENT_NAME, asValue(morpheusStateHandler));
+  container.register(CoeusNode.StateHandler.COMPONENT_NAME, asValue(coeusStateHandler));
 
-  const morpheusBlockHandler = new MorpheusNode.BlockHandler(stateHandler, morpheusLog);
+  const morpheusBlockHandler = new MorpheusNode.BlockHandler(morpheusStateHandler, morpheusLog);
+  const coeusBlockHandler = new CoeusNode.BlockHandler(coeusStateHandler, coeusLog);
 
   const arkConnector = new ArkConnector(
     eventEmitter,
     hydraLog,
     [
       { subscriptionId: 'morpheus-block-listener', listener: morpheusBlockHandler },
+      { subscriptionId: 'coeus-block-listener', listener: coeusBlockHandler },
     ],
     blockEventSource,
   );
@@ -123,7 +127,7 @@ const register = async(container: Container.IContainer): Promise<Composite> => {
 
   /* eslint @typescript-eslint/no-misused-promises: 0 */
   eventEmitter.on('wallet.api.started', async() => {
-    await attachHTTPApi(container, stateHandler, morpheusLog);
+    await attachHTTPApi(container, morpheusStateHandler, morpheusLog);
   });
 
   return composite;

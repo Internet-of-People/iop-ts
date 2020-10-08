@@ -60,6 +60,8 @@ export interface IApi {
     nonce?: BigInt,
   ): Promise<string>;
 
+  sendTx(signedTx: Interfaces.ITransactionData): Promise<string>;
+
   sendVoteTx(
     fromAddress: string,
     delegate: SecpPublicKey,

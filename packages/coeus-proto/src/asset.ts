@@ -1,57 +1,56 @@
 import { Interfaces as CryptoIf } from '@arkecosystem/crypto';
 
 export type Principal = string;
-export type BlockHeight = bigint;
 
 export interface ICoeusData extends CryptoIf.ITransactionData {
   asset: ICoeusAsset;
 }
 
 export interface IUserOperation {
-  type: "register"|"update"|"renew"|"transfer"|"delete";
+  type: 'register'|'update'|'renew'|'transfer'|'delete';
   name: string;
 }
 
 export interface ISubtreePolicies {
-  expiration?: { maxExpiry: bigint };
-  schema?: { schema: unknown };
+  expiration?: { maxExpiry: number; };
+  schema?: { schema: unknown; };
 }
 
 export interface IRegisterOperation extends IUserOperation {
-  type: "register";
+  type: 'register';
   owner: Principal;
   subtreePolicies: ISubtreePolicies;
-  registrationPolicy: "owner" | "any";
+  registrationPolicy: 'owner' | 'any';
   data: unknown;
-  expiresAtHeight: BlockHeight;
+  expiresAtHeight: number;
 }
 
 export interface IUpdateOperation extends IUserOperation {
-  type: "update";
+  type: 'update';
   data: unknown;
 }
 
 export interface IRenewOperation extends IUserOperation {
-  type: "renew";
-  expiresAtHeight: BlockHeight;
+  type: 'renew';
+  expiresAtHeight: number;
 }
 
 export interface ITransferOperation extends IUserOperation {
-  type: "transfer";
+  type: 'transfer';
   toOwner: Principal;
 }
 
 export interface IDeleteOperation extends IUserOperation {
-  type: "delete";
+  type: 'delete';
 }
 
 export interface ISignedOperations {
   operations: IUserOperation[];
-  nonce: bigint;
+  nonce: number;
   publicKey: string;
   signature: string;
 }
 
 export interface ICoeusAsset {
-  operationAttempts: ISignedOperations[];
+  signedOperations: ISignedOperations[];
 }
