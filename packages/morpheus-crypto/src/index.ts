@@ -48,7 +48,7 @@ export {
   ValidationIssue,
   ValidationResult,
   Vault,
-} from '@internet-of-people/morpheus-crypto-wasm';
+} from '@internet-of-people/sdk-wasm';
 
 import type * as Types from './types';
 

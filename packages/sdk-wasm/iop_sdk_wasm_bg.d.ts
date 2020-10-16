@@ -50,8 +50,6 @@ export function hydraplugin_rewind(a: number, b: number, c: number, d: number): 
 export function hydraplugin_get(a: number, b: number): number;
 export function hydraplugin_public(a: number): number;
 export function hydraplugin_priv(a: number, b: number, c: number): number;
-export function __wbg_hydraparameters_free(a: number): void;
-export function hydraparameters_new(a: number, b: number, c: number): number;
 export function __wbg_morpheusplugin_free(a: number): void;
 export function morpheusplugin_rewind(a: number, b: number, c: number): void;
 export function morpheusplugin_get(a: number): number;
@@ -80,6 +78,8 @@ export function validationissue_reason(a: number, b: number): void;
 export function __wbg_validationresult_free(a: number): void;
 export function validationresult_status(a: number, b: number): void;
 export function validationresult_messages(a: number, b: number): void;
+export function __wbg_hydraparameters_free(a: number): void;
+export function hydraparameters_new(a: number, b: number, c: number): number;
 export function __wbg_hydraprivate_free(a: number): void;
 export function hydraprivate_public(a: number): number;
 export function hydraprivate_network(a: number, b: number): void;

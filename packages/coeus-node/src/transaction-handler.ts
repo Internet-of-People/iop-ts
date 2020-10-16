@@ -29,7 +29,7 @@ export class TransactionHandler extends Handlers.TransactionHandler {
   public async bootstrap(connection: Database.IConnection, _: State.IWalletManager): Promise<void> {
     const logger: IAppLog = app.resolve(COEUS_LOGGER_COMPONENT_NAME);
     logger.info('Bootstrapping Coeus plugin...');
-    
+
     // Note: here we assume that when a block is reverted, the fact of the revert is NOT stored in the database.
     // This means, when a node is bootstrapped from scratch, it will not see any reverted blocks.
     const readerFactory: TransactionReaderFactory = app.resolve(READER_FACTORY_COMPONENT_NAME);
@@ -62,7 +62,9 @@ export class TransactionHandler extends Handlers.TransactionHandler {
 
       const expectedFee = asset
         .signedOperations
-        .map(ops => new SignedOperations(ops).price(stateHandler.state).fee)
+        .map((ops) => {
+          return new SignedOperations(ops).price(stateHandler.state).fee;
+        })
         .reduce((total: BigInt, currentVal: BigInt) => {
           return BigInt(total) + BigInt(currentVal);
         });

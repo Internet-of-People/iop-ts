@@ -45,7 +45,7 @@ export class CoeusTransaction extends Transactions.Transaction {
   public serialize(): ByteBuffer {
     const ops = new CoeusAsset(this.data.asset);
     const bytes: Uint8Array = ops.serialize();
-    
+
     const buffer = new ByteBuffer(bytes.length + 2, true);
     buffer.append(bytes);
 

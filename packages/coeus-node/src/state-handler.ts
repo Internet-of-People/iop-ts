@@ -15,7 +15,7 @@ interface IStateChange extends IBlockHeightChange {
 export class StateHandler {
   public static readonly COMPONENT_NAME: string = 'coeus-state-handler';
   public readonly state: CoeusState = new CoeusState();
-  private corrupted = false;
+  private readonly corrupted = false;
 
   public constructor(
     private readonly logger: IAppLog,
@@ -33,20 +33,20 @@ export class StateHandler {
   public applyTransactionToState(change: IStateChange): void {
     try {
       // applySignedOperations must retrieve all the operations but arrays cannot be passed over wasm
-      for(const ops of change.asset.signedOperations) {
+      for (const ops of change.asset.signedOperations) {
         // KURVA NAGY TODO: right now if the latest operations fails, only that one will be reverted
         this.state.applySignedOperations(new SignedOperations(ops));
       }
-    } catch(e) {
+    } catch (e) {
       this.logger.info(`Transaction could not be applied. Error: ${e}, TX: ${JSON.stringify(change)}`);
     }
   }
 
-  public revertEmptyBlockFromState(change: IBlockHeightChange): void {
+  public revertEmptyBlockFromState(_: IBlockHeightChange): void {
     // KURVA NAGY TODO
   }
 
-  public revertTransactionFromState(change: IStateChange): void {
+  public revertTransactionFromState(_: IStateChange): void {
     // KURVA NAGY TODO
   }
 }

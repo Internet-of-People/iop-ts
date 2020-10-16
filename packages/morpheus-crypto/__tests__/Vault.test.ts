@@ -10,7 +10,7 @@ import {
   HydraSigner,
 } from '../src';
 import { installWindowCrypto } from './utils';
-import { HydraTxBuilder } from '@internet-of-people/morpheus-crypto-wasm';
+import { HydraTxBuilder } from '@internet-of-people/sdk-wasm';
 
 installWindowCrypto();
 const unlockPassword = 'correct horse battery staple';
@@ -126,15 +126,15 @@ describe('Vault BIP44 plugins', () => {
         '  "network": 128,\n' +
         '  "typeGroup": 1,\n' +
         '  "type": 3,\n' +
-        '  "nonce": "69",\n' +
-        '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
-        '  "fee": "100000000",\n' +
-        '  "amount": "0",\n' +
         '  "asset": {\n' +
         '    "votes": [\n' +
         '      "+02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7"\n' +
         '    ]\n' +
-        '  }\n' +
+        '  },\n' +
+        '  "nonce": "69",\n' +
+        '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
+        '  "fee": "100000000",\n' +
+        '  "amount": "0"\n' +
         '}');
 
     const signedVote = signer.signHydraTransaction(vote);

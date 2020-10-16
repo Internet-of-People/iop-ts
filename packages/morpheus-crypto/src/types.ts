@@ -1,4 +1,4 @@
-import { KeyId, PublicKey, SignedBytes } from '@internet-of-people/morpheus-crypto-wasm';
+import { KeyId, PublicKey, SignedBytes } from '@internet-of-people/sdk-wasm';
 
 export interface IMorpheusSigner {
   signDidOperations(id: KeyId, message: Uint8Array): SignedBytes;

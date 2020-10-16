@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "@arkecosystem/crypto": "^2.6.31",
-    "@internet-of-people/sdk-wasm": "0.0.6"
+    "@internet-of-people/sdk-wasm": "0.0.6",
+    "bytebuffer": "5.0.1"
   },
   "devDependencies": {
     "@types/jest": "24.9.0",

@@ -32,8 +32,7 @@
     "@arkecosystem/crypto": "^2.6.31",
     "@internet-of-people/hydra-plugin-core": "3.3.2",
     "@internet-of-people/coeus-proto": "3.3.2",
-    "@internet-of-people/sdk-wasm": "0.0.6",
-    "bytebuffer": "5.0.1"
+    "@internet-of-people/sdk-wasm": "0.0.6"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "2.11.0",

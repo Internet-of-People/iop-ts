@@ -27,7 +27,7 @@ def diffDependencies(category, root, packageList, rootWhiteList):
 
 def runDepCheck(packageDirs):
     for packageDir in packageDirs:
-        command = "npx depcheck --ignores='@types/jest' %s" % packageDir
+        command = "npx depcheck --ignores='@types/jest,typescript,rimraf,eslint,jest' %s" % packageDir
         print("Running", command)
         result = subprocess.run(command, check=True, shell=True)
 

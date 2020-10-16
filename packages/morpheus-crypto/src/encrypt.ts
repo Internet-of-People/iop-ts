@@ -1,6 +1,6 @@
 import multibase from 'multibase';
 
-import { encrypt as encryptRust, decrypt as decryptRust } from '@internet-of-people/morpheus-crypto-wasm';
+import { encrypt as encryptRust, decrypt as decryptRust } from '@internet-of-people/sdk-wasm';
 
 export const encrypt = encryptRust;
 export const decrypt = decryptRust;

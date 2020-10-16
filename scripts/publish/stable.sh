@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-declare -a packages=("morpheus-crypto-wasm" "morpheus-crypto" "hydra-plugin-core" "coeus-proto" "coeus-node" "did-manager" "sdk" "hydra-plugin")
+declare -a packages=("morpheus-crypto-wasm" "sdk-wasm" "morpheus-crypto" "hydra-plugin-core" "coeus-proto" "coeus-node" "did-manager" "sdk" "hydra-plugin")
 
 for package in "${packages[@]}"; do
     cd packages/$package

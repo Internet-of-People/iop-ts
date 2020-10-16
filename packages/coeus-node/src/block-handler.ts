@@ -5,9 +5,9 @@ import { StateHandler } from './state-handler';
 
 export class BlockHandler implements IBlockListener {
   public constructor(
-    private stateHandler: StateHandler,
-    private log: IAppLog,
-  ){}
+    private readonly stateHandler: StateHandler,
+    private readonly log: IAppLog,
+  ) {}
 
   public async onBlockApplied(blockData: CryptoIf.IBlockData): Promise<void> {
     if (!blockData.id) {
