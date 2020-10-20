@@ -2,7 +2,7 @@ import { Interfaces } from '@arkecosystem/crypto';
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
 import { log } from '@internet-of-people/morpheus-crypto';
-import { schemaAndHost, Network } from '../../network';
+import { NetworkConfig } from '../../network';
 import { Layer1, Sdk } from '../../types';
 import { apiGet, apiPost, HttpError } from '../../internal/http';
 
@@ -10,8 +10,8 @@ import { apiGet, apiPost, HttpError } from '../../internal/http';
 export class AxiosClient implements Layer1.IClient {
   private readonly api: AxiosInstance;
 
-  public constructor(network: Network) {
-    const baseURL = `${schemaAndHost(network) }:4705/api/v2`;
+  public constructor(networkConfig: NetworkConfig) {
+    const baseURL = `${networkConfig.host}:${networkConfig.port}/api/v2`;
     this.api = axios.create({
       baseURL,
       headers: {

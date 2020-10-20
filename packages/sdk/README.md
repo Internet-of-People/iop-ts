@@ -39,8 +39,6 @@ For more info please visit the [IoP Developer Portal](https://developer.iop.glob
   - [Authority Module](#authority-module)
   - [Ark Module - DEPRECATED](#ark-module---deprecated)
   - [Network Module](#network-module)
-  - [Utils Module](#utils-module)
-    - [Log](#log)
 - [Contribution and License](#contribution-and-license)
 
 ## Prerequisites
@@ -550,32 +548,9 @@ Under this module we reexport the complete [@arkecosystem/crypto](https://www.np
 
 ### Network Module
 
-In this module you can access some `enum` and other `const` which helps you to use Hydra network parameters.
+To be able to use either the layer-1 or layer-2 API, you have to be able to identify where you'd like to connect to.
+This module contains the enums and other classes you have to user when you create an API.
 
-```typescript
-import { allNetworks, schemaAndHost, Network } from '@internet-of-people/sdk';
-
-const network = Network.LocalTestnet;
-
-console.log(allNetworks); // will print out an array containing all field in the Network enum
-
-const host = schemaAndHost(Network.LocalTestnet); // will be 'http://127.0.0.1'
-```
-
-### Utils Module
-
-#### Log
-
-A simple logger utlity that used by other Morpheus packages for consistent log prefixing. Uses the Logger interface from `@arkecosystem/core-interfaces`.
-
-```typescript
-import { Utils } from '@internet-of-people/sdk';
-
-// Example
-// Where container is a Container.IContainer from @arkecosystem/core-interfaces
-const log = new Utils.AppLog(container.resolvePlugin('logger'));
-log.debug('hello');
-```
 
 ## Contribution and License
 

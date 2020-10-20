@@ -4,15 +4,15 @@ import * as Crypto from '@internet-of-people/morpheus-crypto';
 import * as Layer2 from '../../layer2';
 import * as Types from '../../types';
 import { apiGet, HttpError, apiPost } from '../../internal/http';
-import { Network, schemaAndHost } from '../../network';
+import { NetworkConfig } from '../../network';
 
 const { log } = Crypto;
 
 export class Api {
   private readonly api: AxiosInstance;
 
-  public constructor(network: Network) {
-    const baseURL = `${schemaAndHost(network) }:4705/morpheus/v1`;
+  public constructor(networkConfig: NetworkConfig) {
+    const baseURL = `${networkConfig.host}:${networkConfig.port}/morpheus/v1`;
     this.api = axios.create({
       baseURL,
       headers: {
@@ -177,6 +177,6 @@ export class Api {
   }
 }
 
-export const createApi = (network: Network): Types.Layer2.IApi => {
-  return new Api(network);
+export const createApi = (networkConfig: NetworkConfig): Types.Layer2.IApi => {
+  return new Api(networkConfig);
 };

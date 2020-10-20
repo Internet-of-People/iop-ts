@@ -4,7 +4,7 @@ import { log, HydraPrivate, HydraTxBuilder, SecpKeyId, SecpPublicKey } from '@in
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
-import { Network } from '../../network';
+import { NetworkConfig } from '../../network';
 import { AxiosClient } from './client';
 import { MorpheusTransactionBuilder } from '../transaction-builder';
 
@@ -12,8 +12,8 @@ import { MorpheusTransactionBuilder } from '../transaction-builder';
 export class Api implements Types.Layer1.IApi {
   private readonly clientInstance: Types.Layer1.IClient;
 
-  public constructor(network: Network) {
-    this.clientInstance = new AxiosClient(network);
+  public constructor(networkConfig: NetworkConfig) {
+    this.clientInstance = new AxiosClient(networkConfig);
   }
 
   public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {
@@ -252,8 +252,8 @@ export class Api implements Types.Layer1.IApi {
   }
 }
 
-export const createApi = async(network: Network): Promise<Types.Layer1.IApi> => {
-  const api = new Api(network);
+export const createApi = async(networkConfig: NetworkConfig): Promise<Types.Layer1.IApi> => {
+  const api = new Api(networkConfig);
 
   const [ cryptoConfig, height ] = await Promise.all([
     api.getNodeCryptoConfig(),
