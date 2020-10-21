@@ -1,12 +1,16 @@
-# Hydra DAC (Project Morpheus) Plugin
+# Hydra Layer-2 Plugin
 
-This is the DAC plugin for the Hydra Blockchain.
+This is the IOP layer-2 plugin for the Hydra Blockchain. It loads up IOP's layer-2 solutions: IOP SSI (project Morpheus) and IOP NS (project Coeus).
+
+This plugin provides some endpoints as well where you can query the layer-2 consensus.
+Please see the [architecture section in the specification](https://developer.iop.global/#/architecture) for the exact endpoints.
+
+An example URL you can curl: `curl http://127.0.0.1:4703/before-proof/iop/exists/780`
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Usage](#usage)
 
 ## Prerequisites
 
@@ -15,9 +19,7 @@ repo, where you've ran `yarn setup`.
 
 ## Installation
 
-There is no such steps you have to follow. The plugin has only one requirement that has to be done.
-
-You have to add the following lines into the `plugins.js` file:
+There only step to be done is to add the following lines into the `plugins.js` file:
 
 ```javascript
 // Example options
@@ -29,13 +31,6 @@ If you are not sure where is your `plugins.js` file and you **have not modified*
 ```bash
 ./packages/core/bin/run config:reset --network=[testnet|devnet|mainnet]
 ```
-
-## Usage
-
-The plugin provides some endpoints where you can query the Layer 2 consensus.
-Please see the [architecture section in the specification](https://developer.iop.global/#/architecture) for the exact endpoints.
-
-An example URL you can curl: `curl http://127.0.0.1:4703/before-proof/iop/exists/780`
 
 ## Check also
 

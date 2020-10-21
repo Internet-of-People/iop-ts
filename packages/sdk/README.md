@@ -1,7 +1,7 @@
-# IoP SDK
+# IOP SDK
 
-This package contains all Typescript tool you need to interact with *IoP DAC* and *Fort* APIs and create awesome apps.
-For more info please visit the [IoP Developer Portal](https://developer.iop.global/).
+This package contains all Typescript tool you need to interact with *IOP SSI* and *Fort* APIs and create awesome apps.
+For more info please visit the [IOP Developer Portal](https://developer.iop.global/).
 
 *This SDK will improve over time to be able to use it more easily.*
 
@@ -107,11 +107,11 @@ All interfaces you need to interact with the Layer-1 API.
 
 #### Layer2
 
-All interfaces you need to interact with the Layer-2 API.
+All interfaces you need to interact with the layer-2 API.
 
 #### Sdk
 
-All interfaces that describes the DAC (Morpheus) protocol including all participants defined in the specification.
+All interfaces that describes the IOP SSI (Morpheus) protocol including all participants defined in the specification.
 
 #### Verifier
 
@@ -119,7 +119,7 @@ All interfaces and types that needed to be able to communicate with a Verifier e
 
 ### Layer-1 Module
 
-This package contains all Typescript class and utils that you need to interact with the DAC Layer-1 API. Below we provide you example how can you interact with Layer-1 APIs.
+This package contains all Typescript class and utils that you need to interact with the SSI Layer-1 API. Below we provide you example how can you interact with Layer-1 APIs.
 
 For more detailed examples please visit our [tutorial center](https://developer.iop.global/#/sdk/dac?id=tutorial-center).
 
@@ -222,7 +222,7 @@ const vault = Crypto.Vault.create(
   unlockPassword
 );
 
-// Creating the Layer-2 plugin
+// Creating the layer-2 plugin
 Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
 const morpheus = Crypto.MorpheusPlugin.get(vault);
 
@@ -277,7 +277,7 @@ const vault = Crypto.Vault.create(
   unlockPassword,
 );
 
-// Creating the Layer-2 plugin
+// Creating the layer-2 plugin
 Crypto.MorpheusPlugin.rewind(vault, unlockPassword)
 const morpheus = Crypto.MorpheusPlugin.get(vault);
 
@@ -301,7 +301,7 @@ const txId = await layer1Api.sendMorpheusTxWithPassphrase(
 
 ### Layer-2 Module
 
-This package contains all Typescript class and utils that you need to interact with the DAC Layer-2 API.
+This package contains all Typescript class and utils that you need to interact with the SSI layer-2 API.
 
 #### Get Before-Proof History
 
@@ -505,7 +505,7 @@ To learn the Hydra plugin's public and private interface, please check [its repo
 
 ##### Morpheus Plugin
 
-The Morpheus (or as we officially call, DAC) plugin is all about IoP DAC. If you are not familiar with DAC, we highly recommend you to visit our [developer portal](https://developer.iop.global/#/dac) for more information.
+The Morpheus (or as we officially call, IOP SSI) plugin is all about IOP SSI. If you are not familiar with SSI, we highly recommend you to visit our [developer portal](https://developer.iop.global/#/dac) for more information.
 
 Using this plugin you can create your own personas and its DIDs.
 

@@ -7,7 +7,7 @@
     "name": "Internet of People",
     "email": "dev@iop-ventures.com"
   },
-  "description": "IoP SDK",
+  "description": "IOP SDK",
   "repository": "https://github.com/internet-of-people/morpheus-ts",
   "license": "AGPL-1.0-or-later",
   "main": "./dist/index.js",

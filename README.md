@@ -127,7 +127,7 @@ This package contains all business logic that needed for DID management, hence c
 
 #### hydra-plugin
 
-This is a Hydra plugin that will be started up when your node is running. Receives block events (Layer 1) and forwards it to the business logic (Layer 2).
+This is a Hydra plugin that will be started up when your node is running. Receives block events (Layer 1) and forwards it to the business logic (layer-2).
 
 #### morpheus-crypto
 

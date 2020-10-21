@@ -26,7 +26,7 @@ export interface IKeyRightHistory {
   valid: boolean; // NOTE: contains derived information based on other fields and `atHeight`
 }
 
-// The interface that the Layer-2 will return to clients
+// The interface that the layer-2 will return to clients
 export interface IDidDocumentData {
   did: Crypto.DidData;
   keys: IKeyData[];

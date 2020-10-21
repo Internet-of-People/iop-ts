@@ -1,4 +1,4 @@
-# IoP DAC (Project Morpheus) Crypto
+# IOP SSI (Project Morpheus) Crypto
 
 This package contains crypto utilities built from our [keyvault-rust](https://github.com/Internet-of-People/keyvault-rust).
 
