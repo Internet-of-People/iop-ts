@@ -18,6 +18,12 @@ export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
 */
 export function validateNetworkName(name: string): boolean;
 /**
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
+*/
+export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
+/**
 * @param {any} data
 * @param {string} keep_properties_list
 * @returns {string}
@@ -37,6 +43,12 @@ export function stringifyJson(data: any): string;
 */
 export class Bip32 {
   free(): void;
+/**
+* @param {Seed} seed
+* @param {string} name
+* @returns {Bip32Node}
+*/
+  static master(seed: Seed, name: string): Bip32Node;
 }
 /**
 */
@@ -721,15 +733,6 @@ export class HydraTxBuilder {
 */
   registerDelegate(sender_pubkey: SecpPublicKey, delegate_name: string, nonce: BigInt): any;
 }
-export class JsBip32 {
-  free(): void;
-/**
-* @param {Seed} seed
-* @param {string} name
-* @returns {Bip32Node}
-*/
-  static master(seed: Seed, name: string): Bip32Node;
-}
 /**
 */
 export class JwtBuilder {
@@ -818,6 +821,43 @@ export class MorpheusKind {
 * @returns {string}
 */
   readonly path: string;
+}
+/**
+*/
+export class MorpheusOperationBuilder {
+  free(): void;
+/**
+* @param {string} did
+* @param {any} last_tx_id
+*/
+  constructor(did: string, last_tx_id: any);
+/**
+* @param {string} authentication
+* @param {any} expires_at_height
+* @returns {any}
+*/
+  addKey(authentication: string, expires_at_height: any): any;
+/**
+* @param {string} authentication
+* @returns {any}
+*/
+  revokeKey(authentication: string): any;
+/**
+* @param {string} authentication
+* @param {string} right
+* @returns {any}
+*/
+  addRight(authentication: string, right: string): any;
+/**
+* @param {string} authentication
+* @param {string} right
+* @returns {any}
+*/
+  revokeRight(authentication: string, right: string): any;
+/**
+* @returns {any}
+*/
+  tombstoneDid(): any;
 }
 /**
 */
@@ -1025,6 +1065,31 @@ export class MorpheusRoot {
 }
 /**
 */
+export class MorpheusTxBuilder {
+  free(): void;
+/**
+* @param {string} network_name
+* @param {SecpPublicKey} sender_pubkey
+* @param {BigInt} nonce
+*/
+  constructor(network_name: string, sender_pubkey: SecpPublicKey, nonce: BigInt);
+/**
+* @param {string} content_id
+* @returns {MorpheusTxBuilder}
+*/
+  addRegisterBeforeProof(content_id: string): MorpheusTxBuilder;
+/**
+* @param {any} signed_operation
+* @returns {MorpheusTxBuilder}
+*/
+  addSigned(signed_operation: any): MorpheusTxBuilder;
+/**
+* @returns {any}
+*/
+  build(): any;
+}
+/**
+*/
 export class NoncedOperations {
   free(): void;
 /**
@@ -1078,10 +1143,10 @@ export class Principal {
 */
   static system(): Principal;
 /**
-* @param {string} pk
+* @param {PublicKey} pk
 * @returns {Principal}
 */
-  static publicKey(pk: string): Principal;
+  static publicKey(pk: PublicKey): Principal;
 /**
 * @param {PublicKey} pk
 */

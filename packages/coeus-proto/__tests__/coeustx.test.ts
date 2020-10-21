@@ -25,7 +25,7 @@ describe('CoeusTransaction builder', () => {
     const noncedOps = new NoncedOperationsBuilder()
       .add(UserOperation.register(
         new DomainName('.schema.eidcard'),
-        Principal.publicKey(pk.toString()),
+        Principal.publicKey(pk),
         new SubtreePolicies(),
         {},
         69,
@@ -52,11 +52,11 @@ describe('CoeusTransaction builder', () => {
     const signer = new HydraSigner(secpSk);
     const signedTx: ArkCryptoIf.ITransactionData = signer.signHydraTransaction(tx);
 
-    expect(signedTx.id).toBe('5992ccc7e284de55d2720d8f7704588051b049b20d3dc26b21b61a03e2a457bc');
+    expect(signedTx.id).toBe('36143d1257a942b20dc43fd73c22ffdfe3a58dc1533019debd6d8c77108d45ca');
     expect(signedTx.signature).toBe(
-      '3044' +
-      '02207818326a5ae380810fda64f39a1e617cf65cdd015d2a8c07f3092dd3cd15ad00' +
-      '02207d294c480c30dcad3941657cae07a6c0f26a17f2cb71f9340e56b7755fa5d623',
+      '3045' +
+      '022100d971ef27f5790511b51793710a87590e1bbb6cb3c66c28846d56ccd5beaf9033' +
+      '02207bc936ca2e9ea22b3dd4758798355a25306ca3003860b9a52b6e73d453409ac2',
     );
 
     /* eslint-disable-next-line no-undefined */

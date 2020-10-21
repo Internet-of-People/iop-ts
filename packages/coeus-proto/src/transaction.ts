@@ -46,21 +46,18 @@ export class CoeusTransaction extends Transactions.Transaction {
     const ops = new CoeusAsset(this.data.asset);
     const bytes: Uint8Array = ops.serialize();
 
-    const buffer = new ByteBuffer(bytes.length + 2, true);
-    buffer.append(bytes);
+    const frame = new ByteBuffer(bytes.length + 2, true);
+    frame.writeVarint32(bytes.length);
+    frame.append(bytes);
 
-    return buffer;
+    return frame;
   }
 
   public deserialize(buffer: ByteBuffer): void {
-    const length = buffer.readVarint32();
-    const jsonSer = buffer.readString(length);
+    const frameLength = buffer.readVarint32();
+    const frameBytes = buffer.readBytes(frameLength);
 
-    const fixedBuffer = new ByteBuffer(length + 2, true);
-    fixedBuffer.writeVarint32(length);
-    fixedBuffer.append(Buffer.from(jsonSer, 'utf8'));
-
-    const bytes: Uint8Array = Uint8Array.from(fixedBuffer.buffer);
+    const bytes: Uint8Array = Uint8Array.from(frameBytes.buffer);
     const ops = CoeusAsset.deserialize(bytes);
     this.data.asset = ops.toJson();
   }

@@ -1,6 +1,8 @@
 import * as wasm from './iop_sdk_wasm_bg.wasm';
 
-let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+const lTextDecoder = typeof TextDecoder === 'undefined' ? (0, module.require)('util').TextDecoder : TextDecoder;
+
+let cachedTextDecoder = new lTextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 
 cachedTextDecoder.decode();
 
@@ -47,7 +49,9 @@ function addHeapObject(obj) {
 
 let WASM_VECTOR_LEN = 0;
 
-let cachedTextEncoder = new TextEncoder('utf-8');
+const lTextEncoder = typeof TextEncoder === 'undefined' ? (0, module.require)('util').TextEncoder : TextEncoder;
+
+let cachedTextEncoder = new lTextEncoder('utf-8');
 
 const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
     ? function (arg, view) {
@@ -123,40 +127,11 @@ function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
 
-const u32CvtShim = new Uint32Array(2);
-
-const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
-
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
-}
-
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1);
     getUint8Memory0().set(arg, ptr / 1);
     WASM_VECTOR_LEN = arg.length;
     return ptr;
-}
-
-let cachegetUint32Memory0 = null;
-function getUint32Memory0() {
-    if (cachegetUint32Memory0 === null || cachegetUint32Memory0.buffer !== wasm.memory.buffer) {
-        cachegetUint32Memory0 = new Uint32Array(wasm.memory.buffer);
-    }
-    return cachegetUint32Memory0;
-}
-
-function getArrayJsValueFromWasm0(ptr, len) {
-    const mem = getUint32Memory0();
-    const slice = mem.subarray(ptr / 4, ptr / 4 + len);
-    const result = [];
-    for (let i = 0; i < slice.length; i++) {
-        result.push(takeObject(slice[i]));
-    }
-    return result;
 }
 /**
 * @param {Uint8Array} plain_text
@@ -194,6 +169,30 @@ export function decrypt(cipher_text, password) {
     return v2;
 }
 
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
+}
+
+let cachegetUint32Memory0 = null;
+function getUint32Memory0() {
+    if (cachegetUint32Memory0 === null || cachegetUint32Memory0.buffer !== wasm.memory.buffer) {
+        cachegetUint32Memory0 = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachegetUint32Memory0;
+}
+
+function getArrayJsValueFromWasm0(ptr, len) {
+    const mem = getUint32Memory0();
+    const slice = mem.subarray(ptr / 4, ptr / 4 + len);
+    const result = [];
+    for (let i = 0; i < slice.length; i++) {
+        result.push(takeObject(slice[i]));
+    }
+    return result;
+}
 /**
 * @param {string} name
 * @returns {boolean}
@@ -213,9 +212,29 @@ function addBorrowedObject(obj) {
     return stack_pointer;
 }
 
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+
 function isLikeNone(x) {
     return x === undefined || x === null;
 }
+/**
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
+*/
+export function signMorpheusOperations(operations, private_key) {
+    try {
+        _assertClass(private_key, PrivateKey);
+        var ret = wasm.signMorpheusOperations(addBorrowedObject(operations), private_key.ptr);
+        return takeObject(ret);
+    } finally {
+        heap[stack_pointer++] = undefined;
+    }
+}
+
+const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 /**
 * @param {any} data
 * @param {string} keep_properties_list
@@ -267,7 +286,6 @@ export function stringifyJson(data) {
     }
 }
 
-const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 /**
 */
 export class Bip32 {
@@ -277,6 +295,18 @@ export class Bip32 {
         this.ptr = 0;
 
         wasm.__wbg_bip32_free(ptr);
+    }
+    /**
+    * @param {Seed} seed
+    * @param {string} name
+    * @returns {Bip32Node}
+    */
+    static master(seed, name) {
+        _assertClass(seed, Seed);
+        var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.bip32_master(seed.ptr, ptr0, len0);
+        return Bip32Node.__wrap(ret);
     }
 }
 /**
@@ -1959,28 +1989,6 @@ export class HydraTxBuilder {
         return takeObject(ret);
     }
 }
-
-export class JsBip32 {
-
-    free() {
-        const ptr = this.ptr;
-        this.ptr = 0;
-
-        wasm.__wbg_jsbip32_free(ptr);
-    }
-    /**
-    * @param {Seed} seed
-    * @param {string} name
-    * @returns {Bip32Node}
-    */
-    static master(seed, name) {
-        _assertClass(seed, Seed);
-        var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.jsbip32_master(seed.ptr, ptr0, len0);
-        return Bip32Node.__wrap(ret);
-    }
-}
 /**
 */
 export class JwtBuilder {
@@ -2220,6 +2228,88 @@ export class MorpheusKind {
     key(idx) {
         var ret = wasm.morpheuskind_key(this.ptr, idx);
         return MorpheusPrivateKey.__wrap(ret);
+    }
+}
+/**
+*/
+export class MorpheusOperationBuilder {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusOperationBuilder.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheusoperationbuilder_free(ptr);
+    }
+    /**
+    * @param {string} did
+    * @param {any} last_tx_id
+    */
+    constructor(did, last_tx_id) {
+        var ptr0 = passStringToWasm0(did, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusoperationbuilder_new(ptr0, len0, addHeapObject(last_tx_id));
+        return MorpheusOperationBuilder.__wrap(ret);
+    }
+    /**
+    * @param {string} authentication
+    * @param {any} expires_at_height
+    * @returns {any}
+    */
+    addKey(authentication, expires_at_height) {
+        var ptr0 = passStringToWasm0(authentication, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusoperationbuilder_addKey(this.ptr, ptr0, len0, addHeapObject(expires_at_height));
+        return takeObject(ret);
+    }
+    /**
+    * @param {string} authentication
+    * @returns {any}
+    */
+    revokeKey(authentication) {
+        var ptr0 = passStringToWasm0(authentication, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusoperationbuilder_revokeKey(this.ptr, ptr0, len0);
+        return takeObject(ret);
+    }
+    /**
+    * @param {string} authentication
+    * @param {string} right
+    * @returns {any}
+    */
+    addRight(authentication, right) {
+        var ptr0 = passStringToWasm0(authentication, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ptr1 = passStringToWasm0(right, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusoperationbuilder_addRight(this.ptr, ptr0, len0, ptr1, len1);
+        return takeObject(ret);
+    }
+    /**
+    * @param {string} authentication
+    * @param {string} right
+    * @returns {any}
+    */
+    revokeRight(authentication, right) {
+        var ptr0 = passStringToWasm0(authentication, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ptr1 = passStringToWasm0(right, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusoperationbuilder_revokeRight(this.ptr, ptr0, len0, ptr1, len1);
+        return takeObject(ret);
+    }
+    /**
+    * @returns {any}
+    */
+    tombstoneDid() {
+        var ret = wasm.morpheusoperationbuilder_tombstoneDid(this.ptr);
+        return takeObject(ret);
     }
 }
 /**
@@ -2710,6 +2800,68 @@ export class MorpheusRoot {
 }
 /**
 */
+export class MorpheusTxBuilder {
+
+    static __wrap(ptr) {
+        const obj = Object.create(MorpheusTxBuilder.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_morpheustxbuilder_free(ptr);
+    }
+    /**
+    * @param {string} network_name
+    * @param {SecpPublicKey} sender_pubkey
+    * @param {BigInt} nonce
+    */
+    constructor(network_name, sender_pubkey, nonce) {
+        var ptr0 = passStringToWasm0(network_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        _assertClass(sender_pubkey, SecpPublicKey);
+        uint64CvtShim[0] = nonce;
+        const low1 = u32CvtShim[0];
+        const high1 = u32CvtShim[1];
+        var ret = wasm.morpheustxbuilder_new(ptr0, len0, sender_pubkey.ptr, low1, high1);
+        return MorpheusTxBuilder.__wrap(ret);
+    }
+    /**
+    * @param {string} content_id
+    * @returns {MorpheusTxBuilder}
+    */
+    addRegisterBeforeProof(content_id) {
+        var ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheustxbuilder_addRegisterBeforeProof(this.ptr, ptr0, len0);
+        return MorpheusTxBuilder.__wrap(ret);
+    }
+    /**
+    * @param {any} signed_operation
+    * @returns {MorpheusTxBuilder}
+    */
+    addSigned(signed_operation) {
+        try {
+            var ret = wasm.morpheustxbuilder_addSigned(this.ptr, addBorrowedObject(signed_operation));
+            return MorpheusTxBuilder.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+    /**
+    * @returns {any}
+    */
+    build() {
+        var ret = wasm.morpheustxbuilder_build(this.ptr);
+        return takeObject(ret);
+    }
+}
+/**
+*/
 export class NoncedOperations {
 
     static __wrap(ptr) {
@@ -2862,13 +3014,12 @@ export class Principal {
         return Principal.__wrap(ret);
     }
     /**
-    * @param {string} pk
+    * @param {PublicKey} pk
     * @returns {Principal}
     */
     static publicKey(pk) {
-        var ptr0 = passStringToWasm0(pk, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.principal_publicKey(ptr0, len0);
+        _assertClass(pk, PublicKey);
+        var ret = wasm.principal_publicKey(pk.ptr);
         return Principal.__wrap(ret);
     }
     /**
@@ -4019,6 +4170,26 @@ export const __wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
 };
 
+export const __wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
+    return addHeapObject(ret);
+};
+
+export const __wbg_getTime_8e7a0578598e5039 = function(arg0) {
+    var ret = getObject(arg0).getTime();
+    return ret;
+};
+
+export const __wbg_new0_8d817915cd890bd8 = function() {
+    var ret = new Date();
+    return addHeapObject(ret);
+};
+
+export const __wbindgen_is_undefined = function(arg0) {
+    var ret = getObject(arg0) === undefined;
+    return ret;
+};
+
 export const __wbg_getRandomValues_3ac1b33c90b52596 = function(arg0, arg1, arg2) {
     getObject(arg0).getRandomValues(getArrayU8FromWasm0(arg1, arg2));
 };
@@ -4047,11 +4218,6 @@ export const __wbg_msCrypto_679be765111ba775 = function(arg0) {
     return addHeapObject(ret);
 };
 
-export const __wbindgen_is_undefined = function(arg0) {
-    var ret = getObject(arg0) === undefined;
-    return ret;
-};
-
 export const __wbg_getRandomValues_05a60bf171bfc2be = function(arg0) {
     var ret = getObject(arg0).getRandomValues;
     return addHeapObject(ret);
@@ -4059,21 +4225,6 @@ export const __wbg_getRandomValues_05a60bf171bfc2be = function(arg0) {
 
 export const __wbg_static_accessor_MODULE_abf5ae284bffdf45 = function() {
     var ret = module;
-    return addHeapObject(ret);
-};
-
-export const __wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
-    return addHeapObject(ret);
-};
-
-export const __wbg_getTime_8e7a0578598e5039 = function(arg0) {
-    var ret = getObject(arg0).getTime();
-    return ret;
-};
-
-export const __wbg_new0_8d817915cd890bd8 = function() {
-    var ret = new Date();
     return addHeapObject(ret);
 };
 
