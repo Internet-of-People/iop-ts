@@ -9,7 +9,7 @@ describe('Serialize/deserialize works', () => {
           operations: [
             {
               type: 'register',
-              name: [ 'schema', 'eidcard' ],
+              name: '.schema.eidcard',
               owner: 'psz2Bmoub8W72YEYshmbmLLExyN3tPxRun2Vk2SWEJJke6JM',
               subtreePolicies: {},
               registrationPolicy: 'owner',

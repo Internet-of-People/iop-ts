@@ -215,10 +215,6 @@ function addBorrowedObject(obj) {
 const u32CvtShim = new Uint32Array(2);
 
 const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
-
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
 /**
 * @param {any} operations
 * @param {PrivateKey} private_key
@@ -232,6 +228,10 @@ export function signMorpheusOperations(operations, private_key) {
     } finally {
         heap[stack_pointer++] = undefined;
     }
+}
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
 
 const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
@@ -4170,26 +4170,6 @@ export const __wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
 };
 
-export const __wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
-    return addHeapObject(ret);
-};
-
-export const __wbg_getTime_8e7a0578598e5039 = function(arg0) {
-    var ret = getObject(arg0).getTime();
-    return ret;
-};
-
-export const __wbg_new0_8d817915cd890bd8 = function() {
-    var ret = new Date();
-    return addHeapObject(ret);
-};
-
-export const __wbindgen_is_undefined = function(arg0) {
-    var ret = getObject(arg0) === undefined;
-    return ret;
-};
-
 export const __wbg_getRandomValues_3ac1b33c90b52596 = function(arg0, arg1, arg2) {
     getObject(arg0).getRandomValues(getArrayU8FromWasm0(arg1, arg2));
 };
@@ -4218,6 +4198,11 @@ export const __wbg_msCrypto_679be765111ba775 = function(arg0) {
     return addHeapObject(ret);
 };
 
+export const __wbindgen_is_undefined = function(arg0) {
+    var ret = getObject(arg0) === undefined;
+    return ret;
+};
+
 export const __wbg_getRandomValues_05a60bf171bfc2be = function(arg0) {
     var ret = getObject(arg0).getRandomValues;
     return addHeapObject(ret);
@@ -4225,6 +4210,21 @@ export const __wbg_getRandomValues_05a60bf171bfc2be = function(arg0) {
 
 export const __wbg_static_accessor_MODULE_abf5ae284bffdf45 = function() {
     var ret = module;
+    return addHeapObject(ret);
+};
+
+export const __wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
+    return addHeapObject(ret);
+};
+
+export const __wbg_getTime_8e7a0578598e5039 = function(arg0) {
+    var ret = getObject(arg0).getTime();
+    return ret;
+};
+
+export const __wbg_new0_8d817915cd890bd8 = function() {
+    var ret = new Date();
     return addHeapObject(ret);
 };
 
