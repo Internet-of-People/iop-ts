@@ -16,8 +16,8 @@ For more info please visit the [IOP Developer Portal](https://developer.iop.glob
     - [Authority](#authority)
     - [Crypto](#crypto)
     - [Inspector](#inspector)
-    - [Layer1](#layer1)
-    - [Layer2](#layer2)
+    - [Layer-1](#layer-1)
+    - [Layer-2](#layer-2)
     - [Sdk](#sdk)
     - [Verifier](#verifier)
   - [Layer-1 Module](#layer-1-module)
@@ -101,11 +101,11 @@ All interfaces and types you need to use the [Crypto Module](#Crypto-Module) to 
 
 All interfaces and types that needed to be able to communicate with an Inspector endpoint. See more about the Inspector's API [here](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/inspector-service).
 
-#### Layer1
+#### Layer-1
 
-All interfaces you need to interact with the Layer-1 API.
+All interfaces you need to interact with the layer-1 API.
 
-#### Layer2
+#### Layer-2
 
 All interfaces you need to interact with the layer-2 API.
 
@@ -348,7 +348,7 @@ const status = await api.getTxnStatus('THE_LAYER_1_TX_ID_CONTAINED_A_DAC_OPERATI
 // true means the tx was accepted and applied in the layer-2 state.
 ```
 
-Note that layer2 status is returned here hence transactions containing layer2 operations are expected.
+Note that layer-2 status is returned here hence transactions containing layer-2 operations are expected.
 Layer1 transactions are not found thus `Optional.empty()` is returned for them as well.
 For a description of our Layer2 transactions and consensus,
 [see the specification](https://developer.iop.global/#/dac?id=decentralized-ledger-dlt).

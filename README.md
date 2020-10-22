@@ -18,7 +18,6 @@ web-of-trust way. See the [specification](https://developer.iop.global/) or chec
     - [did-manager](#did-manager)
     - [hydra-plugin](#hydra-plugin)
     - [morpheus-crypto](#morpheus-crypto)
-    - [morpheus-crypto-wasm](#morpheus-crypto-wasm)
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [License](#license)
@@ -131,12 +130,7 @@ This is a Hydra plugin that will be started up when your node is running. Receiv
 
 #### morpheus-crypto
 
-It's a wrapper on top of `morpheus-crypto-wasm` to provide a more coherent interface for the wasm code.
-
-#### morpheus-crypto-wasm
-
-A wasm package of [keyvault-rs](https://github.com/Internet-of-People/keyvault-rust). The SDK reexports it, so users don't need to use this package directly.
-
+It's a wrapper on top of `sdk-wasm` to provide a more coherent interface for the wasm code.
 
 ## Maintainers
 

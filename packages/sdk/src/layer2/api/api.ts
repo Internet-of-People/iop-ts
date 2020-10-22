@@ -52,10 +52,10 @@ export class Api {
     return result;
   }
 
-  // NOTE that layer2 status is returned here, i.e. Morpheus/SSI transactions are expected.
+  // NOTE that layer-2 status is returned here, i.e. Morpheus/SSI transactions are expected.
   //      Layer1 (e.g. transfer) transactions are not found thus Optional.empty() is returned for them.
   public async getTxnStatus(morpheusTxId: Types.Sdk.TransactionId): Promise<Optional<boolean>> {
-    log(`Getting txn layer2 status for ${morpheusTxId}...`);
+    log(`Getting txn layer-2 status for ${morpheusTxId}...`);
 
     try {
       const resp = await apiGet(this.api, `/txn-status/${morpheusTxId}`);
