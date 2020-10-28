@@ -3,8 +3,9 @@ import {
   DomainName,
   HydraSigner,
   NoncedOperationsBuilder,
-  UserOperation,
   PrivateKey,
+  PublicKey,
+  UserOperation,
 } from '@internet-of-people/sdk-wasm';
 
 export {
@@ -12,6 +13,7 @@ export {
   DomainName,
   HydraSigner,
   NoncedOperationsBuilder,
-  UserOperation,
   PrivateKey,
+  PublicKey,
+  UserOperation,
 };

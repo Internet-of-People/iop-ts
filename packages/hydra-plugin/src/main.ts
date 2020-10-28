@@ -51,7 +51,7 @@ export class Composite implements IInitializable {
   }
 }
 
-const attachHTTPApi = async(
+const attachMorpheusApi = async(
   container: Container.IContainer,
   stateHandler: Interfaces.IMorpheusStateHandler,
   morpheusLog: IAppLog,
@@ -63,15 +63,28 @@ const attachHTTPApi = async(
 
   const http: HapiServer = api.instance('http');
 
-  const morpheusLayer2API = new MorpheusNode.Layer2API(morpheusLog, stateHandler, http, {
+  const morpheusAPI = new MorpheusNode.MorpheusAPI(morpheusLog, stateHandler, {
     getMorpheusTransaction: async(txId: TransactionId): Promise<Optional<Types.Layer1.IMorpheusAsset>> => {
       const txDetails: CryptoIf.ITransactionData = await transactionRepository.findById(txId);
       const morpheusTx = txDetails as Types.Layer1.IMorpheusData;
       return Optional.ofNullable(morpheusTx?.asset);
     },
   });
-  await morpheusLayer2API.init();
+  await morpheusAPI.init(http);
   morpheusLog.info('Morpheus HTTP API READY');
+};
+
+const attachCoeusApi = async(
+  container: Container.IContainer,
+  stateHandler: CoeusNode.StateHandler,
+  coeusLog: IAppLog,
+): Promise<void> => {
+  const api = container.resolvePlugin('api');
+  const http: HapiServer = api.instance('http');
+
+  const coeusAPI = new CoeusNode.CoeusAPI(coeusLog, stateHandler);
+  await coeusAPI.init(http);
+  coeusLog.info('Coeus HTTP API READY');
 };
 
 // TODO: separate register's content into a container, hence it can be tested
@@ -127,7 +140,10 @@ const register = async(container: Container.IContainer): Promise<Composite> => {
 
   /* eslint @typescript-eslint/no-misused-promises: 0 */
   eventEmitter.on('wallet.api.started', async() => {
-    await attachHTTPApi(container, morpheusStateHandler, morpheusLog);
+    await Promise.all([
+      await attachMorpheusApi(container, morpheusStateHandler, morpheusLog),
+      await attachCoeusApi(container, coeusStateHandler, coeusLog),
+    ]);
   });
 
   return composite;

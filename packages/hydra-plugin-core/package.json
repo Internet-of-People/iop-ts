@@ -15,12 +15,22 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run build:src",
+    "build": "npm run build:src && npm run build:test",
     "build:src": "tsc -p . ",
-    "lint": "npm run lint:src",
+    "build:test": "tsc -p tsconfig.test.json",
+    "lint": "npm run lint:src && npm run lint:test",
     "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
+    "lint:test": "eslint -c ../../eslintrc.test.json --fix \"./__tests__/**\"",
     "clean": "rimraf dist && rimraf node_modules",
-    "test": "echo ignore"
+    "test": "jest --detectOpenHandles --no-cache",
+    "test:watch": "jest --detectOpenHandles --no-cache --watch"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "verbose": true,
+    "testPathIgnorePatterns": [
+      "__tests__/utils.ts"
+    ]
   },
   "dependencies": {
     "@arkecosystem/core-interfaces": "^2.6.31",
@@ -28,8 +38,13 @@
     "@arkecosystem/crypto": "^2.6.31"
   },
   "devDependencies": {
+    "@types/jest": "24.9.0",
     "@typescript-eslint/eslint-plugin": "2.11.0",
     "@typescript-eslint/parser": "2.11.0",
+    "eslint": "6.7.2",
+    "jest": "24.9.0",
+    "rimraf": "3.0.0",
+    "ts-jest": "24.1.0",
     "typescript": "3.8.3"
   }
 }

@@ -18,12 +18,6 @@ export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
 */
 export function validateNetworkName(name: string): boolean;
 /**
-* @param {any} operations
-* @param {PrivateKey} private_key
-* @returns {any}
-*/
-export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
-/**
 * @param {any} data
 * @param {string} keep_properties_list
 * @returns {string}
@@ -40,15 +34,15 @@ export function digestJson(data: any): string;
 */
 export function stringifyJson(data: any): string;
 /**
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
+*/
+export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
+/**
 */
 export class Bip32 {
   free(): void;
-/**
-* @param {Seed} seed
-* @param {string} name
-* @returns {Bip32Node}
-*/
-  static master(seed: Seed, name: string): Bip32Node;
 }
 /**
 */
@@ -732,6 +726,15 @@ export class HydraTxBuilder {
 * @returns {any}
 */
   registerDelegate(sender_pubkey: SecpPublicKey, delegate_name: string, nonce: BigInt): any;
+}
+export class JsBip32 {
+  free(): void;
+/**
+* @param {Seed} seed
+* @param {string} name
+* @returns {Bip32Node}
+*/
+  static master(seed: Seed, name: string): Bip32Node;
 }
 /**
 */
@@ -1455,6 +1458,21 @@ export class State {
 * @returns {any}
 */
   resolveData(name: DomainName): any;
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  getMetadata(name: DomainName): any;
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  getChildren(name: DomainName): any;
+/**
+* @param {PublicKey} pk
+* @returns {BigInt}
+*/
+  lastNonce(pk: PublicKey): BigInt;
 /**
 * @param {SignedOperations} ops
 * @returns {BigInt}

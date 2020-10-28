@@ -30,6 +30,8 @@
     "@arkecosystem/core-interfaces": "^2.6.31",
     "@arkecosystem/core-transactions": "^2.6.31",
     "@arkecosystem/crypto": "^2.6.31",
+    "@hapi/hapi": "^18.3.1",
+    "@hapi/boom": "^8.0.0",
     "@internet-of-people/hydra-plugin-core": "4.0.0",
     "@internet-of-people/coeus-proto": "4.0.0",
     "@internet-of-people/sdk-wasm": "0.0.6"
