@@ -83,7 +83,7 @@ export class CoeusAPI {
           const key = new PublicKey(pk);
           this.log.debug(`Getting nonce of ${key}`);
           const nonce: BigInt = this.stateHandler.state.lastNonce(key);
-          return { nonce };
+          return { nonce: nonce.toString() };
         },
       },
     ]);

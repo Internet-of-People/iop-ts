@@ -47,7 +47,7 @@ export class CoeusApi implements Types.Layer2.ICoeusApi {
     log(`Getting last nonce for ${pk}...`);
 
     const resp = await apiGet(this.api, `/last-nonce/${pk}`);
-    return resp.data.nonce;
+    return BigInt(resp.data.nonce);
   }
 }
 

@@ -57,7 +57,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     const frameLength = buffer.readVarint32();
     const frameBytes = buffer.readBytes(frameLength);
 
-    const bytes: Uint8Array = Uint8Array.from(frameBytes.buffer);
+    const bytes: Uint8Array = Uint8Array.from(frameBytes.toBuffer());
     const ops = CoeusAsset.deserialize(bytes);
     this.data.asset = ops.toJson();
   }
