@@ -90,6 +90,18 @@ function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
 
+let stack_pointer = 32;
+
+function addBorrowedObject(obj) {
+    if (stack_pointer == 1) throw new Error('out of js stack');
+    heap[--stack_pointer] = obj;
+    return stack_pointer;
+}
+
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
         throw new Error(`expected instance of ${klass.name}`);
@@ -168,17 +180,24 @@ module.exports.validateNetworkName = function(name) {
     return ret !== 0;
 };
 
-let stack_pointer = 32;
-
-function addBorrowedObject(obj) {
-    if (stack_pointer == 1) throw new Error('out of js stack');
-    heap[--stack_pointer] = obj;
-    return stack_pointer;
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
+/**
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
+*/
+module.exports.signMorpheusOperations = function(operations, private_key) {
+    try {
+        _assertClass(private_key, PrivateKey);
+        var ret = wasm.signMorpheusOperations(addBorrowedObject(operations), private_key.ptr);
+        return takeObject(ret);
+    } finally {
+        heap[stack_pointer++] = undefined;
+    }
+};
 
-const u32CvtShim = new Uint32Array(2);
-
-const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
 /**
 * @param {any} data
 * @param {string} keep_properties_list
@@ -231,25 +250,6 @@ module.exports.stringifyJson = function(data) {
 };
 
 const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
-
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-/**
-* @param {any} operations
-* @param {PrivateKey} private_key
-* @returns {any}
-*/
-module.exports.signMorpheusOperations = function(operations, private_key) {
-    try {
-        _assertClass(private_key, PrivateKey);
-        var ret = wasm.signMorpheusOperations(addBorrowedObject(operations), private_key.ptr);
-        return takeObject(ret);
-    } finally {
-        heap[stack_pointer++] = undefined;
-    }
-};
-
 /**
 */
 class Bip32 {

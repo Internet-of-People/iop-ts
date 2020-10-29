@@ -18,6 +18,12 @@ export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
 */
 export function validateNetworkName(name: string): boolean;
 /**
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
+*/
+export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
+/**
 * @param {any} data
 * @param {string} keep_properties_list
 * @returns {string}
@@ -33,12 +39,6 @@ export function digestJson(data: any): string;
 * @returns {string}
 */
 export function stringifyJson(data: any): string;
-/**
-* @param {any} operations
-* @param {PrivateKey} private_key
-* @returns {any}
-*/
-export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
 /**
 */
 export class Bip32 {
