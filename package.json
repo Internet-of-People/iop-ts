@@ -36,7 +36,8 @@
     "optional-js": "2.1.1",
     "p-queue": "6.2.1",
     "sqlite": "3.0.3",
-    "sql-template-strings": "2.2.2"
+    "sql-template-strings": "2.2.2",
+    "tslib": "2.0.1"
   },
   "devDependencies": {
     "@arkecosystem/core-http-utils": "^2.6.31",
