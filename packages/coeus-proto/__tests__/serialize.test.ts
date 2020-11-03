@@ -4,7 +4,7 @@ import ByteBuffer from 'bytebuffer';
 describe('Serialize/deserialize works', () => {
   it('...', () => {
     const json = {
-      signedOperations: [
+      bundles: [
         {
           operations: [
             {

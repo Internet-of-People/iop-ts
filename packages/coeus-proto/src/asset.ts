@@ -7,7 +7,7 @@ export interface ICoeusData extends CryptoIf.ITransactionData {
 }
 
 export interface IUserOperation {
-  type: 'register'|'update'|'renew'|'transfer'|'delete';
+  type: 'register' | 'update' | 'renew' | 'transfer' | 'delete';
   name: string;
 }
 
@@ -44,13 +44,13 @@ export interface IDeleteOperation extends IUserOperation {
   type: 'delete';
 }
 
-export interface ISignedOperations {
+export interface ISignedBundle {
   operations: IUserOperation[];
   nonce: number;
   publicKey: string;
   signature: string;
 }
 
-export interface ICoeusAsset {
-  signedOperations: ISignedOperations[];
+export interface ICoeusAsset extends CryptoIf.ITransactionAsset {
+  bundles: ISignedBundle[];
 }

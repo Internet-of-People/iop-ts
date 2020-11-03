@@ -11,7 +11,7 @@ type IBeforeProofHistory = Types.Layer2.IBeforeProofHistory;
 type Authentication = Types.Crypto.Authentication;
 type TransactionId = Types.Sdk.TransactionId;
 
-import { MorpheusAPI } from '../src/node/api';
+import { MorpheusAPI } from '../src/node/morpheus-api';
 import { TransactionTestRepo } from './did-operations.test';
 import { assertStringlyEqual, installWindowCrypto } from './utils';
 import {

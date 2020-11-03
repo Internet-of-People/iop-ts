@@ -28,7 +28,7 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
     return this.state.query;
   }
 
-  public static readonly CORRUPTED_ERR_MSG = 'Layer 2 state is corrupt. All incoming changes will be ignored.';
+  public static readonly CORRUPTED_ERR_MSG = 'Morpheus state is corrupt. All incoming changes will be ignored.';
   private state: IMorpheusState = new MorpheusState();
   private corrupted = false;
 

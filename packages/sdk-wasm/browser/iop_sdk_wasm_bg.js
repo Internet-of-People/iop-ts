@@ -123,18 +123,6 @@ function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
 
-let stack_pointer = 32;
-
-function addBorrowedObject(obj) {
-    if (stack_pointer == 1) throw new Error('out of js stack');
-    heap[--stack_pointer] = obj;
-    return stack_pointer;
-}
-
-const u32CvtShim = new Uint32Array(2);
-
-const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
-
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
         throw new Error(`expected instance of ${klass.name}`);
@@ -211,6 +199,18 @@ export function validateNetworkName(name) {
     var len0 = WASM_VECTOR_LEN;
     var ret = wasm.validateNetworkName(ptr0, len0);
     return ret !== 0;
+}
+
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+
+let stack_pointer = 32;
+
+function addBorrowedObject(obj) {
+    if (stack_pointer == 1) throw new Error('out of js stack');
+    heap[--stack_pointer] = obj;
+    return stack_pointer;
 }
 
 function isLikeNone(x) {
@@ -292,6 +292,18 @@ export class Bip32 {
         this.ptr = 0;
 
         wasm.__wbg_bip32_free(ptr);
+    }
+    /**
+    * @param {Seed} seed
+    * @param {string} name
+    * @returns {Bip32Node}
+    */
+    static master(seed, name) {
+        _assertClass(seed, Seed);
+        var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.bip32_master(seed.ptr, ptr0, len0);
+        return Bip32Node.__wrap(ret);
     }
 }
 /**
@@ -1434,6 +1446,139 @@ export class CoeusAsset {
 }
 /**
 */
+export class CoeusState {
+
+    static __wrap(ptr) {
+        const obj = Object.create(CoeusState.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_coeusstate_free(ptr);
+    }
+    /**
+    */
+    constructor() {
+        var ret = wasm.coeusstate_new();
+        return CoeusState.__wrap(ret);
+    }
+    /**
+    * @param {DomainName} name
+    * @returns {any}
+    */
+    resolveData(name) {
+        _assertClass(name, DomainName);
+        var ret = wasm.coeusstate_resolveData(this.ptr, name.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @param {DomainName} name
+    * @returns {any}
+    */
+    getMetadata(name) {
+        _assertClass(name, DomainName);
+        var ret = wasm.coeusstate_getMetadata(this.ptr, name.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @param {DomainName} name
+    * @returns {any}
+    */
+    getChildren(name) {
+        _assertClass(name, DomainName);
+        var ret = wasm.coeusstate_getChildren(this.ptr, name.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @param {PublicKey} pk
+    * @returns {BigInt}
+    */
+    lastNonce(pk) {
+        _assertClass(pk, PublicKey);
+        wasm.coeusstate_lastNonce(8, this.ptr, pk.ptr);
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        u32CvtShim[0] = r0;
+        u32CvtShim[1] = r1;
+        const n0 = uint64CvtShim[0];
+        return n0;
+    }
+    /**
+    * @param {string} txid
+    * @param {CoeusAsset} asset
+    */
+    applyTransaction(txid, asset) {
+        var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        _assertClass(asset, CoeusAsset);
+        wasm.coeusstate_applyTransaction(this.ptr, ptr0, len0, asset.ptr);
+    }
+    /**
+    * @param {string} txid
+    * @param {CoeusAsset} asset
+    */
+    revertTransaction(txid, asset) {
+        var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        _assertClass(asset, CoeusAsset);
+        wasm.coeusstate_revertTransaction(this.ptr, ptr0, len0, asset.ptr);
+    }
+    /**
+    * @param {number} height
+    */
+    blockApplying(height) {
+        wasm.coeusstate_blockApplying(this.ptr, height);
+    }
+    /**
+    * @param {number} height
+    */
+    blockReverted(height) {
+        wasm.coeusstate_blockReverted(this.ptr, height);
+    }
+    /**
+    * @returns {boolean}
+    */
+    get corrupted() {
+        var ret = wasm.coeusstate_is_corrupted(this.ptr);
+        return ret !== 0;
+    }
+    /**
+    * @returns {BigInt}
+    */
+    get version() {
+        wasm.coeusstate_version(8, this.ptr);
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        u32CvtShim[0] = r0;
+        u32CvtShim[1] = r1;
+        const n0 = uint64CvtShim[0];
+        return n0;
+    }
+    /**
+    * @returns {number}
+    */
+    get lastSeenHeight() {
+        var ret = wasm.coeusstate_last_seen_height(this.ptr);
+        return ret >>> 0;
+    }
+    /**
+    * @param {string} txid
+    * @returns {boolean}
+    */
+    getTxnStatus(txid) {
+        var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.coeusstate_getTxnStatus(this.ptr, ptr0, len0);
+        return ret !== 0;
+    }
+}
+/**
+*/
 export class CoeusTxBuilder {
 
     static __wrap(ptr) {
@@ -1459,13 +1604,13 @@ export class CoeusTxBuilder {
         return CoeusTxBuilder.__wrap(ret);
     }
     /**
-    * @param {SignedOperations} ops
+    * @param {SignedBundle} ops
     * @param {SecpPublicKey} sender_pubkey
     * @param {BigInt} nonce
     * @returns {any}
     */
     build(ops, sender_pubkey, nonce) {
-        _assertClass(ops, SignedOperations);
+        _assertClass(ops, SignedBundle);
         _assertClass(sender_pubkey, SecpPublicKey);
         uint64CvtShim[0] = nonce;
         const low0 = u32CvtShim[0];
@@ -1972,28 +2117,6 @@ export class HydraTxBuilder {
         const high1 = u32CvtShim[1];
         var ret = wasm.hydratxbuilder_registerDelegate(this.ptr, sender_pubkey.ptr, ptr0, len0, low1, high1);
         return takeObject(ret);
-    }
-}
-
-export class JsBip32 {
-
-    free() {
-        const ptr = this.ptr;
-        this.ptr = 0;
-
-        wasm.__wbg_jsbip32_free(ptr);
-    }
-    /**
-    * @param {Seed} seed
-    * @param {string} name
-    * @returns {Bip32Node}
-    */
-    static master(seed, name) {
-        _assertClass(seed, Seed);
-        var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.jsbip32_master(seed.ptr, ptr0, len0);
-        return Bip32Node.__wrap(ret);
     }
 }
 /**
@@ -2869,10 +2992,10 @@ export class MorpheusTxBuilder {
 }
 /**
 */
-export class NoncedOperations {
+export class NoncedBundle {
 
     static __wrap(ptr) {
-        const obj = Object.create(NoncedOperations.prototype);
+        const obj = Object.create(NoncedBundle.prototype);
         obj.ptr = ptr;
 
         return obj;
@@ -2882,34 +3005,34 @@ export class NoncedOperations {
         const ptr = this.ptr;
         this.ptr = 0;
 
-        wasm.__wbg_noncedoperations_free(ptr);
+        wasm.__wbg_noncedbundle_free(ptr);
     }
     /**
-    * @param {State} state
+    * @param {CoeusState} state
     * @returns {Price}
     */
     price(state) {
-        _assertClass(state, State);
-        var ret = wasm.noncedoperations_price(this.ptr, state.ptr);
+        _assertClass(state, CoeusState);
+        var ret = wasm.noncedbundle_price(this.ptr, state.ptr);
         return Price.__wrap(ret);
     }
     /**
     * @param {PrivateKey} sk
-    * @returns {SignedOperations}
+    * @returns {SignedBundle}
     */
     sign(sk) {
         var ptr = this.ptr;
         this.ptr = 0;
         _assertClass(sk, PrivateKey);
-        var ret = wasm.noncedoperations_sign(ptr, sk.ptr);
-        return SignedOperations.__wrap(ret);
+        var ret = wasm.noncedbundle_sign(ptr, sk.ptr);
+        return SignedBundle.__wrap(ret);
     }
     /**
     * @returns {string}
     */
     serialize() {
         try {
-            wasm.noncedoperations_serialize(8, this.ptr);
+            wasm.noncedbundle_serialize(8, this.ptr);
             var r0 = getInt32Memory0()[8 / 4 + 0];
             var r1 = getInt32Memory0()[8 / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -2920,10 +3043,10 @@ export class NoncedOperations {
 }
 /**
 */
-export class NoncedOperationsBuilder {
+export class NoncedBundleBuilder {
 
     static __wrap(ptr) {
-        const obj = Object.create(NoncedOperationsBuilder.prototype);
+        const obj = Object.create(NoncedBundleBuilder.prototype);
         obj.ptr = ptr;
 
         return obj;
@@ -2933,28 +3056,28 @@ export class NoncedOperationsBuilder {
         const ptr = this.ptr;
         this.ptr = 0;
 
-        wasm.__wbg_noncedoperationsbuilder_free(ptr);
+        wasm.__wbg_noncedbundlebuilder_free(ptr);
     }
     /**
     */
     constructor() {
-        var ret = wasm.noncedoperationsbuilder_new();
-        return NoncedOperationsBuilder.__wrap(ret);
+        var ret = wasm.noncedbundlebuilder_new();
+        return NoncedBundleBuilder.__wrap(ret);
     }
     /**
     * @param {UserOperation} user_operation
-    * @returns {NoncedOperationsBuilder}
+    * @returns {NoncedBundleBuilder}
     */
     add(user_operation) {
         var ptr = this.ptr;
         this.ptr = 0;
         _assertClass(user_operation, UserOperation);
-        var ret = wasm.noncedoperationsbuilder_add(ptr, user_operation.ptr);
-        return NoncedOperationsBuilder.__wrap(ret);
+        var ret = wasm.noncedbundlebuilder_add(ptr, user_operation.ptr);
+        return NoncedBundleBuilder.__wrap(ret);
     }
     /**
     * @param {BigInt} nonce
-    * @returns {NoncedOperations}
+    * @returns {NoncedBundle}
     */
     build(nonce) {
         var ptr = this.ptr;
@@ -2962,8 +3085,8 @@ export class NoncedOperationsBuilder {
         uint64CvtShim[0] = nonce;
         const low0 = u32CvtShim[0];
         const high0 = u32CvtShim[1];
-        var ret = wasm.noncedoperationsbuilder_build(ptr, low0, high0);
-        return NoncedOperations.__wrap(ret);
+        var ret = wasm.noncedbundlebuilder_build(ptr, low0, high0);
+        return NoncedBundle.__wrap(ret);
     }
 }
 /**
@@ -3540,6 +3663,51 @@ export class Signature {
 }
 /**
 */
+export class SignedBundle {
+
+    static __wrap(ptr) {
+        const obj = Object.create(SignedBundle.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_signedbundle_free(ptr);
+    }
+    /**
+    * @param {any} data
+    */
+    constructor(data) {
+        try {
+            var ret = wasm.signedbundle_new(addBorrowedObject(data));
+            return SignedBundle.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
+    /**
+    * @param {CoeusState} state
+    * @returns {Price}
+    */
+    price(state) {
+        _assertClass(state, CoeusState);
+        var ret = wasm.signedbundle_price(this.ptr, state.ptr);
+        return Price.__wrap(ret);
+    }
+    /**
+    * @returns {boolean}
+    */
+    verify() {
+        var ret = wasm.signedbundle_verify(this.ptr);
+        return ret !== 0;
+    }
+}
+/**
+*/
 export class SignedBytes {
 
     static __wrap(ptr) {
@@ -3706,172 +3874,6 @@ export class SignedJson {
 }
 /**
 */
-export class SignedOperations {
-
-    static __wrap(ptr) {
-        const obj = Object.create(SignedOperations.prototype);
-        obj.ptr = ptr;
-
-        return obj;
-    }
-
-    free() {
-        const ptr = this.ptr;
-        this.ptr = 0;
-
-        wasm.__wbg_signedoperations_free(ptr);
-    }
-    /**
-    * @param {any} data
-    */
-    constructor(data) {
-        try {
-            var ret = wasm.signedoperations_new(addBorrowedObject(data));
-            return SignedOperations.__wrap(ret);
-        } finally {
-            heap[stack_pointer++] = undefined;
-        }
-    }
-    /**
-    * @param {State} state
-    * @returns {Price}
-    */
-    price(state) {
-        _assertClass(state, State);
-        var ret = wasm.signedoperations_price(this.ptr, state.ptr);
-        return Price.__wrap(ret);
-    }
-    /**
-    * @returns {boolean}
-    */
-    verify() {
-        var ret = wasm.signedoperations_verify(this.ptr);
-        return ret !== 0;
-    }
-}
-/**
-*/
-export class State {
-
-    static __wrap(ptr) {
-        const obj = Object.create(State.prototype);
-        obj.ptr = ptr;
-
-        return obj;
-    }
-
-    free() {
-        const ptr = this.ptr;
-        this.ptr = 0;
-
-        wasm.__wbg_state_free(ptr);
-    }
-    /**
-    */
-    constructor() {
-        var ret = wasm.state_new();
-        return State.__wrap(ret);
-    }
-    /**
-    * @param {DomainName} name
-    * @returns {any}
-    */
-    resolveData(name) {
-        _assertClass(name, DomainName);
-        var ret = wasm.state_resolveData(this.ptr, name.ptr);
-        return takeObject(ret);
-    }
-    /**
-    * @param {DomainName} name
-    * @returns {any}
-    */
-    getMetadata(name) {
-        _assertClass(name, DomainName);
-        var ret = wasm.state_getMetadata(this.ptr, name.ptr);
-        return takeObject(ret);
-    }
-    /**
-    * @param {DomainName} name
-    * @returns {any}
-    */
-    getChildren(name) {
-        _assertClass(name, DomainName);
-        var ret = wasm.state_getChildren(this.ptr, name.ptr);
-        return takeObject(ret);
-    }
-    /**
-    * @param {PublicKey} pk
-    * @returns {BigInt}
-    */
-    lastNonce(pk) {
-        _assertClass(pk, PublicKey);
-        wasm.state_lastNonce(8, this.ptr, pk.ptr);
-        var r0 = getInt32Memory0()[8 / 4 + 0];
-        var r1 = getInt32Memory0()[8 / 4 + 1];
-        u32CvtShim[0] = r0;
-        u32CvtShim[1] = r1;
-        const n0 = uint64CvtShim[0];
-        return n0;
-    }
-    /**
-    * @param {SignedOperations} ops
-    * @returns {BigInt}
-    */
-    applySignedOperations(ops) {
-        _assertClass(ops, SignedOperations);
-        wasm.state_applySignedOperations(8, this.ptr, ops.ptr);
-        var r0 = getInt32Memory0()[8 / 4 + 0];
-        var r1 = getInt32Memory0()[8 / 4 + 1];
-        u32CvtShim[0] = r0;
-        u32CvtShim[1] = r1;
-        const n0 = uint64CvtShim[0];
-        return n0;
-    }
-    /**
-    * @param {SystemOperation} op
-    * @returns {BigInt}
-    */
-    applySystemOperation(op) {
-        _assertClass(op, SystemOperation);
-        wasm.state_applySystemOperation(8, this.ptr, op.ptr);
-        var r0 = getInt32Memory0()[8 / 4 + 0];
-        var r1 = getInt32Memory0()[8 / 4 + 1];
-        u32CvtShim[0] = r0;
-        u32CvtShim[1] = r1;
-        const n0 = uint64CvtShim[0];
-        return n0;
-    }
-    /**
-    * @returns {BigInt}
-    */
-    get version() {
-        wasm.state_version(8, this.ptr);
-        var r0 = getInt32Memory0()[8 / 4 + 0];
-        var r1 = getInt32Memory0()[8 / 4 + 1];
-        u32CvtShim[0] = r0;
-        u32CvtShim[1] = r1;
-        const n0 = uint64CvtShim[0];
-        return n0;
-    }
-    /**
-    * @param {BigInt} to_version
-    */
-    undoLastOperation(to_version) {
-        uint64CvtShim[0] = to_version;
-        const low0 = u32CvtShim[0];
-        const high0 = u32CvtShim[1];
-        wasm.state_undoLastOperation(this.ptr, low0, high0);
-    }
-    /**
-    * @returns {number}
-    */
-    get lastSeenHeight() {
-        var ret = wasm.state_last_seen_height(this.ptr);
-        return ret >>> 0;
-    }
-}
-/**
-*/
 export class SubtreePolicies {
 
     static __wrap(ptr) {
@@ -3916,32 +3918,6 @@ export class SubtreePolicies {
         this.ptr = 0;
         var ret = wasm.subtreepolicies_withExpiration(ptr, max_block_count);
         return SubtreePolicies.__wrap(ret);
-    }
-}
-/**
-*/
-export class SystemOperation {
-
-    static __wrap(ptr) {
-        const obj = Object.create(SystemOperation.prototype);
-        obj.ptr = ptr;
-
-        return obj;
-    }
-
-    free() {
-        const ptr = this.ptr;
-        this.ptr = 0;
-
-        wasm.__wbg_systemoperation_free(ptr);
-    }
-    /**
-    * @param {number} height
-    * @returns {SystemOperation}
-    */
-    static startBlock(height) {
-        var ret = wasm.systemoperation_startBlock(height);
-        return SystemOperation.__wrap(ret);
     }
 }
 /**

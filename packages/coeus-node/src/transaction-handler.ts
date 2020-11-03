@@ -9,9 +9,9 @@ import {
   IAppLog,
   COEUS_LOGGER_COMPONENT_NAME,
 } from '@internet-of-people/hydra-plugin-core';
-import { CoeusTransaction, ICoeusAsset } from '@internet-of-people/coeus-proto';
+import { CoeusTransaction, ICoeusAsset, ISignedBundle } from '@internet-of-people/coeus-proto';
 import { StateHandler } from './state-handler';
-import { SignedOperations } from '@internet-of-people/sdk-wasm';
+import { SignedBundle } from '@internet-of-people/sdk-wasm';
 
 export class TransactionHandler extends Handlers.TransactionHandler {
   public getConstructor(): typeof Transactions.Transaction {
@@ -52,24 +52,23 @@ export class TransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async canEnterTransactionPool(
-    _data: CryptoIf.ITransactionData,
+    data: CryptoIf.ITransactionData,
     _pool: TransactionPool.IConnection,
     _processor: TransactionPool.IProcessor,
   ): Promise<{ type: string; message: string; } | null> {
     try {
       const stateHandler: StateHandler = app.resolve(StateHandler.COMPONENT_NAME);
-      const asset = _data.asset as ICoeusAsset;
+      const bundles = data.asset!.bundles as ISignedBundle[];
 
-      const expectedFee = asset
-        .signedOperations
-        .map((ops) => {
-          return new SignedOperations(ops).price(stateHandler.state).fee;
+      const expectedFee = bundles
+        .map((signed) => {
+          return new SignedBundle(signed).price(stateHandler.state).fee;
         })
         .reduce((total: BigInt, currentVal: BigInt) => {
           return BigInt(total) + BigInt(currentVal);
         });
 
-      if (_data.fee.isLessThan(expectedFee)) {
+      if (data.fee.isLessThan(expectedFee)) {
         return {
           type: 'ERR_LOW_FEE',
           message: `The fee for this transaction must be at least ${expectedFee}`,

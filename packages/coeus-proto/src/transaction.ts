@@ -12,7 +12,7 @@ export class CoeusTransaction extends Transactions.Transaction {
 
   public data: ICoeusData = {
     amount: Utils.BigNumber.make(0),
-    asset: { signedOperations: [] },
+    asset: { bundles: [] },
     fee: Utils.BigNumber.make(0),
     senderPublicKey: '',
     timestamp: 0,
@@ -29,10 +29,10 @@ export class CoeusTransaction extends Transactions.Transaction {
         typeGroup: { const: this.typeGroup },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
-          required: ['signedOperations'],
+          required: ['bundles'],
           // additionalProperties: false,
           properties: {
-            signedOperations: {
+            bundles: {
               type: 'array',
               items: { type: 'object' }, // TODO
             },

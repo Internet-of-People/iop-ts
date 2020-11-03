@@ -38,8 +38,8 @@ export class CoeusAPI {
           try {
             const data: unknown = this.stateHandler.state.resolveData(domainName);
             return { data };
-          } catch {
-            throw notFound(`Cannot resolve ${domainName}`);
+          } catch (e) {
+            throw notFound(`Cannot resolve ${name}. Error: ${e}`);
           }
         },
       },
@@ -54,8 +54,8 @@ export class CoeusAPI {
           try {
             const metadata: unknown = this.stateHandler.state.getMetadata(domainName);
             return metadata;
-          } catch {
-            throw notFound(`Cannot resolve ${domainName}`);
+          } catch (e) {
+            throw notFound(`Cannot get metadata for ${name}. Error: ${e}`);
           }
         },
       },
@@ -70,8 +70,8 @@ export class CoeusAPI {
           try {
             const children: string[] = this.stateHandler.state.getChildren(domainName);
             return { children };
-          } catch {
-            throw notFound(`Cannot resolve ${domainName}`);
+          } catch (e) {
+            throw notFound(`Cannot get children of ${name}. Error: ${e}`);
           }
         },
       },
@@ -84,6 +84,21 @@ export class CoeusAPI {
           this.log.debug(`Getting nonce of ${key}`);
           const nonce: BigInt = this.stateHandler.state.lastNonce(key);
           return { nonce: nonce.toString() };
+        },
+      },
+      {
+        method: 'GET',
+        path: '/txn-status/{txid}',
+        handler: (request: Request): Lifecycle.ReturnValue => {
+          const { params: { txid } } = request;
+          this.log.debug(`Getting coeus txn status of ${txid}`);
+
+          try {
+            const success: boolean = this.stateHandler.state.getTxnStatus(txid);
+            return success;
+          } catch (e) {
+            throw notFound(`Transaction ${txid} is not processed by coeus (yet). Error: ${e}`);
+          }
         },
       },
     ]);

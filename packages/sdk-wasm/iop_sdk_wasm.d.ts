@@ -43,6 +43,12 @@ export function stringifyJson(data: any): string;
 */
 export class Bip32 {
   free(): void;
+/**
+* @param {Seed} seed
+* @param {string} name
+* @returns {Bip32Node}
+*/
+  static master(seed: Seed, name: string): Bip32Node;
 }
 /**
 */
@@ -514,6 +520,69 @@ export class CoeusAsset {
 }
 /**
 */
+export class CoeusState {
+  free(): void;
+/**
+*/
+  constructor();
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  resolveData(name: DomainName): any;
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  getMetadata(name: DomainName): any;
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  getChildren(name: DomainName): any;
+/**
+* @param {PublicKey} pk
+* @returns {BigInt}
+*/
+  lastNonce(pk: PublicKey): BigInt;
+/**
+* @param {string} txid
+* @param {CoeusAsset} asset
+*/
+  applyTransaction(txid: string, asset: CoeusAsset): void;
+/**
+* @param {string} txid
+* @param {CoeusAsset} asset
+*/
+  revertTransaction(txid: string, asset: CoeusAsset): void;
+/**
+* @param {number} height
+*/
+  blockApplying(height: number): void;
+/**
+* @param {number} height
+*/
+  blockReverted(height: number): void;
+/**
+* @param {string} txid
+* @returns {boolean}
+*/
+  getTxnStatus(txid: string): boolean;
+/**
+* @returns {boolean}
+*/
+  readonly corrupted: boolean;
+/**
+* @returns {number}
+*/
+  readonly lastSeenHeight: number;
+/**
+* @returns {BigInt}
+*/
+  readonly version: BigInt;
+}
+/**
+*/
 export class CoeusTxBuilder {
   free(): void;
 /**
@@ -521,12 +590,12 @@ export class CoeusTxBuilder {
 */
   constructor(network_name: string);
 /**
-* @param {SignedOperations} ops
+* @param {SignedBundle} ops
 * @param {SecpPublicKey} sender_pubkey
 * @param {BigInt} nonce
 * @returns {any}
 */
-  build(ops: SignedOperations, sender_pubkey: SecpPublicKey, nonce: BigInt): any;
+  build(ops: SignedBundle, sender_pubkey: SecpPublicKey, nonce: BigInt): any;
 }
 /**
 */
@@ -726,15 +795,6 @@ export class HydraTxBuilder {
 * @returns {any}
 */
   registerDelegate(sender_pubkey: SecpPublicKey, delegate_name: string, nonce: BigInt): any;
-}
-export class JsBip32 {
-  free(): void;
-/**
-* @param {Seed} seed
-* @param {string} name
-* @returns {Bip32Node}
-*/
-  static master(seed: Seed, name: string): Bip32Node;
 }
 /**
 */
@@ -1093,18 +1153,18 @@ export class MorpheusTxBuilder {
 }
 /**
 */
-export class NoncedOperations {
+export class NoncedBundle {
   free(): void;
 /**
-* @param {State} state
+* @param {CoeusState} state
 * @returns {Price}
 */
-  price(state: State): Price;
+  price(state: CoeusState): Price;
 /**
 * @param {PrivateKey} sk
-* @returns {SignedOperations}
+* @returns {SignedBundle}
 */
-  sign(sk: PrivateKey): SignedOperations;
+  sign(sk: PrivateKey): SignedBundle;
 /**
 * @returns {string}
 */
@@ -1112,21 +1172,21 @@ export class NoncedOperations {
 }
 /**
 */
-export class NoncedOperationsBuilder {
+export class NoncedBundleBuilder {
   free(): void;
 /**
 */
   constructor();
 /**
 * @param {UserOperation} user_operation
-* @returns {NoncedOperationsBuilder}
+* @returns {NoncedBundleBuilder}
 */
-  add(user_operation: UserOperation): NoncedOperationsBuilder;
+  add(user_operation: UserOperation): NoncedBundleBuilder;
 /**
 * @param {BigInt} nonce
-* @returns {NoncedOperations}
+* @returns {NoncedBundle}
 */
-  build(nonce: BigInt): NoncedOperations;
+  build(nonce: BigInt): NoncedBundle;
 }
 /**
 */
@@ -1352,6 +1412,24 @@ export class Signature {
 }
 /**
 */
+export class SignedBundle {
+  free(): void;
+/**
+* @param {any} data
+*/
+  constructor(data: any);
+/**
+* @param {CoeusState} state
+* @returns {Price}
+*/
+  price(state: CoeusState): Price;
+/**
+* @returns {boolean}
+*/
+  verify(): boolean;
+}
+/**
+*/
 export class SignedBytes {
   free(): void;
 /**
@@ -1430,74 +1508,6 @@ export class SignedJson {
 }
 /**
 */
-export class SignedOperations {
-  free(): void;
-/**
-* @param {any} data
-*/
-  constructor(data: any);
-/**
-* @param {State} state
-* @returns {Price}
-*/
-  price(state: State): Price;
-/**
-* @returns {boolean}
-*/
-  verify(): boolean;
-}
-/**
-*/
-export class State {
-  free(): void;
-/**
-*/
-  constructor();
-/**
-* @param {DomainName} name
-* @returns {any}
-*/
-  resolveData(name: DomainName): any;
-/**
-* @param {DomainName} name
-* @returns {any}
-*/
-  getMetadata(name: DomainName): any;
-/**
-* @param {DomainName} name
-* @returns {any}
-*/
-  getChildren(name: DomainName): any;
-/**
-* @param {PublicKey} pk
-* @returns {BigInt}
-*/
-  lastNonce(pk: PublicKey): BigInt;
-/**
-* @param {SignedOperations} ops
-* @returns {BigInt}
-*/
-  applySignedOperations(ops: SignedOperations): BigInt;
-/**
-* @param {SystemOperation} op
-* @returns {BigInt}
-*/
-  applySystemOperation(op: SystemOperation): BigInt;
-/**
-* @param {BigInt} to_version
-*/
-  undoLastOperation(to_version: BigInt): void;
-/**
-* @returns {number}
-*/
-  readonly lastSeenHeight: number;
-/**
-* @returns {BigInt}
-*/
-  readonly version: BigInt;
-}
-/**
-*/
 export class SubtreePolicies {
   free(): void;
 /**
@@ -1513,16 +1523,6 @@ export class SubtreePolicies {
 * @returns {SubtreePolicies}
 */
   withExpiration(max_block_count: number): SubtreePolicies;
-}
-/**
-*/
-export class SystemOperation {
-  free(): void;
-/**
-* @param {number} height
-* @returns {SystemOperation}
-*/
-  static startBlock(height: number): SystemOperation;
 }
 /**
 */

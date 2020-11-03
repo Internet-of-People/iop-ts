@@ -10,7 +10,7 @@ export class BlockHandler implements IBlockListener {
   public constructor(
     private readonly stateHandler: IMorpheusStateHandler,
     private readonly log: IAppLog,
-  ) {}
+  ) { }
 
   public async onBlockApplied(blockData: CryptoIf.IBlockData): Promise<void> {
     if (!blockData.id) {
@@ -49,7 +49,7 @@ export class BlockHandler implements IBlockListener {
     this.log.debug(`onBlockReverted contains ${morpheusTxs.length} transactions.`);
 
     if (morpheusTxs.length) {
-      for (const transaction of morpheusTxs) {
+      for (const transaction of morpheusTxs.reverse()) {
         this.stateHandler.revertTransactionFromState({
           asset: transaction.asset,
           blockHeight: blockData.height,

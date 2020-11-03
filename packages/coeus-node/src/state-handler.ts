@@ -1,6 +1,6 @@
 import { ICoeusAsset } from '@internet-of-people/coeus-proto';
 import { IAppLog } from '@internet-of-people/hydra-plugin-core';
-import { SignedOperations, State as CoeusState, SystemOperation } from '@internet-of-people/sdk-wasm';
+import { CoeusAsset, CoeusState } from '@internet-of-people/sdk-wasm';
 
 interface IBlockHeightChange {
   blockHeight: number;
@@ -15,7 +15,6 @@ interface IStateChange extends IBlockHeightChange {
 export class StateHandler {
   public static readonly COMPONENT_NAME: string = 'coeus-state-handler';
   public readonly state: CoeusState = new CoeusState();
-  private readonly corrupted = false;
 
   public constructor(
     private readonly logger: IAppLog,
@@ -26,27 +25,36 @@ export class StateHandler {
     // TODO
   }
 
-  public blockStarted(height: number): void {
-    this.state.applySystemOperation(SystemOperation.startBlock(height));
+  public blockApplying(height: number): void {
+    try {
+      this.state.blockApplying(height);
+    } catch (e) {
+      this.logger.info(`Block could not be applied. Error: ${e}`);
+      throw e;
+    }
   }
 
   public applyTransactionToState(change: IStateChange): void {
     try {
-      // applySignedOperations must retrieve all the operations but arrays cannot be passed over wasm
-      for (const ops of change.asset.signedOperations) {
-        // KURVA NAGY TODO: right now if the latest operations fails, only that one will be reverted
-        this.state.applySignedOperations(new SignedOperations(ops));
-      }
+      this.state.applyTransaction(change.transactionId, new CoeusAsset(change.asset));
     } catch (e) {
       this.logger.info(`Transaction could not be applied. Error: ${e}, TX: ${JSON.stringify(change)}`);
     }
   }
 
-  public revertEmptyBlockFromState(_: IBlockHeightChange): void {
-    // KURVA NAGY TODO
+  public blockReverted(height: number): void {
+    try {
+      this.state.blockReverted(height);
+    } catch (e) {
+      this.logger.info(`Block could not be reverted. Error: ${e}`);
+    }
   }
 
-  public revertTransactionFromState(_: IStateChange): void {
-    // KURVA NAGY TODO
+  public revertTransactionFromState(change: IStateChange): void {
+    try {
+      this.state.revertTransaction(change.transactionId, new CoeusAsset(change.asset));
+    } catch (e) {
+      this.logger.info(`Transaction could not be reverted. Error: ${e}, TX: ${JSON.stringify(change)}`);
+    }
   }
 }

@@ -3,7 +3,7 @@ import {
   CoeusTxBuilder,
   DomainName,
   HydraSigner,
-  NoncedOperationsBuilder,
+  NoncedBundleBuilder,
   UserOperation,
   Principal,
   PrivateKey,
@@ -22,7 +22,7 @@ describe('CoeusTransaction builder', () => {
     const sk = PrivateKey.fromSecp(secpSk);
     const pk = sk.publicKey();
 
-    const noncedOps = new NoncedOperationsBuilder()
+    const nonced = new NoncedBundleBuilder()
       .add(UserOperation.register(
         new DomainName('.schema.eidcard'),
         Principal.publicKey(pk),
@@ -31,32 +31,32 @@ describe('CoeusTransaction builder', () => {
         69,
       ))
       .build(BigInt(2));
-    const signedOps = noncedOps.sign(sk);
-    expect(signedOps.verify()).toBeTruthy();
+    const signed = nonced.sign(sk);
+    expect(signed.verify()).toBeTruthy();
 
     // TODO where to define Coin.Hydra.Testnet so it can be used here?
     const network = 'HYD testnet';
     const tx: ICoeusData = new CoeusTxBuilder(network)
-      .build(signedOps, secpPk, BigInt(42));
+      .build(signed, secpPk, BigInt(42));
 
     expect(tx.nonce).toBe('42');
     const { asset } = tx;
-    expect(asset.signedOperations[0].nonce).toBe(2);
-    expect(asset.signedOperations[0].publicKey).toBe(pk.toString());
-    expect(asset.signedOperations[0].signature).toBe(
+    expect(asset.bundles[0].nonce).toBe(2);
+    expect(asset.bundles[0].publicKey).toBe(pk.toString());
+    expect(asset.bundles[0].signature).toBe(
       'sszAdT1rPBbNSAHAdAAtsPZU56Dz5wieFSq5W1M1R3p3jRHBKf9pWw8zUshJhzGKjW1mF9yTB8HUz8fRwJiRZBiyQMb',
     );
-    expect(asset.signedOperations[0].operations[0].name).toStrictEqual('.schema.eidcard');
-    expect(asset.signedOperations[0].operations[0].type).toBe('register');
+    expect(asset.bundles[0].operations[0].name).toStrictEqual('.schema.eidcard');
+    expect(asset.bundles[0].operations[0].type).toBe('register');
 
     const signer = new HydraSigner(secpSk);
     const signedTx: ArkCryptoIf.ITransactionData = signer.signHydraTransaction(tx);
 
-    expect(signedTx.id).toBe('312eed2e721591e4e2bb7296cc67aea7863a7bbebb0e06d2641544e9327f24b5');
+    expect(signedTx.id).toBe('a9c27db41e16907f05a46dd0796da34d5526b17cd0196cc0b59ececa4270ca32');
     expect(signedTx.signature).toBe(
-      '3044' +
-      '0220091de0b166c4df5e9c64cdbadeb92b5a8e90a4c828440c6a5a6a34b9ee89583c' +
-      '0220334e185fa3de9500edf9553fd26808717c1617009813bbc0f7bad010a49e34e0',
+      '3045' +
+      '02210097ee1971a0e74de39f10ae0ead44f10aa82214b699fe3b6caa5a443bb7b3b144' +
+      '02204e71593d42daf828d59e90bed60664fc87ad91989264c1cd9d4c79d42af84aa8',
     );
 
     /* eslint-disable-next-line no-undefined */

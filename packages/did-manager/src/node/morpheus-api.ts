@@ -142,7 +142,7 @@ export class MorpheusAPI {
         path: '/txn-status/{txid}',
         handler: (request: Request): Lifecycle.ReturnValue => {
           const { params: { txid } } = request;
-          this.log.debug(`Checking layer-2 tx status for ${txid}`);
+          this.log.debug(`Checking morpheus txn status for ${txid}`);
           const status: boolean = this.stateHandler.query.isConfirmed(txid)
             .orElseThrow(() => {
               return notFound(`Transaction ${txid} is not processed by morpheus (yet)`);

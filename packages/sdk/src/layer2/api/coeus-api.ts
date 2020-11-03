@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
-// import Optional from 'optional-js';
+import Optional from 'optional-js';
 import * as Crypto from '@internet-of-people/morpheus-crypto';
 import * as Layer2 from '../../layer2';
 import * as Types from '../../types';
-import { apiGet/* , HttpError, apiPost*/ } from '../../internal/http';
+import { apiGet, HttpError/* , apiPost*/ } from '../../internal/http';
 import { NetworkConfig } from '../../network';
 import * as Coeus from '../../coeus-wasm';
 
@@ -48,6 +48,20 @@ export class CoeusApi implements Types.Layer2.ICoeusApi {
 
     const resp = await apiGet(this.api, `/last-nonce/${pk}`);
     return BigInt(resp.data.nonce);
+  }
+
+  public async getTxnStatus(txid: string): Promise<Optional<boolean>> {
+    log(`Getting txn status for ${txid}...`);
+
+    try {
+      const resp = await apiGet(this.api, `/txn-status/${txid}`);
+      return Optional.of(resp.data);
+    } catch (e) {
+      if (e instanceof HttpError && e.statusCode === 404) {
+        return Optional.empty();
+      }
+      throw e;
+    }
   }
 }
 
