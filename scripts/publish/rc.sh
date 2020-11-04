@@ -2,8 +2,6 @@
 
 declare -a packages=("sdk-wasm" "morpheus-crypto" "hydra-plugin-core" "coeus-proto" "coeus-node" "did-manager" "sdk" "hydra-plugin")
 
-npm install
-npm run build
 npm set registry https://npm.iop.global/
 
 for package in "${packages[@]}"; do
