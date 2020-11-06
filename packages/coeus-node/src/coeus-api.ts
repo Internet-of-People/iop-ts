@@ -53,7 +53,7 @@ export class CoeusAPI {
 
           try {
             const metadata: unknown = this.stateHandler.state.getMetadata(domainName);
-            return metadata;
+            return metadata as object;
           } catch (e) {
             throw notFound(`Cannot get metadata for ${name}. Error: ${e}`);
           }

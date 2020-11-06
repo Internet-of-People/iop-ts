@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.0.1
+
+- Restrict Coeus transactions with a JSON schema.
+
+## 4.0.0
+
+TODO
+
 ## 3.3.1
 
 - Hydra plugin and DID manager are now publicly available

@@ -34,12 +34,119 @@ export class CoeusTransaction extends Transactions.Transaction {
           properties: {
             bundles: {
               type: 'array',
-              items: { type: 'object' }, // TODO
+              items: this.signedBundleSchema(),
             },
           },
+          // additionalProperties: false,
         },
       },
     });
+  }
+
+  static signedBundleSchema(): object {
+    return {
+      required: [ 'operations', 'nonce', 'publicKey', 'signature' ],
+      properties: {
+        operations: {
+          type: 'array',
+          items: {
+            type: 'object',
+            oneOf: [
+              this.registerSchema(),
+              this.updateSchema(),
+              this.renewSchema(),
+              this.transferSchema(),
+              this.deleteSchema(),
+            ],
+          },
+        },
+        nonce: { type: 'number' },
+        publicKey: { type: 'string' },
+        signature: { type: 'string' },
+      },
+    };
+  }
+
+  static registerSchema(): unknown {
+    return {
+      type: 'object',
+      required: [ 'type', 'name', 'owner', 'subtreePolicies', 'registrationPolicy', 'data', 'expiresAtHeight' ],
+      properties: {
+        type: { type: 'string', const: 'register' },
+        name: this.domainNameSchema(),
+        owner: { type: 'string' },
+        subtreePolicies: this.subtreePolicySchema(),
+        registrationPolicy: { type: 'string', enum: [ 'any', 'owner' ] },
+        data: this.domainData(),
+        expiresAtHeight: { type: 'number' },
+      },
+    };
+  }
+
+  static updateSchema(): unknown {
+    return {
+      type: 'object',
+      required: [ 'type', 'name', 'data' ],
+      properties: {
+        type: { type: 'string', const: 'update' },
+        name: this.domainNameSchema(),
+        data: this.domainData(),
+      },
+    };
+  }
+
+  static renewSchema(): unknown {
+    return {
+      type: 'object',
+      required: [ 'type', 'name', 'expiresAtHeight' ],
+      properties: {
+        type: { type: 'string', const: 'renew' },
+        name: this.domainNameSchema(),
+        expiresAtHeight: { type: 'number' },
+      },
+    };
+  }
+
+  static transferSchema(): unknown {
+    return {
+      type: 'object',
+      required: [ 'type', 'name', 'toOwner' ],
+      properties: {
+        type: { type: 'string', const: 'transfer' },
+        name: this.domainNameSchema(),
+        toOwner: { type: 'string' },
+      },
+    };
+  }
+
+  static deleteSchema(): unknown {
+    return {
+      type: 'object',
+      required: [ 'type', 'name' ],
+      properties: {
+        type: { type: 'string', const: 'delete' },
+        name: this.domainNameSchema(),
+      },
+    };
+  }
+
+  static domainNameSchema(): unknown {
+    return { type: 'string', pattern: '^(\\.[a-z0-9]+)+|\\.$' };
+  }
+
+  static domainData(): unknown {
+    return { type: [ 'object', 'array', 'string', 'number' ] };
+  }
+
+  static subtreePolicySchema(): unknown {
+    return {
+      type: 'object',
+      required: [],
+      properties: {
+        expiration: { type: 'number' },
+        schema: { type: 'object' },
+      },
+    };
   }
 
   public serialize(): ByteBuffer {
