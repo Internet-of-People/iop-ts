@@ -92,7 +92,7 @@ export interface IApi {
 
   sendMorpheusTxWithWIF(
     attempts: IOperationData[],
-    passphrase: string,
+    fromWIF: string,
     nonce?: BigInt,
   ): Promise<string>;
 

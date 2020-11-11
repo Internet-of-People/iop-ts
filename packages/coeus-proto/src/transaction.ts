@@ -43,7 +43,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     });
   }
 
-  static signedBundleSchema(): object {
+  private static signedBundleSchema(): object {
     return {
       required: [ 'operations', 'nonce', 'publicKey', 'signature' ],
       properties: {
@@ -67,7 +67,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     };
   }
 
-  static registerSchema(): unknown {
+  private static registerSchema(): unknown {
     return {
       type: 'object',
       required: [ 'type', 'name', 'owner', 'subtreePolicies', 'registrationPolicy', 'data', 'expiresAtHeight' ],
@@ -83,7 +83,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     };
   }
 
-  static updateSchema(): unknown {
+  private static updateSchema(): unknown {
     return {
       type: 'object',
       required: [ 'type', 'name', 'data' ],
@@ -95,7 +95,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     };
   }
 
-  static renewSchema(): unknown {
+  private static renewSchema(): unknown {
     return {
       type: 'object',
       required: [ 'type', 'name', 'expiresAtHeight' ],
@@ -107,7 +107,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     };
   }
 
-  static transferSchema(): unknown {
+  private static transferSchema(): unknown {
     return {
       type: 'object',
       required: [ 'type', 'name', 'toOwner' ],
@@ -119,7 +119,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     };
   }
 
-  static deleteSchema(): unknown {
+  private static deleteSchema(): unknown {
     return {
       type: 'object',
       required: [ 'type', 'name' ],
@@ -130,15 +130,15 @@ export class CoeusTransaction extends Transactions.Transaction {
     };
   }
 
-  static domainNameSchema(): unknown {
+  private static domainNameSchema(): unknown {
     return { type: 'string', pattern: '^(\\.[a-z0-9]+)+|\\.$' };
   }
 
-  static domainData(): unknown {
+  private static domainData(): unknown {
     return { type: [ 'object', 'array', 'string', 'number' ] };
   }
 
-  static subtreePolicySchema(): unknown {
+  private static subtreePolicySchema(): unknown {
     return {
       type: 'object',
       required: [],
