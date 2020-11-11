@@ -13,3 +13,4 @@ build:
   script:
     - ./package-check.py
     - npm run test
+    - npm run lint
