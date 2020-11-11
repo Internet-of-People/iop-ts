@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "prepare": "npm run build:src",
-    "prepublishOnly": "npm run lint && npm run build:test && npm run test",    
+    "prepublishOnly": "npm run lint && npm run build:test && npm run test",
     "build": "npm run build:src && npm run build:test",
     "build:src": "tsc -p . ",
     "build:test": "tsc -p tsconfig.test.json",
@@ -34,7 +34,8 @@
     "@internet-of-people/sdk-wasm": "0.0.6",
     "@arkecosystem/crypto": "^2.6.31",
     "lodash.clonedeep": "4.5.0",
-    "multibase": "0.6.0"
+    "multibase": "0.6.0",
+    "tslib": "2.0.1"
   },
   "devDependencies": {
     "@types/lodash.clonedeep": "4.5.6",

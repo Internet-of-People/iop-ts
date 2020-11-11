@@ -19,5 +19,5 @@
   "module": "browser/iop_sdk_wasm.js",
   "types": "iop_sdk_wasm.d.ts",
   "sideEffects": "false",
-  "git-describe": "heads/develop-0-g3b9a0e5"
+  "git-describe": "heads/develop-0-gf7c65c3"
 }

@@ -1,56 +1,56 @@
   {
-  "name": "@internet-of-people/sdk",
-  "version": "4.0.1",
-  "private": false,
-  "author": {
-    "url": "https://iop.global/dsf",
-    "name": "Internet of People",
-    "email": "dev@iop-ventures.com"
-  },
-  "description": "This package contains all Typescript tool you need to interact with IOP SSI and Fort APIs and create awesome apps.",
-  "repository": "https://github.com/internet-of-people/morpheus-ts",
-  "license": "AGPL-1.0-or-later",
-  "main": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "prepare": "npm run build:src",
-    "prepublishOnly": "npm run lint && npm run build:test && npm run test",
-    "build": "npm run build:src && npm run build:test",
-    "build:src": "tsc -p . ",
-    "build:test": "tsc -p tsconfig.test.json",
-    "lint": "npm run lint:src && npm run lint:test",
-    "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
-    "lint:test": "eslint -c ../../eslintrc.test.json --fix \"./__tests__/**\"",
-    "clean": "rimraf dist && rimraf node_modules",
-    "test": "jest --detectOpenHandles --no-cache",
-    "test:watch": "jest --detectOpenHandles --no-cache --watch"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "verbose": true
-  },
-  "dependencies": {
-    "@arkecosystem/crypto": "^2.6.31",
-    "@internet-of-people/morpheus-crypto": "4.0.1",
-    "@internet-of-people/sdk-wasm": "0.0.6",
-    "axios": "0.19.0",
-    "bytebuffer": "5.0.1",
-    "optional-js": "2.1.1",
-    "tslib": "2.0.1"
-  },
-  "devDependencies": {
-    "@types/axios": "0.14.0",
-    "@types/jest": "24.9.0",
-    "@typescript-eslint/eslint-plugin": "2.11.0",
-    "@typescript-eslint/parser": "2.11.0",
-    "eslint": "6.7.2",
-    "jest-extended": "0.11.2",
-    "jest": "24.9.0",
-    "rimraf": "3.0.0",
-    "ts-jest": "24.1.0",
-    "typescript": "3.8.3"
+    "name": "@internet-of-people/sdk",
+    "version": "4.0.1",
+    "private": false,
+    "author": {
+      "url": "https://iop.global/dsf",
+      "name": "Internet of People",
+      "email": "dev@iop-ventures.com"
+    },
+    "description": "This package contains all Typescript tool you need to interact with IOP SSI and Fort APIs and create awesome apps.",
+    "repository": "https://github.com/internet-of-people/morpheus-ts",
+    "license": "AGPL-1.0-or-later",
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts",
+    "files": [
+      "dist"
+    ],
+    "scripts": {
+      "prepare": "npm run build:src",
+      "prepublishOnly": "npm run lint && npm run build:test && npm run test",
+      "build": "npm run build:src && npm run build:test",
+      "build:src": "tsc -p . ",
+      "build:test": "tsc -p tsconfig.test.json",
+      "lint": "npm run lint:src && npm run lint:test",
+      "lint:src": "eslint -c ../../eslintrc.json --fix \"./src/**\"",
+      "lint:test": "eslint -c ../../eslintrc.test.json --fix \"./__tests__/**\"",
+      "clean": "rimraf dist && rimraf node_modules",
+      "test": "jest --detectOpenHandles --no-cache",
+      "test:watch": "jest --detectOpenHandles --no-cache --watch"
+    },
+    "jest": {
+      "preset": "ts-jest",
+      "verbose": true
+    },
+    "dependencies": {
+      "@arkecosystem/crypto": "^2.6.31",
+      "@internet-of-people/morpheus-crypto": "4.0.1",
+      "@internet-of-people/sdk-wasm": "0.0.6",
+      "axios": "0.19.0",
+      "bytebuffer": "5.0.1",
+      "optional-js": "2.1.1",
+      "tslib": "2.0.1"
+    },
+    "devDependencies": {
+      "@types/axios": "0.14.0",
+      "@types/jest": "24.9.0",
+      "@typescript-eslint/eslint-plugin": "2.11.0",
+      "@typescript-eslint/parser": "2.11.0",
+      "eslint": "6.7.2",
+      "jest-extended": "0.11.2",
+      "jest": "24.9.0",
+      "rimraf": "3.0.0",
+      "ts-jest": "24.1.0",
+      "typescript": "3.8.3"
+    }
   }
-}

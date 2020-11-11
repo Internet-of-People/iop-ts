@@ -1156,10 +1156,9 @@ export class MorpheusTxBuilder {
 export class NoncedBundle {
   free(): void;
 /**
-* @param {CoeusState} state
 * @returns {Price}
 */
-  price(state: CoeusState): Price;
+  price(): Price;
 /**
 * @param {PrivateKey} sk
 * @returns {SignedBundle}
@@ -1419,10 +1418,9 @@ export class SignedBundle {
 */
   constructor(data: any);
 /**
-* @param {CoeusState} state
 * @returns {Price}
 */
-  price(state: CoeusState): Price;
+  price(): Price;
 /**
 * @returns {boolean}
 */

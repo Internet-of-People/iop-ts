@@ -201,10 +201,6 @@ export function validateNetworkName(name) {
     return ret !== 0;
 }
 
-const u32CvtShim = new Uint32Array(2);
-
-const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
-
 let stack_pointer = 32;
 
 function addBorrowedObject(obj) {
@@ -212,6 +208,12 @@ function addBorrowedObject(obj) {
     heap[--stack_pointer] = obj;
     return stack_pointer;
 }
+
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+
+const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 
 function isLikeNone(x) {
     return x === undefined || x === null;
@@ -282,7 +284,6 @@ export function stringifyJson(data) {
     }
 }
 
-const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 /**
 */
 export class Bip32 {
@@ -3008,12 +3009,10 @@ export class NoncedBundle {
         wasm.__wbg_noncedbundle_free(ptr);
     }
     /**
-    * @param {CoeusState} state
     * @returns {Price}
     */
-    price(state) {
-        _assertClass(state, CoeusState);
-        var ret = wasm.noncedbundle_price(this.ptr, state.ptr);
+    price() {
+        var ret = wasm.noncedbundle_price(this.ptr);
         return Price.__wrap(ret);
     }
     /**
@@ -3690,12 +3689,10 @@ export class SignedBundle {
         }
     }
     /**
-    * @param {CoeusState} state
     * @returns {Price}
     */
-    price(state) {
-        _assertClass(state, CoeusState);
-        var ret = wasm.signedbundle_price(this.ptr, state.ptr);
+    price() {
+        var ret = wasm.signedbundle_price(this.ptr);
         return Price.__wrap(ret);
     }
     /**
@@ -4225,6 +4222,11 @@ export const __wbg_getRandomValues_05a60bf171bfc2be = function(arg0) {
 
 export const __wbg_static_accessor_MODULE_abf5ae284bffdf45 = function() {
     var ret = module;
+    return addHeapObject(ret);
+};
+
+export const __wbindgen_object_clone_ref = function(arg0) {
+    var ret = getObject(arg0);
     return addHeapObject(ret);
 };
 

@@ -58,15 +58,15 @@ export class TransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async canEnterTransactionPool(
-    _data: CryptoIf.ITransactionData,
+    data: CryptoIf.ITransactionData,
     _pool: TransactionPool.IConnection,
     _processor: TransactionPool.IProcessor,
   ): Promise<{ type: string; message: string; } | null> {
     try {
-      const asset = _data.asset as Types.Layer1.IMorpheusAsset;
+      const asset = data.asset as Types.Layer1.IMorpheusAsset;
       const expectedFee = Layer1.MorpheusTransactionBuilder.calculateFee(asset.operationAttempts);
 
-      if (_data.fee.isLessThan(expectedFee)) {
+      if (data.fee.isLessThan(expectedFee)) {
         return {
           type: 'ERR_LOW_FEE',
           message: `The fee for this transaction must be at least ${expectedFee}`,

@@ -57,12 +57,12 @@ export class TransactionHandler extends Handlers.TransactionHandler {
     _processor: TransactionPool.IProcessor,
   ): Promise<{ type: string; message: string; } | null> {
     try {
-      const stateHandler: StateHandler = app.resolve(StateHandler.COMPONENT_NAME);
+      /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
       const bundles = data.asset!.bundles as ISignedBundle[];
 
       const expectedFee = bundles
         .map((signed) => {
-          return new SignedBundle(signed).price(stateHandler.state).fee;
+          return new SignedBundle(signed).price().fee;
         })
         .reduce((total: BigInt, currentVal: BigInt) => {
           return BigInt(total) + BigInt(currentVal);
