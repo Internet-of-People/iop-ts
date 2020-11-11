@@ -3,7 +3,7 @@
 This is the IOP layer-2 plugin for the Hydra Blockchain. It loads up IOP's layer-2 solutions: IOP SSI (project Morpheus) and IOP NS (project Coeus).
 
 This plugin provides some endpoints as well where you can query the layer-2 consensus.
-Please see the [architecture section in the specification](https://developer.iop.global/#/architecture) for the exact endpoints.
+Please see the [architecture section in the specification](https://developer.iop.global/get_started) for the exact endpoints.
 
 An example URL you can curl: `curl http://127.0.0.1:4703/before-proof/iop/exists/780`
 

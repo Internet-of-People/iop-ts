@@ -17,7 +17,7 @@ TODO
 
 ### Added
 
-- Authority service verifies the JWT token sent in the header during private API calls. Read more about JWT authentication on the [IOP developer portal](https://developer.iop.global/#/api/auth).
+- Authority service verifies the JWT token sent in the header during private API calls. Read more about JWT authentication on the [IOP developer portal](https://developer.iop.global/api/auth).
 - Logs can be configured now to prevent printing SDK logs to the console.
 
 ### BUGFIX

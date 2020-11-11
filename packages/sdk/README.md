@@ -7,8 +7,6 @@ For more info please visit the [IOP Developer Portal](https://developer.iop.glob
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Prerequisites](#prerequisites)
-- [Install](#install)
 - [Usage](#usage)
 - [Modules](#modules)
   - [Types Module](#types-module)
@@ -21,16 +19,8 @@ For more info please visit the [IOP Developer Portal](https://developer.iop.glob
     - [Sdk](#sdk)
     - [Verifier](#verifier)
   - [Layer-1 Module](#layer-1-module)
-    - [Transfer Hydra](#transfer-hydra)
-    - [Register Before-Proof Transaction](#register-before-proof-transaction)
-    - [Key and Right Management Transactions](#key-and-right-management-transactions)
-    - [Tombstone DID Transaction](#tombstone-did-transaction)
   - [Layer-2 Module](#layer-2-module)
-    - [Get Before-Proof History](#get-before-proof-history)
-    - [Before-Proof Exists](#before-proof-exists)
-    - [Get Transaction Status](#get-transaction-status)
-    - [Get DID Document](#get-did-document)
-    - [Get Last Transaction ID](#get-last-transaction-id)
+  - [Coeus-2 Module](#coeus-module)
   - [Crypto Module](#crypto-module)
     - [Low Level Functions](#low-level-functions)
     - [JSON Digesting](#json-digesting)
@@ -41,24 +31,9 @@ For more info please visit the [IOP Developer Portal](https://developer.iop.glob
   - [Network Module](#network-module)
 - [Contribution and License](#contribution-and-license)
 
-## Prerequisites
-
-- NodeJS v12.6.1+
-- NPM 6.13.4+
-
-## Install
-
-```bash
-$ npm install @internet-of-people/sdk --save
-```
-
 ## Usage
 
-```typescript
-import { Ark, Authority, Crypto, Layer1, Layer2, Network, Types, Utils } from '@internet-of-people/sdk';
-```
-
-For more information about the modules, check the corresponding module section below.
+Please visit the [IOP Developer Portal](https://developer.iop.global) for detailed instructions.
 
 Please note that despite our best efforts, changes we cannot control deep down in the dependency chain of our library might still cause problems for the client using our SDK. To avoid many of those problems, we recommend adding `"skipLibCheck": true,` to your `tsconfig.json`. You might also fix the encountered problems manually instead. For example, we've recently experienced Typescript definition dependencies missing from a faulty package and had to add `"@types/socketcluster-client": "^13.0.3",` to `devDependencies` in the `package.json` of a client using our SDK.
 
@@ -82,7 +57,7 @@ const {
   Inspector,
   Layer1,
   Layer2,
-  Sdk,
+  Morpheus,
   Verifier,
 } = Types;
 ```
@@ -119,257 +94,21 @@ All interfaces and types that needed to be able to communicate with a Verifier e
 
 ### Layer-1 Module
 
-This package contains all Typescript class and utils that you need to interact with the SSI Layer-1 API. Below we provide you example how can you interact with Layer-1 APIs.
+This package contains all Typescript class and utils that you need to interact with the Layer-1 API. Below we provide you example how can you interact with Layer-1 APIs.
 
-For more detailed examples please visit our [tutorial center](https://developer.iop.global/#/sdk/dac?id=tutorial-center).
-
-#### Transfer Hydra
-
-```typescript
-import { Layer1, Crypto } from '@internet-of-people/sdk';
-import {
-  Coin,
-  HydraPlugin,
-  Seed,
-  Vault,
-  HydraParameters,
-} from '../src';
-
-const api = await Layer1.createApi(Layer1.Network.Devnet);
-const amount = 10; // 10 HYD
-
-// With a vault
-const vault = Crypto.Vault.create('BIP39_PHRASE', 'BIP_39_PASSWORD', 'UNLOCK_PASSWORD');
-const accountIndex = 0;
-const params = new Crypto.HydraParameters(Crypto.Coin.Hydra.Testnet, accountIndex);
-Crypto.HydraPlugin.rewind(vault, 'UNLOCK_PASSWORD', params);
-const hydraPlugin = Crypto.HydraPlugin.get(vault, params);
-
-const hydraPrivate = account.priv(unlockPassword);
-const publicKeyAtIndex0 = priv.pub.key(0); // you have to call key(X) in order to access the address at index X
-const fromAddressAtIndex0 = publicKeyAtIndex0.address;
-
-const txId = await api.sendTransferTx(
-  fromAddressAtIndex0,
-  'TO_ADDRESS',
-  BigInt(amount) * BigInt(1e8),
-  hydraPrivate,
-);
-
-// ... or with passhprase...
-const txId = await api.sendTransferTxWithPassphrase(
-  'SENDER_ARK_PASSPHRASE',
-  'RECIPIENT_ADDRESS',
-  BigInt(amount) * BigInt(1e8),
-);
-
-// ... or with WIF
-const txId = await api.sendTransferTxWithWIF(
-  'SENDER_WIF',
-  'RECIPIENT_ADDRESS',
-  BigInt(amount) * BigInt(1e8),
-);
-```
-
-> Note, that we soon release a new version where we will be able to sign with the vault, not using any private credentials.
-
-#### Register Before-Proof Transaction
-
-```typescript
-import { Layer1, Network } from '@internet-of-people/sdk';
-
-const api = await Layer1.createApi(Network.Devnet);
-const opAttempts = new Layer1.OperationAttemptsBuilder()
-    .registerBeforeProof('YOUR_CONTENT_ID')
-    .getAttempts();
-
-// With passhprase...
-const txId = await api.sendMorpheusTxWithPassphrase(
-  opAttempts,
-  'SENDER_ARK_PASSPHRASE',
-);
-
-// ... or with WIF
-const txId = await api.sendMorpheusTxWithWIF(
-  opAttempts,
-  'SENDER_WIF',
-);
-```
-
-> Note, that we soon release a new version where you can sign with the vault without exporting a WIF first.
-
-#### Key and Right Management Transactions
-
-In this example we
-
-- add a secondary key,
-- then we give some rights to it,
-- then we revoke rights from the first key,
-- and finally we revoke the first key itself.
-
-> Note: This can be done in one or separated transactions as well!
-
-```typescript
-import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
-
-// Creating vault
-const layer1Api = await Layer1.createApi(Network.Devnet);
-const layer2Api = Layer2.createApi(Network.Devnet);
-const unlockPassword = 'correct horse battery staple';
-const vault = Crypto.Vault.create(
-  Crypto.Seed.demoPhrase(),
-  'OPTIONAL_BIP39_PASSWORD',
-  unlockPassword
-);
-
-// Creating the layer-2 plugin
-Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
-const morpheus = Crypto.MorpheusPlugin.get(vault);
-
-// Collect transaction requirements
-const did = morpheus.pub.personas.did(0); // let's use the first DID
-const firstKey = did.defaultKeyId(); // by default only the initial key has the right to update the DID document
-const secondaryKey = ...; // another key (one of your own or somebody else's)
-const expiresAtHeight = 42; // the key will not be valid after the 42th block height
-const systemRights = new Layer2.SystemRights();
-
-// Adding the new key with rights
-const firstTxOpAttempts = new Layer1.OperationAttemptsBuilder()
-  .withVault(vault)
-  .signWith(morpheus.priv(unlockPassword))
-  .on(did, await layer2Api.getLastTxId(did))
-  .addKey(secondaryKey, expiresAtHeight)
-  .addRight(secondaryKey, systemRights.update)
-  .addRight(secondaryKey, systemRights.impersonate)
-  .sign(firstKey)
-  .getAttempts();
-
-const firstTxId = await layer1Api.sendMorpheusTxWithPassphrase(firstTxOpAttempts, 'SENDER_ARK_PASSPHRASE');
-
-// Revoking the old key
-const secondTxOpAttempts = new Layer1.OperationAttemptsBuilder()
-  .signWith(morpheus.priv(unlockPassword))
-  .on(did, await layer2Api.getLastTxId(did))
-  .revokeRight(firstKey, systemRights.update)
-  .revokeRight(firstKey, systemRights.impersonate)
-  .revokeKey(firstKey)
-  .sign(secondaryKey)
-  .getAttempts();
-
-const secondTxId = await layer1Api.sendMorpheusTxWithPassphrase(
-  secondTxOpAttempts,
-  'SENDER_ARK_PASSPHRASE',
-);
-```
-
-#### Tombstone DID Transaction
-
-```typescript
-import { Crypto, Layer1, Layer2, Network } from '@internet-of-people/sdk';
-
-// Creating vault
-const layer1Api = await Layer1.createApi(Network.Devnet);
-const layer2Api = Layer2.createApi(Network.Devnet);
-const unlockPassword = 'correct horse battery staple';
-const vault = Crypto.Vault.create(
-  Crypto.Seed.demoPhrase(),
-  'OPTIONAL_BIP39_PASSWORD',
-  unlockPassword,
-);
-
-// Creating the layer-2 plugin
-Crypto.MorpheusPlugin.rewind(vault, unlockPassword)
-const morpheus = Crypto.MorpheusPlugin.get(vault);
-
-// Collect transaction requirements
-const did = morpheus.pub.personas.did(0);
-const firstKey = did.defaultKeyId();
-
-// Adding the new key with rights
-const operationAttempts = new Layer1.OperationAttemptsBuilder()
-  .signWith(morpheus.priv(unlockPassword))
-  .on(did, await layer2Api.getLastTxId(did))
-  .tombstoneDid()
-  .sign(firstKey)
-  .getAttempts();
-
-const txId = await layer1Api.sendMorpheusTxWithPassphrase(
-  operationAttempts,
-  'SENDER_ARK_PASSPHRASE',
-);
-```
+For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
 ### Layer-2 Module
 
-This package contains all Typescript class and utils that you need to interact with the SSI layer-2 API.
+This package contains all Typescript class and utils that you need to interact with the layer-2 API.
 
-#### Get Before-Proof History
+For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
-```typescript
-import { Layer2, Network } from '@internet-of-people/sdk';
+### Coeus Module
 
-const api = Layer2.createApi(Network.Devnet);
+This package contains all Typescript class and utils you need to use IOP DNS (project Coeus).
 
-// let's suppose that the contentId below was sent in at height 42 and the actual height is 4242
-
-console.log(await api.getBeforeProofHistory('YOUR_CONTENT_ID'));
-// {"contentId":"YOUR_CONTENT_ID","existsFromHeight":42,"queriedAtHeight":4242}
-```
-
-#### Before-Proof Exists
-
-```typescript
-import { Layer2, Network } from '@internet-of-people/sdk';
-
-const api = Layer2.createApi(Network.Devnet);
-
-// let's suppose that the contentId below was sent in at height 42 and the actual height is 4242
-
-console.log(await api.beforeProofExists('YOUR_CONTENT_ID'));
-// true
-
-console.log(await api.beforeProofExists('YOUR_CONTENT_ID', 43));
-// true
-
-console.log(await api.beforeProofExists('YOUR_CONTENT_ID', 41));
-// false
-```
-
-#### Get Transaction Status
-
-```typescript
-import { Layer2, Network } from '@internet-of-people/sdk';
-
-const api = Layer2.createApi(Network.Devnet);
-const status = await api.getTxnStatus('THE_LAYER_1_TX_ID_CONTAINED_A_DAC_OPERATION');
-// if the tx is not found, it will be an empty Optional.
-// if the tx is there, it will be an Optional<bool>, where
-// false means that the tx was successfully sent but was rejected by the layer-2 consensus and
-// true means the tx was accepted and applied in the layer-2 state.
-```
-
-Note that layer-2 status is returned here hence transactions containing layer-2 operations are expected.
-Layer1 transactions are not found thus `Optional.empty()` is returned for them as well.
-For a description of our Layer2 transactions and consensus,
-[see the specification](https://developer.iop.global/#/dac?id=decentralized-ledger-dlt).
-
-#### Get DID Document
-
-```typescript
-import { Layer2, Network } from '@internet-of-people/sdk';
-
-const api = Layer2.createApi(Network.Devnet);
-const document = await api.getDidDocument('A_DID');
-```
-
-#### Get Last Transaction ID
-
-```typescript
-import { Layer2, Network } from '@internet-of-people/sdk';
-
-const api = Layer2.createApi(Network.Devnet);
-const lastTxId = await api.getLastTxId('A_DID');
-```
+For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
 ### Crypto Module
 
@@ -384,7 +123,7 @@ You can inspect these APIs int the file we re-export from the sdk, [here](https:
 #### JSON Digesting
 
 For a basic understanding of our data digesting solution, consult
-[the specification](https://developer.iop.global/#/glossary?id=masked-claim-presentation).
+[the specification](https://developer.iop.global/glossary?id=masked-claim-presentation).
 
 Function `selectiveDigestJson` provides a generic solution for digesting JSON documents.
 Argument `json` is the serialized Json document as a string to be processed.
@@ -409,54 +148,7 @@ const digestedData = Crypto.selectiveDigestJson(content, ".timestamp, .version")
 
 The Vault is a general purpose hierarchical deterministic (HD) generator for asymmetric keys. Read more about in [its repository](https://github.com/Internet-of-People/keyvault-rust).
 
-##### Creating a Vault
-
-```typescript
-import { Crypto } from '@internet-of-people/sdk';
-
-const unlockPassword = 'correct horse battery staple';
-
-const vault = Crypto.Vault.create(
-  'BIP39_MNEMONIC_SEED', // your seed
-  'OPTIONAL_BIP39_PASSWORD', // an optional password for plausible deniability. It's like a salt when you hash a password (or seed in this case)
-  unlockPassword, // this encrypts the seed in the state with XChaCha20Poly1305 & Argon2i
-);
-
-// or you can load it from an alredy serialized state
-const vault = Crypto.Vault.load(JSON.parse(serialized));
-```
-
-This will create an in-memory vault with touching any storage.
-
-##### Save State
-
-By default the wallet is in-memory and does not persist its state, but it provides you a clear interface to do it.
-
-```typescript
-// The save will return the current state and marks it as "saved" internally
-const state = JSON.stringify(vault.save());
-```
-
-```typescript
-// Check if the state is changed since the last save call
-const changed = vault.isDirty;
-```
-
-##### Unlock for Seed
-
-You can unlock your wallet anytime to get your seed back.
-
-```typescript
-import { Crypto } from '@internet-of-people/sdk';
-
-const vault = Crypto.Vault.create(
-  'BIP39_MNEMONIC_SEED',
-  'OPTIONAL_BIP39_PASSWORD',
-  'UNLOCK_PASSWORD',
-);
-
-const seed = vault.unlock('UNLOCK_PASSWORD');
-```
+For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
 #### Crypto Plugins
 
@@ -505,7 +197,7 @@ To learn the Hydra plugin's public and private interface, please check [its repo
 
 ##### Morpheus Plugin
 
-The Morpheus (or as we officially call, IOP SSI) plugin is all about IOP SSI. If you are not familiar with SSI, we highly recommend you to visit our [developer portal](https://developer.iop.global/#/dac) for more information.
+The Morpheus (or as we officially call, IOP SSI) plugin is all about IOP SSI. If you are not familiar with SSI, we highly recommend you to visit our [developer portal](https://developer.iop.global/ssi) for more information.
 
 Using this plugin you can create your own personas and its DIDs.
 
@@ -550,7 +242,6 @@ Under this module we reexport the complete [@arkecosystem/crypto](https://www.np
 
 To be able to use either the layer-1 or layer-2 API, you have to be able to identify where you'd like to connect to.
 This module contains the enums and other classes you have to user when you create an API.
-
 
 ## Contribution and License
 
