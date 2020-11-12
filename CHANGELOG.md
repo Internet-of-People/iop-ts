@@ -3,10 +3,13 @@
 ## 4.0.1
 
 - Restrict Coeus transactions with a JSON schema.
+- Coeus TX is limitied to be a maximum of 1MB.
+- Developer portal URLs updated.
 
 ## 4.0.0
 
-TODO
+- BREAKING: construction of Layer1 and Layer2 APIs are now a bit different. Please check the latest [examples](https://github.com/Internet-of-People/ts-examples).
+- Coeus API and other Coeus related codes are now public and final.
 
 ## 3.3.1
 
