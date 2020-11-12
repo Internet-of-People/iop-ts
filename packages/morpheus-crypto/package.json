@@ -31,7 +31,7 @@
     "test": "jest --detectOpenHandles --no-cache"
   },
   "dependencies": {
-    "@internet-of-people/sdk-wasm": "0.0.7",
+    "@internet-of-people/sdk-wasm": "0.0.8",
     "@arkecosystem/crypto": "^2.6.31",
     "lodash.clonedeep": "4.5.0",
     "multibase": "0.6.0",
