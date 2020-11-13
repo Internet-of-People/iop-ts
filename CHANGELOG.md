@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.2
+
+- Upgraded to 0.0.8 sdk-wasm.
+
 ## 4.0.1
 
 - Restrict Coeus transactions with a JSON schema.
