@@ -123,10 +123,6 @@ function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
 
-const u32CvtShim = new Uint32Array(2);
-
-const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
-
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1);
     getUint8Memory0().set(arg, ptr / 1);
@@ -204,6 +200,10 @@ export function validateNetworkName(name) {
     return ret !== 0;
 }
 
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+
 let stack_pointer = 32;
 
 function addBorrowedObject(obj) {
@@ -211,25 +211,6 @@ function addBorrowedObject(obj) {
     heap[--stack_pointer] = obj;
     return stack_pointer;
 }
-
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-/**
-* @param {any} operations
-* @param {PrivateKey} private_key
-* @returns {any}
-*/
-export function signMorpheusOperations(operations, private_key) {
-    try {
-        _assertClass(private_key, PrivateKey);
-        var ret = wasm.signMorpheusOperations(addBorrowedObject(operations), private_key.ptr);
-        return takeObject(ret);
-    } finally {
-        heap[stack_pointer++] = undefined;
-    }
-}
-
 /**
 * @param {any} data
 * @param {string} keep_properties_list
@@ -278,6 +259,24 @@ export function stringifyJson(data) {
     } finally {
         heap[stack_pointer++] = undefined;
         wasm.__wbindgen_free(r0, r1);
+    }
+}
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
+/**
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
+*/
+export function signMorpheusOperations(operations, private_key) {
+    try {
+        _assertClass(private_key, PrivateKey);
+        var ret = wasm.signMorpheusOperations(addBorrowedObject(operations), private_key.ptr);
+        return takeObject(ret);
+    } finally {
+        heap[stack_pointer++] = undefined;
     }
 }
 

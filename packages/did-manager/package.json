@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/did-manager",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -31,7 +31,9 @@
   "jest": {
     "preset": "ts-jest",
     "verbose": true,
-    "testPathIgnorePatterns": ["__tests__/utils.ts"]
+    "testPathIgnorePatterns": [
+      "__tests__/utils.ts"
+    ]
   },
   "dependencies": {
     "@arkecosystem/core-container": "^2.6.31",
@@ -40,8 +42,8 @@
     "@arkecosystem/core-transactions": "^2.6.31",
     "@hapi/hapi": "^18.3.1",
     "@hapi/boom": "^8.0.0",
-    "@internet-of-people/hydra-plugin-core": "4.0.2",
-    "@internet-of-people/sdk": "4.0.2",
+    "@internet-of-people/hydra-plugin-core": "4.0.3",
+    "@internet-of-people/sdk": "4.0.3",
     "awilix": "^4.2.2",
     "lodash.clonedeep": "4.5.0",
     "optional-js": "2.1.1"

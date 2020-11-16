@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.3
+
+- Upgraded to 0.0.9 sdk-wasm.
+
 ## 4.0.2
 
 - Upgraded to 0.0.8 sdk-wasm.
