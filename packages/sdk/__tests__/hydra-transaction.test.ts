@@ -46,9 +46,9 @@ describe('Hydra transaction', () => {
   let fixture: Fixture;
   let api: Layer1.Api;
   let hydraPrivate: HydraPrivate;
-  let toAddress: string, fromAddress: string;
+  let fromAddress: string;
 
-  toAddress = 'tdxCqhHLpyYr4fHEZ7BCaZ3c2mihbjasiu';
+  const toAddress = 'tdxCqhHLpyYr4fHEZ7BCaZ3c2mihbjasiu';
   const amount = BigInt(2);
   const nonce = BigInt(1);
 
@@ -98,8 +98,6 @@ describe('Hydra transaction', () => {
 
 
   it('sendTransferTx called with nonce does not call getWalletNonce', async() => {
-    toAddress = 'tdxCqhHLpyYr4fHEZ7BCaZ3c2mihbjasiu';
-
     await api.sendTransferTx(fromAddress, toAddress, amount, hydraPrivate, nonce);
 
     expect(fixture.axiosClientMock.getWalletNonce).toHaveBeenCalledTimes(0);

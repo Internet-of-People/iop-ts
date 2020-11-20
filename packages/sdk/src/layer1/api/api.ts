@@ -106,6 +106,9 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
+  /**
+  * @deprecated This method is deprecated in favor of sendTransferTx()
+  */
   public async sendTransferTxWithWIF(
     fromWIF: string,
     toAddress: string,
@@ -123,6 +126,9 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
+  /**
+  * @deprecated This method is deprecated in favor of sendTransferTx()
+  */
   public async sendTransferTxWithPassphrase(
     fromPassphrase: string,
     toAddress: string,
@@ -160,6 +166,9 @@ export class Api implements Types.Layer1.IApi {
   //   return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   // }
 
+  /**
+  * @deprecated This method is deprecated in favor of sendMorpheusTx()
+  */
   public async sendMorpheusTxWithWIF(
     attempts: Types.Layer1.IOperationData[],
     fromWIF: string,
@@ -179,6 +188,9 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
+  /**
+  * @deprecated This method is deprecated in favor of sendMorpheusTx()
+  */
   public async sendMorpheusTxWithPassphrase(
     attempts: Types.Layer1.IOperationData[],
     fromPassphrase: string,
