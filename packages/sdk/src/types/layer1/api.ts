@@ -3,6 +3,8 @@ import Optional from 'optional-js';
 import { HydraPrivate, SecpPublicKey } from '@internet-of-people/morpheus-crypto';
 import { IOperationData } from './operation-data';
 import { Sdk } from '../index';
+import { NetworkConfig } from '../../network';
+import { UserOperation } from '../../coeus-wasm';
 
 export interface ITimestamp {
   epoch: number;
@@ -32,6 +34,8 @@ export interface ITransactionStatus {
 }
 
 export interface IClient {
+  networkConfig: NetworkConfig;
+
   sendTx(tx: Interfaces.ITransactionJson): Promise<string>;
 
   getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<ITransactionStatus>>;
@@ -100,6 +104,14 @@ export interface IApi {
     attempts: IOperationData[],
     passphrase: string,
     nonce?: BigInt,
+  ): Promise<string>;
+
+  sendCoeusTx(
+    fromAddress: string,
+    userOperations: UserOperation[],
+    hydraPrivate: HydraPrivate,
+    layer1SenderNonce?: BigInt,
+    layer2PublicKeyNonce?: BigInt,
   ): Promise<string>;
 
   getTxnStatus(

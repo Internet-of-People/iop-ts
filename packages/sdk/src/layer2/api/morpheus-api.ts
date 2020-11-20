@@ -9,11 +9,11 @@ import { NetworkConfig } from '../../network';
 const { log } = Crypto;
 
 export class MorpheusApi implements Types.Layer2.IMorpheusApi {
-  private readonly api: AxiosInstance;
+  private readonly clientInstance: AxiosInstance;
 
-  public constructor(networkConfig: NetworkConfig) {
+  public constructor(public readonly networkConfig: NetworkConfig) {
     const baseURL = `${networkConfig.host}:${networkConfig.port}/morpheus/v1`;
-    this.api = axios.create({
+    this.clientInstance = axios.create({
       baseURL,
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ export class MorpheusApi implements Types.Layer2.IMorpheusApi {
   public async getBeforeProofHistory(contentId: string): Promise<Types.Layer2.IBeforeProofHistory> {
     log(`Getting history of ${contentId}...`);
     const url = `/before-proof/${contentId}/history`;
-    const resp = await apiGet(this.api, url);
+    const resp = await apiGet(this.clientInstance, url);
     const history: Types.Layer2.IBeforeProofHistory = resp.data;
     return history;
   }
@@ -36,14 +36,14 @@ export class MorpheusApi implements Types.Layer2.IMorpheusApi {
     if (height) {
       url = `${url}/${height}`;
     }
-    const resp = await apiGet(this.api, url);
+    const resp = await apiGet(this.clientInstance, url);
     const exists: boolean = resp.data;
     return exists;
   }
 
   public async getDidDocument(did: Crypto.Did, height?: number): Promise<Types.Layer2.IDidDocument> {
     log(`Getting Did document ${did} at ${height || 'now'}...`);
-    const resp = await apiGet(this.api, this.withUntilHeight(
+    const resp = await apiGet(this.clientInstance, this.withUntilHeight(
       `/did/${did}/document`,
       height,
     ));
@@ -58,7 +58,7 @@ export class MorpheusApi implements Types.Layer2.IMorpheusApi {
     log(`Getting txn layer-2 status for ${morpheusTxId}...`);
 
     try {
-      const resp = await apiGet(this.api, `/txn-status/${morpheusTxId}`);
+      const resp = await apiGet(this.clientInstance, `/txn-status/${morpheusTxId}`);
       return Optional.of(resp.data);
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
@@ -72,7 +72,7 @@ export class MorpheusApi implements Types.Layer2.IMorpheusApi {
     log(`Getting last txn id for ${did}...`);
 
     try {
-      const resp = await apiGet(this.api, `/did/${did}/transactions/last`);
+      const resp = await apiGet(this.clientInstance, `/did/${did}/transactions/last`);
       return resp.data.transactionId;
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
@@ -123,7 +123,7 @@ export class MorpheusApi implements Types.Layer2.IMorpheusApi {
   ): Promise<Types.Layer2.IDryRunOperationError[]> {
     log('Checking operation attempts\' validity...');
     const resp = await apiPost(
-      this.api,
+      this.clientInstance,
       '/check-transaction-validity',
       JSON.stringify(operationAttempts),
     );
@@ -139,7 +139,7 @@ export class MorpheusApi implements Types.Layer2.IMorpheusApi {
     try {
       const path = includeAttempts ? 'transaction-attempts' : 'transactions';
       const resp = await apiGet(
-        this.api,
+        this.clientInstance,
         this.withUntilHeight(`/did/${did}/${path}/${fromHeight}`, untilHeight),
       );
       return resp.data;
@@ -160,7 +160,7 @@ export class MorpheusApi implements Types.Layer2.IMorpheusApi {
     try {
       const path = includeAttempts ? 'operation-attempts' : 'operations';
       const resp = await apiGet(
-        this.api,
+        this.clientInstance,
         this.withUntilHeight(`/did/${did}/${path}/${fromHeight}`, untilHeight),
       );
       return resp.data;

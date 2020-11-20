@@ -75,7 +75,7 @@ export class BlockHandler implements IBlockListener {
       return tx.typeGroup === Layer1.MorpheusTransaction.typeGroup && tx.type === Layer1.MorpheusTransaction.type;
     })
       .map((tx) => {
-        return tx as Types.Layer1.IMorpheusData;
+        return tx as unknown as Types.Layer1.IMorpheusData;
       });
   }
 }

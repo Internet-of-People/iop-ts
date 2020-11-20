@@ -10,11 +10,11 @@ import * as Coeus from '../../coeus-wasm';
 const { log } = Crypto;
 
 export class CoeusApi implements Types.Layer2.ICoeusApi {
-  private readonly api: AxiosInstance;
+  private readonly clientInstance: AxiosInstance;
 
-  public constructor(networkConfig: NetworkConfig) {
+  public constructor(public readonly networkConfig: NetworkConfig) {
     const baseURL = `${networkConfig.host}:${networkConfig.port}/coeus/v1`;
-    this.api = axios.create({
+    this.clientInstance = axios.create({
       baseURL,
       headers: {
         'Content-Type': 'application/json',
@@ -25,28 +25,28 @@ export class CoeusApi implements Types.Layer2.ICoeusApi {
   public async resolve(name: Coeus.DomainName): Promise<unknown> {
     log(`Resolving ${name}...`);
 
-    const resp = await apiGet(this.api, `/resolve/${name}`);
+    const resp = await apiGet(this.clientInstance, `/resolve/${name}`);
     return resp.data.data;
   }
 
   public async getMetadata(name: Coeus.DomainName): Promise<Types.Layer2.IDomainMetadata> {
     log(`Getting metadata of ${name}...`);
 
-    const resp = await apiGet(this.api, `/metadata/${name}`);
+    const resp = await apiGet(this.clientInstance, `/metadata/${name}`);
     return resp.data.metadata as Types.Layer2.IDomainMetadata;
   }
 
   public async getChildren(name: Coeus.DomainName): Promise<string[]> {
     log(`Getting children of ${name}...`);
 
-    const resp = await apiGet(this.api, `/children/${name}`);
+    const resp = await apiGet(this.clientInstance, `/children/${name}`);
     return resp.data.children;
   }
 
   public async getLastNonce(pk: Coeus.PublicKey): Promise<BigInt> {
     log(`Getting last nonce for ${pk}...`);
 
-    const resp = await apiGet(this.api, `/last-nonce/${pk}`);
+    const resp = await apiGet(this.clientInstance, `/last-nonce/${pk}`);
     return BigInt(resp.data.nonce);
   }
 
@@ -54,7 +54,7 @@ export class CoeusApi implements Types.Layer2.ICoeusApi {
     log(`Getting txn status for ${txid}...`);
 
     try {
-      const resp = await apiGet(this.api, `/txn-status/${txid}`);
+      const resp = await apiGet(this.clientInstance, `/txn-status/${txid}`);
       return Optional.of(resp.data);
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {

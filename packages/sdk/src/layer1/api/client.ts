@@ -8,11 +8,11 @@ import { apiGet, apiPost, HttpError } from '../../internal/http';
 
 
 export class AxiosClient implements Layer1.IClient {
-  private readonly api: AxiosInstance;
+  private readonly clientInstance: AxiosInstance;
 
-  public constructor(networkConfig: NetworkConfig) {
+  public constructor(public readonly networkConfig: NetworkConfig) {
     const baseURL = `${networkConfig.host}:${networkConfig.port}/api/v2`;
-    this.api = axios.create({
+    this.clientInstance = axios.create({
       baseURL,
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ export class AxiosClient implements Layer1.IClient {
 
   public async sendTx(tx: Interfaces.ITransactionJson): Promise<string> {
     log('Sending tx...'); // JSON.stringify({ transactions: [tx] })
-    const resp = await apiPost(this.api, '/transactions', JSON.stringify({ transactions: [tx] }));
+    const resp = await apiPost(this.clientInstance, '/transactions', JSON.stringify({ transactions: [tx] }));
 
     if (resp.data.data.invalid && resp.data.data.invalid.length > 0) {
       /* eslint no-undefined: 0 */
@@ -46,7 +46,7 @@ export class AxiosClient implements Layer1.IClient {
     log(`Getting txn layer1 status for ${txId}...`);
 
     try {
-      const resp = await apiGet(this.api, `/transactions/${txId}`);
+      const resp = await apiGet(this.clientInstance, `/transactions/${txId}`);
       return Optional.of(resp.data.data);
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
@@ -60,7 +60,7 @@ export class AxiosClient implements Layer1.IClient {
     log(`Getting wallet of ${address}...`);
 
     try {
-      const resp = await apiGet(this.api, `/wallets/${address}`);
+      const resp = await apiGet(this.clientInstance, `/wallets/${address}`);
       return Optional.of(resp.data.data);
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
@@ -101,13 +101,13 @@ export class AxiosClient implements Layer1.IClient {
 
   public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {
     log('Getting node crypto config...');
-    const resp = await apiGet(this.api, '/node/configuration/crypto');
+    const resp = await apiGet(this.clientInstance, '/node/configuration/crypto');
     return resp.data.data;
   }
 
   public async getCurrentHeight(): Promise<number> {
     log('Getting current height...');
-    const resp = await apiGet(this.api, '/blockchain');
+    const resp = await apiGet(this.clientInstance, '/blockchain');
     const { height } = resp.data.data.block;
     log(`Height is ${height}`);
     return height;

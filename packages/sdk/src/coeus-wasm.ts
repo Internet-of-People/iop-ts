@@ -1,4 +1,5 @@
 import {
+  CoeusState,
   CoeusTxBuilder,
   DomainName,
   HydraSigner,
@@ -11,6 +12,7 @@ import {
 } from '@internet-of-people/sdk-wasm';
 
 export {
+  CoeusState,
   CoeusTxBuilder,
   DomainName,
   HydraSigner,

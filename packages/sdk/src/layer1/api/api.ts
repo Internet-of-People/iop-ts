@@ -4,17 +4,20 @@ import { log, HydraPrivate, HydraTxBuilder, SecpKeyId, SecpPublicKey } from '@in
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
+import * as Layer2 from '../../layer2';
 import { NetworkConfig } from '../../network';
 import { AxiosClient } from './client';
 import { MorpheusTransactionBuilder } from '../transaction-builder';
-
+import {
+  CoeusTxBuilder,
+  NoncedBundleBuilder,
+  PrivateKey,
+  PublicKey,
+  UserOperation,
+} from '../../coeus-wasm';
 
 export class Api implements Types.Layer1.IApi {
-  private readonly clientInstance: Types.Layer1.IClient;
-
-  public constructor(networkConfig: NetworkConfig) {
-    this.clientInstance = new AxiosClient(networkConfig);
-  }
+  public constructor(public readonly clientInstance: Types.Layer1.IClient) {}
 
   public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {
     return this.clientInstance.getNodeCryptoConfig();
@@ -53,7 +56,7 @@ export class Api implements Types.Layer1.IApi {
         SecpKeyId.fromAddress(toAddress, network),
         hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
         amountFlake,
-        nonce ?? await this.nextWalletNonceByAddress(fromAddress),
+        nonce ?? await this.nextHydraNonce(fromAddress),
       );
 
     const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
@@ -76,7 +79,7 @@ export class Api implements Types.Layer1.IApi {
       .vote(
         delegate,
         hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
-        nonce ?? await this.nextWalletNonceByAddress(fromAddress),
+        nonce ?? await this.nextHydraNonce(fromAddress),
       );
 
     const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
@@ -95,7 +98,7 @@ export class Api implements Types.Layer1.IApi {
       .unvote(
         delegate,
         hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
-        nonce ?? await this.nextWalletNonceByAddress(fromAddress),
+        nonce ?? await this.nextHydraNonce(fromAddress),
       );
 
     const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
@@ -195,10 +198,50 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx);
   }
 
-  public async nextWalletNonceByAddress(address: string): Promise<BigInt> {
+  public async sendCoeusTx(
+    fromAddress: string,
+    userOperations: UserOperation[],
+    hydraPrivate: HydraPrivate,
+    layer1SenderNonce?: BigInt,
+    layer2PublicKeyNonce?: BigInt,
+  ): Promise<string> {
+    const { network } = hydraPrivate;
+
+    const secpPubKey = hydraPrivate.pub.keyByAddress(fromAddress).publicKey();
+    const secpPrivKey = hydraPrivate.keyByPublicKey(secpPubKey).privateKey();
+
+    const pubKey = PublicKey.fromSecp(secpPubKey);
+    const privKey = PrivateKey.fromSecp(secpPrivKey);
+
+    let noncedBundleBuilder = new NoncedBundleBuilder();
+
+    for (const userOperation of userOperations) {
+      noncedBundleBuilder = noncedBundleBuilder.add(userOperation);
+    }
+
+    const noncedBundle = noncedBundleBuilder.build(layer2PublicKeyNonce ?? await this.nextCoeusNonce(pubKey));
+
+    const ops = noncedBundle.sign(privKey);
+    const tx = new CoeusTxBuilder(network)
+      .build(ops, secpPubKey, layer1SenderNonce ?? await this.nextHydraNonce(fromAddress));
+    const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
+
+    return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  }
+
+  public async nextHydraNonce(address: string): Promise<BigInt> {
     const currentNonce = await this.clientInstance.getWalletNonce(address);
     const nextNonce = currentNonce as bigint + BigInt(1);
     log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
+    return nextNonce;
+  }
+
+
+  // TODO: we have to get the coeus nonce from somewhere else rather using layer2api
+  public async nextCoeusNonce(pubKey: PublicKey): Promise<BigInt> {
+    const coeusApi = new Layer2.CoeusApi(this.clientInstance.networkConfig);
+    const currentNonce = await coeusApi.getLastNonce(pubKey);
+    const nextNonce = currentNonce as bigint + BigInt(1);
     return nextNonce;
   }
 
@@ -241,7 +284,7 @@ export class Api implements Types.Layer1.IApi {
     let nextNonce = nonce;
 
     if (!nextNonce) {
-      nextNonce = await this.nextWalletNonceByAddress(address);
+      nextNonce = await this.nextHydraNonce(address);
     }
 
     return Transactions.BuilderFactory.transfer()
@@ -253,7 +296,7 @@ export class Api implements Types.Layer1.IApi {
 }
 
 export const createApi = async(networkConfig: NetworkConfig): Promise<Types.Layer1.IApi> => {
-  const api = new Api(networkConfig);
+  const api = new Api(new AxiosClient(networkConfig));
 
   const [ cryptoConfig, height ] = await Promise.all([
     api.getNodeCryptoConfig(),
