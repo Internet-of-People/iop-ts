@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/authority-service",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "private": true,
   "author": {
     "url": "https://iop.global/dsf",
@@ -32,7 +32,7 @@
     ]
   },
   "dependencies": {
-    "@internet-of-people/sdk": "4.0.3",
+    "@internet-of-people/sdk": "4.0.4",
     "body-parser": "1.19.0",
     "express": "4.17.1",
     "lodash.clonedeep": "4.5.0",

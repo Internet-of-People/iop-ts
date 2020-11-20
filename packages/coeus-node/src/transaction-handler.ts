@@ -1,6 +1,6 @@
 import { app } from '@arkecosystem/core-container';
 import { Database, State, TransactionPool } from '@arkecosystem/core-interfaces';
-import { Interfaces as CryptoIf, Transactions } from '@arkecosystem/crypto';
+import { Interfaces as CryptoIf, Transactions, Managers } from '@arkecosystem/crypto';
 import { Handlers } from '@arkecosystem/core-transactions';
 import {
   READER_FACTORY_COMPONENT_NAME,
@@ -85,7 +85,7 @@ export class TransactionHandler extends Handlers.TransactionHandler {
   }
 
   public async isActivated(): Promise<boolean> {
-    return Promise.resolve(true);
+    return Managers.configManager.getMilestone().coeus === true;
   }
 
   public async applyToRecipient(

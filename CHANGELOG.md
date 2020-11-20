@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.4
+
+- Morpheus and Coeus are enabled based on milestones.
+
 ## 4.0.3
 
 - Upgraded to 0.0.9 sdk-wasm.
