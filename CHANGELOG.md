@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.0.5
+
+- Upgraded to 0.0.11 sdk-wasm.
+- Coeus tx fees are based on the asset's size.
+- Deprecated send methods which sign with passphrase or WIF in a favor of signing with Vault.
+- Added `sendCoeusTx` to `Layer1` API.
+
 ## 4.0.4
 
 - Morpheus and Coeus are enabled based on milestones.

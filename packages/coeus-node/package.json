@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/coeus-node",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -32,9 +32,9 @@
     "@arkecosystem/crypto": "^2.6.31",
     "@hapi/hapi": "^18.3.1",
     "@hapi/boom": "^8.0.0",
-    "@internet-of-people/hydra-plugin-core": "4.0.4",
-    "@internet-of-people/coeus-proto": "4.0.4",
-    "@internet-of-people/sdk-wasm": "0.0.9"
+    "@internet-of-people/hydra-plugin-core": "4.0.5",
+    "@internet-of-people/coeus-proto": "4.0.5",
+    "@internet-of-people/sdk-wasm": "0.0.11"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "2.11.0",

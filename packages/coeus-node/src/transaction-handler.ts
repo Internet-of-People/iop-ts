@@ -9,9 +9,10 @@ import {
   IAppLog,
   COEUS_LOGGER_COMPONENT_NAME,
 } from '@internet-of-people/hydra-plugin-core';
-import { CoeusTransaction, ICoeusAsset, ISignedBundle } from '@internet-of-people/coeus-proto';
+import { CoeusTransaction, ICoeusAsset } from '@internet-of-people/coeus-proto';
+import { CoeusAsset } from '@internet-of-people/sdk-wasm';
+
 import { StateHandler } from './state-handler';
-import { SignedBundle } from '@internet-of-people/sdk-wasm';
 
 export class TransactionHandler extends Handlers.TransactionHandler {
   public getConstructor(): typeof Transactions.Transaction {
@@ -58,15 +59,10 @@ export class TransactionHandler extends Handlers.TransactionHandler {
   ): Promise<{ type: string; message: string; } | null> {
     try {
       /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-      const bundles = data.asset!.bundles as ISignedBundle[];
+      const assetData = data.asset! as ICoeusAsset;
+      const asset = new CoeusAsset(assetData);
 
-      const expectedFee = bundles
-        .map((signed) => {
-          return new SignedBundle(signed).price().fee;
-        })
-        .reduce((total: BigInt, currentVal: BigInt) => {
-          return BigInt(total) + BigInt(currentVal);
-        });
+      const expectedFee = asset.fee();
 
       if (data.fee.isLessThan(expectedFee)) {
         return {

@@ -1435,6 +1435,18 @@ export class CoeusAsset {
         return v0;
     }
     /**
+    * @returns {BigInt}
+    */
+    fee() {
+        wasm.coeusasset_fee(8, this.ptr);
+        var r0 = getInt32Memory0()[8 / 4 + 0];
+        var r1 = getInt32Memory0()[8 / 4 + 1];
+        u32CvtShim[0] = r0;
+        u32CvtShim[1] = r1;
+        const n0 = uint64CvtShim[0];
+        return n0;
+    }
+    /**
     * @returns {any}
     */
     toJson() {

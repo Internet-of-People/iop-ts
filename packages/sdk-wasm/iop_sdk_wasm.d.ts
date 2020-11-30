@@ -514,6 +514,10 @@ export class CoeusAsset {
 */
   serialize(): Uint8Array;
 /**
+* @returns {BigInt}
+*/
+  fee(): BigInt;
+/**
 * @returns {any}
 */
   toJson(): any;

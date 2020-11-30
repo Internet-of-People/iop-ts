@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-crypto",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -31,7 +31,7 @@
     "test": "jest --detectOpenHandles --no-cache"
   },
   "dependencies": {
-    "@internet-of-people/sdk-wasm": "0.0.9",
+    "@internet-of-people/sdk-wasm": "0.0.11",
     "@arkecosystem/crypto": "^2.6.31",
     "lodash.clonedeep": "4.5.0",
     "multibase": "0.6.0",
