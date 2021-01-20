@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @param {string} name
+* @returns {boolean}
+*/
+export function validateNetworkName(name: string): boolean;
+/**
 * @param {Uint8Array} plain_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -13,10 +18,11 @@ export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 */
 export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
 /**
-* @param {string} name
-* @returns {boolean}
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
 */
-export function validateNetworkName(name: string): boolean;
+export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
 /**
 * @param {any} data
 * @param {string} keep_properties_list
@@ -33,12 +39,6 @@ export function digestJson(data: any): string;
 * @returns {string}
 */
 export function stringifyJson(data: any): string;
-/**
-* @param {any} operations
-* @param {PrivateKey} private_key
-* @returns {any}
-*/
-export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
 /**
 */
 export class Bip32 {
@@ -659,7 +659,7 @@ export class HydraPlugin {
 * @param {string} unlock_password
 * @param {HydraParameters} parameters
 */
-  static rewind(vault: Vault, unlock_password: string, parameters: HydraParameters): void;
+  static init(vault: Vault, unlock_password: string, parameters: HydraParameters): void;
 /**
 * @param {Vault} vault
 * @param {HydraParameters} parameters
@@ -938,7 +938,7 @@ export class MorpheusPlugin {
 * @param {Vault} vault
 * @param {string} unlock_password
 */
-  static rewind(vault: Vault, unlock_password: string): void;
+  static init(vault: Vault, unlock_password: string): void;
 /**
 * @param {Vault} vault
 * @returns {MorpheusPlugin}

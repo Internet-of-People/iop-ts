@@ -181,7 +181,7 @@ const hydraParams = new Crypto.HydraParameters(
 
 // You have to rewind the state of the account in order to access it. We provided a mock implementation
 // that does not look at the blockchain, just adds 1 receiving address.
-Crypto.HydraPlugin.rewind(vault, 'UNLOCK_PASSWORD', hydraParams);
+Crypto.HydraPlugin.init(vault, 'UNLOCK_PASSWORD', hydraParams);
 const hydra = Crypto.HydraPlugin.get(vault, hydraParams);
 
 const firstAddress = hydra.pub.key(0);
@@ -213,7 +213,7 @@ const vault = Crypto.Vault.create(
   unlockPassword
 );
 
-Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
+Crypto.MorpheusPlugin.init(vault, unlockPassword);
 const morpheus = Crypto.MorpheusPlugin.get(vault);
 const morpheusPrivate = morpheus.priv(unlockPassword);
 
@@ -224,7 +224,7 @@ const publicKey = key.publicKey();
 key.signEcdsa(Uint8Array);
 ```
 
-Study the implementation of `Crypto.MorpheusPlugin.rewind` to create a better implementation that
+Study the implementation of `Crypto.MorpheusPlugin.init` to create a better implementation that
 discovers traces of existing DIDs on the storage your application is using and adds them to the
 public state of the vault that later can be used without unlocking it.
 

@@ -29,7 +29,7 @@ describe('MorpheusTransactionBuilder', () => {
   beforeEach(async() => {
     const unlockPassword = 'correct horse battery staple';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
-    Crypto.MorpheusPlugin.rewind(vault, unlockPassword);
+    Crypto.MorpheusPlugin.init(vault, unlockPassword);
     const m = Crypto.MorpheusPlugin.get(vault);
     signer = m.priv(unlockPassword);
     lastTxId = null;

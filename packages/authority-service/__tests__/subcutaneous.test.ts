@@ -22,7 +22,7 @@ installWindowCrypto();
 const persona = (idx: number): Crypto.MorpheusPrivateKey => {
   const unlockPw = 'correct horse battery staple';
   const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPw);
-  Crypto.MorpheusPlugin.rewind(vault, unlockPw);
+  Crypto.MorpheusPlugin.init(vault, unlockPw);
   const m = Crypto.MorpheusPlugin.get(vault);
   return m.priv(unlockPw).personas.key(idx);
 };

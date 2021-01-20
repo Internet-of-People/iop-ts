@@ -44,7 +44,7 @@ describe('SignedJson', () => {
   beforeEach(async() => {
     const unlockPassword = 'unlockme';
     const vault = Vault.create(Seed.demoPhrase(), 'bip39pass', unlockPassword);
-    MorpheusPlugin.rewind(vault, unlockPassword);
+    MorpheusPlugin.init(vault, unlockPassword);
     const morpheus = MorpheusPlugin.get(vault);
     signer = morpheus.priv(unlockPassword);
     morpheusPub = morpheus.pub;

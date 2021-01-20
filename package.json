@@ -35,8 +35,8 @@
     "multibase": "0.6.0",
     "optional-js": "2.1.1",
     "p-queue": "6.2.1",
-    "sqlite": "3.0.3",
     "sql-template-strings": "2.2.2",
+    "sqlite": "3.0.3",
     "tslib": "2.0.1"
   },
   "devDependencies": {
@@ -54,8 +54,8 @@
     "@typescript-eslint/parser": "2.11.0",
     "eslint": "6.7.2",
     "husky": "3.1.0",
-    "jest-extended": "0.11.2",
     "jest": "24.9.0",
+    "jest-extended": "0.11.2",
     "lerna": "3.18.5",
     "rimraf": "3.0.0",
     "supertest": "4.0.2",

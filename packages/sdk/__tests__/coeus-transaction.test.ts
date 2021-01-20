@@ -27,10 +27,12 @@ class Fixture {
       0,
     );
 
-    Crypto.HydraPlugin.rewind(vault, unlockPassword, hydraParams);
+    Crypto.HydraPlugin.init(vault, unlockPassword, hydraParams);
     const hydra = Crypto.HydraPlugin.get(vault, hydraParams);
 
-    return hydra.priv(unlockPassword);
+    const hydraPrivate = hydra.priv(unlockPassword);
+    hydraPrivate.key(1);
+    return hydraPrivate;
   }
 
   public createRegisterOp(

@@ -19,7 +19,7 @@ describe('Vault BIP44 plugins', () => {
   it('Hydra plugin', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     const params = new HydraParameters(Coin.Hydra.Testnet, 0);
-    HydraPlugin.rewind(vault, unlockPassword, params);
+    HydraPlugin.init(vault, unlockPassword, params);
     const account = HydraPlugin.get(vault, params);
 
     const pk0 = account.pub.key(0);
@@ -57,11 +57,11 @@ describe('Vault BIP44 plugins', () => {
   it('Vault can be (de)serialized', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     const params = new HydraParameters(Coin.Hydra.Testnet, 0);
-    HydraPlugin.rewind(vault, unlockPassword, params);
+    HydraPlugin.init(vault, unlockPassword, params);
     const account = HydraPlugin.get(vault, params);
-    const pk1 = account.pub.key(1);
+    const pk1 = account.priv(unlockPassword).key(1);
 
-    expect(pk1.address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
+    expect(pk1.neuter().address).toBe('tfio7jWgEoZSG16YYqEiU5PxMcxe7HcVph');
 
     expect(vault.dirty).toBe(true);
     /* eslint no-undefined: 0 */
@@ -83,7 +83,7 @@ describe('Vault BIP44 plugins', () => {
   it('Vault can sign Hydra transactions', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     const params = new HydraParameters(Coin.Hydra.Testnet, 0);
-    HydraPlugin.rewind(vault, unlockPassword, params);
+    HydraPlugin.init(vault, unlockPassword, params);
     const account = HydraPlugin.get(vault, params);
 
     const bip44Key = account.priv(unlockPassword).key(0);
@@ -151,7 +151,7 @@ describe('Vault BIP44 plugins', () => {
 describe('Vault Morpheus plugin', () => {
   it('Morpheus plugin', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
-    MorpheusPlugin.rewind(vault, unlockPassword);
+    MorpheusPlugin.init(vault, unlockPassword);
     const m = MorpheusPlugin.get(vault);
 
     const { personas } = m.pub;
@@ -173,7 +173,7 @@ describe('Vault Morpheus plugin', () => {
 
   it('can be serialized/deserialized', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
-    MorpheusPlugin.rewind(vault, unlockPassword);
+    MorpheusPlugin.init(vault, unlockPassword);
     const m = MorpheusPlugin.get(vault);
     expect(m.pub.personas.count).toBe(1);
 

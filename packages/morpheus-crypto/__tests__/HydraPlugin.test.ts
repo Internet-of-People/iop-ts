@@ -17,7 +17,7 @@ describe('Hydra transaction', () => {
   it('can be signed', () => {
     const vault = Vault.create(Seed.demoPhrase(), '', unlockPassword);
     const params = new HydraParameters(Coin.Hydra.Testnet, 0);
-    HydraPlugin.rewind(vault, unlockPassword, params);
+    HydraPlugin.init(vault, unlockPassword, params);
     const account = HydraPlugin.get(vault, params);
 
     const priv = account.priv(unlockPassword);

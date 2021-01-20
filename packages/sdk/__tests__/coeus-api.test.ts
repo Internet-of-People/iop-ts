@@ -23,7 +23,7 @@ class Fixture {
       0,
     );
 
-    Crypto.HydraPlugin.rewind(vault, unlockPw, parameters);
+    Crypto.HydraPlugin.init(vault, unlockPw, parameters);
     const hydra = Crypto.HydraPlugin.get(vault, parameters);
     return hydra.priv(unlockPw);
   }
@@ -55,7 +55,6 @@ class Fixture {
       senderAddr,
       deleteOp,
       sender,
-
     );
   }
 
@@ -82,34 +81,29 @@ const fixture = new Fixture(domainObject, networkConfig);
 
 let expiration: number;
 
+
+async function delay(): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 12000);
+  });
+}
+
 beforeAll(async() => {
   await fixture.initializeApi();
   const blockHeight = await fixture.layer1Api.getCurrentHeight();
   expiration = blockHeight + 100000 ;
 
   await fixture.createSut(expiration);
-
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, 12000);
-  });
-}, 20000);
+  await delay();
+}, 30000);
 
 
 afterAll(async(): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      fixture.deleteSut().then(() => {
-        resolve();
-      })
-        .catch(
-          (e) => {
-            throw Error(e);
-          });
-    }, 12000);
-  });
-}, 20000);
+  await fixture.deleteSut();
+  await delay();
+}, 30000);
 
 describe('Test Coeus API', () => {
   const coeusApi = Layer2.createCoeusApi(networkConfig);
@@ -132,7 +126,7 @@ describe('Test Coeus API', () => {
   it('PublicKey types are the same', async() => {
     const unlockPw = 'correct horse battery staple';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPw);
-    Crypto.MorpheusPlugin.rewind(vault, unlockPw);
+    Crypto.MorpheusPlugin.init(vault, unlockPw);
     const m = Crypto.MorpheusPlugin.get(vault);
     const persona0 = m.priv(unlockPw).personas.key(0);
     const morpheusPk = persona0.neuter().publicKey();
