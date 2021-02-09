@@ -41,7 +41,13 @@ export class TransactionHandler extends Handlers.TransactionHandler {
       const transactions = await reader.read();
       logger.debug(`Processing ${transactions.length} transactions in batch...`);
 
+      let lastBlockHeight: number | null = null;
+
       for (const transaction of transactions) {
+        if (transaction.blockHeight !== lastBlockHeight) {
+          lastBlockHeight = transaction.blockHeight;
+          stateHandler.blockApplying(lastBlockHeight);
+        }
         stateHandler.applyTransactionToState({
           asset: transaction.asset as ICoeusAsset,
           blockHeight: transaction.blockHeight,

@@ -74,7 +74,8 @@ export class MorpheusState implements IMorpheusState {
     setLastSeenBlockHeight: (height: number): void => {
       if (height < this.lastSeenBlockHeight) {
         throw new Error(
-          `${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: the applied height is < last seen height.`,
+          `${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error:` +
+          ` the applied height (${height}) is < last seen height (${this.lastSeenBlockHeight}).`,
         );
       }
       this.lastSeenBlockHeight = height;
@@ -169,7 +170,8 @@ export class MorpheusState implements IMorpheusState {
     setLastSeenBlockHeight: (height: number): void => {
       if (height > this.lastSeenBlockHeight) {
         throw new Error(
-          `${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: the reverted height is > last seen height.`,
+          `${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error:` +
+          ` the reverted height (${height}) is > last seen height (${this.lastSeenBlockHeight}).`,
         );
       }
       this.lastSeenBlockHeight = height;
