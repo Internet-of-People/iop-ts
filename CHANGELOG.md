@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.6
+
+- Upgrade ARK dependencies to `^2.7.24`.
+- BUGFIX: fixing a bug that made Coeus's state corrupted after a revert.
+
 ## 4.0.5
 
 - Upgraded to 0.0.11 sdk-wasm.
