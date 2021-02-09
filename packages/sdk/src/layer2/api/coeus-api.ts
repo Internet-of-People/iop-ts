@@ -1,7 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import Optional from 'optional-js';
 import * as Crypto from '@internet-of-people/morpheus-crypto';
-import * as Layer2 from '../../layer2';
 import * as Types from '../../types';
 import { apiGet, HttpError/* , apiPost*/ } from '../../internal/http';
 import { NetworkConfig } from '../../network';
@@ -23,23 +22,26 @@ export class CoeusApi implements Types.Layer2.ICoeusApi {
   }
 
   public async resolve(name: Coeus.DomainName): Promise<unknown> {
-    log(`Resolving ${name}...`);
+    const domain = name.toString();
+    log(`Resolving ${domain}...`);
 
-    const resp = await apiGet(this.clientInstance, `/resolve/${name}`);
+    const resp = await apiGet(this.clientInstance, `/resolve/${domain}`);
     return resp.data.data;
   }
 
   public async getMetadata(name: Coeus.DomainName): Promise<Types.Layer2.IDomainMetadata> {
-    log(`Getting metadata of ${name}...`);
+    const domain = name.toString();
+    log(`Getting metadata of ${domain}...`);
 
-    const resp = await apiGet(this.clientInstance, `/metadata/${name}`);
-    return resp.data.metadata as Types.Layer2.IDomainMetadata;
+    const resp = await apiGet(this.clientInstance, `/metadata/${domain}`);
+    return resp.data as Types.Layer2.IDomainMetadata;
   }
 
   public async getChildren(name: Coeus.DomainName): Promise<string[]> {
+    const domain = name.toString();
     log(`Getting children of ${name}...`);
 
-    const resp = await apiGet(this.clientInstance, `/children/${name}`);
+    const resp = await apiGet(this.clientInstance, `/children/${domain}`);
     return resp.data.children;
   }
 

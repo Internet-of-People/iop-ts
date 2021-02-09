@@ -229,9 +229,6 @@ module.exports.stringifyJson = function(data) {
     }
 };
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
 /**
 * @param {any} operations
 * @param {PrivateKey} private_key
@@ -246,6 +243,10 @@ module.exports.signMorpheusOperations = function(operations, private_key) {
         heap[stack_pointer++] = undefined;
     }
 };
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
 
 const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 /**
@@ -1707,6 +1708,19 @@ class DomainName {
         var len0 = WASM_VECTOR_LEN;
         var ret = wasm.domainname_new(ptr0, len0);
         return DomainName.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    toString() {
+        try {
+            wasm.domainname_toString(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
 }
 module.exports.DomainName = DomainName;

@@ -635,6 +635,10 @@ export class DomainName {
 * @param {string} domain_name
 */
   constructor(domain_name: string);
+/**
+* @returns {string}
+*/
+  toString(): string;
 }
 /**
 */

@@ -1,6 +1,8 @@
 import * as wasm from './iop_sdk_wasm_bg.wasm';
 
-let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+const lTextDecoder = typeof TextDecoder === 'undefined' ? (0, module.require)('util').TextDecoder : TextDecoder;
+
+let cachedTextDecoder = new lTextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 
 cachedTextDecoder.decode();
 
@@ -47,7 +49,9 @@ function addHeapObject(obj) {
 
 let WASM_VECTOR_LEN = 0;
 
-let cachedTextEncoder = new TextEncoder('utf-8');
+const lTextEncoder = typeof TextEncoder === 'undefined' ? (0, module.require)('util').TextEncoder : TextEncoder;
+
+let cachedTextEncoder = new lTextEncoder('utf-8');
 
 const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
     ? function (arg, view) {
@@ -262,9 +266,6 @@ export function stringifyJson(data) {
     }
 }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
 /**
 * @param {any} operations
 * @param {PrivateKey} private_key
@@ -278,6 +279,10 @@ export function signMorpheusOperations(operations, private_key) {
     } finally {
         heap[stack_pointer++] = undefined;
     }
+}
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
 
 const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
@@ -1723,6 +1728,19 @@ export class DomainName {
         var len0 = WASM_VECTOR_LEN;
         var ret = wasm.domainname_new(ptr0, len0);
         return DomainName.__wrap(ret);
+    }
+    /**
+    * @returns {string}
+    */
+    toString() {
+        try {
+            wasm.domainname_toString(8, this.ptr);
+            var r0 = getInt32Memory0()[8 / 4 + 0];
+            var r1 = getInt32Memory0()[8 / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
 }
 /**
