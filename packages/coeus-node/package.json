@@ -26,10 +26,10 @@
     "test": "echo ignore"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^2.6.31",
-    "@arkecosystem/core-interfaces": "^2.6.31",
-    "@arkecosystem/core-transactions": "^2.6.31",
-    "@arkecosystem/crypto": "^2.6.31",
+    "@arkecosystem/core-container": "^2.7.24",
+    "@arkecosystem/core-interfaces": "^2.7.24",
+    "@arkecosystem/core-transactions": "^2.7.24",
+    "@arkecosystem/crypto": "^2.7.24",
     "@hapi/hapi": "^18.3.1",
     "@hapi/boom": "^8.0.0",
     "@internet-of-people/hydra-plugin-core": "4.0.5",

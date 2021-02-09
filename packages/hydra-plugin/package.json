@@ -26,10 +26,10 @@
     "test:watch": "jest --detectOpenHandles --no-cache --watch"
   },
   "dependencies": {
-    "@arkecosystem/core-event-emitter": "^2.6.31",
-    "@arkecosystem/core-interfaces": "^2.6.31",
-    "@arkecosystem/core-transactions": "^2.6.31",
-    "@arkecosystem/crypto": "^2.6.31",
+    "@arkecosystem/core-event-emitter": "^2.7.24",
+    "@arkecosystem/core-interfaces": "^2.7.24",
+    "@arkecosystem/core-transactions": "^2.7.24",
+    "@arkecosystem/crypto": "^2.7.24",
     "@hapi/hapi": "^18.3.1",
     "@internet-of-people/hydra-plugin-core": "4.0.5",
     "@internet-of-people/did-manager": "4.0.5",

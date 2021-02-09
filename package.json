@@ -18,11 +18,11 @@
     "publish:stable": "./scripts/publish/stable.sh"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^2.6.31",
-    "@arkecosystem/core-event-emitter": "^2.6.31",
-    "@arkecosystem/core-interfaces": "^2.6.31",
-    "@arkecosystem/core-transactions": "^2.6.31",
-    "@arkecosystem/crypto": "^2.6.31",
+    "@arkecosystem/core-container": "^2.7.24",
+    "@arkecosystem/core-event-emitter": "^2.7.24",
+    "@arkecosystem/core-interfaces": "^2.7.24",
+    "@arkecosystem/core-transactions": "^2.7.24",
+    "@arkecosystem/crypto": "^2.7.24",
     "@hapi/boom": "^8.0.0",
     "@hapi/hapi": "^18.3.1",
     "awilix": "^4.2.2",
@@ -40,8 +40,8 @@
     "tslib": "2.0.1"
   },
   "devDependencies": {
-    "@arkecosystem/core-http-utils": "^2.6.31",
-    "@arkecosystem/core-state": "^2.6.31",
+    "@arkecosystem/core-http-utils": "^2.7.24",
+    "@arkecosystem/core-state": "^2.7.24",
     "@types/axios": "0.14.0",
     "@types/express": "4.17.1",
     "@types/hapi__hapi": "^18.2.5",
