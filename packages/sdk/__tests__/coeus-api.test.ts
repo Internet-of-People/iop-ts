@@ -109,7 +109,7 @@ describe('Test Coeus API', () => {
   const coeusApi = Layer2.createCoeusApi(networkConfig);
 
   it('Get Tx status of confirmed Tx', async() => {
-    const status = await coeusApi.getTxnStatus('c96f2ac75146d3adf03ce9197cff0f52404f86e52fe09b2083a765de686d74bb');
+    const status = await coeusApi.getTxnStatus('932de7456996f4cd355d7d1076bf8bf9c7b26eb7f5c9829131b024b3c542b39b');
     expect(status.orElseGet(() => {
       return false;
     })).toBe(true);
