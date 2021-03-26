@@ -1,7 +1,7 @@
 # IOP SDK
 
 This package contains all Typescript tool you need to interact with *IOP SSI* and *Fort* APIs and create awesome apps.
-For more info please visit the [IOP Developer Portal](https://developer.iop.global/).
+For more info please visit the [IOP Developer Portal](https://developer.iop.technology/).
 
 *This SDK will improve over time to be able to use it more easily.*
 
@@ -33,7 +33,7 @@ For more info please visit the [IOP Developer Portal](https://developer.iop.glob
 
 ## Usage
 
-Please visit the [IOP Developer Portal](https://developer.iop.global) for detailed instructions.
+Please visit the [IOP Developer Portal](https://developer.iop.technology) for detailed instructions.
 
 Please note that despite our best efforts, changes we cannot control deep down in the dependency chain of our library might still cause problems for the client using our SDK. To avoid many of those problems, we recommend adding `"skipLibCheck": true,` to your `tsconfig.json`. You might also fix the encountered problems manually instead. For example, we've recently experienced Typescript definition dependencies missing from a faulty package and had to add `"@types/socketcluster-client": "^13.0.3",` to `devDependencies` in the `package.json` of a client using our SDK.
 
@@ -96,19 +96,19 @@ All interfaces and types that needed to be able to communicate with a Verifier e
 
 This package contains all Typescript class and utils that you need to interact with the Layer-1 API. Below we provide you example how can you interact with Layer-1 APIs.
 
-For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
+For more detailed examples please visit our [tutorial center](https://developer.iop.technology/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
 ### Layer-2 Module
 
 This package contains all Typescript class and utils that you need to interact with the layer-2 API.
 
-For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
+For more detailed examples please visit our [tutorial center](https://developer.iop.technology/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
 ### Coeus Module
 
 This package contains all Typescript class and utils you need to use IOP DNS (project Coeus).
 
-For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
+For more detailed examples please visit our [tutorial center](https://developer.iop.technology/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
 ### Crypto Module
 
@@ -123,7 +123,7 @@ You can inspect these APIs int the file we re-export from the sdk, [here](https:
 #### JSON Digesting
 
 For a basic understanding of our data digesting solution, consult
-[the specification](https://developer.iop.global/glossary?id=masked-claim-presentation).
+[the specification](https://developer.iop.technology/glossary?id=masked-claim-presentation).
 
 Function `selectiveDigestJson` provides a generic solution for digesting JSON documents.
 Argument `json` is the serialized Json document as a string to be processed.
@@ -148,7 +148,7 @@ const digestedData = Crypto.selectiveDigestJson(content, ".timestamp, .version")
 
 The Vault is a general purpose hierarchical deterministic (HD) generator for asymmetric keys. Read more about in [its repository](https://github.com/Internet-of-People/keyvault-rust).
 
-For more detailed examples please visit our [tutorial center](https://developer.iop.global/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
+For more detailed examples please visit our [tutorial center](https://developer.iop.technology/sdk/?id=tutorial-center) and our [Typescript Samples](https://github.com/Internet-of-People/ts-examples).
 
 #### Crypto Plugins
 
@@ -197,7 +197,7 @@ To learn the Hydra plugin's public and private interface, please check [its repo
 
 ##### Morpheus Plugin
 
-The Morpheus (or as we officially call, IOP SSI) plugin is all about IOP SSI. If you are not familiar with SSI, we highly recommend you to visit our [developer portal](https://developer.iop.global/ssi) for more information.
+The Morpheus (or as we officially call, IOP SSI) plugin is all about IOP SSI. If you are not familiar with SSI, we highly recommend you to visit our [developer portal](https://developer.iop.technology/ssi) for more information.
 
 Using this plugin you can create your own personas and its DIDs.
 

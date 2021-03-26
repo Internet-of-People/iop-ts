@@ -27,7 +27,7 @@ Just include the package and use the required parts of the library, e.g.
 import { CoeusTransaction } from '@internet-of-people/coeus-proto';
 ```
 
-For details and examples, please visit the [IOP developer portal](https://developer.iop.global).
+For details and examples, please visit the [IOP developer portal](https://developer.iop.technology).
 
 
 ## Check also
