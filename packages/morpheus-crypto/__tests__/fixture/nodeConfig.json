@@ -128,7 +128,7 @@
     "client": {
       "token": "THYD",
       "symbol": "TĦ",
-      "explorer": "http://test.hydra.iop.global"
+      "explorer": "https://test.explorer.hydraledger.io"
     }
   }
 }

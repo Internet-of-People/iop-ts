@@ -10,11 +10,11 @@ export const getHostByNetwork = (network: Network): string => {
     case Network.LocalTestnet:
       return 'http://127.0.0.1';
     case Network.Testnet:
-      return 'https://test.hydra.iop.global';
+      return 'https://test.explorer.hydraledger.io';
     case Network.Devnet:
-      return 'https://dev.hydra.iop.global';
+      return 'https://dev.explorer.hydraledger.io';
     case Network.Mainnet:
-      return 'https://hydra.iop.global';
+      return 'https://explorer.hydraledger.io';
     default:
       throw new Error(`Unknown network ${network}`);
   }

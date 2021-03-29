@@ -34,7 +34,7 @@ npm run serve
 
 Returns all inspection [scenarios](https://developer.iop.technology/glossary?id=scenario) available at this inspector.
 
-Note: It's possible that process will not be objects but only a [content id](https://iop-stack.iop.rocks/dids-and-claims/specification/glossary?id=content-id). In that case, use the [blob storage endpoint](#Download-Public-Blob) to download the process itself.
+Note: It's possible that process will not be objects but only a [content id](https://developer.iop.technology/glossary?id=content-id). In that case, use the [blob storage endpoint](#Download-Public-Blob) to download the process itself.
 
 ```http
 GET /scenarios
@@ -77,7 +77,7 @@ GET /blob/:contentId
 
 ### Upload Presentation
 
-Users can share a Signed [Presentations](https://iop-stack.iop.rocks/dids-and-claims/specification/glossary?id=claim-presentation) with the inspector service anytime before they want to get an inspection. They could host it anywhere and present a URL on their servers, but most users will not have the self-hosted infrastructure.
+Users can share a Signed [Presentations](https://developer.iop.technology/glossary?id=claim-presentation) with the inspector service anytime before they want to get an inspection. They could host it anywhere and present a URL on their servers, but most users will not have the self-hosted infrastructure.
 
 ```http
 POST /presentation
@@ -85,7 +85,7 @@ POST /presentation
 
 ### Getting After Proof
 
-Whenever a user wants to wrap their Presentation in an [AfterEnvelop](https://iop-stack.iop.rocks/dids-and-claims/specification/glossary?id=after-envelope), they can query the latest block height and id from this endpoint.
+Whenever a user wants to wrap their Presentation in an [AfterEnvelop](https://developer.iop.technology/glossary?id=after-envelope), they can query the latest block height and id from this endpoint.
 
 ```http
 GET /after-proof
