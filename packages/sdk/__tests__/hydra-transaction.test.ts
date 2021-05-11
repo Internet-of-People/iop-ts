@@ -86,14 +86,20 @@ describe('Hydra transaction', () => {
   });
 
   it('sendTransferTx passes correct arguments with nonce supplied', async() => {
-    await api.sendTransferTx(fromAddress, toAddress, amount, hydraPrivate, nonce);
+    const vendorField = 'foobar';
+    const manualFee = BigInt(42);
+    await api.sendTransferTx(fromAddress, toAddress, amount, hydraPrivate, nonce, vendorField, manualFee);
 
-    expect(fixture.axiosClientMock.sendTx).toHaveBeenCalledTimes(1);
-    expect(fixture.axiosClientMock.sendTx.mock.calls[0][0].nonce).toBe(nonce.toString());
-    expect(fixture.axiosClientMock.sendTx.mock.calls[0][0].amount).toBe(amount.toString());
-    expect(fixture.axiosClientMock.sendTx.mock.calls[0][0].recipientId).toBe(toAddress);
-    expect(fixture.axiosClientMock.sendTx.mock.calls[0][0].senderPublicKey)
+    const mockSendTx = fixture.axiosClientMock.sendTx;
+    expect(mockSendTx).toHaveBeenCalledTimes(1);
+    const [[firstArg]] = mockSendTx.mock.calls;
+    expect(firstArg.nonce).toBe(nonce.toString());
+    expect(firstArg.amount).toBe(amount.toString());
+    expect(firstArg.recipientId).toBe(toAddress);
+    expect(firstArg.senderPublicKey)
       .toBe(fixture.getPublicKey(fromAddress, hydraPrivate));
+    expect(firstArg.vendorField).toBe(vendorField);
+    expect(firstArg.fee).toBe(manualFee.toString());
   });
 
 

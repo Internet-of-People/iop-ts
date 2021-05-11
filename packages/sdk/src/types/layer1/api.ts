@@ -62,6 +62,8 @@ export interface IApi {
     amountFlake: BigInt,
     hydraPrivate: HydraPrivate,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string>;
 
   sendTx(signedTx: Interfaces.ITransactionData): Promise<string>;
@@ -71,6 +73,8 @@ export interface IApi {
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string>;
 
   sendUnvoteTx(
@@ -78,6 +82,8 @@ export interface IApi {
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string>;
 
   sendTransferTxWithWIF(
@@ -85,6 +91,8 @@ export interface IApi {
     toAddress: string,
     amountFlake: BigInt,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string>;
 
   sendTransferTxWithPassphrase(
@@ -92,6 +100,8 @@ export interface IApi {
     toAddress: string,
     amountFlake: BigInt,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string>;
 
   sendMorpheusTxWithWIF(

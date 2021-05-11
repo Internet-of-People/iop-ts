@@ -5,7 +5,7 @@ export const installWindowCrypto = (): void => {
   // jest acts as if tests run in a browser, but it does not support
   // most properties that browsers nowadays do :(
   /* eslint @typescript-eslint/no-explicit-any: 0 */
-  ((window as unknown) as any).crypto = {
+  ((global as unknown) as any).crypto = {
     getRandomValues: (b: NodeJS.ArrayBufferView): void => {
       nodeCrypto.randomFillSync(b);
     },

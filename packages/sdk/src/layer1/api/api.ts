@@ -17,7 +17,7 @@ import {
 } from '../../coeus-wasm';
 
 export class Api implements Types.Layer1.IApi {
-  public constructor(public readonly clientInstance: Types.Layer1.IClient) {}
+  public constructor(public readonly clientInstance: Types.Layer1.IClient) { }
 
   public async getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig> {
     return this.clientInstance.getNodeCryptoConfig();
@@ -43,12 +43,16 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.getWalletBalance(address);
   }
 
+  // TODO Introduce a parameter object at least for the optional arguments
+  /* eslint-disable-next-line max-params */
   public async sendTransferTx(
     fromAddress: string,
     toAddress: string,
     amountFlake: BigInt,
     hydraPrivate: HydraPrivate,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string> {
     const { network } = hydraPrivate;
     const tx = new HydraTxBuilder(network)
@@ -57,6 +61,8 @@ export class Api implements Types.Layer1.IApi {
         hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
         amountFlake,
         nonce ?? await this.nextHydraNonce(fromAddress),
+        vendorField,
+        manualFee,
       );
 
     const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
@@ -68,11 +74,14 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
+  /* eslint-disable-next-line max-params */
   public async sendVoteTx(
     fromAddress: string,
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string> {
     const { network } = hydraPrivate;
     const tx = new HydraTxBuilder(network)
@@ -80,6 +89,8 @@ export class Api implements Types.Layer1.IApi {
         delegate,
         hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
         nonce ?? await this.nextHydraNonce(fromAddress),
+        vendorField,
+        manualFee,
       );
 
     const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
@@ -87,11 +98,14 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
+  /* eslint-disable-next-line max-params */
   public async sendUnvoteTx(
     fromAddress: string,
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string> {
     const { network } = hydraPrivate;
     const tx = new HydraTxBuilder(network)
@@ -99,6 +113,8 @@ export class Api implements Types.Layer1.IApi {
         delegate,
         hydraPrivate.pub.keyByAddress(fromAddress).publicKey(),
         nonce ?? await this.nextHydraNonce(fromAddress),
+        vendorField,
+        manualFee,
       );
 
     const signedTx = hydraPrivate.signHydraTransaction(fromAddress, tx);
@@ -109,15 +125,18 @@ export class Api implements Types.Layer1.IApi {
   /**
   * @deprecated This method is deprecated in favor of sendTransferTx()
   */
+  /* eslint-disable-next-line max-params */
   public async sendTransferTxWithWIF(
     fromWIF: string,
     toAddress: string,
     amountFlake: BigInt,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string> {
     const senderKeys = Identities.Keys.fromWIF(fromWIF);
     const address = Identities.Address.fromPublicKey(senderKeys.publicKey);
-    const tx = await this.buildTransferTxWithAddress(address, toAddress, amountFlake, nonce);
+    const tx = await this.buildTransferTxWithAddress(address, toAddress, amountFlake, nonce, vendorField, manualFee);
 
     const signedTx = tx
       .signWithWif(fromWIF)
@@ -129,15 +148,18 @@ export class Api implements Types.Layer1.IApi {
   /**
   * @deprecated This method is deprecated in favor of sendTransferTx()
   */
+  /* eslint-disable-next-line max-params */
   public async sendTransferTxWithPassphrase(
     fromPassphrase: string,
     toAddress: string,
     amountFlake: BigInt,
     nonce?: BigInt,
+    vendorField?: string,
+    manualFee?: BigInt,
   ): Promise<string> {
     const senderKeys = Identities.Keys.fromPassphrase(fromPassphrase);
     const address = Identities.Address.fromPublicKey(senderKeys.publicKey);
-    const tx = await this.buildTransferTxWithAddress(address, toAddress, amountFlake, nonce);
+    const tx = await this.buildTransferTxWithAddress(address, toAddress, amountFlake, nonce, vendorField, manualFee);
 
     const signedTx = tx
       .sign(fromPassphrase)
@@ -286,12 +308,15 @@ export class Api implements Types.Layer1.IApi {
     return unsignedTx;
   }
 
+  /* eslint-disable-next-line max-params */
   private async buildTransferTxWithAddress(
     address: string,
     toAddress: string,
     amountFlake: BigInt,
     nonce?: BigInt,
-  /* eslint @typescript-eslint/no-explicit-any: 0 */
+    vendorField?: string,
+    manualFee?: BigInt,
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   ): Promise<Transactions.TransactionBuilder<any>> {
     let nextNonce = nonce;
 
@@ -299,11 +324,17 @@ export class Api implements Types.Layer1.IApi {
       nextNonce = await this.nextHydraNonce(address);
     }
 
-    return Transactions.BuilderFactory.transfer()
+    let txn = Transactions.BuilderFactory.transfer()
       .amount(amountFlake.toString())
-      .fee(BigInt(0.1 * 1e8).toString())
+      .fee((manualFee ?? BigInt(0.1 * 1e8)).toString())
       .nonce(nextNonce.toString())
       .recipientId(toAddress);
+
+    if (vendorField) {
+      txn = txn.vendorField(vendorField);
+    }
+
+    return txn;
   }
 }
 

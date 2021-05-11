@@ -18,12 +18,6 @@ export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 */
 export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
 /**
-* @param {any} operations
-* @param {PrivateKey} private_key
-* @returns {any}
-*/
-export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
-/**
 * @param {any} data
 * @param {string} keep_properties_list
 * @returns {string}
@@ -39,6 +33,12 @@ export function digestJson(data: any): string;
 * @returns {string}
 */
 export function stringifyJson(data: any): string;
+/**
+* @param {any} operations
+* @param {PrivateKey} private_key
+* @returns {any}
+*/
+export function signMorpheusOperations(operations: any, private_key: PrivateKey): any;
 /**
 */
 export class Bip32 {
@@ -779,30 +779,38 @@ export class HydraTxBuilder {
 * @param {SecpPublicKey} sender_pubkey
 * @param {BigInt} amount_flake
 * @param {BigInt} nonce
+* @param {string | undefined} vendor_field
+* @param {BigInt | undefined} manual_fee
 * @returns {any}
 */
-  transfer(recipient_id: SecpKeyId, sender_pubkey: SecpPublicKey, amount_flake: BigInt, nonce: BigInt): any;
+  transfer(recipient_id: SecpKeyId, sender_pubkey: SecpPublicKey, amount_flake: BigInt, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
 /**
 * @param {SecpPublicKey} delegate
 * @param {SecpPublicKey} sender_pubkey
 * @param {BigInt} nonce
+* @param {string | undefined} vendor_field
+* @param {BigInt | undefined} manual_fee
 * @returns {any}
 */
-  vote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt): any;
+  vote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
 /**
 * @param {SecpPublicKey} delegate
 * @param {SecpPublicKey} sender_pubkey
 * @param {BigInt} nonce
+* @param {string | undefined} vendor_field
+* @param {BigInt | undefined} manual_fee
 * @returns {any}
 */
-  unvote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt): any;
+  unvote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
 /**
 * @param {SecpPublicKey} sender_pubkey
 * @param {string} delegate_name
 * @param {BigInt} nonce
+* @param {string | undefined} vendor_field
+* @param {BigInt | undefined} manual_fee
 * @returns {any}
 */
-  registerDelegate(sender_pubkey: SecpPublicKey, delegate_name: string, nonce: BigInt): any;
+  registerDelegate(sender_pubkey: SecpPublicKey, delegate_name: string, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
 }
 /**
 */
