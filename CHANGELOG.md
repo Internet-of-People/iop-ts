@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.7
+
+- Upgrade to 0.0.12-hotfix1 sdk-wasm.
+- Use the new IOP domains.
+- BREAKING: `Crypto.MorpheusPlugin.rewind` changed to `Crypto.MorpheusPlugin.init`.
+
 ## 4.0.6
 
 - Upgrade ARK dependencies to `^2.7.24`.
