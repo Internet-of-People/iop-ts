@@ -1,15 +1,21 @@
 # Changelog
 
+## 4.0.8
+
+- Updated to 0.0.12-hotfix2 sdk-wasm.
+- Fixed generating new HYD addresses without unlocking the vault.
+
 ## 4.0.7
 
 - Upgrade to 0.0.12-hotfix1 sdk-wasm.
+- You can optionally specify vendorField (aka smart brige field) and manual fee on Hydra transactions.
 - Use the new IOP domains.
-- BREAKING: `Crypto.MorpheusPlugin.rewind` changed to `Crypto.MorpheusPlugin.init`.
 
 ## 4.0.6
 
 - Upgrade ARK dependencies to `^2.7.24`.
 - BUGFIX: fixing a bug that made Coeus's state corrupted after a revert.
+- BREAKING: `Crypto.MorpheusPlugin.rewind` changed to `Crypto.MorpheusPlugin.init`.
 
 ## 4.0.5
 

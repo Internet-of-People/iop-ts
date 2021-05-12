@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/morpheus-crypto",
-  "version": "4.0.7",
+  "version": "4.0.8",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@arkecosystem/crypto": "^2.7.24",
-    "@internet-of-people/sdk-wasm": "0.0.12-hotfix1",
+    "@internet-of-people/sdk-wasm": "0.0.12-hotfix2",
     "lodash.clonedeep": "4.5.0",
     "multibase": "0.6.0",
     "tslib": "2.0.1"
