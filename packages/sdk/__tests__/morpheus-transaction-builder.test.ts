@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { Managers, Transactions } from '@arkecosystem/crypto';
-import { signMorpheusOperations } from '@internet-of-people/morpheus-crypto';
+import { MorpheusOperationSigner, MorpheusOperationBuilder } from '@internet-of-people/sdk-wasm';
 
 import { Crypto, Layer1, Layer2, Types } from '../src';
 import { installWindowCrypto } from './utils';
@@ -73,9 +73,13 @@ describe('MorpheusTransactionBuilder', () => {
     verifyTransaction(ops);
 
     // Verify also that Wasm signature is the same
+    const opBuilder = new MorpheusOperationBuilder(defaultDid.toString(), lastTxId);
+    const opData = opBuilder.revokeKey(keyId2.toString());
+    const opSigner = new MorpheusOperationSigner();
+    opSigner.add(opData);
     const signedOps = ops[0] as Types.Layer1.ISignedOperationsData;
     const privateKey = signer.keyById(defaultKeyId).privateKey();
-    const wasmSignedOps: Types.Layer1.ISignedOperationsData = signMorpheusOperations(signedOps.signables, privateKey);
+    const wasmSignedOps: Types.Layer1.ISignedOperationsData = opSigner.sign(privateKey).toJson();
     wasmSignedOps.operation = Layer1.OperationType.Signed;
     expect(wasmSignedOps).toStrictEqual(signedOps);
   });

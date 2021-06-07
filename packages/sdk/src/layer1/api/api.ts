@@ -247,10 +247,10 @@ export class Api implements Types.Layer1.IApi {
     const pubKey = PublicKey.fromSecp(secpPubKey);
     const privKey = PrivateKey.fromSecp(secpPrivKey);
 
-    let noncedBundleBuilder = new NoncedBundleBuilder();
+    const noncedBundleBuilder = new NoncedBundleBuilder();
 
     for (const userOperation of userOperations) {
-      noncedBundleBuilder = noncedBundleBuilder.add(userOperation);
+      noncedBundleBuilder.add(userOperation);
     }
 
     const noncedBundle = noncedBundleBuilder.build(layer2PublicKeyNonce ?? await this.nextCoeusNonce(pubKey));

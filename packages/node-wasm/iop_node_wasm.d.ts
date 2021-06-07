@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @param {string} name
+* @returns {boolean}
+*/
+export function validateNetworkName(name: string): boolean;
+/**
 * @param {Uint8Array} plain_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -12,11 +17,6 @@ export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 * @returns {Uint8Array}
 */
 export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
-/**
-* @param {string} name
-* @returns {boolean}
-*/
-export function validateNetworkName(name: string): boolean;
 /**
 * @param {any} data
 * @param {string} keep_properties_list
@@ -518,6 +518,69 @@ export class CoeusAsset {
 }
 /**
 */
+export class CoeusState {
+  free(): void;
+/**
+*/
+  constructor();
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  resolveData(name: DomainName): any;
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  getMetadata(name: DomainName): any;
+/**
+* @param {DomainName} name
+* @returns {any}
+*/
+  getChildren(name: DomainName): any;
+/**
+* @param {PublicKey} pk
+* @returns {BigInt}
+*/
+  lastNonce(pk: PublicKey): BigInt;
+/**
+* @param {string} txid
+* @param {CoeusAsset} asset
+*/
+  applyTransaction(txid: string, asset: CoeusAsset): void;
+/**
+* @param {string} txid
+* @param {CoeusAsset} asset
+*/
+  revertTransaction(txid: string, asset: CoeusAsset): void;
+/**
+* @param {number} height
+*/
+  blockApplying(height: number): void;
+/**
+* @param {number} height
+*/
+  blockReverted(height: number): void;
+/**
+* @param {string} txid
+* @returns {boolean}
+*/
+  getTxnStatus(txid: string): boolean;
+/**
+* @returns {boolean}
+*/
+  readonly corrupted: boolean;
+/**
+* @returns {number}
+*/
+  readonly lastSeenHeight: number;
+/**
+* @returns {BigInt}
+*/
+  readonly version: BigInt;
+}
+/**
+*/
 export class CoeusTxBuilder {
   free(): void;
 /**
@@ -570,178 +633,6 @@ export class DomainName {
 * @returns {string}
 */
   toString(): string;
-}
-/**
-*/
-export class HydraParameters {
-  free(): void;
-/**
-* @param {string} network
-* @param {number} account
-*/
-  constructor(network: string, account: number);
-}
-/**
-*/
-export class HydraPlugin {
-  free(): void;
-/**
-* @param {Vault} vault
-* @param {string} unlock_password
-* @param {HydraParameters} parameters
-*/
-  static init(vault: Vault, unlock_password: string, parameters: HydraParameters): void;
-/**
-* @param {Vault} vault
-* @param {HydraParameters} parameters
-* @returns {HydraPlugin}
-*/
-  static get(vault: Vault, parameters: HydraParameters): HydraPlugin;
-/**
-* @param {string} unlock_password
-* @returns {HydraPrivate}
-*/
-  priv(unlock_password: string): HydraPrivate;
-/**
-* @returns {HydraPublic}
-*/
-  readonly pub: HydraPublic;
-}
-/**
-*/
-export class HydraPrivate {
-  free(): void;
-/**
-* @param {number} idx
-* @returns {Bip44Key}
-*/
-  key(idx: number): Bip44Key;
-/**
-* @param {SecpPublicKey} id
-* @returns {Bip44Key}
-*/
-  keyByPublicKey(id: SecpPublicKey): Bip44Key;
-/**
-* @param {string} hyd_addr
-* @param {any} tx
-* @returns {any}
-*/
-  signHydraTransaction(hyd_addr: string, tx: any): any;
-/**
-* @returns {number}
-*/
-  readonly changeKeys: number;
-/**
-* @returns {string}
-*/
-  readonly network: string;
-/**
-* @returns {HydraPublic}
-*/
-  readonly pub: HydraPublic;
-/**
-* @returns {number}
-*/
-  readonly receiveKeys: number;
-/**
-* @returns {string}
-*/
-  readonly xprv: string;
-/**
-* @returns {string}
-*/
-  readonly xpub: string;
-}
-/**
-*/
-export class HydraPublic {
-  free(): void;
-/**
-* @param {number} idx
-* @returns {Bip44PublicKey}
-*/
-  key(idx: number): Bip44PublicKey;
-/**
-* @param {string} addr
-* @returns {Bip44PublicKey}
-*/
-  keyByAddress(addr: string): Bip44PublicKey;
-/**
-* @returns {number}
-*/
-  readonly changeKeys: number;
-/**
-* @returns {string}
-*/
-  readonly network: string;
-/**
-* @returns {number}
-*/
-  readonly receiveKeys: number;
-/**
-* @returns {string}
-*/
-  readonly xpub: string;
-}
-/**
-*/
-export class HydraSigner {
-  free(): void;
-/**
-* @param {SecpPrivateKey} inner
-*/
-  constructor(inner: SecpPrivateKey);
-/**
-* @param {any} transaction
-* @returns {any}
-*/
-  signHydraTransaction(transaction: any): any;
-}
-/**
-*/
-export class HydraTxBuilder {
-  free(): void;
-/**
-* @param {string} network_name
-*/
-  constructor(network_name: string);
-/**
-* @param {SecpKeyId} recipient_id
-* @param {SecpPublicKey} sender_pubkey
-* @param {BigInt} amount_flake
-* @param {BigInt} nonce
-* @param {string | undefined} vendor_field
-* @param {BigInt | undefined} manual_fee
-* @returns {any}
-*/
-  transfer(recipient_id: SecpKeyId, sender_pubkey: SecpPublicKey, amount_flake: BigInt, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
-/**
-* @param {SecpPublicKey} delegate
-* @param {SecpPublicKey} sender_pubkey
-* @param {BigInt} nonce
-* @param {string | undefined} vendor_field
-* @param {BigInt | undefined} manual_fee
-* @returns {any}
-*/
-  vote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
-/**
-* @param {SecpPublicKey} delegate
-* @param {SecpPublicKey} sender_pubkey
-* @param {BigInt} nonce
-* @param {string | undefined} vendor_field
-* @param {BigInt | undefined} manual_fee
-* @returns {any}
-*/
-  unvote(delegate: SecpPublicKey, sender_pubkey: SecpPublicKey, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
-/**
-* @param {SecpPublicKey} sender_pubkey
-* @param {string} delegate_name
-* @param {BigInt} nonce
-* @param {string | undefined} vendor_field
-* @param {BigInt | undefined} manual_fee
-* @returns {any}
-*/
-  registerDelegate(sender_pubkey: SecpPublicKey, delegate_name: string, nonce: BigInt, vendor_field?: string, manual_fee?: BigInt): any;
 }
 /**
 */
@@ -816,26 +707,6 @@ export class Morpheus {
 }
 /**
 */
-export class MorpheusAssetBuilder {
-  free(): void;
-/**
-*/
-  constructor();
-/**
-* @param {string} content_id
-*/
-  addRegisterBeforeProof(content_id: string): void;
-/**
-* @param {MorpheusSignedOperation} signed_operation
-*/
-  addSigned(signed_operation: MorpheusSignedOperation): void;
-/**
-* @returns {any}
-*/
-  build(): any;
-}
-/**
-*/
 export class MorpheusKind {
   free(): void;
 /**
@@ -851,131 +722,6 @@ export class MorpheusKind {
 * @returns {string}
 */
   readonly path: string;
-}
-/**
-*/
-export class MorpheusOperationBuilder {
-  free(): void;
-/**
-* @param {string} did
-* @param {any} last_tx_id
-*/
-  constructor(did: string, last_tx_id: any);
-/**
-* @param {string} authentication
-* @param {any} expires_at_height
-* @returns {MorpheusSignableOperation}
-*/
-  addKey(authentication: string, expires_at_height: any): MorpheusSignableOperation;
-/**
-* @param {string} authentication
-* @returns {MorpheusSignableOperation}
-*/
-  revokeKey(authentication: string): MorpheusSignableOperation;
-/**
-* @param {string} authentication
-* @param {string} right
-* @returns {MorpheusSignableOperation}
-*/
-  addRight(authentication: string, right: string): MorpheusSignableOperation;
-/**
-* @param {string} authentication
-* @param {string} right
-* @returns {MorpheusSignableOperation}
-*/
-  revokeRight(authentication: string, right: string): MorpheusSignableOperation;
-/**
-* @returns {MorpheusSignableOperation}
-*/
-  tombstoneDid(): MorpheusSignableOperation;
-}
-/**
-*/
-export class MorpheusOperationSigner {
-  free(): void;
-/**
-*/
-  constructor();
-/**
-* @param {MorpheusSignableOperation} signable
-*/
-  add(signable: MorpheusSignableOperation): void;
-/**
-* @param {PrivateKey} private_key
-* @returns {MorpheusSignedOperation}
-*/
-  sign(private_key: PrivateKey): MorpheusSignedOperation;
-}
-/**
-*/
-export class MorpheusPlugin {
-  free(): void;
-/**
-* @param {Vault} vault
-* @param {string} unlock_password
-*/
-  static init(vault: Vault, unlock_password: string): void;
-/**
-* @param {Vault} vault
-* @returns {MorpheusPlugin}
-*/
-  static get(vault: Vault): MorpheusPlugin;
-/**
-* @param {string} unlock_password
-* @returns {MorpheusPrivate}
-*/
-  priv(unlock_password: string): MorpheusPrivate;
-/**
-* @returns {MorpheusPublic}
-*/
-  readonly pub: MorpheusPublic;
-}
-/**
-*/
-export class MorpheusPrivate {
-  free(): void;
-/**
-* @param {PublicKey} pk
-* @returns {MorpheusPrivateKey}
-*/
-  keyByPublicKey(pk: PublicKey): MorpheusPrivateKey;
-/**
-* @param {KeyId} id
-* @returns {MorpheusPrivateKey}
-*/
-  keyById(id: KeyId): MorpheusPrivateKey;
-/**
-* @param {KeyId} id
-* @param {Uint8Array} message
-* @returns {SignedBytes}
-*/
-  signDidOperations(id: KeyId, message: Uint8Array): SignedBytes;
-/**
-* @param {KeyId} id
-* @param {any} js_req
-* @returns {SignedJson}
-*/
-  signWitnessRequest(id: KeyId, js_req: any): SignedJson;
-/**
-* @param {KeyId} id
-* @param {any} js_stmt
-* @returns {SignedJson}
-*/
-  signWitnessStatement(id: KeyId, js_stmt: any): SignedJson;
-/**
-* @param {KeyId} id
-* @param {any} js_presentation
-* @returns {SignedJson}
-*/
-  signClaimPresentation(id: KeyId, js_presentation: any): SignedJson;
-/**
-* @returns {MorpheusPrivateKind}
-*/
-  readonly personas: MorpheusPrivateKind;
-/**
-* @returns {MorpheusPublic}
-*/
-  readonly pub: MorpheusPublic;
 }
 /**
 */
@@ -1004,52 +750,6 @@ export class MorpheusPrivateKey {
 }
 /**
 */
-export class MorpheusPrivateKind {
-  free(): void;
-/**
-* @param {number} idx
-* @returns {MorpheusPrivateKey}
-*/
-  key(idx: number): MorpheusPrivateKey;
-/**
-* @param {number} idx
-* @returns {Did}
-*/
-  did(idx: number): Did;
-/**
-* @param {PublicKey} id
-* @returns {MorpheusPrivateKey}
-*/
-  keyByPublicKey(id: PublicKey): MorpheusPrivateKey;
-/**
-* @returns {number}
-*/
-  readonly count: number;
-/**
-* @returns {string}
-*/
-  readonly kind: string;
-/**
-* @returns {MorpheusPublicKind}
-*/
-  readonly pub: MorpheusPublicKind;
-}
-/**
-*/
-export class MorpheusPublic {
-  free(): void;
-/**
-* @param {KeyId} id
-* @returns {PublicKey}
-*/
-  keyById(id: KeyId): PublicKey;
-/**
-* @returns {MorpheusPublicKind}
-*/
-  readonly personas: MorpheusPublicKind;
-}
-/**
-*/
 export class MorpheusPublicKey {
   free(): void;
 /**
@@ -1071,34 +771,6 @@ export class MorpheusPublicKey {
 }
 /**
 */
-export class MorpheusPublicKind {
-  free(): void;
-/**
-* @param {number} idx
-* @returns {PublicKey}
-*/
-  key(idx: number): PublicKey;
-/**
-* @param {number} idx
-* @returns {Did}
-*/
-  did(idx: number): Did;
-/**
-* @param {KeyId} id
-* @returns {PublicKey}
-*/
-  keyById(id: KeyId): PublicKey;
-/**
-* @returns {number}
-*/
-  readonly count: number;
-/**
-* @returns {string}
-*/
-  readonly kind: string;
-}
-/**
-*/
 export class MorpheusRoot {
   free(): void;
 /**
@@ -1112,34 +784,71 @@ export class MorpheusRoot {
 }
 /**
 */
-export class MorpheusSignableOperation {
+export class MorpheusState {
   free(): void;
 /**
+*/
+  constructor();
+/**
+* @returns {number}
+*/
+  lastBlockHeight(): number;
+/**
+* @param {string} txid
+* @returns {boolean | undefined}
+*/
+  isConfirmed(txid: string): boolean | undefined;
+/**
+* @param {string} content_id
+* @param {number | undefined} height
+* @returns {boolean}
+*/
+  beforeProofExistsAt(content_id: string, height?: number): boolean;
+/**
+* @param {string} content_id
 * @returns {any}
 */
-  toJson(): any;
-}
+  beforeProofHistory(content_id: string): any;
 /**
-*/
-export class MorpheusSignedOperation {
-  free(): void;
-/**
+* @param {string} did
+* @param {boolean} include_attempts
+* @param {number} from_height_inc
+* @param {number | undefined} until_height_inc
 * @returns {any}
 */
-  toJson(): any;
-}
+  getTransactionHistory(did: string, include_attempts: boolean, from_height_inc: number, until_height_inc?: number): any;
 /**
+* @param {string} did
+* @returns {string | undefined}
 */
-export class MorpheusTxBuilder {
-  free(): void;
+  lastTxId(did: string): string | undefined;
 /**
-* @param {string} network_name
-* @param {any} morpheus_asset
-* @param {SecpPublicKey} sender_pubkey
-* @param {BigInt} nonce
-* @returns {any}
+* @param {any} asset
+* @returns {any[]}
 */
-  static build(network_name: string, morpheus_asset: any, sender_pubkey: SecpPublicKey, nonce: BigInt): any;
+  dryRun(asset: any): any[];
+/**
+* @param {number} height
+*/
+  blockApplying(height: number): void;
+/**
+* @param {string} txid
+* @param {any} asset
+*/
+  applyTransaction(txid: string, asset: any): void;
+/**
+* @param {number} height
+*/
+  blockReverting(height: number): void;
+/**
+* @param {string} txid
+* @param {any} asset
+*/
+  revertTransaction(txid: string, asset: any): void;
+/**
+* @returns {boolean}
+*/
+  readonly corrupted: boolean;
 }
 /**
 */
@@ -1577,38 +1286,4 @@ export class ValidationResult {
 * @returns {string}
 */
   readonly status: string;
-}
-/**
-*/
-export class Vault {
-  free(): void;
-/**
-* @param {string} phrase
-* @param {string} bip39_password
-* @param {string} unlock_password
-* @param {string | undefined} language
-* @returns {Vault}
-*/
-  static create(phrase: string, bip39_password: string, unlock_password: string, language?: string): Vault;
-/**
-* @param {any} data
-* @returns {Vault}
-*/
-  static load(data: any): Vault;
-/**
-* @returns {any}
-*/
-  save(): any;
-/**
-*/
-  setDirty(): void;
-/**
-* @param {string} password
-* @returns {Seed}
-*/
-  unlock(password: string): Seed;
-/**
-* @returns {boolean}
-*/
-  readonly dirty: boolean;
 }
