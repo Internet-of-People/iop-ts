@@ -29,15 +29,15 @@ describe('CoeusTransaction builder', () => {
       '"address":{"streetAddress":"Plot-6, Mohan Nagar","city":"Ghaziabad","state":"UP","postalCode":"201007"}}',
     );
 
-    const nonced = new NoncedBundleBuilder()
-      .add(UserOperation.register(
-        new DomainName('.schema.eidcard'),
-        Principal.publicKey(pk),
-        new SubtreePolicies(),
-        data,
-        69,
-      ))
-      .build(BigInt(2));
+    const noncedBuilder = new NoncedBundleBuilder();
+    noncedBuilder.add(UserOperation.register(
+      new DomainName('.schema.eidcard'),
+      Principal.publicKey(pk),
+      new SubtreePolicies(),
+      data,
+      69,
+    ));
+    const nonced = noncedBuilder.build(BigInt(2));
     const signed = nonced.sign(sk);
     expect(signed.verify()).toBeTruthy();
 
@@ -79,12 +79,12 @@ describe('CoeusTransaction builder', () => {
     const sk = PrivateKey.fromSecp(secpSk);
     const pk = sk.publicKey();
 
-    const nonced = new NoncedBundleBuilder()
-      .add(UserOperation.renew(
-        new DomainName('.schema.eidcard'),
-        69,
-      ))
-      .build(BigInt(3));
+    const noncedBuilder = new NoncedBundleBuilder();
+    noncedBuilder.add(UserOperation.renew(
+      new DomainName('.schema.eidcard'),
+      69,
+    ));
+    const nonced = noncedBuilder.build(BigInt(3));
     const signed = nonced.sign(sk);
     expect(signed.verify()).toBeTruthy();
 

@@ -11,6 +11,6 @@ before_script:
 build:
   stage: test
   script:
-    - ./package-check.py
+    - ./package_check.py
     - npm run test
     - npm run lint
