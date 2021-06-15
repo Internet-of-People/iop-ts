@@ -4818,14 +4818,6 @@ export function __wbg_msCrypto_a2cdb043d2bfe57f(arg0) {
     return addHeapObject(ret);
 };
 
-export function __wbg_randomFillSync_d2ba53160aec6aba(arg0, arg1, arg2) {
-    getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
-};
-
-export function __wbg_getRandomValues_e57c9b75ddead065(arg0, arg1) {
-    getObject(arg0).getRandomValues(getObject(arg1));
-};
-
 export function __wbg_self_86b4b13392c7af56() { return handleError(function () {
     var ret = self.self;
     return addHeapObject(ret);
@@ -4854,6 +4846,14 @@ export function __wbindgen_is_undefined(arg0) {
 export function __wbg_getRandomValues_dd27e6b0652b3236(arg0) {
     var ret = getObject(arg0).getRandomValues;
     return addHeapObject(ret);
+};
+
+export function __wbg_getRandomValues_e57c9b75ddead065(arg0, arg1) {
+    getObject(arg0).getRandomValues(getObject(arg1));
+};
+
+export function __wbg_randomFillSync_d2ba53160aec6aba(arg0, arg1, arg2) {
+    getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
 };
 
 export function __wbg_static_accessor_MODULE_452b4680e8614c81() {

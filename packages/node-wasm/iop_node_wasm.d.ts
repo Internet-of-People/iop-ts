@@ -1,6 +1,22 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @param {any} data
+* @param {string} keep_properties_list
+* @returns {string}
+*/
+export function selectiveDigestJson(data: any, keep_properties_list: string): string;
+/**
+* @param {any} data
+* @returns {string}
+*/
+export function digestJson(data: any): string;
+/**
+* @param {any} data
+* @returns {string}
+*/
+export function stringifyJson(data: any): string;
+/**
 * @param {string} name
 * @returns {boolean}
 */
@@ -17,22 +33,6 @@ export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 * @returns {Uint8Array}
 */
 export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
-/**
-* @param {any} data
-* @param {string} keep_properties_list
-* @returns {string}
-*/
-export function selectiveDigestJson(data: any, keep_properties_list: string): string;
-/**
-* @param {any} data
-* @returns {string}
-*/
-export function digestJson(data: any): string;
-/**
-* @param {any} data
-* @returns {string}
-*/
-export function stringifyJson(data: any): string;
 /**
 */
 export class Bip32 {
@@ -623,6 +623,11 @@ export class Did {
 }
 /**
 */
+export class DidDocument {
+  free(): void;
+}
+/**
+*/
 export class DomainName {
   free(): void;
 /**
@@ -800,10 +805,10 @@ export class MorpheusState {
   isConfirmed(txid: string): boolean | undefined;
 /**
 * @param {string} content_id
-* @param {number | undefined} height
+* @param {number | undefined} height_opt
 * @returns {boolean}
 */
-  beforeProofExistsAt(content_id: string, height?: number): boolean;
+  beforeProofExistsAt(content_id: string, height_opt?: number): boolean;
 /**
 * @param {string} content_id
 * @returns {any}
@@ -822,6 +827,12 @@ export class MorpheusState {
 * @returns {string | undefined}
 */
   lastTxId(did: string): string | undefined;
+/**
+* @param {string} did_data
+* @param {number | undefined} height_opt
+* @returns {any}
+*/
+  getDidDocumentAt(did_data: string, height_opt?: number): any;
 /**
 * @param {any} asset
 * @returns {any[]}

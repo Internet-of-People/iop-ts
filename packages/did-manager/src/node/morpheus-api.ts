@@ -111,7 +111,7 @@ export class MorpheusAPI {
         handler: (request: Request): Lifecycle.ReturnValue => {
           const operationAttempts = (request.payload as unknown) as Types.Layer1.IOperationData[];
           this.log.debug('Checking tx validity');
-          return this.stateHandler.dryRun(operationAttempts);
+          return this.stateHandler.dryRun({ operationAttempts });
         },
       },
       {

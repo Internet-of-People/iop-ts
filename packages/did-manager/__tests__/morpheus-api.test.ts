@@ -79,12 +79,14 @@ describe('MorpheusAPI', () => {
     const registrationAttempt = new Layer1.OperationAttemptsBuilder()
       .registerBeforeProof(contentId)
       .getAttempts();
-    fixture.stateHandler.applyTransactionToState({
+    const stateChange = {
       asset: { operationAttempts: registrationAttempt },
       blockHeight,
       blockId,
       transactionId,
-    });
+    };
+    fixture.stateHandler.blockApplying(stateChange);
+    fixture.stateHandler.applyTransactionToState(stateChange);
   };
 
   const addKey = (
@@ -93,7 +95,7 @@ describe('MorpheusAPI', () => {
     txId: string,
     auth: Authentication,
   ): void => {
-    fixture.stateHandler.applyTransactionToState({
+    const stateChange = {
       asset: {
         operationAttempts: new Layer1.OperationAttemptsBuilder()
           .signWith(signer)
@@ -105,7 +107,9 @@ describe('MorpheusAPI', () => {
       blockHeight: height,
       blockId,
       transactionId: txId,
-    });
+    };
+    fixture.stateHandler.blockApplying(stateChange);
+    fixture.stateHandler.applyTransactionToState(stateChange);
   };
 
   const revokeKey = (
@@ -114,7 +118,7 @@ describe('MorpheusAPI', () => {
     txId: string,
     auth: Authentication,
   ): void => {
-    fixture.stateHandler.applyTransactionToState({
+    const stateChange = {
       asset: {
         operationAttempts: new Layer1.OperationAttemptsBuilder()
           .signWith(signer)
@@ -126,7 +130,9 @@ describe('MorpheusAPI', () => {
       blockHeight: height,
       blockId,
       transactionId: txId,
-    });
+    };
+    fixture.stateHandler.blockApplying(stateChange);
+    fixture.stateHandler.applyTransactionToState(stateChange);
   };
 
   const addRight = (
@@ -135,7 +141,7 @@ describe('MorpheusAPI', () => {
     txId: string,
     auth: Authentication,
   ): void => {
-    fixture.stateHandler.applyTransactionToState({
+    const stateChange = {
       asset: {
         operationAttempts: new Layer1.OperationAttemptsBuilder()
           .signWith(signer)
@@ -147,7 +153,9 @@ describe('MorpheusAPI', () => {
       blockHeight: height,
       blockId,
       transactionId: txId,
-    });
+    };
+    fixture.stateHandler.blockApplying(stateChange);
+    fixture.stateHandler.applyTransactionToState(stateChange);
   };
 
   const revokeRight = (
@@ -156,7 +164,7 @@ describe('MorpheusAPI', () => {
     txId: string,
     auth: Authentication,
   ): void => {
-    fixture.stateHandler.applyTransactionToState({
+    const stateChange = {
       asset: {
         operationAttempts: new Layer1.OperationAttemptsBuilder()
           .signWith(signer)
@@ -168,11 +176,13 @@ describe('MorpheusAPI', () => {
       blockHeight: height,
       blockId,
       transactionId: txId,
-    });
+    };
+    fixture.stateHandler.blockApplying(stateChange);
+    fixture.stateHandler.applyTransactionToState(stateChange);
   };
 
   const tombstoneDid = (height: number, txId: string, auth: Authentication): void => {
-    fixture.stateHandler.applyTransactionToState({
+    const stateChange = {
       asset: {
         operationAttempts: new Layer1.OperationAttemptsBuilder()
           .signWith(signer)
@@ -184,7 +194,9 @@ describe('MorpheusAPI', () => {
       blockHeight: height,
       blockId,
       transactionId: txId,
-    });
+    };
+    fixture.stateHandler.blockApplying(stateChange);
+    fixture.stateHandler.applyTransactionToState(stateChange);
   };
 
   it('plugin is only available via versioned api', async() => {
@@ -205,7 +217,7 @@ describe('MorpheusAPI', () => {
   });
 
   it('unregistered content still has a history', async() => {
-    fixture.stateHandler.applyEmptyBlockToState({ blockHeight, blockId: 'SomeBlockId' });
+    fixture.stateHandler.blockApplying({ blockHeight, blockId: 'SomeBlockId' });
     const expectedHistory: IBeforeProofHistory = {
       contentId,
       existsFromHeight: null,
@@ -262,7 +274,7 @@ describe('MorpheusAPI', () => {
   });
 
   it('can query implicit did', async() => {
-    fixture.stateHandler.applyEmptyBlockToState({ blockHeight: 100, blockId: 'SomeBlockId' });
+    fixture.stateHandler.blockApplying({ blockHeight: 100, blockId: 'SomeBlockId' });
     const res = await hapiServer.inject({
       method: 'get',
       url: `/morpheus/v1/did/${defaultDid}/document`,
@@ -552,7 +564,7 @@ describe('MorpheusAPI', () => {
   };
 
   it('can query valid operations for implicit Did Document', async() => {
-    fixture.stateHandler.applyEmptyBlockToState({ blockHeight: 100, blockId: 'SomeBlockId' });
+    fixture.stateHandler.blockApplying({ blockHeight: 100, blockId: 'SomeBlockId' });
     const defaultDidData = await getDidOperations(false, defaultDid, blockHeight);
     expect(defaultDidData).toHaveLength(0);
   });
@@ -573,6 +585,7 @@ describe('MorpheusAPI', () => {
       blockId: 'firstBlockId',
       transactionId: 'firstTransactionId',
     };
+    fixture.stateHandler.blockApplying(firstTransaction); // Looks wierd, but TS allow some extra fields on data
     fixture.stateHandler.applyTransactionToState(firstTransaction);
     fixture.transactionRepo.pushTransaction(firstTransaction.transactionId, firstTransaction.asset);
     lastTxId = firstTransaction.transactionId;
@@ -591,6 +604,7 @@ describe('MorpheusAPI', () => {
       blockId: 'secondBlockId',
       transactionId: 'secondTransactionId',
     };
+    fixture.stateHandler.blockApplying(secondTransaction);
     fixture.stateHandler.applyTransactionToState(secondTransaction);
     fixture.transactionRepo.pushTransaction(secondTransaction.transactionId, secondTransaction.asset);
     lastTxId = secondTransaction.transactionId;
@@ -609,6 +623,7 @@ describe('MorpheusAPI', () => {
       blockId: 'thirdBlockId',
       transactionId: 'thirdTransactionId',
     };
+    fixture.stateHandler.blockApplying(thirdTransaction);
     fixture.stateHandler.applyTransactionToState(thirdTransaction);
     fixture.transactionRepo.pushTransaction(thirdTransaction.transactionId, thirdTransaction.asset);
     lastTxId = thirdTransaction.transactionId;
@@ -707,7 +722,7 @@ describe('MorpheusAPI', () => {
   });
 
   it('can query all operation-attempts for implicit Did Document', async() => {
-    fixture.stateHandler.applyEmptyBlockToState({ blockHeight: 100, blockId: 'SomeBlockId' });
+    fixture.stateHandler.blockApplying({ blockHeight: 100, blockId: 'SomeBlockId' });
     const defaultDidData = await getDidOperations(true, defaultDid, blockHeight);
     expect(defaultDidData).toHaveLength(0);
   });
@@ -793,7 +808,7 @@ describe('MorpheusAPI', () => {
     });
     const errors = JSON.parse(res.payload) as Types.Layer2.IDryRunOperationError[];
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toBe(`DID ${defaultDid} has no valid key matching ${keyId2} at height 0`);
+    expect(errors[0].message).toBe(`DID ${defaultDid} has no key matching ${keyId2}`);
     expect(errors[0].invalidOperationAttempt).toStrictEqual(attempts[0]);
   });
 

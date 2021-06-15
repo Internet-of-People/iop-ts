@@ -16,10 +16,10 @@ export const MORPHEUS_STATE_HANDLER_COMPONENT_NAME = 'morpheus-state-handler';
 
 export interface IMorpheusStateHandler {
   readonly query: IMorpheusQueries;
-  dryRun(operationAttempts: Types.Layer1.IOperationData[]): Types.Layer2.IDryRunOperationError[];
-  applyEmptyBlockToState(change: IBlockHeightChange): void;
+  dryRun(asset: Types.Layer1.IMorpheusAsset): Types.Layer2.IDryRunOperationError[];
+  blockApplying(change: IBlockHeightChange): void;
   applyTransactionToState(stateChange: IStateChange): void;
-  revertEmptyBlockFromState(change: IBlockHeightChange): void;
+  blockReverting(change: IBlockHeightChange): void;
   revertTransactionFromState(stateChange: IStateChange): void;
 }
 

@@ -38,7 +38,7 @@ def diff_dependencies(category, root, root_whitelist):
 
 def run_dep_check():
     """Runs the depcheck binary on each package in the monorepo"""
-    ignores = ["@types/jest", "typescript", "rimraf", "eslint", "jest", "tslib", "env"]
+    ignores = ["@types/jest", "typescript", "rimraf", "eslint", "jest", "tslib"]
     for package_dir in PACKAGE_DIRS:
         command = "npx depcheck --ignores='%s' %s" % (",".join(ignores), package_dir)
         print("Running", command)

@@ -42,11 +42,20 @@ export class TransactionHandler extends Handlers.TransactionHandler {
       MORPHEUS_STATE_HANDLER_COMPONENT_NAME,
     );
 
+    let lastBlockHeight = null;
+
     while (reader.hasNext()) {
       const transactions = await reader.read();
       logger.debug(`Processing ${transactions.length} transactions in batch...`);
 
       for (const transaction of transactions) {
+        if (lastBlockHeight !== transaction.blockHeight) {
+          stateHandler.blockApplying({
+            blockHeight: transaction.blockHeight,
+            blockId: transaction.blockId,
+          });
+          lastBlockHeight = transaction.blockHeight;
+        }
         stateHandler.applyTransactionToState({
           asset: transaction.asset as Types.Layer1.IMorpheusAsset,
           blockHeight: transaction.blockHeight,

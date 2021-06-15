@@ -19,5 +19,5 @@
   "module": "browser/iop_node_wasm.js",
   "types": "iop_node_wasm.d.ts",
   "sideEffects": "false",
-  "git-describe": "heads/207-morpheus-node-0-gf1e65b8"
+  "git-describe": "heads/207-morpheus-node-0-gf7be5b6-dirty"
 }

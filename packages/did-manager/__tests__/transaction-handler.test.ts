@@ -34,17 +34,17 @@ class Fixture {
   public stateHandlerMock = {
     query: {
       lastSeenBlockHeight: jest.fn<number, []>(),
-      beforeProofExistsAt: jest.fn<boolean, [string, number|undefined]>(),
+      beforeProofExistsAt: jest.fn<boolean, [string, number | undefined]>(),
       getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
       getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
       getDidTransactionIds: jest.fn<Types.Layer2.ITransactionIdHeight[], [Crypto.Did, boolean, number, number]>(),
     },
-    applyEmptyBlockToState: jest.fn<void, [IBlockHeightChange]>(),
+    blockApplying: jest.fn<void, [IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [IStateChange]>(),
-    revertEmptyBlockFromState: jest.fn<void, [IBlockHeightChange]>(),
+    blockReverting: jest.fn<void, [IBlockHeightChange]>(),
     revertTransactionFromState: jest.fn<void, [IStateChange]>(),
-    dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
+    dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IMorpheusAsset]>(),
   };
   public stateHandler = this.stateHandlerMock as IMorpheusStateHandler;
 

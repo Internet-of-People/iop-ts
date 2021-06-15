@@ -21,20 +21,18 @@ export class BlockHandler implements IBlockListener {
     const morpheusTxs = this.getMorpheusTransactions(blockData);
     this.log.debug(`onBlockApplied contains ${morpheusTxs.length} transactions.`);
 
-    if (morpheusTxs.length) {
-      for (const transaction of morpheusTxs) {
-        this.stateHandler.applyTransactionToState({
-          asset: transaction.asset,
-          blockHeight: blockData.height,
-          blockId: blockData.id,
-          /* eslint @typescript-eslint/no-non-null-assertion: 0*/
-          transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
-        });
-      }
-    } else {
-      this.stateHandler.applyEmptyBlockToState({
+    this.stateHandler.blockApplying({
+      blockHeight: blockData.height,
+      blockId: blockData.id,
+    });
+
+    for (const transaction of morpheusTxs) {
+      this.stateHandler.applyTransactionToState({
+        asset: transaction.asset,
         blockHeight: blockData.height,
         blockId: blockData.id,
+        /* eslint @typescript-eslint/no-non-null-assertion: 0*/
+        transactionId: transaction.id!, // !, because block is already forged, hence cannot be undefined
       });
     }
   }
@@ -59,7 +57,7 @@ export class BlockHandler implements IBlockListener {
         });
       }
     } else {
-      this.stateHandler.revertEmptyBlockFromState({
+      this.stateHandler.blockReverting({
         blockHeight: blockData.height,
         blockId: blockData.id,
       });
