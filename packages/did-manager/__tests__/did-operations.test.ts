@@ -33,7 +33,7 @@ describe('DidOperationExtractor', () => {
   const stateHandlerQueryMock = {
     lastSeenBlockHeight: jest.fn<number, []>(),
     isConfirmed: jest.fn<Optional<boolean>, [TransactionId]>(),
-    beforeProofExistsAt: jest.fn<boolean, [Types.Sdk.ContentId, number|undefined]>(),
+    beforeProofExistsAt: jest.fn<boolean, [Types.Sdk.ContentId, number | undefined]>(),
     getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
     getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
     getDidTransactionIds: jest.fn<
@@ -44,10 +44,10 @@ describe('DidOperationExtractor', () => {
 
   const stateHandler = {
     query: stateHandlerQueryMock,
-    dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IOperationData[]]>(),
-    applyEmptyBlockToState: jest.fn<void, [IBlockHeightChange]>(),
+    dryRun: jest.fn<Types.Layer2.IDryRunOperationError[], [Types.Layer1.IMorpheusAsset]>(),
+    blockApplying: jest.fn<void, [IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [IStateChange]>(),
-    revertEmptyBlockFromState: jest.fn<void, [IBlockHeightChange]>(),
+    blockReverting: jest.fn<void, [IBlockHeightChange]>(),
     revertTransactionFromState: jest.fn<void, [IStateChange]>(),
   };
 

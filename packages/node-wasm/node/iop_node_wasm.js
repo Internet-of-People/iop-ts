@@ -1,6 +1,5 @@
 let imports = {};
 imports['__wbindgen_placeholder__'] = module.exports;
-imports['env'] = require('env');
 let wasm;
 const { TextDecoder, TextEncoder } = require(String.raw`util`);
 
@@ -112,16 +111,70 @@ function getInt32Memory0() {
     return cachegetInt32Memory0;
 }
 
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
+function debugString(val) {
+    // primitive types
+    const type = typeof val;
+    if (type == 'number' || type == 'boolean' || val == null) {
+        return  `${val}`;
     }
-    return instance.ptr;
+    if (type == 'string') {
+        return `"${val}"`;
+    }
+    if (type == 'symbol') {
+        const description = val.description;
+        if (description == null) {
+            return 'Symbol';
+        } else {
+            return `Symbol(${description})`;
+        }
+    }
+    if (type == 'function') {
+        const name = val.name;
+        if (typeof name == 'string' && name.length > 0) {
+            return `Function(${name})`;
+        } else {
+            return 'Function';
+        }
+    }
+    // objects
+    if (Array.isArray(val)) {
+        const length = val.length;
+        let debug = '[';
+        if (length > 0) {
+            debug += debugString(val[0]);
+        }
+        for(let i = 1; i < length; i++) {
+            debug += ', ' + debugString(val[i]);
+        }
+        debug += ']';
+        return debug;
+    }
+    // Test for built-in
+    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
+    let className;
+    if (builtInMatches.length > 1) {
+        className = builtInMatches[1];
+    } else {
+        // Failed to match the standard '[object ClassName]'
+        return toString.call(val);
+    }
+    if (className == 'Object') {
+        // we're a user defined class or Object
+        // JSON.stringify avoids problems with cycles, and is generally much
+        // easier than looping through ownProperties of `val`.
+        try {
+            return 'Object(' + JSON.stringify(val) + ')';
+        } catch (_) {
+            return 'Object';
+        }
+    }
+    // errors
+    if (val instanceof Error) {
+        return `${val.name}: ${val.message}\n${val.stack}`;
+    }
+    // TODO we could test for more things here, like `Set`s and `Map`s.
+    return className;
 }
-
-const u32CvtShim = new Uint32Array(2);
-
-const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
 
 function isLikeNone(x) {
     return x === undefined || x === null;
@@ -152,6 +205,73 @@ function getArrayJsValueFromWasm0(ptr, len) {
     }
     return result;
 }
+
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
+}
+
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+/**
+* @param {any} data
+* @param {string} keep_properties_list
+* @returns {string}
+*/
+module.exports.selectiveDigestJson = function(data, keep_properties_list) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        var ptr0 = passStringToWasm0(keep_properties_list, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.selectiveDigestJson(retptr, addBorrowedObject(data), ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        heap[stack_pointer++] = undefined;
+        wasm.__wbindgen_free(r0, r1);
+    }
+};
+
+/**
+* @param {any} data
+* @returns {string}
+*/
+module.exports.digestJson = function(data) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.digestJson(retptr, addBorrowedObject(data));
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        heap[stack_pointer++] = undefined;
+        wasm.__wbindgen_free(r0, r1);
+    }
+};
+
+/**
+* @param {any} data
+* @returns {string}
+*/
+module.exports.stringifyJson = function(data) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.stringifyJson(retptr, addBorrowedObject(data));
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        heap[stack_pointer++] = undefined;
+        wasm.__wbindgen_free(r0, r1);
+    }
+};
 
 const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 
@@ -219,63 +339,6 @@ module.exports.decrypt = function(cipher_text, password) {
         return v2;
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
-    }
-};
-
-/**
-* @param {any} data
-* @param {string} keep_properties_list
-* @returns {string}
-*/
-module.exports.selectiveDigestJson = function(data, keep_properties_list) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passStringToWasm0(keep_properties_list, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        wasm.selectiveDigestJson(retptr, addBorrowedObject(data), ptr0, len0);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        heap[stack_pointer++] = undefined;
-        wasm.__wbindgen_free(r0, r1);
-    }
-};
-
-/**
-* @param {any} data
-* @returns {string}
-*/
-module.exports.digestJson = function(data) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.digestJson(retptr, addBorrowedObject(data));
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        heap[stack_pointer++] = undefined;
-        wasm.__wbindgen_free(r0, r1);
-    }
-};
-
-/**
-* @param {any} data
-* @returns {string}
-*/
-module.exports.stringifyJson = function(data) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.stringifyJson(retptr, addBorrowedObject(data));
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        heap[stack_pointer++] = undefined;
-        wasm.__wbindgen_free(r0, r1);
     }
 };
 
@@ -1896,6 +1959,23 @@ class Did {
 module.exports.Did = Did;
 /**
 */
+class DidDocument {
+
+    __destroy_into_raw() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_diddocument_free(ptr);
+    }
+}
+module.exports.DidDocument = DidDocument;
+/**
+*/
 class DomainName {
 
     static __wrap(ptr) {
@@ -2476,13 +2556,13 @@ class MorpheusState {
     }
     /**
     * @param {string} content_id
-    * @param {number | undefined} height
+    * @param {number | undefined} height_opt
     * @returns {boolean}
     */
-    beforeProofExistsAt(content_id, height) {
+    beforeProofExistsAt(content_id, height_opt) {
         var ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.morpheusstate_beforeProofExistsAt(this.ptr, ptr0, len0, !isLikeNone(height), isLikeNone(height) ? 0 : height);
+        var ret = wasm.morpheusstate_beforeProofExistsAt(this.ptr, ptr0, len0, !isLikeNone(height_opt), isLikeNone(height_opt) ? 0 : height_opt);
         return ret !== 0;
     }
     /**
@@ -2529,6 +2609,17 @@ class MorpheusState {
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
         }
+    }
+    /**
+    * @param {string} did_data
+    * @param {number | undefined} height_opt
+    * @returns {any}
+    */
+    getDidDocumentAt(did_data, height_opt) {
+        var ptr0 = passStringToWasm0(did_data, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusstate_getDidDocumentAt(this.ptr, ptr0, len0, !isLikeNone(height_opt), isLikeNone(height_opt) ? 0 : height_opt);
+        return takeObject(ret);
     }
     /**
     * @param {any} asset
@@ -3849,6 +3940,11 @@ module.exports.__wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
 };
 
+module.exports.__wbindgen_string_new = function(arg0, arg1) {
+    var ret = getStringFromWasm0(arg0, arg1);
+    return addHeapObject(ret);
+};
+
 module.exports.__wbindgen_json_parse = function(arg0, arg1) {
     var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
@@ -3861,11 +3957,6 @@ module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
     var len0 = WASM_VECTOR_LEN;
     getInt32Memory0()[arg0 / 4 + 1] = len0;
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
-};
-
-module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
-    return addHeapObject(ret);
 };
 
 module.exports.__wbg_validationissue_new = function(arg0) {
@@ -3925,6 +4016,11 @@ module.exports.__wbg_crypto_98fc271021c7d2ad = function(arg0) {
 module.exports.__wbg_msCrypto_a2cdb043d2bfe57f = function(arg0) {
     var ret = getObject(arg0).msCrypto;
     return addHeapObject(ret);
+};
+
+module.exports.__wbg_now_44a034aa2e1d73dd = function(arg0) {
+    var ret = getObject(arg0).now();
+    return ret;
 };
 
 module.exports.__wbg_newnoargs_9fdd8f3961dd1bee = function(arg0, arg1) {
@@ -4001,9 +4097,22 @@ module.exports.__wbg_subarray_901ede8318da52a6 = function(arg0, arg1, arg2) {
     return addHeapObject(ret);
 };
 
+module.exports.__wbg_get_800098c980b31ea2 = function() { return handleError(function (arg0, arg1) {
+    var ret = Reflect.get(getObject(arg0), getObject(arg1));
+    return addHeapObject(ret);
+}, arguments) };
+
 module.exports.__wbindgen_is_string = function(arg0) {
     var ret = typeof(getObject(arg0)) === 'string';
     return ret;
+};
+
+module.exports.__wbindgen_debug_string = function(arg0, arg1) {
+    var ret = debugString(getObject(arg1));
+    var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    getInt32Memory0()[arg0 / 4 + 1] = len0;
+    getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
 module.exports.__wbindgen_throw = function(arg0, arg1) {

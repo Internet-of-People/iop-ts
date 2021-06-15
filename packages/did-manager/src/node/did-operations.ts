@@ -11,7 +11,7 @@ export class DidOperationExtractor {
   public constructor(
     private readonly transactions: ITransactionRepository,
     private readonly stateHandler: IMorpheusStateHandler,
-  ) {}
+  ) { }
 
   public async didOperationsOf(
     did: Crypto.Did,

@@ -1,36 +1,19 @@
-import { Crypto, Layer1, Types } from '@internet-of-people/sdk';
-type Authentication = Types.Crypto.Authentication;
-type Did = Crypto.Did;
-type Right = Types.Sdk.Right;
-type TransactionId = Types.Sdk.TransactionId;
-type IOperationData = Types.Layer1.IOperationData;
-type IOperationVisitor<T> = Types.Layer1.IOperationVisitor<T>;
-type ISignableOperationVisitor<T> = Types.Layer1.ISignableOperationVisitor<T>;
-type ISignedOperationsData = Types.Layer1.ISignedOperationsData;
+import { MorpheusState } from '@internet-of-people/node-wasm';
+import { Crypto, Types, Layer2 } from '@internet-of-people/sdk';
+type IMorpheusAsset = Types.Layer1.IMorpheusAsset;
 
-import { MorpheusState } from './state';
 import {
   IBlockHeightChange,
-  IMorpheusOperations,
   IMorpheusQueries,
-  IMorpheusState,
   IMorpheusStateHandler,
   IStateChange,
   MorpheusEvents,
 } from '../interfaces';
 import { IAppLog } from '@internet-of-people/hydra-plugin-core';
+import optionalJs from 'optional-js';
 
 export class MorpheusStateHandler implements IMorpheusStateHandler {
-  public get query(): IMorpheusQueries {
-    if (this.corrupted) {
-      throw new Error('Layer2 is corrupted.');
-    }
-    return this.state.query;
-  }
-
-  public static readonly CORRUPTED_ERR_MSG = 'Morpheus state is corrupt. All incoming changes will be ignored.';
-  private state: IMorpheusState = new MorpheusState();
-  private corrupted = false;
+  private readonly state = new MorpheusState();
 
   public constructor(
     private readonly logger: IAppLog,
@@ -38,189 +21,98 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
   ) {
   }
 
-  public dryRun(operationAttempts: IOperationData[]): Types.Layer2.IDryRunOperationError[] {
-    if (this.corrupted) {
-      return [{
-        /* eslint no-undefined: 0 */
-        invalidOperationAttempt: undefined,
-        message: MorpheusStateHandler.CORRUPTED_ERR_MSG,
-      }];
+  public get query(): IMorpheusQueries {
+    if (this.state.corrupted) {
+      throw new Error('Cannot query corrupted state!');
     }
+    return {
+      lastSeenBlockHeight: (): number => {
+        return this.state.lastBlockHeight();
+      },
 
-    const errors: Types.Layer2.IDryRunOperationError[] = [];
-    let lastSuccessIndex = 0;
+      beforeProofExistsAt: (contentId: string, height?: number): boolean => {
+        return this.state.beforeProofExistsAt(contentId, height);
+      },
 
-    try {
-      const tempState = this.state.clone();
-      const applyVisitor = this.visitorPerformOperationAtHeight(
-        this.state.query.lastSeenBlockHeight(), tempState.apply, false);
+      getBeforeProofHistory: (contentId: string): Types.Layer2.IBeforeProofHistory => {
+        return this.state.beforeProofHistory(contentId);
+      },
 
-      for (const operationData of operationAttempts) {
-        const operation = Layer1.fromData(operationData);
-        operation.accept(applyVisitor);
-        lastSuccessIndex++;
-      }
-    } catch (e) {
-      // TODO later we need more granular errors, not just one
-      errors.push({
-        invalidOperationAttempt: operationAttempts[lastSuccessIndex],
-        message: e.message,
-      });
-    }
+      isConfirmed: (transactionId: string): optionalJs<boolean> => {
+        return optionalJs.ofNullable(this.state.isConfirmed(transactionId));
+      },
+
+      getDidDocumentAt: (did: Crypto.Did, height: number): Types.Layer2.IDidDocument => {
+        // TODO are we using the Rust implementation here?
+        return new Layer2.DidDocument(this.state.getDidDocumentAt(did.toString(), height));
+      },
+
+      getDidTransactionIds: (
+        did: Crypto.Did,
+        includeAttempts: boolean,
+        fromHeightIncl: number,
+        untilHeightIncl?: number,
+      ): Types.Layer2.ITransactionIdHeight[] => {
+        return this.state.getTransactionHistory(did.toString(), includeAttempts, fromHeightIncl, untilHeightIncl);
+      },
+    };
+  }
+
+  public dryRun(asset: IMorpheusAsset): Types.Layer2.IDryRunOperationError[] {
+    const errors: Types.Layer2.IDryRunOperationError[] = this.state.dryRun(asset);
 
     return errors;
   }
 
-  public applyEmptyBlockToState(change: IBlockHeightChange): void {
-    if (this.corrupted) {
-      this.logger.error(MorpheusStateHandler.CORRUPTED_ERR_MSG);
-      return;
-    }
-    this.logger.debug(`applyEmptyBlockToState height: ${change.blockHeight} id: ${change.blockId}...`);
-    this.setLastSeenBlock(change.blockHeight, this.state.apply);
+  public blockApplying(change: IBlockHeightChange): void {
+    this.mayCorruptState(() => {
+      this.logger.debug(`blockApplying height: ${change.blockHeight} id: ${change.blockId}...`);
+      this.state.blockApplying(change.blockHeight);
+    });
   }
 
   public applyTransactionToState(change: IStateChange): void {
-    if (this.corrupted) {
-      this.logger.error(MorpheusStateHandler.CORRUPTED_ERR_MSG);
-      return;
-    }
-
-    try {
+    this.maybeRejected(() => {
       this.logger.debug(`applyTransactionToState tx: ${change.transactionId}...`);
       this.logger.debug(` contains ${change.asset.operationAttempts.length} operations...`);
-      this.setLastSeenBlock(change.blockHeight, this.state.apply);
-
-      for (const operationData of change.asset.operationAttempts) {
-        this.logger.debug(`Registering operation attempt ${operationData.operation}...`);
-        const operation = Layer1.fromData(operationData);
-        this.state.apply.registerOperationAttempt(change.blockHeight, change.transactionId, operation);
-      }
-
-      const newState = this.state.clone();
-      const applyVisitor = this.visitorPerformOperationAtHeight(
-        change.blockHeight,
-        newState.apply,
-        false,
-      );
-
-      for (const operationData of change.asset.operationAttempts) {
-        this.logger.debug(`Applying operation ${operationData.operation}...`);
-        const operation = Layer1.fromData(operationData);
-        operation.accept(applyVisitor);
-        this.logger.debug(`Operation ${operationData.operation} applied`);
-      }
-
-      newState.apply.confirmTx(change.transactionId);
-      this.state = newState;
-    } catch (e) {
-      this.logger.info(`Transaction could not be applied. Error: ${e}, TX: ${JSON.stringify(change)}`);
-      this.state.apply.rejectTx(change.transactionId);
-    }
+      this.state.applyTransaction(change.transactionId, change.asset);
+    });
   }
 
-  public revertEmptyBlockFromState(change: IBlockHeightChange): void {
-    if (this.corrupted) {
-      this.logger.error(MorpheusStateHandler.CORRUPTED_ERR_MSG);
-      return;
-    }
-    this.logger.debug(`revertEmptyBlockToState height: ${change.blockHeight} id: ${change.blockId}...`);
-    this.setLastSeenBlock(change.blockHeight, this.state.revert);
+  public blockReverting(change: IBlockHeightChange): void {
+    this.mayCorruptState(() => {
+      this.logger.debug(`blockReverting height: ${change.blockHeight} id: ${change.blockId}...`);
+      this.state.blockReverting(change.blockHeight);
+    });
   }
 
   public revertTransactionFromState(change: IStateChange): void {
-    if (this.corrupted) {
-      this.logger.error(MorpheusStateHandler.CORRUPTED_ERR_MSG);
-      return;
-    }
-
-    try {
+    this.mayCorruptState(() => {
       this.logger.debug(`revertTransactionFromState tx: ${change.transactionId}...`);
-      this.logger.debug(`contains ${change.asset.operationAttempts.length} operations...`);
-      this.setLastSeenBlock(change.blockHeight, this.state.revert);
-      const confirmed = this.state.query.isConfirmed(change.transactionId);
-
-      if (!confirmed.isPresent()) {
-        throw new Error(`Transaction ${change.transactionId} was not confirmed, cannot revert.`);
-      }
-
-      if (confirmed.get()) {
-        this.state.revert.confirmTx(change.transactionId);
-        const revertVisitor = this.visitorPerformOperationAtHeight(change.blockHeight, this.state.revert, true);
-
-        for (const operationData of change.asset.operationAttempts.slice().reverse()) {
-          this.logger.debug(`Reverting operation ${operationData.operation}...`);
-          const operation = Layer1.fromData(operationData);
-          operation.accept(revertVisitor);
-          this.logger.debug('Operation reverted');
-        }
-      } else {
-        this.state.revert.rejectTx(change.transactionId);
-      }
-
-      for (const operationData of change.asset.operationAttempts.slice().reverse()) {
-        this.logger.debug(`Reverting operation attempt ${operationData.operation}...`);
-        const operation = Layer1.fromData(operationData);
-        this.state.revert.registerOperationAttempt(change.blockHeight, change.transactionId, operation);
-      }
-    } catch (e) {
-      this.logger.error(`${MorpheusStateHandler.CORRUPTED_ERR_MSG} Error: ${e}`);
-      this.corrupted = true;
-      this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
-    }
+      this.logger.debug(` contains ${change.asset.operationAttempts.length} operations...`);
+      this.state.revertTransaction(change.transactionId, change.asset);
+    });
   }
 
-  private setLastSeenBlock(stateChangeHeight: number, state: IMorpheusOperations): void {
+  private maybeRejected(f: () => void): void {
     try {
-      state.setLastSeenBlockHeight(stateChangeHeight);
-    } catch (error) {
-      this.corrupted = true;
-      this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
-      throw error;
+      f();
+    } catch (e) {
+      this.logger.info(e);
     }
   }
 
-  private visitorPerformSignedOperationAtHeight(
-    height: number,
-    signerAuth: Authentication,
-    state: IMorpheusOperations,
-  ): ISignableOperationVisitor<void> {
-    return {
-      addKey: (did: Did, lastTxId: TransactionId | null, newAuth: Authentication, expiresAtHeight?: number): void => {
-        state.addKey(height, signerAuth, did, lastTxId, newAuth, expiresAtHeight);
-      },
-      revokeKey: (did: Did, lastTxId: TransactionId | null, auth: Authentication): void => {
-        state.revokeKey(height, signerAuth, did, lastTxId, auth);
-      },
-      addRight: (did: Did, lastTxId: TransactionId | null, auth: Authentication, right: Right): void => {
-        state.addRight(height, signerAuth, did, lastTxId, auth, right);
-      },
-      revokeRight: (did: Did, lastTxId: TransactionId | null, auth: Authentication, right: Right): void => {
-        state.revokeRight(height, signerAuth, did, lastTxId, auth, right);
-      },
-      tombstoneDid(did: Did, lastTxId: TransactionId | null): void {
-        state.tombstoneDid(height, signerAuth, did, lastTxId);
-      },
-    };
-  }
+  private mayCorruptState(f: () => void): void {
+    const wasCorrupted = this.state.corrupted;
 
-  private visitorPerformOperationAtHeight(height: number, state: IMorpheusOperations,
-    reverse: boolean): IOperationVisitor<void> {
-    return {
-      signed: (operations: ISignedOperationsData): void => {
-        const signableOperations = Layer1.Signed.getOperations(operations);
-        const signerAuth = Crypto.authenticationFromData(operations.signerPublicKey);
-        const performSignableAtHeight = this.visitorPerformSignedOperationAtHeight(height, signerAuth, state);
+    try {
+      f();
+    } catch (e) {
+      this.logger.warn(e);
 
-        for (const signable of reverse ? signableOperations.slice().reverse() : signableOperations) {
-          this.logger.debug(`Applying signable operation ${signable.type}...`);
-          signable.accept(performSignableAtHeight);
-          this.logger.debug(`Signable operation ${signable.type} applied`);
-        }
-      },
-      registerBeforeProof: (contentId: string): void => {
-        state.registerBeforeProof(contentId, height);
-      },
-    };
+      if (!wasCorrupted && this.state.corrupted) {
+        this.eventEmitter.emit(MorpheusEvents.StateCorrupted);
+      }
+    }
   }
 }

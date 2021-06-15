@@ -40,13 +40,18 @@ describe('StateHandler', () => {
   });
 
   beforeEach(() => {
-    handler = new MorpheusStateHandler({
+    const logger = {
       appName: 'state-handler-tests',
       debug: jest.fn<void, [string]>(),
       info: jest.fn<void, [string]>(),
       warn: jest.fn<void, [string]>(),
       error: jest.fn<void, [string]>(),
-    }, new EventEmitter());
+    };
+    // logger.debug.mockImplementation((text: string) => console.log("DEBUG:", text));
+    // logger.info.mockImplementation((text: string) => console.log("INFO:", text));
+    // logger.warn.mockImplementation((text: string) => console.log("WARN:", text));
+    // logger.error.mockImplementation((text: string) => console.log("ERROR:", text));
+    handler = new MorpheusStateHandler(logger, new EventEmitter());
     lastTxId = null;
   });
 
@@ -57,14 +62,16 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .signWith(signer)
-        .on(defaultDid, lastTxId)
-        .addKey(keyToAdd)
-        .sign(signWith)
-        .getAttempts(),
+      asset: {
+        operationAttempts: new Layer1.OperationAttemptsBuilder()
+          .signWith(signer)
+          .on(defaultDid, lastTxId)
+          .addKey(keyToAdd)
+          .sign(signWith)
+          .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     };
+    handler.blockApplying(stateChange);
     handler.applyTransactionToState(stateChange);
     return stateChange;
   };
@@ -76,14 +83,16 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .signWith(signer)
-        .on(defaultDid, lastTxId)
-        .revokeKey(keyToRevoke)
-        .sign(signWith)
-        .getAttempts(),
+      asset: {
+        operationAttempts: new Layer1.OperationAttemptsBuilder()
+          .signWith(signer)
+          .on(defaultDid, lastTxId)
+          .revokeKey(keyToRevoke)
+          .sign(signWith)
+          .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     };
+    handler.blockApplying(stateChange);
     handler.applyTransactionToState(stateChange);
     return stateChange;
   };
@@ -95,14 +104,16 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .signWith(signer)
-        .on(defaultDid, lastTxId)
-        .addRight(toKey, RightRegistry.systemRights.update)
-        .sign(signWith)
-        .getAttempts(),
+      asset: {
+        operationAttempts: new Layer1.OperationAttemptsBuilder()
+          .signWith(signer)
+          .on(defaultDid, lastTxId)
+          .addRight(toKey, RightRegistry.systemRights.update)
+          .sign(signWith)
+          .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     };
+    handler.blockApplying(stateChange);
     handler.applyTransactionToState(stateChange);
     return stateChange;
   };
@@ -114,14 +125,16 @@ describe('StateHandler', () => {
     txId: string,
   ): IStateChange => {
     const stateChange = {
-      asset: { operationAttempts: new Layer1.OperationAttemptsBuilder()
-        .signWith(signer)
-        .on(defaultDid, lastTxId)
-        .revokeRight(toKey, RightRegistry.systemRights.update)
-        .sign(signWith)
-        .getAttempts(),
+      asset: {
+        operationAttempts: new Layer1.OperationAttemptsBuilder()
+          .signWith(signer)
+          .on(defaultDid, lastTxId)
+          .revokeRight(toKey, RightRegistry.systemRights.update)
+          .sign(signWith)
+          .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     };
+    handler.blockApplying(stateChange);
     handler.applyTransactionToState(stateChange);
     return stateChange;
   };
@@ -137,11 +150,16 @@ describe('StateHandler', () => {
           .getAttempts(),
       }, blockHeight, blockId, transactionId: txId,
     };
+    handler.blockApplying(stateChange);
     handler.applyTransactionToState(stateChange);
     return stateChange;
   };
 
   it('applies valid state change', () => {
+    handler.blockApplying({
+      blockHeight: 5,
+      blockId,
+    });
     handler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },
       blockHeight: 5,
@@ -158,6 +176,10 @@ describe('StateHandler', () => {
 
   it('rejects before proof with already registered content id in an atomic way', () => {
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.empty());
+    handler.blockApplying({
+      blockHeight: 5,
+      blockId,
+    });
     handler.applyTransactionToState({
       asset: { operationAttempts: registrationAttempt },
       blockHeight: 5,
@@ -175,6 +197,10 @@ describe('StateHandler', () => {
       .registerBeforeProof(otherContentId)
       .registerBeforeProof(contentId)
       .getAttempts();
+    handler.blockApplying({
+      blockHeight: 7,
+      blockId,
+    });
     handler.applyTransactionToState({
       asset: { operationAttempts: multipleRegistrationAttempts },
       blockHeight: 7,
@@ -193,13 +219,11 @@ describe('StateHandler', () => {
   });
 
   it('corrupted state cannot be queried', () => {
-    handler.applyTransactionToState({
-      asset: { operationAttempts: registrationAttempt },
+    handler.blockApplying({
       blockHeight: 5,
       blockId,
-      transactionId,
     });
-    expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
+    expect(handler.query.lastSeenBlockHeight()).toStrictEqual(5);
 
     handler.revertTransactionFromState({
       asset: { operationAttempts: [] },
@@ -267,12 +291,16 @@ describe('StateHandler', () => {
       .revokeKey(defaultKeyId)
       .sign(keyId2)
       .getAttempts();
-    handler.applyTransactionToState({
+    const stateChange = {
       asset: { operationAttempts: attempts },
       blockHeight: 5,
       blockId,
       transactionId,
-    });
+    };
+    handler.blockApplying(stateChange);
+
+    handler.applyTransactionToState(stateChange);
+
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
   });
 
@@ -424,19 +452,49 @@ describe('StateHandler', () => {
     expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeFalsy();
   });
 
-  it('cannot revoke applied right before it was applied', () => {
-    addKey(5, keyId2, defaultKeyId, 'tx1');
-    expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
-    lastTxId = 'tx1';
-    addRight(10, keyId2, defaultKeyId, 'tx2');
-    expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
-    lastTxId = 'tx2';
-    expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
+  it('blockApplying can keep blockHeight the same', () => {
+    handler.blockApplying({ blockHeight: 5, blockId });
 
-    revokeRight(9, keyId2, defaultKeyId, 'tx3');
+    handler.blockApplying({ blockHeight: 5, blockId });
+
+    expect(handler.query.lastSeenBlockHeight()).toBe(5);
+  });
+
+  it('blockApplying reducing blockHeight corrupts state', () => {
+    handler.blockApplying({ blockHeight: 5, blockId });
+
+    handler.blockApplying({ blockHeight: 4, blockId });
+
     expect(() => {
-      return handler.query.isConfirmed('tx3');
-    }).toThrowError('Layer2 is corrupted.');
+      return handler.query;
+    }).toThrowError();
+  });
+
+  it('blockReverting can keep blockHeight the same', () => {
+    handler.blockApplying({ blockHeight: 5, blockId });
+
+    handler.blockReverting({ blockHeight: 5, blockId });
+
+    expect(handler.query.lastSeenBlockHeight()).toBe(5);
+  });
+
+  it('blockReverting decreases blockHeight', () => {
+    handler.blockApplying({ blockHeight: 5, blockId });
+    expect(handler.query.lastSeenBlockHeight()).toBe(5);
+
+    handler.blockReverting({ blockHeight: 4, blockId });
+
+    expect(handler.query.lastSeenBlockHeight()).toBe(4);
+  });
+
+  it('blockReverting increasing blockHeight corrupts state', () => {
+    handler.blockApplying({ blockHeight: 5, blockId });
+
+    handler.blockReverting({ blockHeight: 6, blockId });
+
+    expect(() => {
+      return handler.query;
+    }).toThrowError();
   });
 
   it('can revoke right if has right to update', () => {
@@ -597,13 +655,14 @@ describe('StateHandler', () => {
     // we have to emit at least one layer-1 tx to bump the internal lastSeenBlockHeight
     addKey(5, keyId3, defaultKeyId, transactionId);
 
-    const errors = handler.dryRun(new Layer1.OperationAttemptsBuilder()
+    const attempts = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
       .on(defaultDid, transactionId)
       .addKey(keyId2)
       .sign(defaultKeyId)
-      .getAttempts(),
-    );
+      .getAttempts();
+    const asset = { operationAttempts: attempts };
+    const errors = handler.dryRun(asset);
 
     expect(errors).toHaveLength(0);
   });
@@ -615,11 +674,12 @@ describe('StateHandler', () => {
       .addRight(keyId2, RightRegistry.systemRights.update) // key is not yet added
       .sign(defaultKeyId)
       .getAttempts();
+    const asset = { operationAttempts: attempts };
 
-    const errors = handler.dryRun(attempts);
+    const errors = handler.dryRun(asset);
 
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toBe(`DID ${defaultDid} has no valid key matching ${keyId2} at height 0`);
+    expect(errors[0].message).toBe(`DID ${defaultDid} has no key matching ${keyId2}`);
     expect(errors[0].invalidOperationAttempt).toStrictEqual(attempts[0]);
   });
 });

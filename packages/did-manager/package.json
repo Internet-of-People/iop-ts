@@ -44,6 +44,7 @@
     "@hapi/boom": "^8.0.0",
     "@internet-of-people/hydra-plugin-core": "4.0.8",
     "@internet-of-people/sdk": "4.0.8",
+    "@internet-of-people/node-wasm": "0.0.13",
     "awilix": "^4.2.2",
     "lodash.clonedeep": "4.5.0",
     "optional-js": "2.1.1"

@@ -1,3 +1,4 @@
+/*
 import cloneDeep from 'lodash.clonedeep';
 import Optional from 'optional-js';
 
@@ -67,9 +68,9 @@ export class MorpheusState implements IMorpheusState {
       return transactionIdHeights;
     },
   };
-
-  /* eslint max-params:0 */
-
+*/
+/* eslint max-params:0 */
+/*
   public readonly apply: IMorpheusOperations = {
     setLastSeenBlockHeight: (height: number): void => {
       if (height < this.lastSeenBlockHeight) {
@@ -435,3 +436,4 @@ export class MorpheusState implements IMorpheusState {
     };
   }
 }
+*/
