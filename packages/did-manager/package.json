@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/did-manager",
-  "version": "4.0.8",
+  "version": "5.0.0-rc.1",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -42,8 +42,8 @@
     "@arkecosystem/core-transactions": "^2.7.24",
     "@hapi/hapi": "^18.3.1",
     "@hapi/boom": "^8.0.0",
-    "@internet-of-people/hydra-plugin-core": "4.0.8",
-    "@internet-of-people/sdk": "4.0.8",
+    "@internet-of-people/hydra-plugin-core": "5.0.0-rc.1",
+    "@internet-of-people/sdk": "5.0.0-rc.1",
     "@internet-of-people/node-wasm": "0.0.13",
     "awilix": "^4.2.2",
     "lodash.clonedeep": "4.5.0",
