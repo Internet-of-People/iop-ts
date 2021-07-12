@@ -1,6 +1,13 @@
 import { Identities, Interfaces, Transactions, Managers, Errors } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
-import { log, HydraPrivate, HydraTxBuilder, SecpKeyId, SecpPublicKey } from '@internet-of-people/morpheus-crypto';
+import {
+  log,
+  HydraPrivate,
+  HydraTxBuilder,
+  SecpKeyId,
+  SecpPublicKey,
+  MorpheusTxBuilder,
+} from '@internet-of-people/morpheus-crypto';
 import { MorpheusTransaction } from '../transaction';
 import * as Types from '../../types';
 import * as Layer1 from '../../layer1';
@@ -122,9 +129,6 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
-  /**
-  * @deprecated This method is deprecated in favor of sendTransferTx()
-  */
   /* eslint-disable-next-line max-params */
   public async sendTransferTxWithWIF(
     fromWIF: string,
@@ -145,9 +149,6 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
-  /**
-  * @deprecated This method is deprecated in favor of sendTransferTx()
-  */
   /* eslint-disable-next-line max-params */
   public async sendTransferTxWithPassphrase(
     fromPassphrase: string,
@@ -169,28 +170,21 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx);
   }
 
-  // public async sendMorpheusTx(
-  //   gasAddress: string,
-  //   attempts: Types.Layer1.IOperationData[],
-  //   hydraPrivate: HydraPrivate,
-  //   nonce?: BigInt,
-  // ): Promise<string> {
-  //   const network = hydraPrivate.network;
-  //   const tx = new MorpheusTxBuilder(network)
-  //     .build(
-  //       attempts,
-  //       hydraPrivate.pub.keyByAddress(gasAddress).publicKey(),
-  //       nonce ?? await this.nextWalletNonceByAddress(gasAddress)
-  //     );
+  public async sendMorpheusTx(
+    senderAddress: string,
+    morpheusAsset: Types.Layer1.IMorpheusAsset,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string> {
+    const { network } = hydraPrivate;
+    const nextNonce = nonce ?? await this.getGasNonceAndCheckBalance(senderAddress, nonce);
+    const senderPubKey = hydraPrivate.pub.keyByAddress(senderAddress).publicKey();
+    const unsignedTx = MorpheusTxBuilder.build(network, morpheusAsset, senderPubKey, nextNonce);
+    const signedTx = hydraPrivate.signHydraTransaction(senderAddress, unsignedTx);
 
-  //   const signedTx = hydraPrivate.signHydraTransaction(gasAddress, tx);
+    return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
+  }
 
-  //   return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
-  // }
-
-  /**
-  * @deprecated This method is deprecated in favor of sendMorpheusTx()
-  */
   public async sendMorpheusTxWithWIF(
     attempts: Types.Layer1.IOperationData[],
     fromWIF: string,
@@ -210,9 +204,6 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
-  /**
-  * @deprecated This method is deprecated in favor of sendMorpheusTx()
-  */
   public async sendMorpheusTxWithPassphrase(
     attempts: Types.Layer1.IOperationData[],
     fromPassphrase: string,
@@ -279,16 +270,10 @@ export class Api implements Types.Layer1.IApi {
     return nextNonce;
   }
 
-  private async buildMorpheusTx(
-    from: Interfaces.IKeyPair,
-    attempts: Types.Layer1.IOperationData[],
+  private async getGasNonceAndCheckBalance(
+    address: string,
     nonce?: BigInt,
-  ): Promise<MorpheusTransactionBuilder> {
-    const txBuilder = new Layer1.MorpheusTransactionBuilder();
-    const unsignedTx = txBuilder.fromOperationAttempts(attempts);
-
-    // checking balance
-    const address = Identities.Address.fromPublicKey(from.publicKey);
+  ): Promise<BigInt> {
     const wallet = await this.clientInstance.getWallet(address);
     const balance = wallet.isPresent() ? BigInt(wallet.get().balance) : BigInt(0);
 
@@ -303,6 +288,21 @@ export class Api implements Types.Layer1.IApi {
       nextNonce = currentNonce + BigInt(1);
       log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
     }
+
+    return nextNonce;
+  }
+
+  private async buildMorpheusTx(
+    from: Interfaces.IKeyPair,
+    attempts: Types.Layer1.IOperationData[],
+    nonce?: BigInt,
+  ): Promise<MorpheusTransactionBuilder> {
+    const txBuilder = new Layer1.MorpheusTransactionBuilder();
+    const unsignedTx = txBuilder.fromOperationAttempts(attempts);
+
+    // checking balance
+    const address = Identities.Address.fromPublicKey(from.publicKey);
+    const nextNonce = await this.getGasNonceAndCheckBalance(address, nonce);
     unsignedTx.nonce(nextNonce.toString());
 
     return unsignedTx;

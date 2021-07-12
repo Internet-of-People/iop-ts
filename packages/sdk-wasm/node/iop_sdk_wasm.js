@@ -230,6 +230,17 @@ function getArrayJsValueFromWasm0(ptr, len) {
     return result;
 }
 /**
+* @param {string} name
+* @returns {boolean}
+*/
+module.exports.validateNetworkName = function(name) {
+    var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    var ret = wasm.validateNetworkName(ptr0, len0);
+    return ret !== 0;
+};
+
+/**
 * @param {Uint8Array} plain_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -273,17 +284,6 @@ module.exports.decrypt = function(cipher_text, password) {
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
-};
-
-/**
-* @param {string} name
-* @returns {boolean}
-*/
-module.exports.validateNetworkName = function(name) {
-    var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    var ret = wasm.validateNetworkName(ptr0, len0);
-    return ret !== 0;
 };
 
 function handleError(f, args) {
@@ -3832,6 +3832,24 @@ class SecpKeyId {
         var len1 = WASM_VECTOR_LEN;
         var ret = wasm.secpkeyid_fromAddress(ptr0, len0, ptr1, len1);
         return SecpKeyId.__wrap(ret);
+    }
+    /**
+    * @param {string} network
+    * @returns {string}
+    */
+    toAddress(network) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            var ptr0 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.secpkeyid_toAddress(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_free(r0, r1);
+        }
     }
 }
 module.exports.SecpKeyId = SecpKeyId;
