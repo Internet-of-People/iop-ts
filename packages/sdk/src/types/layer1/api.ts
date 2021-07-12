@@ -2,6 +2,7 @@ import { Interfaces } from '@arkecosystem/crypto';
 import Optional from 'optional-js';
 import { HydraPrivate, SecpPublicKey } from '@internet-of-people/morpheus-crypto';
 import { IOperationData } from './operation-data';
+import { IMorpheusAsset } from './asset';
 import { Sdk } from '../index';
 import { NetworkConfig } from '../../network';
 import { UserOperation } from '../../coeus-wasm';
@@ -86,6 +87,9 @@ export interface IApi {
     manualFee?: BigInt,
   ): Promise<string>;
 
+  /**
+  * @deprecated This method is deprecated in favor of sendTransferTx()
+  */
   sendTransferTxWithWIF(
     fromWIF: string,
     toAddress: string,
@@ -95,6 +99,9 @@ export interface IApi {
     manualFee?: BigInt,
   ): Promise<string>;
 
+  /**
+  * @deprecated This method is deprecated in favor of sendTransferTx()
+  */
   sendTransferTxWithPassphrase(
     fromPassphrase: string,
     toAddress: string,
@@ -104,12 +111,25 @@ export interface IApi {
     manualFee?: BigInt,
   ): Promise<string>;
 
+  sendMorpheusTx(
+    senderAddress: string,
+    morpheusAsset: IMorpheusAsset,
+    hydraPrivate: HydraPrivate,
+    nonce?: BigInt,
+  ): Promise<string>;
+
+  /**
+  * @deprecated This method is deprecated in favor of sendMorpheusTx()
+  */
   sendMorpheusTxWithWIF(
     attempts: IOperationData[],
     fromWIF: string,
     nonce?: BigInt,
   ): Promise<string>;
 
+  /**
+  * @deprecated This method is deprecated in favor of sendMorpheusTx()
+  */
   sendMorpheusTxWithPassphrase(
     attempts: IOperationData[],
     passphrase: string,

@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @param {string} name
+* @returns {boolean}
+*/
+export function validateNetworkName(name: string): boolean;
+/**
 * @param {Uint8Array} plain_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -12,11 +17,6 @@ export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 * @returns {Uint8Array}
 */
 export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
-/**
-* @param {string} name
-* @returns {boolean}
-*/
-export function validateNetworkName(name: string): boolean;
 /**
 * @param {any} data
 * @param {string} keep_properties_list
@@ -1269,6 +1269,11 @@ export class SecpKeyId {
 * @returns {SecpKeyId}
 */
   static fromAddress(address: string, network: string): SecpKeyId;
+/**
+* @param {string} network
+* @returns {string}
+*/
+  toAddress(network: string): string;
 }
 /**
 */

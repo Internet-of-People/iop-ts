@@ -1,8 +1,11 @@
 # Changelog
 
-## 5.0.0-rc.1
+## 5.0.0
 
-- TODO
+- Updated WASM versions to 0.0.13, which separate node-wasm and sdk-wasm.
+- Added `toAddress` method to `SecpKeyId`.
+- Added `sendMorpheusTx` to `Layer1` API.
+- Replaced TypeScript implementation of Morpheus with a WASM implementation.
 
 ## 4.0.8
 

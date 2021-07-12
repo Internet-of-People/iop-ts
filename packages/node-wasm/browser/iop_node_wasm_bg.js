@@ -3023,6 +3023,24 @@ export class SecpKeyId {
         var ret = wasm.secpkeyid_fromAddress(ptr0, len0, ptr1, len1);
         return SecpKeyId.__wrap(ret);
     }
+    /**
+    * @param {string} network
+    * @returns {string}
+    */
+    toAddress(network) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            var ptr0 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            wasm.secpkeyid_toAddress(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_free(r0, r1);
+        }
+    }
 }
 /**
 */

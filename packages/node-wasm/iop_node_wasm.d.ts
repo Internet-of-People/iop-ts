@@ -989,6 +989,11 @@ export class SecpKeyId {
 * @returns {SecpKeyId}
 */
   static fromAddress(address: string, network: string): SecpKeyId;
+/**
+* @param {string} network
+* @returns {string}
+*/
+  toAddress(network: string): string;
 }
 /**
 */
