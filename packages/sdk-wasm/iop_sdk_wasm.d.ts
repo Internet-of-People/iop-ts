@@ -1,23 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {string} name
-* @returns {boolean}
-*/
-export function validateNetworkName(name: string): boolean;
-/**
-* @param {Uint8Array} plain_text
-* @param {string} password
-* @returns {Uint8Array}
-*/
-export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
-/**
-* @param {Uint8Array} cipher_text
-* @param {string} password
-* @returns {Uint8Array}
-*/
-export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
-/**
 * @param {any} data
 * @param {string} keep_properties_list
 * @returns {string}
@@ -33,6 +16,23 @@ export function digestJson(data: any): string;
 * @returns {string}
 */
 export function stringifyJson(data: any): string;
+/**
+* @param {Uint8Array} plain_text
+* @param {string} password
+* @returns {Uint8Array}
+*/
+export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
+/**
+* @param {Uint8Array} cipher_text
+* @param {string} password
+* @returns {Uint8Array}
+*/
+export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
+/**
+* @param {string} name
+* @returns {boolean}
+*/
+export function validateNetworkName(name: string): boolean;
 /**
 */
 export class Bip32 {
@@ -904,7 +904,13 @@ export class MorpheusOperationSigner {
 * @param {PrivateKey} private_key
 * @returns {MorpheusSignedOperation}
 */
-  sign(private_key: PrivateKey): MorpheusSignedOperation;
+  signWithKey(private_key: PrivateKey): MorpheusSignedOperation;
+/**
+* @param {PublicKey} public_key
+* @param {MorpheusPrivate} morpheus_private
+* @returns {MorpheusSignedOperation}
+*/
+  sign(public_key: PublicKey, morpheus_private: MorpheusPrivate): MorpheusSignedOperation;
 }
 /**
 */

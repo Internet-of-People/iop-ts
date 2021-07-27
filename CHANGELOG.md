@@ -2,9 +2,10 @@
 
 ## 5.0.0
 
-- Updated WASM versions to 0.0.13, which separate node-wasm and sdk-wasm.
+- Updated WASM versions to 0.0.14, which separate node-wasm and sdk-wasm.
 - Added `toAddress` method to `SecpKeyId`.
 - Added `sendMorpheusTx` to `Layer1` API.
+- BREAKING: `MorpheusOperationSigner` now has both `sign` and `signWithKey` methods.
 - Replaced TypeScript implementation of Morpheus with a WASM implementation.
 
 ## 4.0.8

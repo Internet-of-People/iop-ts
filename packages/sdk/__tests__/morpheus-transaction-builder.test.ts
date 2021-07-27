@@ -79,7 +79,7 @@ describe('MorpheusTransactionBuilder', () => {
     opSigner.add(opData);
     const signedOps = ops[0] as Types.Layer1.ISignedOperationsData;
     const privateKey = signer.keyById(defaultKeyId).privateKey();
-    const wasmSignedOps: Types.Layer1.ISignedOperationsData = opSigner.sign(privateKey).toJson();
+    const wasmSignedOps: Types.Layer1.ISignedOperationsData = opSigner.signWithKey(privateKey).toJson();
     wasmSignedOps.operation = Layer1.OperationType.Signed;
     expect(wasmSignedOps).toStrictEqual(signedOps);
   });

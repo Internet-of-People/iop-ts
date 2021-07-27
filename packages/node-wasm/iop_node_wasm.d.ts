@@ -17,11 +17,6 @@ export function digestJson(data: any): string;
 */
 export function stringifyJson(data: any): string;
 /**
-* @param {string} name
-* @returns {boolean}
-*/
-export function validateNetworkName(name: string): boolean;
-/**
 * @param {Uint8Array} plain_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -33,6 +28,11 @@ export function encrypt(plain_text: Uint8Array, password: string): Uint8Array;
 * @returns {Uint8Array}
 */
 export function decrypt(cipher_text: Uint8Array, password: string): Uint8Array;
+/**
+* @param {string} name
+* @returns {boolean}
+*/
+export function validateNetworkName(name: string): boolean;
 /**
 */
 export class Bip32 {

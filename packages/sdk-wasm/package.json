@@ -5,7 +5,7 @@
     "Rache Bartmoss <bartmoss@tutanota.com>",
     "wigy <wigy_opensource_developer@yahoo.com>"
   ],
-  "version": "0.0.13",
+  "version": "0.0.14",
   "files": [
     "browser/iop_sdk_wasm_bg.wasm",
     "browser/iop_sdk_wasm_bg.js",
@@ -19,5 +19,5 @@
   "module": "browser/iop_sdk_wasm.js",
   "types": "iop_sdk_wasm.d.ts",
   "sideEffects": "false",
-  "git-describe": "tags/v0.0.13-0-g863acb4"
+  "git-describe": "tags/v0.0.14-0-g6ed1424"
 }

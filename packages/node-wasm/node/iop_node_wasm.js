@@ -286,17 +286,6 @@ function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
 /**
-* @param {string} name
-* @returns {boolean}
-*/
-module.exports.validateNetworkName = function(name) {
-    var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    var ret = wasm.validateNetworkName(ptr0, len0);
-    return ret !== 0;
-};
-
-/**
 * @param {Uint8Array} plain_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -340,6 +329,17 @@ module.exports.decrypt = function(cipher_text, password) {
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
+};
+
+/**
+* @param {string} name
+* @returns {boolean}
+*/
+module.exports.validateNetworkName = function(name) {
+    var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    var ret = wasm.validateNetworkName(ptr0, len0);
+    return ret !== 0;
 };
 
 function handleError(f, args) {
