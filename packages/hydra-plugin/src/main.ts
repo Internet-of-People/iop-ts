@@ -22,7 +22,6 @@ import { Types } from '@internet-of-people/sdk';
 import { ArkConnector } from './ark-connector';
 import { BlockEventSource } from './block-event-source';
 import { schedule } from './scheduler';
-import { version } from '../package.json';
 
 const { MorpheusStateHandler: { MorpheusStateHandler } } = MorpheusTransaction;
 type TransactionId = Types.Sdk.TransactionId;
@@ -43,7 +42,7 @@ export class Composite implements IInitializable {
   }
 
   public async init(): Promise<void> {
-    this.log.info(`Version: ${version}`);
+    this.log.info('Version: 5.0.1');
     this.log.info('Initializing');
 
     for (const component of this.subcomponents) {

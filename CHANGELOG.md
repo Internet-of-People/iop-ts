@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.1
+
+- Fix NPM release.
+
 ## 5.0.0
 
 - Updated WASM versions to 0.0.14, which separate node-wasm and sdk-wasm.

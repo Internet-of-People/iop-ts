@@ -4,6 +4,10 @@ declare -a packages=("sdk-wasm" "node-wasm" "morpheus-crypto" "hydra-plugin-core
 
 npm set registry https://npm.iop.technology/
 
+npm run clean
+npm install
+npm run build
+
 for package in "${packages[@]}"; do
     cd packages/$package
     echo $PWD

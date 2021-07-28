@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/hydra-plugin",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "private": false,
   "author": {
     "url": "https://iop.global/dsf",
@@ -31,10 +31,10 @@
     "@arkecosystem/core-transactions": "^2.7.24",
     "@arkecosystem/crypto": "^2.7.24",
     "@hapi/hapi": "^18.3.1",
-    "@internet-of-people/hydra-plugin-core": "5.0.0",
-    "@internet-of-people/did-manager": "5.0.0",
-    "@internet-of-people/coeus-node": "5.0.0",
-    "@internet-of-people/sdk": "5.0.0",
+    "@internet-of-people/hydra-plugin-core": "5.0.1",
+    "@internet-of-people/did-manager": "5.0.1",
+    "@internet-of-people/coeus-node": "5.0.1",
+    "@internet-of-people/sdk": "5.0.1",
     "awilix": "^4.2.2",
     "optional-js": "2.1.1",
     "p-queue": "6.2.1"
