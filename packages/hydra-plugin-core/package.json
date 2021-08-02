@@ -3,12 +3,12 @@
   "version": "5.0.1",
   "private": false,
   "author": {
-    "url": "https://iop.global/dsf",
+    "url": "https://iop-ventures.com/",
     "name": "Internet of People",
-    "email": "dev@iop-ventures.com"
+    "email": "prometheus@iop-ventures.com"
   },
   "description": "Core components for the Hydra plugin and its sub components",
-  "repository": "https://github.com/internet-of-people/morpheus-ts",
+  "repository": "https://github.com/internet-of-people/iop-ts",
   "license": "GPL-3.0-or-later",
   "main": "./dist/index",
   "files": [

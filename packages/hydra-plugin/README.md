@@ -34,4 +34,4 @@ If you are not sure where is your `plugins.js` file and you **have not modified*
 
 ## Check also
 
-Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/morpheus-ts>
+Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/iop-ts>

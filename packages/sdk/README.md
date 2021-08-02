@@ -66,7 +66,7 @@ All interfaces have the corresponding module under root, where you can access it
 
 #### Authority
 
-All interfaces and types that needed to be able to communicate with an Authority endpoint. See more about the Authority's API [here](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/authority-service).
+All interfaces and types that needed to be able to communicate with an Authority endpoint. See more about the Authority's API [here](https://developer.iop.technology/api/authority_api).
 
 #### Crypto
 
@@ -74,7 +74,7 @@ All interfaces and types you need to use the [Crypto Module](#Crypto-Module) to 
 
 #### Inspector
 
-All interfaces and types that needed to be able to communicate with an Inspector endpoint. See more about the Inspector's API [here](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/inspector-service).
+All interfaces and types that needed to be able to communicate with an Inspector endpoint. See more about the Inspector's API [here](https://developer.iop.technology/api/inspector_api).
 
 #### Layer-1
 
@@ -90,7 +90,7 @@ All interfaces that describes the IOP SSI (Morpheus) protocol including all part
 
 #### Verifier
 
-All interfaces and types that needed to be able to communicate with a Verifier endpoint. Currently our verifier is implemented in the inspector package, hence to see more about the Verifier's API, please visit [this page](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/inspector-service).
+All interfaces and types that needed to be able to communicate with a Verifier endpoint. Currently our verifier is implemented in the inspector package, hence to see more about the Verifier's API, please visit [this page](https://developer.iop.technology/api/verifier_api).
 
 ### Layer-1 Module
 
@@ -112,13 +112,13 @@ For more detailed examples please visit our [tutorial center](https://developer.
 
 ### Crypto Module
 
-Under this package we reexport our [morpheus-crypto package](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/morpheus-crypto)'s functionality.
+Under this package we reexport our [morpheus-crypto package](https://github.com/Internet-of-People/iop-ts/tree/master/packages/morpheus-crypto)'s functionality.
 
 #### Low Level Functions
 
 The package contains high level tools like the Vault or JSON digesting and such. But, it also contains low level classes and utilities for wallet integrators or for people who really know what they're doing.
 
-You can inspect these APIs int the file we re-export from the sdk, [here](https://github.com/Internet-of-People/morpheus-ts/blob/master/packages/morpheus-crypto/src/index.ts).
+You can inspect these APIs in the file we re-export from the sdk, [here](https://github.com/Internet-of-People/iop-ts/blob/master/packages/morpheus-crypto/src/index.ts).
 
 #### JSON Digesting
 
@@ -190,7 +190,7 @@ const secondAddress = hydra.pub.key(1);
 // only cleared by saving the vault save.
 ```
 
-To learn the Hydra plugin's public and private interface, please check [its repository](https://github.com/Internet-of-People/morpheus-ts/tree/master/packages/morpheus-crypto).
+To learn the Hydra plugin's public and private interface, please check [its repository](https://github.com/Internet-of-People/iop-ts/tree/master/packages/morpheus-crypto).
 
 - Public interface: `Bip44PublicAccount`
 - Private interface: `Bip44Account`
@@ -245,4 +245,4 @@ This module contains the enums and other classes you have to user when you creat
 
 ## Contribution and License
 
-Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/morpheus-ts>
+Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/iop-ts>

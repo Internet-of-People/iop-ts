@@ -1,6 +1,6 @@
 # IOP Naming System Node
 
-This library collects components needed by the server side of the IOP Naming System (Project Coeus). 
+This library collects components needed by the server side of the IOP Naming System (Project Coeus).
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -17,6 +17,7 @@ This library collects components needed by the server side of the IOP Naming Sys
 
 ```bash
 $ npm install @internet-of-people/coeus-node --save
+...
 ```
 
 ## Usage
@@ -29,7 +30,6 @@ import { StateHandler } from '@internet-of-people/coeus-node';
 
 For details and examples, please visit the [IOP developer portal](https://developer.iop.technology).
 
-
 ## Check also
 
-Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/morpheus-ts>
+Please read about maintainers, contribution contract at <https://github.com/Internet-of-People/iop-ts>

@@ -1,13 +1,13 @@
 {
-  "name": "@internet-of-people/morpheus-ts",
+  "name": "@internet-of-people/iop-ts",
   "version": "5.0.1",
   "author": {
-    "url": "https://iop.global/dsf",
+    "url": "https://iop-ventures.com/",
     "name": "Internet of People",
     "email": "prometheus@iop-ventures.com"
   },
   "private": true,
-  "license": "GPL-3.0-or-later",
+  "license": "LGPL-3.0-or-later",
   "scripts": {
     "install": "lerna bootstrap --ci",
     "build": "lerna run --stream --no-bail build",
