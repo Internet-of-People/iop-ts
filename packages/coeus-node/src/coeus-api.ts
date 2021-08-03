@@ -2,7 +2,7 @@ import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
 import { notFound } from '@hapi/boom';
 import { StateHandler } from './state-handler';
 import { IAppLog } from '@internet-of-people/hydra-plugin-core';
-import { DomainName, PublicKey } from '@internet-of-people/sdk-wasm';
+import { DomainName, PublicKey } from '@internet-of-people/node-wasm';
 
 
 export class CoeusAPI {

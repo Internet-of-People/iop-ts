@@ -275,7 +275,7 @@ describe('StateHandler', () => {
   it('default key can add new key', () => {
     addKey(5, keyId2, defaultKeyId, transactionId);
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
-    assertStringlyEqual(handler.query.getDidDocumentAt(defaultDid, 5).toData().keys[1].auth, keyId2);
+    assertStringlyEqual(handler.query.getDidDocumentAt(defaultDid.toString(), 5).toData().keys[1].auth, keyId2);
   });
 
   it('rights can be moved to a different key in a single transaction', () => {
@@ -308,7 +308,7 @@ describe('StateHandler', () => {
     addKey(5, keyId2, defaultKeyId, 'tx1');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
-    const doc5 = handler.query.getDidDocumentAt(defaultDid, 5).toData();
+    const doc5 = handler.query.getDidDocumentAt(defaultDid.toString(), 5).toData();
     expect(doc5.keys).toHaveLength(2);
     assertStringlyEqual(doc5.keys[0].auth, defaultKeyId);
     assertStringlyEqual(doc5.keys[1].auth, keyId2);
@@ -318,7 +318,7 @@ describe('StateHandler', () => {
     revokeKey(10, keyId2, defaultKeyId, 'tx2');
 
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
-    const doc10 = handler.query.getDidDocumentAt(defaultDid, 10).toData();
+    const doc10 = handler.query.getDidDocumentAt(defaultDid.toString(), 10).toData();
     expect(doc10.keys).toHaveLength(2);
     assertStringlyEqual(doc10.keys[0].auth, defaultKeyId);
     assertStringlyEqual(doc10.keys[1].auth, keyId2);
@@ -341,7 +341,7 @@ describe('StateHandler', () => {
 
     revokeKey(10, defaultKeyId, keyId2, 'tx3');
     expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
-    const doc10 = handler.query.getDidDocumentAt(defaultDid, 10).toData();
+    const doc10 = handler.query.getDidDocumentAt(defaultDid.toString(), 10).toData();
     expect(doc10.keys).toHaveLength(2);
     assertStringlyEqual(doc10.keys[0].auth, defaultKeyId);
     assertStringlyEqual(doc10.keys[1].auth, keyId2);
@@ -356,7 +356,7 @@ describe('StateHandler', () => {
 
     revokeKey(10, defaultKeyId, keyId2, 'tx2');
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
-    const doc10 = handler.query.getDidDocumentAt(defaultDid, 10).toData();
+    const doc10 = handler.query.getDidDocumentAt(defaultDid.toString(), 10).toData();
     expect(doc10.keys).toHaveLength(2);
     assertStringlyEqual(doc10.keys[0].auth, defaultKeyId);
     assertStringlyEqual(doc10.keys[1].auth, keyId2);
@@ -366,11 +366,11 @@ describe('StateHandler', () => {
 
   it('adding keys can be reverted', () => {
     const stateChange = addKey(5, keyId2, defaultKeyId, transactionId);
-    expect(handler.query.getDidDocumentAt(defaultDid, 5).toData().keys).toHaveLength(2);
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 5).toData().keys).toHaveLength(2);
 
     handler.revertTransactionFromState(stateChange);
 
-    expect(handler.query.getDidDocumentAt(defaultDid, 5).toData().keys).toHaveLength(1);
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 5).toData().keys).toHaveLength(1);
   });
 
   it('revoking keys can be reverted', () => {
@@ -378,13 +378,13 @@ describe('StateHandler', () => {
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
     const stateChange = revokeKey(10, keyId2, defaultKeyId, 'tx2');
-    const data10 = handler.query.getDidDocumentAt(defaultDid, 10).toData();
+    const data10 = handler.query.getDidDocumentAt(defaultDid.toString(), 10).toData();
     expect(data10.keys[0].valid).toBeTruthy();
     expect(data10.keys[1].valid).toBeFalsy();
 
     handler.revertTransactionFromState(stateChange);
 
-    const doc10AfterRevert = handler.query.getDidDocumentAt(defaultDid, 10).toData();
+    const doc10AfterRevert = handler.query.getDidDocumentAt(defaultDid.toString(), 10).toData();
     expect(doc10AfterRevert.keys[0].valid).toBeTruthy();
     expect(doc10AfterRevert.keys[1].valid).toBeTruthy();
   });
@@ -393,13 +393,13 @@ describe('StateHandler', () => {
     addKey(5, keyId2, defaultKeyId, 'tx1');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
-    const doc5 = handler.query.getDidDocumentAt(defaultDid, 5);
+    const doc5 = handler.query.getDidDocumentAt(defaultDid.toString(), 5);
     expect(doc5.hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeFalsy();
 
     addRight(10, keyId2, defaultKeyId, 'tx2');
 
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
-    const doc10 = handler.query.getDidDocumentAt(defaultDid, 10);
+    const doc10 = handler.query.getDidDocumentAt(defaultDid.toString(), 10);
     expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeFalsy();
     expect(doc10.hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
   });
@@ -407,7 +407,7 @@ describe('StateHandler', () => {
   it('cannot add right to a key that has not been added', () => {
     addRight(5, keyId2, defaultKeyId, transactionId);
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
-    expect(handler.query.getDidDocumentAt(defaultDid, 5).hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 5).hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeFalsy();
   });
 
   it('cannot add right with the same auth', () => {
@@ -419,24 +419,24 @@ describe('StateHandler', () => {
     addKey(5, keyId2, defaultKeyId, 'tx1');
     expect(handler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
-    expect(handler.query.getDidDocumentAt(defaultDid, 5).hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 5).hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeFalsy();
 
     addRight(5, keyId2, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx2';
-    expect(handler.query.getDidDocumentAt(defaultDid, 5).hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 5).hasRightAt(keyId2, RightRegistry.systemRights.update, 5)).toBeTruthy();
 
     revokeRight(15, keyId2, defaultKeyId, 'tx3');
     expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
 
-    const doc14 = handler.query.getDidDocumentAt(defaultDid, 14);
+    const doc14 = handler.query.getDidDocumentAt(defaultDid.toString(), 14);
     expect(doc14.hasRightAt(keyId2, RightRegistry.systemRights.update, 14)).toBeTruthy();
     expect(
       () => {
         return doc14.hasRightAt(keyId2, RightRegistry.systemRights.update, 15);
       },
     ).toThrowError('Cannot query at 15, latest block seen was 14');
-    const doc15 = handler.query.getDidDocumentAt(defaultDid, 15);
+    const doc15 = handler.query.getDidDocumentAt(defaultDid.toString(), 15);
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 14)).toBeTruthy();
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
@@ -449,7 +449,7 @@ describe('StateHandler', () => {
     revokeRight(10, keyId2, defaultKeyId, 'tx2');
 
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
-    expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeFalsy();
   });
 
   it('blockApplying can keep blockHeight the same', () => {
@@ -510,12 +510,12 @@ describe('StateHandler', () => {
     addRight(10, keyId3, defaultKeyId, 'tx4');
     expect(handler.query.isConfirmed('tx4')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx4';
-    expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
 
     revokeRight(15, keyId2, keyId3, 'tx5');
 
     expect(handler.query.isConfirmed('tx5')).toStrictEqual(Optional.of(true));
-    const doc15 = handler.query.getDidDocumentAt(defaultDid, 15);
+    const doc15 = handler.query.getDidDocumentAt(defaultDid.toString(), 15);
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 14)).toBeTruthy();
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
@@ -530,12 +530,12 @@ describe('StateHandler', () => {
     addRight(10, keyId2, defaultKeyId, 'tx3');
     expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx3';
-    expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
 
     revokeRight(15, keyId2, keyId3, 'tx4');
 
     expect(handler.query.isConfirmed('tx4')).toStrictEqual(Optional.of(false));
-    expect(handler.query.getDidDocumentAt(defaultDid, 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
   });
 
   it('cannot revoke right with the same auth', () => {
@@ -549,7 +549,7 @@ describe('StateHandler', () => {
     revokeRight(15, keyId2, keyId2, 'tx3');
 
     expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(false));
-    expect(handler.query.getDidDocumentAt(defaultDid, 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
   });
 
   it('adding rights can be reverted', () => {
@@ -559,12 +559,12 @@ describe('StateHandler', () => {
     const stateChange = addRight(10, keyId2, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx2';
-    expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
 
     handler.revertTransactionFromState(stateChange);
 
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.empty());
-    expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeFalsy();
   });
 
   it('revoking rights can be reverted', () => {
@@ -574,21 +574,21 @@ describe('StateHandler', () => {
     addRight(10, keyId2, defaultKeyId, 'tx2');
     expect(handler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx2';
-    expect(handler.query.getDidDocumentAt(defaultDid, 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 10).hasRightAt(keyId2, RightRegistry.systemRights.update, 10)).toBeTruthy();
     const stateChange = revokeRight(15, keyId2, defaultKeyId, 'tx3');
     expect(handler.query.isConfirmed('tx3')).toStrictEqual(Optional.of(true));
-    expect(handler.query.getDidDocumentAt(defaultDid, 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
 
     handler.revertTransactionFromState(stateChange);
 
-    expect(handler.query.getDidDocumentAt(defaultDid, 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 15).hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
   });
 
   it('did can be tombstoned', () => {
     tombstoneDid(15, transactionId);
 
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
-    const doc15 = handler.query.getDidDocumentAt(defaultDid, 15);
+    const doc15 = handler.query.getDidDocumentAt(defaultDid.toString(), 15);
     expect(doc15.isTombstonedAt(14)).toBeFalsy();
     expect(doc15.isTombstonedAt(15)).toBeTruthy();
   });
@@ -596,11 +596,11 @@ describe('StateHandler', () => {
   it('tombstoned did can be reverted', () => {
     const stateChange = tombstoneDid(15, transactionId);
     expect(handler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
-    expect(handler.query.getDidDocumentAt(defaultDid, 15).isTombstonedAt(15)).toBeTruthy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 15).isTombstonedAt(15)).toBeTruthy();
 
     handler.revertTransactionFromState(stateChange);
 
-    expect(handler.query.getDidDocumentAt(defaultDid, 15).isTombstonedAt(15)).toBeFalsy();
+    expect(handler.query.getDidDocumentAt(defaultDid.toString(), 15).isTombstonedAt(15)).toBeFalsy();
   });
 
   it('tombstoned did cannot be updated', () => {

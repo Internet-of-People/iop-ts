@@ -35,10 +35,10 @@ describe('DidOperationExtractor', () => {
     isConfirmed: jest.fn<Optional<boolean>, [TransactionId]>(),
     beforeProofExistsAt: jest.fn<boolean, [Types.Sdk.ContentId, number | undefined]>(),
     getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
-    getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
+    getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Types.Crypto.DidData, number]>(),
     getDidTransactionIds: jest.fn<
     Types.Layer2.ITransactionIdHeight[],
-    [Crypto.Did, boolean, number, number | undefined]
+    [Types.Crypto.DidData, boolean, number, number | undefined]
     >(),
   };
 
@@ -84,7 +84,7 @@ describe('DidOperationExtractor', () => {
     stateHandlerQueryMock.isConfirmed.mockImplementation(() => {
       return Optional.of(true);
     });
-    const didOps = await extractor.didOperationsOf(defaultDid, false, 0);
+    const didOps = await extractor.didOperationsOf(defaultDid.toString(), false, 0);
     expect(didOps).toHaveLength(3);
   });
 
@@ -95,7 +95,7 @@ describe('DidOperationExtractor', () => {
     stateHandlerQueryMock.isConfirmed.mockImplementation(() => {
       return Optional.of(false);
     });
-    const didOps = await extractor.didOperationsOf(did2, true, 0);
+    const didOps = await extractor.didOperationsOf(did2.toString(), true, 0);
     expect(didOps).toHaveLength(0);
   });
 });

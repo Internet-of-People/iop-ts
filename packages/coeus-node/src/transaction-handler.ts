@@ -10,7 +10,7 @@ import {
   COEUS_LOGGER_COMPONENT_NAME,
 } from '@internet-of-people/hydra-plugin-core';
 import { CoeusTransaction, ICoeusAsset } from '@internet-of-people/coeus-proto';
-import { CoeusAsset } from '@internet-of-people/sdk-wasm';
+import { CoeusAsset } from '@internet-of-people/node-wasm';
 
 import { StateHandler } from './state-handler';
 

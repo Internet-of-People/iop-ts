@@ -37,8 +37,13 @@ class Fixture {
       beforeProofExistsAt: jest.fn<boolean, [string, number | undefined]>(),
       getBeforeProofHistory: jest.fn<Types.Layer2.IBeforeProofHistory, [string]>(),
       isConfirmed: jest.fn<Optional<boolean>, [string]>(),
-      getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Crypto.Did, number]>(),
-      getDidTransactionIds: jest.fn<Types.Layer2.ITransactionIdHeight[], [Crypto.Did, boolean, number, number]>(),
+      getDidDocumentAt: jest.fn<Types.Layer2.IDidDocument, [Types.Crypto.DidData, number]>(),
+      getDidTransactionIds: jest.fn<Types.Layer2.ITransactionIdHeight[], [
+        Types.Crypto.DidData,
+        boolean,
+        number,
+        number
+      ]>(),
     },
     blockApplying: jest.fn<void, [IBlockHeightChange]>(),
     applyTransactionToState: jest.fn<void, [IStateChange]>(),
@@ -74,7 +79,7 @@ class Fixture {
     this.transactionReaderMock.hasNext.mockImplementationOnce(() => {
       return true;
     });
-    this.transactionReaderMock.read.mockImplementationOnce(async() => {
+    this.transactionReaderMock.read.mockImplementationOnce(async () => {
       return txns;
     });
   }
@@ -119,7 +124,7 @@ describe('TransactionHandler', () => {
     txHandler = fixture.createSut();
   });
 
-  it('bootstrap', async() => {
+  it('bootstrap', async () => {
     fixture.mockTransactionReader([
       fixture.createBootstrapTx({}, []),
     ]);
@@ -136,12 +141,12 @@ describe('TransactionHandler', () => {
     const processor: Partial<TransactionPool.IProcessor> = { pushError: jest.fn() };
     const pool: Partial<TransactionPool.IConnection> = {
       walletManager: new Wallets.WalletManager(),
-      getTransactionsByType: async(): Promise<Set<CryptoIf.ITransaction>> => {
+      getTransactionsByType: async (): Promise<Set<CryptoIf.ITransaction>> => {
         return new Set();
       },
     };
 
-    it('should not throw if the transaction is correct', async() => {
+    it('should not throw if the transaction is correct', async () => {
       const ops = new Layer1.OperationAttemptsBuilder()
         .registerBeforeProof('my content id')
         .getAttempts();
@@ -158,7 +163,7 @@ describe('TransactionHandler', () => {
       )).resolves.toBeNull();
     });
 
-    it('should throw if the transaction was sent with low fee set', async() => {
+    it('should throw if the transaction was sent with low fee set', async () => {
       const ops = new Layer1.OperationAttemptsBuilder()
         .registerBeforeProof('my content id')
         .getAttempts();

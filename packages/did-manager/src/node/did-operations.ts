@@ -1,5 +1,5 @@
 import Optional from 'optional-js';
-import { Layer1, Crypto, Types } from '@internet-of-people/sdk';
+import { Layer1, Types } from '@internet-of-people/sdk';
 import { IMorpheusStateHandler } from '../interfaces/morpheus';
 import { visitorFilterDid } from '../morpheus-transaction/operations/filter-did';
 
@@ -14,7 +14,7 @@ export class DidOperationExtractor {
   ) { }
 
   public async didOperationsOf(
-    did: Crypto.Did,
+    did: Types.Crypto.DidData,
     includeAttempts: boolean,
     fromHeightInc: number,
     untilHeightInc?: number,
@@ -34,7 +34,7 @@ export class DidOperationExtractor {
         })
         .operationAttempts;
 
-      const visitor = visitorFilterDid(did.toString());
+      const visitor = visitorFilterDid(did);
       const signedOperationsHierarchy = txOperations.map((item) => {
         return Layer1.fromData(item).accept(visitor);
       });

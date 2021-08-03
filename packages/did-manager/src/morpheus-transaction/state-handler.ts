@@ -1,5 +1,5 @@
 import { MorpheusState } from '@internet-of-people/node-wasm';
-import { Crypto, Types, Layer2 } from '@internet-of-people/sdk';
+import { Types, Layer2 } from '@internet-of-people/sdk';
 type IMorpheusAsset = Types.Layer1.IMorpheusAsset;
 
 import {
@@ -42,18 +42,18 @@ export class MorpheusStateHandler implements IMorpheusStateHandler {
         return optionalJs.ofNullable(this.state.isConfirmed(transactionId));
       },
 
-      getDidDocumentAt: (did: Crypto.Did, height: number): Types.Layer2.IDidDocument => {
+      getDidDocumentAt: (did: Types.Crypto.DidData, height: number): Types.Layer2.IDidDocument => {
         // TODO are we using the Rust implementation here?
-        return new Layer2.DidDocument(this.state.getDidDocumentAt(did.toString(), height));
+        return new Layer2.DidDocument(this.state.getDidDocumentAt(did, height));
       },
 
       getDidTransactionIds: (
-        did: Crypto.Did,
+        did: Types.Crypto.DidData,
         includeAttempts: boolean,
         fromHeightIncl: number,
         untilHeightIncl?: number,
       ): Types.Layer2.ITransactionIdHeight[] => {
-        return this.state.getTransactionHistory(did.toString(), includeAttempts, fromHeightIncl, untilHeightIncl);
+        return this.state.getTransactionHistory(did, includeAttempts, fromHeightIncl, untilHeightIncl);
       },
     };
   }

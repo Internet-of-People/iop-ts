@@ -1,7 +1,6 @@
 import { ICoeusAsset } from '@internet-of-people/coeus-proto';
 import { IAppLog } from '@internet-of-people/hydra-plugin-core';
-import { CoeusAsset } from '@internet-of-people/sdk-wasm';
-import { CoeusState } from '@internet-of-people/node-wasm';
+import { CoeusAsset, CoeusState } from '@internet-of-people/node-wasm';
 
 interface IBlockHeightChange {
   blockHeight: number;

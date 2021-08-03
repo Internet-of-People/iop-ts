@@ -1,6 +1,6 @@
 import { Lifecycle, Request, Server as HapiServer } from '@hapi/hapi';
 import { notFound } from '@hapi/boom';
-import { Crypto, Types } from '@internet-of-people/sdk';
+import { Types } from '@internet-of-people/sdk';
 import { IAppLog, safePathInt, safePathRange } from '@internet-of-people/hydra-plugin-core';
 import { IMorpheusStateHandler } from '../interfaces/morpheus';
 import { DidOperationExtractor, ITransactionRepository } from './did-operations';
@@ -42,7 +42,7 @@ export class MorpheusAPI {
           this.log.debug(
             `Getting DID document for ${did} at height ${queryAtHeight}, blockchain height is ${lastSeenBlockHeight}`,
           );
-          const document = this.stateHandler.query.getDidDocumentAt(new Crypto.Did(did), queryAtHeight);
+          const document = this.stateHandler.query.getDidDocumentAt(did, queryAtHeight);
           return document.toData();
         },
       },
@@ -52,7 +52,7 @@ export class MorpheusAPI {
         handler: async(request: Request): Promise<Lifecycle.ReturnValue> => {
           const { params: { did } } = request;
           this.log.debug(`Getting last DID transactions for ${did}`);
-          const transactionIds = this.stateHandler.query.getDidTransactionIds(new Crypto.Did(did), false, 0);
+          const transactionIds = this.stateHandler.query.getDidTransactionIds(did, false, 0);
 
           if (!transactionIds.length) {
             throw notFound(`DID ${did} has no transactions yet`);
@@ -69,7 +69,7 @@ export class MorpheusAPI {
           const [ fromHeightIncl, untilHeightIncl ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID transactions for ${did} from ${fromHeightIncl} to ${untilHeightIncl}`);
           return this.stateHandler.query.getDidTransactionIds(
-            new Crypto.Did(did), false, fromHeightIncl, untilHeightIncl,
+            did, false, fromHeightIncl, untilHeightIncl,
           );
         },
       },
@@ -81,7 +81,7 @@ export class MorpheusAPI {
           const [ fromHeightIncl, untilHeightIncl ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID transaction attempts for ${did} from ${fromHeightIncl} to ${untilHeightIncl}`);
           return this.stateHandler.query.getDidTransactionIds(
-            new Crypto.Did(did), true, fromHeightIncl, untilHeightIncl,
+            did, true, fromHeightIncl, untilHeightIncl,
           );
         },
       },
@@ -92,7 +92,7 @@ export class MorpheusAPI {
           const { params: { did, fromHeight, untilHeight } } = request;
           const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID operations for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.didOperations.didOperationsOf(new Crypto.Did(did), false, fromHeightInc, untilHeightExc);
+          return this.didOperations.didOperationsOf(did, false, fromHeightInc, untilHeightExc);
         },
       },
       {
@@ -102,7 +102,7 @@ export class MorpheusAPI {
           const { params: { did, fromHeight, untilHeight } } = request;
           const [ fromHeightInc, untilHeightExc ] = safePathRange(fromHeight, untilHeight);
           this.log.debug(`Getting DID operation attempts for ${did} from ${fromHeightInc} to ${untilHeightExc}`);
-          return this.didOperations.didOperationsOf(new Crypto.Did(did), true, fromHeightInc, untilHeightExc);
+          return this.didOperations.didOperationsOf(did, true, fromHeightInc, untilHeightExc);
         },
       },
       {
