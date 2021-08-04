@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.0.2
+
+- Fix old morpheus-ts links.
+- Fix wasm types.
+
 ## 5.0.1
 
 - Fix NPM release.
