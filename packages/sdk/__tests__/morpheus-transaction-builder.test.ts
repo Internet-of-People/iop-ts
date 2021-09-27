@@ -26,7 +26,7 @@ describe('MorpheusTransactionBuilder', () => {
   let signer: Crypto.MorpheusPrivate;
   let lastTxId: TransactionId | null;
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     const unlockPassword = 'correct horse battery staple';
     const vault = Crypto.Vault.create(Crypto.Seed.demoPhrase(), '', unlockPassword);
     Crypto.MorpheusPlugin.init(vault, unlockPassword);
@@ -79,7 +79,7 @@ describe('MorpheusTransactionBuilder', () => {
     opSigner.add(opData);
     const signedOps = ops[0] as Types.Layer1.ISignedOperationsData;
     const privateKey = signer.keyById(defaultKeyId).privateKey();
-    const wasmSignedOps: Types.Layer1.ISignedOperationsData = opSigner.signWithKey(privateKey).toJson();
+    const wasmSignedOps: Types.Layer1.ISignedOperationsData = opSigner.signWithKey(privateKey).toJSON();
     wasmSignedOps.operation = Layer1.OperationType.Signed;
     expect(wasmSignedOps).toStrictEqual(signedOps);
   });

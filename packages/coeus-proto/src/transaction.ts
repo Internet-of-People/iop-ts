@@ -23,7 +23,7 @@ export class CoeusTransaction extends Transactions.Transaction {
     // noinspection TypeScriptValidateJSTypes
     return Transactions.schemas.extend(Transactions.schemas.transactionBaseSchema, {
       $id: this.key,
-      required: [ 'asset', 'type', 'typeGroup' ],
+      required: ['asset', 'type', 'typeGroup'],
       properties: {
         type: { transactionType: this.type },
         typeGroup: { const: this.typeGroup },
@@ -45,7 +45,7 @@ export class CoeusTransaction extends Transactions.Transaction {
 
   private static signedBundleSchema(): object {
     return {
-      required: [ 'operations', 'nonce', 'publicKey', 'signature' ],
+      required: ['operations', 'nonce', 'publicKey', 'signature'],
       properties: {
         operations: {
           type: 'array',
@@ -70,13 +70,13 @@ export class CoeusTransaction extends Transactions.Transaction {
   private static registerSchema(): unknown {
     return {
       type: 'object',
-      required: [ 'type', 'name', 'owner', 'subtreePolicies', 'registrationPolicy', 'data', 'expiresAtHeight' ],
+      required: ['type', 'name', 'owner', 'subtreePolicies', 'registrationPolicy', 'data', 'expiresAtHeight'],
       properties: {
         type: { type: 'string', const: 'register' },
         name: this.domainNameSchema(),
         owner: { type: 'string' },
         subtreePolicies: this.subtreePolicySchema(),
-        registrationPolicy: { type: 'string', enum: [ 'any', 'owner' ] },
+        registrationPolicy: { type: 'string', enum: ['any', 'owner'] },
         data: this.domainData(),
         expiresAtHeight: { type: 'number' },
       },
@@ -86,7 +86,7 @@ export class CoeusTransaction extends Transactions.Transaction {
   private static updateSchema(): unknown {
     return {
       type: 'object',
-      required: [ 'type', 'name', 'data' ],
+      required: ['type', 'name', 'data'],
       properties: {
         type: { type: 'string', const: 'update' },
         name: this.domainNameSchema(),
@@ -98,7 +98,7 @@ export class CoeusTransaction extends Transactions.Transaction {
   private static renewSchema(): unknown {
     return {
       type: 'object',
-      required: [ 'type', 'name', 'expiresAtHeight' ],
+      required: ['type', 'name', 'expiresAtHeight'],
       properties: {
         type: { type: 'string', const: 'renew' },
         name: this.domainNameSchema(),
@@ -110,7 +110,7 @@ export class CoeusTransaction extends Transactions.Transaction {
   private static transferSchema(): unknown {
     return {
       type: 'object',
-      required: [ 'type', 'name', 'toOwner' ],
+      required: ['type', 'name', 'toOwner'],
       properties: {
         type: { type: 'string', const: 'transfer' },
         name: this.domainNameSchema(),
@@ -122,7 +122,7 @@ export class CoeusTransaction extends Transactions.Transaction {
   private static deleteSchema(): unknown {
     return {
       type: 'object',
-      required: [ 'type', 'name' ],
+      required: ['type', 'name'],
       properties: {
         type: { type: 'string', const: 'delete' },
         name: this.domainNameSchema(),
@@ -135,7 +135,7 @@ export class CoeusTransaction extends Transactions.Transaction {
   }
 
   private static domainData(): unknown {
-    return { type: [ 'object', 'array', 'string', 'number' ] };
+    return { type: ['object', 'array', 'string', 'number'] };
   }
 
   private static subtreePolicySchema(): unknown {
@@ -166,6 +166,6 @@ export class CoeusTransaction extends Transactions.Transaction {
 
     const bytes: Uint8Array = Uint8Array.from(frameBytes.toBuffer());
     const ops = CoeusAsset.deserialize(bytes);
-    this.data.asset = ops.toJson();
+    this.data.asset = ops.toJSON();
   }
 }

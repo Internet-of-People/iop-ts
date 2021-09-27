@@ -514,7 +514,7 @@ export class CoeusAsset {
 /**
 * @returns {any}
 */
-  toJson(): any;
+  toJSON(): any;
 }
 /**
 */
@@ -941,6 +941,11 @@ export class MorpheusPlugin {
 export class MorpheusPrivate {
   free(): void;
 /**
+* @param {string} did_kind
+* @returns {MorpheusPrivateKind}
+*/
+  kind(did_kind: string): MorpheusPrivateKind;
+/**
 * @param {PublicKey} pk
 * @returns {MorpheusPrivateKey}
 */
@@ -977,11 +982,23 @@ export class MorpheusPrivate {
 /**
 * @returns {MorpheusPrivateKind}
 */
+  readonly devices: MorpheusPrivateKind;
+/**
+* @returns {MorpheusPrivateKind}
+*/
+  readonly groups: MorpheusPrivateKind;
+/**
+* @returns {MorpheusPrivateKind}
+*/
   readonly personas: MorpheusPrivateKind;
 /**
 * @returns {MorpheusPublic}
 */
   readonly pub: MorpheusPublic;
+/**
+* @returns {MorpheusPrivateKind}
+*/
+  readonly resources: MorpheusPrivateKind;
 }
 /**
 */
@@ -1045,6 +1062,11 @@ export class MorpheusPrivateKind {
 export class MorpheusPublic {
   free(): void;
 /**
+* @param {string} did_kind
+* @returns {MorpheusPublicKind}
+*/
+  kind(did_kind: string): MorpheusPublicKind;
+/**
 * @param {KeyId} id
 * @returns {PublicKey}
 */
@@ -1052,7 +1074,19 @@ export class MorpheusPublic {
 /**
 * @returns {MorpheusPublicKind}
 */
+  readonly devices: MorpheusPublicKind;
+/**
+* @returns {MorpheusPublicKind}
+*/
+  readonly groups: MorpheusPublicKind;
+/**
+* @returns {MorpheusPublicKind}
+*/
   readonly personas: MorpheusPublicKind;
+/**
+* @returns {MorpheusPublicKind}
+*/
+  readonly resources: MorpheusPublicKind;
 }
 /**
 */
@@ -1108,9 +1142,26 @@ export class MorpheusPublicKind {
 export class MorpheusRoot {
   free(): void;
 /**
+* @param {string} did_kind
+* @returns {MorpheusKind}
+*/
+  kind(did_kind: string): MorpheusKind;
+/**
 * @returns {MorpheusKind}
 */
   personas(): MorpheusKind;
+/**
+* @returns {MorpheusKind}
+*/
+  devices(): MorpheusKind;
+/**
+* @returns {MorpheusKind}
+*/
+  groups(): MorpheusKind;
+/**
+* @returns {MorpheusKind}
+*/
+  resources(): MorpheusKind;
 /**
 * @returns {string}
 */
@@ -1123,7 +1174,7 @@ export class MorpheusSignableOperation {
 /**
 * @returns {any}
 */
-  toJson(): any;
+  toJSON(): any;
 }
 /**
 */
@@ -1132,7 +1183,7 @@ export class MorpheusSignedOperation {
 /**
 * @returns {any}
 */
-  toJson(): any;
+  toJSON(): any;
 }
 /**
 */
@@ -1491,6 +1542,15 @@ export class SignedJson {
 * @returns {any}
 */
   validateWithDidDoc(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
+/**
+* @returns {any}
+*/
+  toJSON(): any;
+/**
+* @param {any} json
+* @returns {SignedJson}
+*/
+  static fromJSON(json: any): SignedJson;
 /**
 * @returns {any}
 */

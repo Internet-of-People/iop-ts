@@ -1,7 +1,7 @@
 let imports = {};
 imports['__wbindgen_placeholder__'] = module.exports;
 let wasm;
-const { TextDecoder, TextEncoder } = require(String.raw`util`);
+const { TextDecoder, TextEncoder } = require(`util`);
 
 const heap = new Array(32).fill(undefined);
 
@@ -1675,8 +1675,8 @@ class CoeusAsset {
     /**
     * @returns {any}
     */
-    toJson() {
-        var ret = wasm.coeusasset_toJson(this.ptr);
+    toJSON() {
+        var ret = wasm.coeusasset_toJSON(this.ptr);
         return takeObject(ret);
     }
 }
@@ -2494,10 +2494,41 @@ class MorpheusRoot {
         }
     }
     /**
+    * @param {string} did_kind
+    * @returns {MorpheusKind}
+    */
+    kind(did_kind) {
+        var ptr0 = passStringToWasm0(did_kind, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        var ret = wasm.morpheusroot_kind(this.ptr, ptr0, len0);
+        return MorpheusKind.__wrap(ret);
+    }
+    /**
     * @returns {MorpheusKind}
     */
     personas() {
         var ret = wasm.morpheusroot_personas(this.ptr);
+        return MorpheusKind.__wrap(ret);
+    }
+    /**
+    * @returns {MorpheusKind}
+    */
+    devices() {
+        var ret = wasm.morpheusroot_devices(this.ptr);
+        return MorpheusKind.__wrap(ret);
+    }
+    /**
+    * @returns {MorpheusKind}
+    */
+    groups() {
+        var ret = wasm.morpheusroot_groups(this.ptr);
+        return MorpheusKind.__wrap(ret);
+    }
+    /**
+    * @returns {MorpheusKind}
+    */
+    resources() {
+        var ret = wasm.morpheusroot_resources(this.ptr);
         return MorpheusKind.__wrap(ret);
     }
 }
@@ -3696,6 +3727,25 @@ class SignedJson {
         var ret = wasm.signedjson_validateWithDidDoc(this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
         return takeObject(ret);
     }
+    /**
+    * @returns {any}
+    */
+    toJSON() {
+        var ret = wasm.signedjson_toJSON(this.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @param {any} json
+    * @returns {SignedJson}
+    */
+    static fromJSON(json) {
+        try {
+            var ret = wasm.signedjson_fromJSON(addBorrowedObject(json));
+            return SignedJson.__wrap(ret);
+        } finally {
+            heap[stack_pointer++] = undefined;
+        }
+    }
 }
 module.exports.SignedJson = SignedJson;
 /**
@@ -3977,13 +4027,13 @@ module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
-module.exports.__wbg_validationissue_new = function(arg0) {
-    var ret = ValidationIssue.__wrap(arg0);
+module.exports.__wbg_validationresult_new = function(arg0) {
+    var ret = ValidationResult.__wrap(arg0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_validationresult_new = function(arg0) {
-    var ret = ValidationResult.__wrap(arg0);
+module.exports.__wbg_validationissue_new = function(arg0) {
+    var ret = ValidationIssue.__wrap(arg0);
     return addHeapObject(ret);
 };
 
@@ -4021,10 +4071,10 @@ module.exports.__wbg_node_4b517d861cbcb3bc = function(arg0) {
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_modulerequire_3440a4bcf44437db = function() { return handleError(function (arg0, arg1) {
-    var ret = module.require(getStringFromWasm0(arg0, arg1));
-    return addHeapObject(ret);
-}, arguments) };
+module.exports.__wbindgen_is_string = function(arg0) {
+    var ret = typeof(getObject(arg0)) === 'string';
+    return ret;
+};
 
 module.exports.__wbg_crypto_98fc271021c7d2ad = function(arg0) {
     var ret = getObject(arg0).crypto;
@@ -4036,47 +4086,52 @@ module.exports.__wbg_msCrypto_a2cdb043d2bfe57f = function(arg0) {
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_now_44a034aa2e1d73dd = function(arg0) {
+module.exports.__wbg_modulerequire_3440a4bcf44437db = function() { return handleError(function (arg0, arg1) {
+    var ret = module.require(getStringFromWasm0(arg0, arg1));
+    return addHeapObject(ret);
+}, arguments) };
+
+module.exports.__wbg_now_559193109055ebad = function(arg0) {
     var ret = getObject(arg0).now();
     return ret;
 };
 
-module.exports.__wbg_newnoargs_9fdd8f3961dd1bee = function(arg0, arg1) {
+module.exports.__wbg_newnoargs_be86524d73f67598 = function(arg0, arg1) {
     var ret = new Function(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_call_ba36642bd901572b = function() { return handleError(function (arg0, arg1) {
+module.exports.__wbg_call_888d259a5fefc347 = function() { return handleError(function (arg0, arg1) {
     var ret = getObject(arg0).call(getObject(arg1));
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_getTime_55dfad3366aec58a = function(arg0) {
+module.exports.__wbg_getTime_10d33f4f2959e5dd = function(arg0) {
     var ret = getObject(arg0).getTime();
     return ret;
 };
 
-module.exports.__wbg_new0_85024d5e91a046e9 = function() {
+module.exports.__wbg_new0_fd3a3a290b25cdac = function() {
     var ret = new Date();
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_self_bb69a836a72ec6e9 = function() { return handleError(function () {
+module.exports.__wbg_self_c6fbdfc2918d5e58 = function() { return handleError(function () {
     var ret = self.self;
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_window_3304fc4b414c9693 = function() { return handleError(function () {
+module.exports.__wbg_window_baec038b5ab35c54 = function() { return handleError(function () {
     var ret = window.window;
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_globalThis_e0d21cabc6630763 = function() { return handleError(function () {
+module.exports.__wbg_globalThis_3f735a5746d41fbd = function() { return handleError(function () {
     var ret = globalThis.globalThis;
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_global_8463719227271676 = function() { return handleError(function () {
+module.exports.__wbg_global_1bc0b39582740e95 = function() { return handleError(function () {
     var ret = global.global;
     return addHeapObject(ret);
 }, arguments) };
@@ -4086,44 +4141,39 @@ module.exports.__wbindgen_is_undefined = function(arg0) {
     return ret;
 };
 
-module.exports.__wbg_buffer_9e184d6f785de5ed = function(arg0) {
+module.exports.__wbg_buffer_397eaa4d72ee94dd = function(arg0) {
     var ret = getObject(arg0).buffer;
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_new_e8101319e4cf95fc = function(arg0) {
+module.exports.__wbg_new_a7ce447f15ff496f = function(arg0) {
     var ret = new Uint8Array(getObject(arg0));
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_set_e8ae7b27314e8b98 = function(arg0, arg1, arg2) {
+module.exports.__wbg_set_969ad0a60e51d320 = function(arg0, arg1, arg2) {
     getObject(arg0).set(getObject(arg1), arg2 >>> 0);
 };
 
-module.exports.__wbg_length_2d56cb37075fcfb1 = function(arg0) {
+module.exports.__wbg_length_1eb8fc608a0d4cdb = function(arg0) {
     var ret = getObject(arg0).length;
     return ret;
 };
 
-module.exports.__wbg_newwithlength_a8d1dbcbe703a5c6 = function(arg0) {
+module.exports.__wbg_newwithlength_929232475839a482 = function(arg0) {
     var ret = new Uint8Array(arg0 >>> 0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_subarray_901ede8318da52a6 = function(arg0, arg1, arg2) {
+module.exports.__wbg_subarray_8b658422a224f479 = function(arg0, arg1, arg2) {
     var ret = getObject(arg0).subarray(arg1 >>> 0, arg2 >>> 0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_get_800098c980b31ea2 = function() { return handleError(function (arg0, arg1) {
+module.exports.__wbg_get_4d0f21c2f823742e = function() { return handleError(function (arg0, arg1) {
     var ret = Reflect.get(getObject(arg0), getObject(arg1));
     return addHeapObject(ret);
 }, arguments) };
-
-module.exports.__wbindgen_is_string = function(arg0) {
-    var ret = typeof(getObject(arg0)) === 'string';
-    return ret;
-};
 
 module.exports.__wbindgen_debug_string = function(arg0, arg1) {
     var ret = debugString(getObject(arg1));

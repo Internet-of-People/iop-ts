@@ -514,7 +514,7 @@ export class CoeusAsset {
 /**
 * @returns {any}
 */
-  toJson(): any;
+  toJSON(): any;
 }
 /**
 */
@@ -779,9 +779,26 @@ export class MorpheusPublicKey {
 export class MorpheusRoot {
   free(): void;
 /**
+* @param {string} did_kind
+* @returns {MorpheusKind}
+*/
+  kind(did_kind: string): MorpheusKind;
+/**
 * @returns {MorpheusKind}
 */
   personas(): MorpheusKind;
+/**
+* @returns {MorpheusKind}
+*/
+  devices(): MorpheusKind;
+/**
+* @returns {MorpheusKind}
+*/
+  groups(): MorpheusKind;
+/**
+* @returns {MorpheusKind}
+*/
+  resources(): MorpheusKind;
 /**
 * @returns {string}
 */
@@ -1205,6 +1222,15 @@ export class SignedJson {
 * @returns {any}
 */
   validateWithDidDoc(did_doc_str: string, from_height_inc?: number, until_height_exc?: number): any;
+/**
+* @returns {any}
+*/
+  toJSON(): any;
+/**
+* @param {any} json
+* @returns {SignedJson}
+*/
+  static fromJSON(json: any): SignedJson;
 /**
 * @returns {any}
 */

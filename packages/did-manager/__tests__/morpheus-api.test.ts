@@ -63,7 +63,7 @@ describe('MorpheusAPI', () => {
     signer.personas.key(2); // creates 3 dids
   });
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     fixture = new Fixture();
     lastTxId = null;
     hapiServer = await createServer({ host: '0.0.0.0', port: '4703' });
@@ -71,7 +71,7 @@ describe('MorpheusAPI', () => {
     await morpheusServer.init(hapiServer);
   });
 
-  afterEach(async() => {
+  afterEach(async () => {
     await hapiServer.stop();
   });
 
@@ -199,7 +199,7 @@ describe('MorpheusAPI', () => {
     fixture.stateHandler.applyTransactionToState(stateChange);
   };
 
-  it('plugin is only available via versioned api', async() => {
+  it('plugin is only available via versioned api', async () => {
     const res = await hapiServer.inject({
       method: 'get',
       url: '/before-proof/invalid_content_id/exists',
@@ -207,7 +207,7 @@ describe('MorpheusAPI', () => {
     expect(res.statusCode).toBe(404);
   });
 
-  it('unregistered content does not exist', async() => {
+  it('unregistered content does not exist', async () => {
     const res = await hapiServer.inject({
       method: 'get',
       url: '/morpheus/v1/before-proof/invalid_content_id/exists',
@@ -216,11 +216,12 @@ describe('MorpheusAPI', () => {
     expect(res.payload).toBe(JSON.stringify(false));
   });
 
-  it('unregistered content still has a history', async() => {
+  it('unregistered content still has a history', async () => {
     fixture.stateHandler.blockApplying({ blockHeight, blockId: 'SomeBlockId' });
     const expectedHistory: IBeforeProofHistory = {
       contentId,
       existsFromHeight: null,
+      txid: null,
       queriedAtHeight: blockHeight,
     };
 
@@ -233,11 +234,12 @@ describe('MorpheusAPI', () => {
     expect(history.payload).toBe(JSON.stringify(expectedHistory));
   });
 
-  it('registered content returns history', async() => {
+  it('registered content returns history', async () => {
     registerBeforeProof();
     const expectedHistory: IBeforeProofHistory = {
       contentId,
       existsFromHeight: blockHeight,
+      txid: transactionId,
       queriedAtHeight: blockHeight,
     };
     const history = await hapiServer.inject({
@@ -248,7 +250,7 @@ describe('MorpheusAPI', () => {
     expect(history.payload).toBe(JSON.stringify(expectedHistory));
   });
 
-  it('registered content exists only from its height', async() => {
+  it('registered content exists only from its height', async () => {
     registerBeforeProof();
 
     const res5 = await hapiServer.inject({
@@ -273,7 +275,7 @@ describe('MorpheusAPI', () => {
     expect(res4.payload).toBe(JSON.stringify(false));
   });
 
-  it('can query implicit did', async() => {
+  it('can query implicit did', async () => {
     fixture.stateHandler.blockApplying({ blockHeight: 100, blockId: 'SomeBlockId' });
     const res = await hapiServer.inject({
       method: 'get',
@@ -292,7 +294,7 @@ describe('MorpheusAPI', () => {
     expect(doc.isTombstonedAt(0)).toBeFalsy();
   });
 
-  it('can add key to did', async() => {
+  it('can add key to did', async () => {
     addKey(keyId2, 10, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
@@ -316,7 +318,7 @@ describe('MorpheusAPI', () => {
     expect(doc.isTombstonedAt(10)).toBeFalsy();
   });
 
-  it('can revoke key from did', async() => {
+  it('can revoke key from did', async () => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
@@ -351,7 +353,7 @@ describe('MorpheusAPI', () => {
     expect(doc15.keys[1].valid).toBeFalsy();
   });
 
-  it('can add right to a key', async() => {
+  it('can add right to a key', async () => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
@@ -378,7 +380,7 @@ describe('MorpheusAPI', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeTruthy();
   });
 
-  it('cannot add right to a non-existent key', async() => {
+  it('cannot add right to a non-existent key', async () => {
     addRight(keyId2, 15, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
 
@@ -396,7 +398,7 @@ describe('MorpheusAPI', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.impersonate, 15)).toBeFalsy();
   });
 
-  it('can revoke right from a key', async() => {
+  it('can revoke right from a key', async () => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
@@ -443,7 +445,7 @@ describe('MorpheusAPI', () => {
     expect(doc20.hasRightAt(keyId2, RightRegistry.systemRights.update, 20)).toBeFalsy();
   });
 
-  it('cannot revoke right from a non-existent key', async() => {
+  it('cannot revoke right from a non-existent key', async () => {
     addRight(keyId2, 15, 'tx2', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx2')).toStrictEqual(Optional.of(false));
 
@@ -466,7 +468,7 @@ describe('MorpheusAPI', () => {
     expect(doc20.hasRightAt(keyId2, RightRegistry.systemRights.update, 20)).toBeFalsy();
   });
 
-  it('cannot update did if has no update right', async() => {
+  it('cannot update did if has no update right', async () => {
     addKey(keyId2, 10, 'tx1', defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed('tx1')).toStrictEqual(Optional.of(true));
     lastTxId = 'tx1';
@@ -498,7 +500,7 @@ describe('MorpheusAPI', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
-  it('can tombstone did', async() => {
+  it('can tombstone did', async () => {
     tombstoneDid(15, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
@@ -535,7 +537,7 @@ describe('MorpheusAPI', () => {
     expect(doc15.hasRightAt(keyId2, RightRegistry.systemRights.update, 15)).toBeFalsy();
   });
 
-  const getDidTransactions = async(includeAttempts: boolean, did: Crypto.Did,
+  const getDidTransactions = async (includeAttempts: boolean, did: Crypto.Did,
     fromHeight: number, untilHeight?: number): Promise<TransactionId[]> => {
     const endpoint = includeAttempts ? 'transaction-attempts' : 'transactions';
     let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
@@ -549,7 +551,7 @@ describe('MorpheusAPI', () => {
     return data;
   };
 
-  const getDidOperations = async(includeAttempts: boolean, did: Crypto.Did,
+  const getDidOperations = async (includeAttempts: boolean, did: Crypto.Did,
     fromHeight: number, untilHeight?: number): Promise<Types.Layer2.IDidOperation[]> => {
     const endpoint = includeAttempts ? 'operation-attempts' : 'operations';
     let url = `/morpheus/v1/did/${did}/${endpoint}/${fromHeight}/`;
@@ -563,7 +565,7 @@ describe('MorpheusAPI', () => {
     return data;
   };
 
-  it('can query valid operations for implicit Did Document', async() => {
+  it('can query valid operations for implicit Did Document', async () => {
     fixture.stateHandler.blockApplying({ blockHeight: 100, blockId: 'SomeBlockId' });
     const defaultDidData = await getDidOperations(false, defaultDid, blockHeight);
     expect(defaultDidData).toHaveLength(0);
@@ -680,7 +682,7 @@ describe('MorpheusAPI', () => {
     },
   ];
 
-  it('can query multiple valid complex transactions', async() => {
+  it('can query multiple valid complex transactions', async () => {
     const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidTransactions(false, defaultDid, blockHeight, endHeight);
@@ -696,7 +698,7 @@ describe('MorpheusAPI', () => {
     expect(did3Data).toStrictEqual([]);
   });
 
-  it('can query multiple valid complex operations', async() => {
+  it('can query multiple valid complex operations', async () => {
     const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidOperations(false, defaultDid, blockHeight, endHeight);
@@ -721,13 +723,13 @@ describe('MorpheusAPI', () => {
     expect(did3Data).toStrictEqual([]);
   });
 
-  it('can query all operation-attempts for implicit Did Document', async() => {
+  it('can query all operation-attempts for implicit Did Document', async () => {
     fixture.stateHandler.blockApplying({ blockHeight: 100, blockId: 'SomeBlockId' });
     const defaultDidData = await getDidOperations(true, defaultDid, blockHeight);
     expect(defaultDidData).toHaveLength(0);
   });
 
-  it('can query multiple complex transaction attempts, including both valid and invalid ones', async() => {
+  it('can query multiple complex transaction attempts, including both valid and invalid ones', async () => {
     const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidTransactions(true, defaultDid, blockHeight, endHeight);
@@ -746,7 +748,7 @@ describe('MorpheusAPI', () => {
     expect(did3Data).toStrictEqual([{ transactionId: 'thirdTransactionId', height: 102 }]);
   });
 
-  it('can query multiple complex operation attempts, including both valid and invalid ones', async() => {
+  it('can query multiple complex operation attempts, including both valid and invalid ones', async () => {
     const endHeight = applyComplexTransactionSequence();
 
     const defaultDidData = await getDidOperations(true, defaultDid, blockHeight, endHeight);
@@ -794,7 +796,7 @@ describe('MorpheusAPI', () => {
     ]);
   });
 
-  it('can check transaction validity', async() => {
+  it('can check transaction validity', async () => {
     const attempts = new Layer1.OperationAttemptsBuilder()
       .signWith(signer)
       .on(defaultDid, null)
@@ -812,7 +814,7 @@ describe('MorpheusAPI', () => {
     expect(errors[0].invalidOperationAttempt).toStrictEqual(attempts[0]);
   });
 
-  it('transaction status gives 404 for tx not seen by morpheus', async() => {
+  it('transaction status gives 404 for tx not seen by morpheus', async () => {
     const txid = 'c18894aa5ffe6f819dc98770d1eb9c4357c4d1ef73221fd5937cc360a54dd77f';
     expect(fixture.stateHandler.query.isConfirmed(txid)).toStrictEqual(Optional.empty());
     const res = await hapiServer.inject({
@@ -824,7 +826,7 @@ describe('MorpheusAPI', () => {
     expect(res.payload).toMatch('not processed');
   });
 
-  it('confirmed transaction status gives true', async() => {
+  it('confirmed transaction status gives true', async () => {
     addKey(keyId2, 10, transactionId, defaultKeyId);
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(true));
 
@@ -837,7 +839,7 @@ describe('MorpheusAPI', () => {
     expect(res.payload).toBe('true');
   });
 
-  it('rejected transaction status gives false', async() => {
+  it('rejected transaction status gives false', async () => {
     addRight(keyId2, 10, transactionId, defaultKeyId); // key not added yet
     expect(fixture.stateHandler.query.isConfirmed(transactionId)).toStrictEqual(Optional.of(false));
 

@@ -165,7 +165,7 @@ export class Api implements Types.Layer1.IApi {
     const signedTx = tx
       .sign(fromPassphrase)
       .build()
-      .toJson();
+      .toJSON();
 
     return this.clientInstance.sendTx(signedTx);
   }
@@ -338,10 +338,10 @@ export class Api implements Types.Layer1.IApi {
   }
 }
 
-export const createApi = async(networkConfig: NetworkConfig): Promise<Types.Layer1.IApi> => {
+export const createApi = async (networkConfig: NetworkConfig): Promise<Types.Layer1.IApi> => {
   const api = new Api(new AxiosClient(networkConfig));
 
-  const [ cryptoConfig, height ] = await Promise.all([
+  const [cryptoConfig, height] = await Promise.all([
     api.getNodeCryptoConfig(),
     api.getCurrentHeight(),
   ]);
