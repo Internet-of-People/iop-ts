@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/did-manager",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "private": false,
   "author": {
     "url": "https://iop-ventures.com/",
@@ -42,9 +42,9 @@
     "@arkecosystem/core-transactions": "^2.7.24",
     "@hapi/hapi": "^18.3.1",
     "@hapi/boom": "^8.0.0",
-    "@internet-of-people/hydra-plugin-core": "5.0.3",
-    "@internet-of-people/sdk": "5.0.3",
-    "@internet-of-people/node-wasm": "0.0.14",
+    "@internet-of-people/hydra-plugin-core": "5.0.4",
+    "@internet-of-people/sdk": "5.0.4",
+    "@internet-of-people/node-wasm": "0.0.15",
     "awilix": "^4.2.2",
     "lodash.clonedeep": "4.5.0",
     "optional-js": "2.1.1"

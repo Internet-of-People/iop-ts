@@ -1,6 +1,6 @@
 {
   "name": "@internet-of-people/coeus-node",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "private": false,
   "author": {
     "url": "https://iop-ventures.com/",
@@ -32,9 +32,9 @@
     "@arkecosystem/crypto": "^2.7.24",
     "@hapi/hapi": "^18.3.1",
     "@hapi/boom": "^8.0.0",
-    "@internet-of-people/hydra-plugin-core": "5.0.3",
-    "@internet-of-people/coeus-proto": "5.0.3",
-    "@internet-of-people/node-wasm": "0.0.14"
+    "@internet-of-people/hydra-plugin-core": "5.0.4",
+    "@internet-of-people/coeus-proto": "5.0.4",
+    "@internet-of-people/node-wasm": "0.0.15"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "2.11.0",

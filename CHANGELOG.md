@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.4
+
+- Fix release issues.
+
 ## 5.0.3
 
 - Updated WASM verions to 0.0.15. BREAKING CHANGE: `toJson` methods changed to `toJSON`.
