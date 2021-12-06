@@ -40,5 +40,5 @@ describe('Serialize/deserialize works', () => {
     const jsonString = JSON.stringify(asset);
     const parsedJson = JSON.parse(jsonString);
     expect(parsedJson).toStrictEqual(json);
-  })
+  });
 });

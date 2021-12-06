@@ -42,7 +42,7 @@ export class Composite implements IInitializable {
   }
 
   public async init(): Promise<void> {
-    this.log.info('Version: 5.0.2');
+    this.log.info('Version: 5.0.3');
     this.log.info('Initializing');
 
     for (const component of this.subcomponents) {
