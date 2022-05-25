@@ -21,7 +21,7 @@ export class AxiosClient implements Layer1.IClient {
   }
 
   public async sendTx(tx: Interfaces.ITransactionJson): Promise<string> {
-    log('Sending tx...'); // JSON.stringify({ transactions: [tx] })
+    log('Sending tx...');
     const resp = await apiPost(this.clientInstance, '/transactions', JSON.stringify({ transactions: [tx] }));
 
     if (resp.data.data.invalid && resp.data.data.invalid.length > 0) {
@@ -40,6 +40,30 @@ export class AxiosClient implements Layer1.IClient {
 
     log('Tx sent, id:', accept[0]);
     return accept[0];
+  }
+
+  public async sendMultipleTx(transactions: Interfaces.ITransactionJson[]): Promise<Layer1.ITransactionResult> {
+    log('Sending txns...');
+    const resp = await apiPost(this.clientInstance, '/transactions', JSON.stringify({ transactions }));
+
+    if (resp.data.data.invalid && resp.data.data.invalid.length > 0) {
+      /* eslint no-undefined: 0 */
+      throw new Error(`Transaction failed: ${JSON.stringify(resp.data.errors, undefined, 2)}`);
+    }
+
+    const { accept, invalid } = resp.data.data;
+
+    log('Tx sent, id:', accept[0]);
+    const result: Layer1.ITransactionResult = {
+      accept,
+      invalid,
+    };
+
+    if (invalid.length > 0) {
+      result.errorResponse = JSON.stringify(resp.data, undefined, 2);
+    }
+
+    return result;
   }
 
   public async getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<Layer1.ITransactionStatus>> {

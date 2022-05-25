@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.5
+
+- Enable sending multitple layer-1 transactions in one request.
+
 ## 5.0.4
 
 - Fix release issues.

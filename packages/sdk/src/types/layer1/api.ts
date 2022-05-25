@@ -13,6 +13,12 @@ export interface ITimestamp {
   human: string;
 }
 
+export interface ITransactionResult {
+  accept: string[];
+  invalid: string[];
+  errorResponse?: string;
+}
+
 export interface ITransactionStatus {
   id?: string;
   blockId?: string;
