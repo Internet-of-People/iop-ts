@@ -105,7 +105,7 @@ describe('Coeus transaction', () => {
 
     expect(fixture.axiosClientMock.getWalletNonce).toHaveBeenCalledTimes(1);
     // TODO: somewhy it sometimes fails
-    //expect(fixture.axiosClientMock.getWalletNonce).toHaveReturnedWith(Promise.resolve(hydraNonce));
+    // expect(fixture.axiosClientMock.getWalletNonce).toHaveReturnedWith(Promise.resolve(hydraNonce));
   });
 
   it('sendCoeusTx passes correct arguments to sendTx (without a nonce)', async() => {

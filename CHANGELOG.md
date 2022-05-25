@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.6
+
+- Fix layer-1 `sendMultipleTx` method.
+
 ## 5.0.5
 
 - Enable sending multitple layer-1 transactions in one request.
