@@ -81,6 +81,10 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
+  public async sendMultipleTx(signedTxns: Interfaces.ITransactionData[]): Promise<Types.Layer1.ITransactionResult> {
+    return this.clientInstance.sendMultipleTx(signedTxns as unknown as Interfaces.ITransactionJson[]);
+  }
+
   /* eslint-disable-next-line max-params */
   public async sendVoteTx(
     fromAddress: string,

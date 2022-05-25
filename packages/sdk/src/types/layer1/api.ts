@@ -45,6 +45,8 @@ export interface IClient {
 
   sendTx(tx: Interfaces.ITransactionJson): Promise<string>;
 
+  sendMultipleTx(transactions: Interfaces.ITransactionJson[]): Promise<ITransactionResult>;
+
   getTxnStatus(txId: Sdk.TransactionId): Promise<Optional<ITransactionStatus>>;
 
   getWallet(address: string): Promise<Optional<IWalletResponse>>;
@@ -74,6 +76,8 @@ export interface IApi {
   ): Promise<string>;
 
   sendTx(signedTx: Interfaces.ITransactionData): Promise<string>;
+
+  sendMultipleTx(signedTxns: Interfaces.ITransactionData[]): Promise<ITransactionResult>;
 
   sendVoteTx(
     fromAddress: string,
