@@ -1,19 +1,28 @@
 import {
+  allNetworkNames,
   Coin,
+  HydraParameters,
   HydraPlugin,
+  HydraSigner,
+  HydraTxBuilder,
   KeyId,
   MorpheusPlugin,
+  SecpKeyId,
   Seed,
   Vault,
-  HydraParameters,
-  SecpKeyId,
-  HydraSigner,
 } from '../src';
 import { installWindowCrypto } from './utils';
-import { HydraTxBuilder } from '@internet-of-people/sdk-wasm';
 
 installWindowCrypto();
 const unlockPassword = 'correct horse battery staple';
+
+it('Check list of networks', () => {
+  const networks = allNetworkNames();
+  expect(networks).toContain('HYD mainnet');
+  expect(networks).toContain('ARK devnet');
+  expect(networks).toContain('BTC testnet');
+  expect(networks).toContain('IOP testnet'); // This is the deprecated PoW-PoA hybrid network replaced by hydraledger.io
+});
 
 describe('Vault BIP44 plugins', () => {
   it('Hydra plugin', () => {
@@ -42,8 +51,8 @@ describe('Vault BIP44 plugins', () => {
     const data = Uint8Array.from(Buffer.from('Hello world!', 'utf-8'));
     const sig = sk1.privateKey().signEcdsa(data);
     const der = '3045' +
-    '022100de69e40e94fb886d53345f87b3b822a30faa17e42d6f7d565da242e12f021349' +
-    '0220133dbd61138f1fd490e00ea22bb68e14061eb60c96a400a9dfc83385de834584';
+      '022100de69e40e94fb886d53345f87b3b822a30faa17e42d6f7d565da242e12f021349' +
+      '0220133dbd61138f1fd490e00ea22bb68e14061eb60c96a400a9dfc83385de834584';
     expect(Buffer.from(sig.toDer()).toString('hex'))
       .toEqual(der);
 
@@ -99,16 +108,16 @@ describe('Vault BIP44 plugins', () => {
     const transfer = builder.transfer(recipient, pk, BigInt(100000000), BigInt(69));
     expect(JSON.stringify(transfer, null, 2)).toBe(
       '{\n' +
-        '  "version": 2,\n' +
-        '  "network": 128,\n' +
-        '  "typeGroup": 1,\n' +
-        '  "type": 0,\n' +
-        '  "nonce": "69",\n' +
-        '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
-        '  "fee": "10000000",\n' +
-        '  "amount": "100000000",\n' +
-        '  "recipientId": "tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J"\n' +
-        '}');
+      '  "version": 2,\n' +
+      '  "network": 128,\n' +
+      '  "typeGroup": 1,\n' +
+      '  "type": 0,\n' +
+      '  "nonce": "69",\n' +
+      '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
+      '  "fee": "10000000",\n' +
+      '  "amount": "100000000",\n' +
+      '  "recipientId": "tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J"\n' +
+      '}');
 
     const signedTransfer = signer.signHydraTransaction(transfer);
 
@@ -122,20 +131,20 @@ describe('Vault BIP44 plugins', () => {
     const vote = builder.vote(pk, pk, BigInt(69));
     expect(JSON.stringify(vote, null, 2)).toBe(
       '{\n' +
-        '  "version": 2,\n' +
-        '  "network": 128,\n' +
-        '  "typeGroup": 1,\n' +
-        '  "type": 3,\n' +
-        '  "asset": {\n' +
-        '    "votes": [\n' +
-        '      "+02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7"\n' +
-        '    ]\n' +
-        '  },\n' +
-        '  "nonce": "69",\n' +
-        '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
-        '  "fee": "100000000",\n' +
-        '  "amount": "0"\n' +
-        '}');
+      '  "version": 2,\n' +
+      '  "network": 128,\n' +
+      '  "typeGroup": 1,\n' +
+      '  "type": 3,\n' +
+      '  "asset": {\n' +
+      '    "votes": [\n' +
+      '      "+02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7"\n' +
+      '    ]\n' +
+      '  },\n' +
+      '  "nonce": "69",\n' +
+      '  "senderPublicKey": "02db11c07afd6ec05980284af58105329d41e9882947188022350219cca9baa3e7",\n' +
+      '  "fee": "100000000",\n' +
+      '  "amount": "0"\n' +
+      '}');
 
     const signedVote = signer.signHydraTransaction(vote);
 
@@ -163,6 +172,12 @@ describe('Vault Morpheus plugin', () => {
     }).toThrow();
 
     const priv = m.priv(unlockPassword);
+
+    expect(priv.path).toBe('m/128164\'');
+    expect(priv.personas.path).toBe('m/128164\'/0\'');
+    expect(priv.devices.path).toBe('m/128164\'/1\'');
+    expect(priv.groups.path).toBe('m/128164\'/2\'');
+    expect(priv.resources.path).toBe('m/128164\'/3\'');
 
     const pk = priv.pub.keyById(new KeyId('iezqztJ6XX6GDxdSgdiySiT3J'));
     expect(pk.toString()).toBe('pez2CLkBUjHB8w8G87D3YkREjpRuiqPu6BrRsgHMQy2Pzt6');

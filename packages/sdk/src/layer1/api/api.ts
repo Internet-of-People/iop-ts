@@ -42,11 +42,11 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.getWallet(address);
   }
 
-  public async getWalletNonce(address: string): Promise<BigInt> {
+  public async getWalletNonce(address: string): Promise<bigint> {
     return this.clientInstance.getWalletNonce(address);
   }
 
-  public async getWalletBalance(address: string): Promise<BigInt> {
+  public async getWalletBalance(address: string): Promise<bigint> {
     return this.clientInstance.getWalletBalance(address);
   }
 
@@ -55,11 +55,11 @@ export class Api implements Types.Layer1.IApi {
   public async sendTransferTx(
     fromAddress: string,
     toAddress: string,
-    amountFlake: BigInt,
+    amountFlake: bigint,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string> {
     const { network } = hydraPrivate;
     const tx = new HydraTxBuilder(network)
@@ -90,9 +90,9 @@ export class Api implements Types.Layer1.IApi {
     fromAddress: string,
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string> {
     const { network } = hydraPrivate;
     const tx = new HydraTxBuilder(network)
@@ -114,9 +114,9 @@ export class Api implements Types.Layer1.IApi {
     fromAddress: string,
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string> {
     const { network } = hydraPrivate;
     const tx = new HydraTxBuilder(network)
@@ -137,10 +137,10 @@ export class Api implements Types.Layer1.IApi {
   public async sendTransferTxWithWIF(
     fromWIF: string,
     toAddress: string,
-    amountFlake: BigInt,
-    nonce?: BigInt,
+    amountFlake: bigint,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string> {
     const senderKeys = Identities.Keys.fromWIF(fromWIF);
     const address = Identities.Address.fromPublicKey(senderKeys.publicKey);
@@ -178,7 +178,7 @@ export class Api implements Types.Layer1.IApi {
     senderAddress: string,
     morpheusAsset: Types.Layer1.IMorpheusAsset,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
   ): Promise<string> {
     const { network } = hydraPrivate;
     const nextNonce = nonce ?? await this.getGasNonceAndCheckBalance(senderAddress, nonce);
@@ -192,7 +192,7 @@ export class Api implements Types.Layer1.IApi {
   public async sendMorpheusTxWithWIF(
     attempts: Types.Layer1.IOperationData[],
     fromWIF: string,
-    nonce?: BigInt,
+    nonce?: bigint,
   ): Promise<string> {
     const keys = Identities.Keys.fromWIF(fromWIF);
     const unsignedTx = await this.buildMorpheusTx(
@@ -211,7 +211,7 @@ export class Api implements Types.Layer1.IApi {
   public async sendMorpheusTxWithPassphrase(
     attempts: Types.Layer1.IOperationData[],
     fromPassphrase: string,
-    nonce?: BigInt,
+    nonce?: bigint,
   ): Promise<string> {
     const keys = Identities.Keys.fromPassphrase(fromPassphrase);
     const unsignedTx = await this.buildMorpheusTx(
@@ -231,8 +231,8 @@ export class Api implements Types.Layer1.IApi {
     fromAddress: string,
     userOperations: UserOperation[],
     hydraPrivate: HydraPrivate,
-    layer1SenderNonce?: BigInt,
-    layer2PublicKeyNonce?: BigInt,
+    layer1SenderNonce?: bigint,
+    layer2PublicKeyNonce?: bigint,
   ): Promise<string> {
     const { network } = hydraPrivate;
 
@@ -258,16 +258,16 @@ export class Api implements Types.Layer1.IApi {
     return this.clientInstance.sendTx(signedTx as unknown as Interfaces.ITransactionJson);
   }
 
-  public async nextHydraNonce(address: string): Promise<BigInt> {
+  public async nextHydraNonce(address: string): Promise<bigint> {
     const currentNonce = await this.clientInstance.getWalletNonce(address);
-    const nextNonce = currentNonce as bigint + BigInt(1);
+    const nextNonce = currentNonce + BigInt(1);
     log(`Current nonce is ${currentNonce}, next nonce is ${nextNonce}`);
     return nextNonce;
   }
 
 
   // TODO: we have to get the coeus nonce from somewhere else rather using layer2api
-  public async nextCoeusNonce(pubKey: PublicKey): Promise<BigInt> {
+  public async nextCoeusNonce(pubKey: PublicKey): Promise<bigint> {
     const coeusApi = new Layer2.CoeusApi(this.clientInstance.networkConfig);
     const currentNonce = await coeusApi.getLastNonce(pubKey);
     const nextNonce = currentNonce as bigint + BigInt(1);
@@ -276,8 +276,8 @@ export class Api implements Types.Layer1.IApi {
 
   private async getGasNonceAndCheckBalance(
     address: string,
-    nonce?: BigInt,
-  ): Promise<BigInt> {
+    nonce?: bigint,
+  ): Promise<bigint> {
     const wallet = await this.clientInstance.getWallet(address);
     const balance = wallet.isPresent() ? BigInt(wallet.get().balance) : BigInt(0);
 
@@ -299,7 +299,7 @@ export class Api implements Types.Layer1.IApi {
   private async buildMorpheusTx(
     from: Interfaces.IKeyPair,
     attempts: Types.Layer1.IOperationData[],
-    nonce?: BigInt,
+    nonce?: bigint,
   ): Promise<MorpheusTransactionBuilder> {
     const txBuilder = new Layer1.MorpheusTransactionBuilder();
     const unsignedTx = txBuilder.fromOperationAttempts(attempts);

@@ -5,7 +5,8 @@
     "Rache Bartmoss <bartmoss@tutanota.com>",
     "wigy <wigy_opensource_developer@yahoo.com>"
   ],
-  "version": "0.0.15",
+  "version": "0.0.16",
+  "license": "LGPL-3.0-or-later",
   "files": [
     "browser/iop_sdk_wasm_bg.wasm",
     "browser/iop_sdk_wasm_bg.js",
@@ -19,5 +20,5 @@
   "module": "browser/iop_sdk_wasm.js",
   "types": "iop_sdk_wasm.d.ts",
   "sideEffects": "false",
-  "git-describe": "heads/378-signed-tojson-0-g0e21d96"
+  "git-describe": "tags/v0.0.16-0-gdd647c5"
 }

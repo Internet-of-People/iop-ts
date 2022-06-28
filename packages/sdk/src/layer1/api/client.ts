@@ -96,7 +96,7 @@ export class AxiosClient implements Layer1.IClient {
     }
   }
 
-  public async getWalletNonce(address: string): Promise<BigInt> {
+  public async getWalletNonce(address: string): Promise<bigint> {
     log(`Getting wallet nonce of ${address}...`);
 
     const wallet = await this.getWallet(address);
@@ -111,7 +111,7 @@ export class AxiosClient implements Layer1.IClient {
     return BigInt(0);
   }
 
-  public async getWalletBalance(address: string): Promise<BigInt> {
+  public async getWalletBalance(address: string): Promise<bigint> {
     log(`Getting wallet balance of ${address}...`);
 
     const wallet = await this.getWallet(address);

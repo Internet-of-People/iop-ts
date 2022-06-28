@@ -54,6 +54,8 @@ def update_wasm_packages():
         wasm_package_dir = join(PACKAGES_DIR, wasm_package)
         rmtree(wasm_package_dir)
         copytree(join(WASM_ROOT, wasm_package, "pkg/"), wasm_package_dir)
+    for wasm_package in WASM_PACKAGES:
+        wasm_package_dir = join(PACKAGES_DIR, wasm_package)
         package_json = read_json(join(wasm_package_dir, "package.json"))
         version = package_json.get("version")
         dep_name = f"@internet-of-people/{wasm_package}"

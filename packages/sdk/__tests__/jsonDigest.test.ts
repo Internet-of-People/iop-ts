@@ -58,6 +58,12 @@ describe('json-digest', () => {
     expect(digest).toBe(complexDigest);
   });
 
+  it('wraps scalar into nonced object', () => {
+    const object = Crypto.wrapWithNonce(42);
+    expect(object.value).toBe(42);
+    expect(object.nonce).toMatch(new RegExp('^u[a-zA-Z0-9-_]{44}$'));
+  });
+
   it('rejects objects with keys differing only in Unicode normalization', () => {
     const nfkd = Buffer.from('61cc816c6f6d', 'hex').toString('utf8');
     const nfc = Buffer.from('c3a16c6f6d', 'hex').toString('utf8');

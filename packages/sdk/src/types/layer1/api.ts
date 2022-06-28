@@ -51,9 +51,9 @@ export interface IClient {
 
   getWallet(address: string): Promise<Optional<IWalletResponse>>;
 
-  getWalletNonce(address: string): Promise<BigInt>;
+  getWalletNonce(address: string): Promise<bigint>;
 
-  getWalletBalance(address: string): Promise<BigInt>;
+  getWalletBalance(address: string): Promise<bigint>;
 
   getNodeCryptoConfig(): Promise<Interfaces.INetworkConfig>;
 
@@ -68,11 +68,11 @@ export interface IApi {
   sendTransferTx(
     fromAddress: string,
     toAddress: string,
-    amountFlake: BigInt,
+    amountFlake: bigint,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string>;
 
   sendTx(signedTx: Interfaces.ITransactionData): Promise<string>;
@@ -83,18 +83,18 @@ export interface IApi {
     fromAddress: string,
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string>;
 
   sendUnvoteTx(
     fromAddress: string,
     delegate: SecpPublicKey,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string>;
 
   /**
@@ -103,10 +103,10 @@ export interface IApi {
   sendTransferTxWithWIF(
     fromWIF: string,
     toAddress: string,
-    amountFlake: BigInt,
-    nonce?: BigInt,
+    amountFlake: bigint,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string>;
 
   /**
@@ -115,17 +115,17 @@ export interface IApi {
   sendTransferTxWithPassphrase(
     fromPassphrase: string,
     toAddress: string,
-    amountFlake: BigInt,
-    nonce?: BigInt,
+    amountFlake: bigint,
+    nonce?: bigint,
     vendorField?: string,
-    manualFee?: BigInt,
+    manualFee?: bigint,
   ): Promise<string>;
 
   sendMorpheusTx(
     senderAddress: string,
     morpheusAsset: IMorpheusAsset,
     hydraPrivate: HydraPrivate,
-    nonce?: BigInt,
+    nonce?: bigint,
   ): Promise<string>;
 
   /**
@@ -134,7 +134,7 @@ export interface IApi {
   sendMorpheusTxWithWIF(
     attempts: IOperationData[],
     fromWIF: string,
-    nonce?: BigInt,
+    nonce?: bigint,
   ): Promise<string>;
 
   /**
@@ -143,15 +143,15 @@ export interface IApi {
   sendMorpheusTxWithPassphrase(
     attempts: IOperationData[],
     passphrase: string,
-    nonce?: BigInt,
+    nonce?: bigint,
   ): Promise<string>;
 
   sendCoeusTx(
     fromAddress: string,
     userOperations: UserOperation[],
     hydraPrivate: HydraPrivate,
-    layer1SenderNonce?: BigInt,
-    layer2PublicKeyNonce?: BigInt,
+    layer1SenderNonce?: bigint,
+    layer2PublicKeyNonce?: bigint,
   ): Promise<string>;
 
   getTxnStatus(
@@ -164,11 +164,11 @@ export interface IApi {
 
   getWalletNonce(
     address: string,
-  ): Promise<BigInt>;
+  ): Promise<bigint>;
 
   getWalletBalance(
     address: string,
-  ): Promise<BigInt>;
+  ): Promise<bigint>;
 }
 
 export interface IWalletResponse {

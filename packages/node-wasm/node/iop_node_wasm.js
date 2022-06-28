@@ -27,12 +27,12 @@ let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true 
 
 cachedTextDecoder.decode();
 
-let cachegetUint8Memory0 = null;
+let cachedUint8Memory0;
 function getUint8Memory0() {
-    if (cachegetUint8Memory0 === null || cachegetUint8Memory0.buffer !== wasm.memory.buffer) {
-        cachegetUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+    if (cachedUint8Memory0.byteLength === 0) {
+        cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
     }
-    return cachegetUint8Memory0;
+    return cachedUint8Memory0;
 }
 
 function getStringFromWasm0(ptr, len) {
@@ -103,77 +103,12 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
-let cachegetInt32Memory0 = null;
+let cachedInt32Memory0;
 function getInt32Memory0() {
-    if (cachegetInt32Memory0 === null || cachegetInt32Memory0.buffer !== wasm.memory.buffer) {
-        cachegetInt32Memory0 = new Int32Array(wasm.memory.buffer);
+    if (cachedInt32Memory0.byteLength === 0) {
+        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
     }
-    return cachegetInt32Memory0;
-}
-
-function debugString(val) {
-    // primitive types
-    const type = typeof val;
-    if (type == 'number' || type == 'boolean' || val == null) {
-        return  `${val}`;
-    }
-    if (type == 'string') {
-        return `"${val}"`;
-    }
-    if (type == 'symbol') {
-        const description = val.description;
-        if (description == null) {
-            return 'Symbol';
-        } else {
-            return `Symbol(${description})`;
-        }
-    }
-    if (type == 'function') {
-        const name = val.name;
-        if (typeof name == 'string' && name.length > 0) {
-            return `Function(${name})`;
-        } else {
-            return 'Function';
-        }
-    }
-    // objects
-    if (Array.isArray(val)) {
-        const length = val.length;
-        let debug = '[';
-        if (length > 0) {
-            debug += debugString(val[0]);
-        }
-        for(let i = 1; i < length; i++) {
-            debug += ', ' + debugString(val[i]);
-        }
-        debug += ']';
-        return debug;
-    }
-    // Test for built-in
-    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
-    let className;
-    if (builtInMatches.length > 1) {
-        className = builtInMatches[1];
-    } else {
-        // Failed to match the standard '[object ClassName]'
-        return toString.call(val);
-    }
-    if (className == 'Object') {
-        // we're a user defined class or Object
-        // JSON.stringify avoids problems with cycles, and is generally much
-        // easier than looping through ownProperties of `val`.
-        try {
-            return 'Object(' + JSON.stringify(val) + ')';
-        } catch (_) {
-            return 'Object';
-        }
-    }
-    // errors
-    if (val instanceof Error) {
-        return `${val.name}: ${val.message}\n${val.stack}`;
-    }
-    // TODO we could test for more things here, like `Set`s and `Map`s.
-    return className;
+    return cachedInt32Memory0;
 }
 
 function isLikeNone(x) {
@@ -188,12 +123,12 @@ function addBorrowedObject(obj) {
     return stack_pointer;
 }
 
-let cachegetUint32Memory0 = null;
+let cachedUint32Memory0;
 function getUint32Memory0() {
-    if (cachegetUint32Memory0 === null || cachegetUint32Memory0.buffer !== wasm.memory.buffer) {
-        cachegetUint32Memory0 = new Uint32Array(wasm.memory.buffer);
+    if (cachedUint32Memory0.byteLength === 0) {
+        cachedUint32Memory0 = new Uint32Array(wasm.memory.buffer);
     }
-    return cachegetUint32Memory0;
+    return cachedUint32Memory0;
 }
 
 function getArrayJsValueFromWasm0(ptr, len) {
@@ -217,6 +152,28 @@ const u32CvtShim = new Uint32Array(2);
 
 const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
 /**
+* Returns a canonical string representation of a JSON document, in which any sub-objects not explicitly listed in the
+* second argument are collapsed to their digest. The format of the second argument is inspired by
+* [JQ basic filters](https://stedolan.github.io/jq/manual/#Basicfilters) and these are some examples:
+*
+* ```json
+* {
+*     "a": {
+*         "1": "apple",
+*         "2": "banana"
+*     },
+*     "b": ["some", "array", 0xf, "values"],
+*     "c": 42
+* }
+* ```
+*
+* - "" -> Same as calling {@link digestJson}
+* - ".a" -> Keep property "a" untouched, the rest will be replaced with their digest. Note that most likely the scalar number "c"
+*   does not have enough entropy to avoid a brute-force attack for its digest.
+* - ".b, .c" -> Keeps both properties "b" and "c" unaltered, but "a" will be replaced with the digest of that sub-object.
+*
+* You should protect scalar values and easy-to-guess lists by replacing them with an object that has an extra "nonce" property, which
+* has enough entropy. @see wrapJsonWithNonce
 * @param {any} data
 * @param {string} keep_properties_list
 * @returns {string}
@@ -224,20 +181,30 @@ const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
 module.exports.selectiveDigestJson = function(data, keep_properties_list) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passStringToWasm0(keep_properties_list, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
+        const ptr0 = passStringToWasm0(keep_properties_list, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
         wasm.selectiveDigestJson(retptr, addBorrowedObject(data), ptr0, len0);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr1 = r0;
+        var len1 = r1;
+        if (r3) {
+            ptr1 = 0; len1 = 0;
+            throw takeObject(r2);
+        }
+        return getStringFromWasm0(ptr1, len1);
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
         heap[stack_pointer++] = undefined;
-        wasm.__wbindgen_free(r0, r1);
+        wasm.__wbindgen_free(ptr1, len1);
     }
 };
 
 /**
+* Calculates the digest of a JSON document. Since this digest is calculated by recursively replacing sub-objects with their digest,
+* it is possible to selectively reveal parts of the document using {@link selectiveDigestJson}
 * @param {any} data
 * @returns {string}
 */
@@ -247,15 +214,27 @@ module.exports.digestJson = function(data) {
         wasm.digestJson(retptr, addBorrowedObject(data));
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr0 = r0;
+        var len0 = r1;
+        if (r3) {
+            ptr0 = 0; len0 = 0;
+            throw takeObject(r2);
+        }
+        return getStringFromWasm0(ptr0, len0);
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
         heap[stack_pointer++] = undefined;
-        wasm.__wbindgen_free(r0, r1);
+        wasm.__wbindgen_free(ptr0, len0);
     }
 };
 
 /**
+* This function provides a canonical string for any JSON document. Order of the keys in objects, whitespace
+* and unicode normalization are all taken care of, so document that belongs to a single digest is not malleable.
+*
+* This is a drop-in replacement for `JSON.stringify(data)`
 * @param {any} data
 * @returns {string}
 */
@@ -265,15 +244,55 @@ module.exports.stringifyJson = function(data) {
         wasm.stringifyJson(retptr, addBorrowedObject(data));
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
-        return getStringFromWasm0(r0, r1);
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr0 = r0;
+        var len0 = r1;
+        if (r3) {
+            ptr0 = 0; len0 = 0;
+            throw takeObject(r2);
+        }
+        return getStringFromWasm0(ptr0, len0);
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
         heap[stack_pointer++] = undefined;
-        wasm.__wbindgen_free(r0, r1);
+        wasm.__wbindgen_free(ptr0, len0);
     }
 };
 
-const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
+/**
+* You should protect scalar values and easy-to-guess lists by replacing them with an object that has an extra "nonce" property, which
+* has enough entropy. List of all countries, cities in a country, streets in a city are all easy to enumerate for a brute-fore
+* attack.
+*
+* For example if you have a string that is a country, you can call this function like `wrapJsonWithNonce("Germany")` and get an
+* object like the following:
+*
+* ```json
+* {
+*     "nonce": "ukhFsI4a6vIZEDUOBRxJmLroPEQ8FQCjJwbI-Z7bEocGo",
+*     "value": "Germany"
+* }
+* ```
+* @param {any} data
+* @returns {any}
+*/
+module.exports.wrapWithNonce = function(data) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.wrapWithNonce(retptr, addBorrowedObject(data));
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return takeObject(r0);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        heap[stack_pointer++] = undefined;
+    }
+};
 
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1);
@@ -285,7 +304,15 @@ function passArray8ToWasm0(arg, malloc) {
 function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
+
+const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 /**
+* Encrypts the plaintext with a password. Make sure the password is not weak.
+* A random nonce is generated for each call so each time the same plaintext is
+* encrypted with the same password, the result is a different ciphertext. The
+* ciphertext returned will be 40 bytes longer than the plaintext.
+*
+* @see decrypt
 * @param {Uint8Array} plain_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -293,13 +320,18 @@ function getArrayU8FromWasm0(ptr, len) {
 module.exports.encrypt = function(plain_text, password) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passArray8ToWasm0(plain_text, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
+        const ptr0 = passArray8ToWasm0(plain_text, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
         wasm.encrypt(retptr, ptr0, len0, ptr1, len1);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        if (r3) {
+            throw takeObject(r2);
+        }
         var v2 = getArrayU8FromWasm0(r0, r1).slice();
         wasm.__wbindgen_free(r0, r1 * 1);
         return v2;
@@ -309,6 +341,9 @@ module.exports.encrypt = function(plain_text, password) {
 };
 
 /**
+* Decrypts the ciphertext with a password. The format of the ciphertext is
+* defined by the {@link encrypt} function. Only the matching password will decrypt
+* the ciphertext.
 * @param {Uint8Array} cipher_text
 * @param {string} password
 * @returns {Uint8Array}
@@ -316,13 +351,18 @@ module.exports.encrypt = function(plain_text, password) {
 module.exports.decrypt = function(cipher_text, password) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passArray8ToWasm0(cipher_text, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
+        const ptr0 = passArray8ToWasm0(cipher_text, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
         wasm.decrypt(retptr, ptr0, len0, ptr1, len1);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        if (r3) {
+            throw takeObject(r2);
+        }
         var v2 = getArrayU8FromWasm0(r0, r1).slice();
         wasm.__wbindgen_free(r0, r1 * 1);
         return v2;
@@ -332,14 +372,26 @@ module.exports.decrypt = function(cipher_text, password) {
 };
 
 /**
+* Free function that checks if a string is a valid network name usable as a parameter in some other calls.
+*
+* @see allNetworkNames
 * @param {string} name
 * @returns {boolean}
 */
 module.exports.validateNetworkName = function(name) {
-    var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    var ret = wasm.validateNetworkName(ptr0, len0);
+    const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.validateNetworkName(ptr0, len0);
     return ret !== 0;
+};
+
+/**
+* The list of all network names accepted by {@link validateNetworkName}
+* @returns {string[]}
+*/
+module.exports.allNetworkNames = function() {
+    const ret = wasm.allNetworkNames();
+    return takeObject(ret);
 };
 
 function handleError(f, args) {
@@ -350,6 +402,9 @@ function handleError(f, args) {
     }
 }
 /**
+* Entry point to generate extended private keys in a hierarchical deterministic wallet starting from a seed based
+* on the [BIP-0032](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) standard
+* (and the [SLIP-0010](https://github.com/satoshilabs/slips/blob/master/slip-0010.md) for crypto suites other than Secp256k1).
 */
 class Bip32 {
 
@@ -365,20 +420,37 @@ class Bip32 {
         wasm.__wbg_bip32_free(ptr);
     }
     /**
+    * Calculates the master extended private key based on the crypto suite used by the given network. (At the moment
+    * only Secp256k1-based networks are supported in the WASM wrappers)
+    *
+    * @see allNetworkNames, validateNetworkName
     * @param {Seed} seed
     * @param {string} name
     * @returns {Bip32Node}
     */
     static master(seed, name) {
-        _assertClass(seed, Seed);
-        var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.bip32_master(seed.ptr, ptr0, len0);
-        return Bip32Node.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(seed, Seed);
+            const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip32_master(retptr, seed.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip32Node.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.Bip32 = Bip32;
 /**
+* In BIP-0032 each extended private key has the same operations, independently from the actual path. This struct represents such
+* an extended private key in a given subtree.
 */
 class Bip32Node {
 
@@ -401,7 +473,7 @@ class Bip32Node {
         wasm.__wbg_bip32node_free(ptr);
     }
     /**
-    * @returns {string}
+    * Name of the network this node was generated for
     */
     get network() {
         try {
@@ -416,7 +488,7 @@ class Bip32Node {
         }
     }
     /**
-    * @returns {string}
+    * The BIP32 path of this node
     */
     get path() {
         try {
@@ -431,74 +503,128 @@ class Bip32Node {
         }
     }
     /**
+    * Create a new node with normal (public) derivation with the given index.
     * @param {number} idx
     * @returns {Bip32Node}
     */
     deriveNormal(idx) {
-        var ret = wasm.bip32node_deriveNormal(this.ptr, idx);
-        return Bip32Node.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip32node_deriveNormal(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip32Node.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Create a new node with hardened (private) derivation with the given index.
     * @param {number} idx
     * @returns {Bip32Node}
     */
     deriveHardened(idx) {
-        var ret = wasm.bip32node_deriveHardened(this.ptr, idx);
-        return Bip32Node.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip32node_deriveHardened(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip32Node.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates the {@SecpPrivateKey} that belongs to this node for authenticating actions.
     * @returns {SecpPrivateKey}
     */
     privateKey() {
-        var ret = wasm.bip32node_privateKey(this.ptr);
+        const ret = wasm.bip32node_privateKey(this.ptr);
         return SecpPrivateKey.__wrap(ret);
     }
     /**
+    * Removes the ability to sign and derive hardened keys. The public node it returns is still able to provide
+    * normal derivation and signature verifications.
     * @returns {Bip32PublicNode}
     */
     neuter() {
-        var ret = wasm.bip32node_neuter(this.ptr);
+        const ret = wasm.bip32node_neuter(this.ptr);
         return Bip32PublicNode.__wrap(ret);
     }
     /**
+    * Returns the extended private key in the BIP32 readable format with the version bytes of the network.
+    *
+    * This is a secret that must not be kept unencrypted in transit or in rest!
     * @param {string} name
     * @returns {string}
     */
     toXprv(name) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.bip32node_toXprv(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr1 = r0;
+            var len1 = r1;
+            if (r3) {
+                ptr1 = 0; len1 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr1, len1);
         }
     }
     /**
+    * Returns the private key in the Wallet Import Format with the version byte of the network.
+    *
+    * This is a secret that must not be kept unencrypted in transit or in rest!
+    *
+    * @see SecpPrivateKey.toWif
     * @param {string} name
     * @returns {string}
     */
     toWif(name) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.bip32node_toWif(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr1 = r0;
+            var len1 = r1;
+            if (r3) {
+                ptr1 = 0; len1 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr1, len1);
         }
     }
 }
 module.exports.Bip32Node = Bip32Node;
 /**
+* In BIP-0032 a neutered extended private key is an extended public key. This object represents
+* such an extended public key in a given subtree. It is able to do normal (public) derivation,
+* signature verification, creating and validating key identifiers
 */
 class Bip32PublicNode {
 
@@ -521,7 +647,7 @@ class Bip32PublicNode {
         wasm.__wbg_bip32publicnode_free(ptr);
     }
     /**
-    * @returns {string}
+    * Name of the network this node was generated for
     */
     get network() {
         try {
@@ -536,7 +662,7 @@ class Bip32PublicNode {
         }
     }
     /**
-    * @returns {string}
+    * The BIP32 path of this node
     */
     get path() {
         try {
@@ -551,66 +677,104 @@ class Bip32PublicNode {
         }
     }
     /**
+    * Create a new node with normal (public) derivation with the given index.
     * @param {number} idx
     * @returns {Bip32PublicNode}
     */
     deriveNormal(idx) {
-        var ret = wasm.bip32publicnode_deriveNormal(this.ptr, idx);
-        return Bip32PublicNode.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip32publicnode_deriveNormal(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip32PublicNode.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates the public key that belongs to this node for verifying authentications done by the corresponding private key.
     * @returns {SecpPublicKey}
     */
     publicKey() {
-        var ret = wasm.bip32publicnode_publicKey(this.ptr);
+        const ret = wasm.bip32publicnode_publicKey(this.ptr);
         return SecpPublicKey.__wrap(ret);
     }
     /**
+    * Creates the key identifier for the public key. This is an extra layer of security for single-use keys, so the
+    * revealing of the public key can be delayed to the point when the authenticated action (spending some coin or
+    * revoking access) makes the public key irrelevant after the action is successful.
+    *
+    * Ark (and therefore Hydra) uses a different algorithm for calculating key identifiers. That is only available at
+    * {@link SecpPublicKey.arkKeyId}
     * @returns {SecpKeyId}
     */
     keyId() {
-        var ret = wasm.bip32publicnode_keyId(this.ptr);
+        const ret = wasm.bip32publicnode_keyId(this.ptr);
         return SecpKeyId.__wrap(ret);
     }
     /**
+    * Returns the extended public key in the BIP32 readable format with the version bytes of the network.
     * @param {string} name
     * @returns {string}
     */
     toXpub(name) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.bip32publicnode_toXpub(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr1 = r0;
+            var len1 = r1;
+            if (r3) {
+                ptr1 = 0; len1 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr1, len1);
         }
     }
     /**
+    * Returns the P2PKH address that belongs to this node using the version byte of the network.
     * @param {string} name
     * @returns {string}
     */
     toP2pkh(name) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.bip32publicnode_toP2pkh(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr1 = r0;
+            var len1 = r1;
+            if (r3) {
+                ptr1 = 0; len1 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr1, len1);
         }
     }
 }
 module.exports.Bip32PublicNode = Bip32PublicNode;
 /**
+* Tool for generating, validating and parsing [BIP-0039](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) phrases in different supported languages.
 */
 class Bip39 {
 
@@ -633,48 +797,127 @@ class Bip39 {
         wasm.__wbg_bip39_free(ptr);
     }
     /**
+    * Creates an object that can handle BIP39 phrases in a given language. (e.g. 'en')
     * @param {string} lang_code
     */
     constructor(lang_code) {
-        var ptr0 = passStringToWasm0(lang_code, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.bip39_new(ptr0, len0);
-        return Bip39.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(lang_code, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip39_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip39.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates a new phrase using the [CSPRNG](https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator)
+    * available on the platform.
     * @returns {Bip39Phrase}
     */
     generate() {
-        var ret = wasm.bip39_generate(this.ptr);
-        return Bip39Phrase.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip39_generate(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip39Phrase.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates a new phrase using the 256 bits of entropy provided in a buffer. IOP encourages using 24 word phrases everywhere.
     * @param {Uint8Array} entropy
     * @returns {Bip39Phrase}
     */
     entropy(entropy) {
-        var ptr0 = passArray8ToWasm0(entropy, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.bip39_entropy(this.ptr, ptr0, len0);
-        return Bip39Phrase.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(entropy, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip39_entropy(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip39Phrase.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates a new phrase using the entropy provided in a buffer. This method is only for compatibility with other wallets. Check
+    * the BIP39 standard for the buffer sizes allowed.
+    * @param {Uint8Array} entropy
+    * @returns {Bip39Phrase}
+    */
+    shortEntropy(entropy) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(entropy, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip39_shortEntropy(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip39Phrase.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * Validates a whole BIP39 mnemonic phrase. Because the phrase contains some checksum, the whole phrase can be invalid even when
+    * each word itself is valid. Note also, that the standards only allows NFKD normalization of Unicode codepoints, and a single
+    * space between words, but this library is more tolerant and provides normalization for those.
     * @param {string} phrase
     */
     validatePhrase(phrase) {
-        var ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        wasm.bip39_validatePhrase(this.ptr, ptr0, len0);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip39_validatePhrase(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Lists all words in the BIP39 dictionary, which start with the given prefix.
+    *
+    * Can be used in 3 different ways:
+    * - When the prefix is empty, the sorted list of all words are returned
+    * - When the prefix is a partial word, the returned list can be used for auto-completion
+    * - When the returned list is empty, the prefix is not a valid word in the dictionary
     * @param {string} prefix
     * @returns {any[]}
     */
     listWords(prefix) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(prefix, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(prefix, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.bip39_listWords(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
@@ -686,18 +929,55 @@ class Bip39 {
         }
     }
     /**
+    * Validates a whole 24-word BIP39 mnemonic phrase and returns an intermediate object that can be
+    * later converted into a [`Seed`] with an optional password.
     * @param {string} phrase
     * @returns {Bip39Phrase}
     */
     phrase(phrase) {
-        var ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.bip39_phrase(this.ptr, ptr0, len0);
-        return Bip39Phrase.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip39_phrase(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip39Phrase.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * Validates a whole BIP39 mnemonic phrase and returns an intermediate object similar to {@link phrase}. This method is only for
+    * compatibility with other wallets. Check the BIP39 standard for the number of words allowed.
+    * @param {string} phrase
+    * @returns {Bip39Phrase}
+    */
+    shortPhrase(phrase) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip39_shortPhrase(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip39Phrase.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.Bip39 = Bip39;
 /**
+* An intermediate object that represents a BIP39 phrase with a known language
 */
 class Bip39Phrase {
 
@@ -720,17 +1000,18 @@ class Bip39Phrase {
         wasm.__wbg_bip39phrase_free(ptr);
     }
     /**
+    * Creates a {@link Seed} from the phrase with the given password. Give empty string when the user did not provide any password.
     * @param {string} password
     * @returns {Seed}
     */
     password(password) {
-        var ptr0 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.bip39phrase_password(this.ptr, ptr0, len0);
+        const ptr0 = passStringToWasm0(password, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.bip39phrase_password(this.ptr, ptr0, len0);
         return Seed.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Returns the phrase as a readable string
     */
     get phrase() {
         try {
@@ -747,6 +1028,13 @@ class Bip39Phrase {
 }
 module.exports.Bip39Phrase = Bip39Phrase;
 /**
+* Entry point to generate a hierarchical deterministic wallet using the [BIP-0044
+* standard](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki). It is a more structured way to use the same seed for
+* multiple coins, each with multiple accounts, each accounts with a new key for each transaction request. The standard is built on
+* [BIP-0043](https://github.com/bitcoin/bips/blob/master/bip-0043.mediawiki) using the purpose code 44. And BIP-0043 itself uses
+* BIP-0032 to derive all nodes from a single master extended private key.
+*
+* @see Bip32
 */
 class Bip44 {
 
@@ -762,20 +1050,36 @@ class Bip44 {
         wasm.__wbg_bip44_free(ptr);
     }
     /**
+    * Creates the BIP32 root node for a given coin from the given seed based on the network.
+    * We use coin identifiers defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
+    *
+    * @see validateNetworkName, Seed
     * @param {Seed} seed
     * @param {string} name
     * @returns {Bip44Coin}
     */
     static network(seed, name) {
-        _assertClass(seed, Seed);
-        var ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.bip44_network(seed.ptr, ptr0, len0);
-        return Bip44Coin.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(seed, Seed);
+            const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.bip44_network(retptr, seed.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44Coin.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.Bip44 = Bip44;
 /**
+* Represents the private API of a given account of a given coin in the BIP32 tree.
 */
 class Bip44Account {
 
@@ -798,14 +1102,15 @@ class Bip44Account {
         wasm.__wbg_bip44account_free(ptr);
     }
     /**
+    * Returns the underlying {@link Bip32Node}.
     * @returns {Bip32Node}
     */
     node() {
-        var ret = wasm.bip44account_node(this.ptr);
+        const ret = wasm.bip44account_node(this.ptr);
         return Bip32Node.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Accessor for the name of the underlying network.
     */
     get network() {
         try {
@@ -820,37 +1125,63 @@ class Bip44Account {
         }
     }
     /**
+    * Creates a sub-account for either external keys (receiving addresses) or internal keys (change addresses). This distinction is
+    * a common practice that might help in accounting.
     * @param {boolean} change
     * @returns {Bip44SubAccount}
     */
     chain(change) {
-        var ret = wasm.bip44account_chain(this.ptr, change);
-        return Bip44SubAccount.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip44account_chain(retptr, this.ptr, change);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44SubAccount.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates a key with a given index used on the chain for storing balance or
+    * authenticating actions. By default these keys are made on the receiving sub-account.
     * @param {number} idx
     * @returns {Bip44Key}
     */
     key(idx) {
-        var ret = wasm.bip44account_key(this.ptr, idx);
-        return Bip44Key.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip44account_key(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44Key.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {number}
+    * The coin identifier of the coin, defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
     */
     get slip44() {
-        var ret = wasm.bip44account_slip44(this.ptr);
+        const ret = wasm.bip44account_slip44(this.ptr);
         return ret;
     }
     /**
-    * @returns {number}
+    * Accessor for the account index.
     */
     get account() {
-        var ret = wasm.bip44account_account(this.ptr);
+        const ret = wasm.bip44account_account(this.ptr);
         return ret;
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the account.
     */
     get path() {
         try {
@@ -865,28 +1196,43 @@ class Bip44Account {
         }
     }
     /**
+    * Neuters the account and converts it into its public API
     * @returns {Bip44PublicAccount}
     */
     neuter() {
-        var ret = wasm.bip44account_neuter(this.ptr);
+        const ret = wasm.bip44account_neuter(this.ptr);
         return Bip44PublicAccount.__wrap(ret);
     }
     /**
+    * Recreates the private API of a BIP44 account from its parts
     * @param {number} account
     * @param {string} xprv
     * @param {string} network
     * @returns {Bip44Account}
     */
     static fromXprv(account, xprv, network) {
-        var ptr0 = passStringToWasm0(xprv, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
-        var ret = wasm.bip44account_fromXprv(account, ptr0, len0, ptr1, len1);
-        return Bip44Account.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(xprv, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            wasm.bip44account_fromXprv(retptr, account, ptr0, len0, ptr1, len1);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44Account.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {string}
+    * Returns the extended private key in the BIP32 readable format with the version bytes of the network.
+    *
+    * This is a secret that must not be kept unencrypted in transit or in rest!
     */
     get xprv() {
         try {
@@ -903,6 +1249,9 @@ class Bip44Account {
 }
 module.exports.Bip44Account = Bip44Account;
 /**
+* Represents a given coin in the BIP32 tree.
+*
+* @see Bip32
 */
 class Bip44Coin {
 
@@ -925,14 +1274,15 @@ class Bip44Coin {
         wasm.__wbg_bip44coin_free(ptr);
     }
     /**
+    * Returns the underlying {@link Bip32Node}.
     * @returns {Bip32Node}
     */
     node() {
-        var ret = wasm.bip44coin_node(this.ptr);
+        const ret = wasm.bip44coin_node(this.ptr);
         return Bip32Node.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Accessor for the name of the underlying network.
     */
     get network() {
         try {
@@ -947,22 +1297,34 @@ class Bip44Coin {
         }
     }
     /**
+    * Creates an account in the coin with the given account index.
     * @param {number} account
     * @returns {Bip44Account}
     */
     account(account) {
-        var ret = wasm.bip44coin_account(this.ptr, account);
-        return Bip44Account.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip44coin_account(retptr, this.ptr, account);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44Account.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {number}
+    * The coin identifier of the coin, defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
     */
     get slip44() {
-        var ret = wasm.bip44coin_slip44(this.ptr);
+        const ret = wasm.bip44coin_slip44(this.ptr);
         return ret;
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the coin.
     */
     get path() {
         try {
@@ -977,7 +1339,9 @@ class Bip44Coin {
         }
     }
     /**
-    * @returns {string}
+    * Returns the extended private key in the BIP32 readable format with the version bytes of the network.
+    *
+    * This is a secret that must not be kept unencrypted in transit or in rest!
     */
     get xprv() {
         try {
@@ -994,6 +1358,8 @@ class Bip44Coin {
 }
 module.exports.Bip44Coin = Bip44Coin;
 /**
+* Represents the private API of a key with a given index within a sub-account used on the chain for storing balance or
+* authenticating actions.
 */
 class Bip44Key {
 
@@ -1016,14 +1382,15 @@ class Bip44Key {
         wasm.__wbg_bip44key_free(ptr);
     }
     /**
+    * Returns the underlying {@link Bip32Node}.
     * @returns {Bip32Node}
     */
     node() {
-        var ret = wasm.bip44key_node(this.ptr);
+        const ret = wasm.bip44key_node(this.ptr);
         return Bip32Node.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Accessor for the name of the underlying network.
     */
     get network() {
         try {
@@ -1038,42 +1405,43 @@ class Bip44Key {
         }
     }
     /**
+    * Creates the private key for authenticating actions.
     * @returns {SecpPrivateKey}
     */
     privateKey() {
-        var ret = wasm.bip44key_privateKey(this.ptr);
+        const ret = wasm.bip44key_privateKey(this.ptr);
         return SecpPrivateKey.__wrap(ret);
     }
     /**
-    * @returns {number}
+    * The coin identifier of the coin, defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
     */
     get slip44() {
-        var ret = wasm.bip44key_slip44(this.ptr);
+        const ret = wasm.bip44key_slip44(this.ptr);
         return ret;
     }
     /**
-    * @returns {number}
+    * Accessor for the account index.
     */
     get account() {
-        var ret = wasm.bip44key_account(this.ptr);
+        const ret = wasm.bip44key_account(this.ptr);
         return ret;
     }
     /**
-    * @returns {boolean}
+    * Accessor for whether the sub-account is for change addresses.
     */
     get change() {
-        var ret = wasm.bip44key_change(this.ptr);
+        const ret = wasm.bip44key_change(this.ptr);
         return ret !== 0;
     }
     /**
-    * @returns {number}
+    * Accessor for the key index within the sub-account.
     */
     get key() {
-        var ret = wasm.bip44key_key(this.ptr);
+        const ret = wasm.bip44key_key(this.ptr);
         return ret;
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the sub-account.
     */
     get path() {
         try {
@@ -1088,14 +1456,17 @@ class Bip44Key {
         }
     }
     /**
+    * Neuters the key and converts it into its public API
     * @returns {Bip44PublicKey}
     */
     neuter() {
-        var ret = wasm.bip44key_neuter(this.ptr);
+        const ret = wasm.bip44key_neuter(this.ptr);
         return Bip44PublicKey.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Returns the private key in the Wallet Import Format with the version byte of the network.
+    *
+    * @see SecpPrivateKey.toWif
     */
     get wif() {
         try {
@@ -1112,6 +1483,7 @@ class Bip44Key {
 }
 module.exports.Bip44Key = Bip44Key;
 /**
+* Represents the public API of a given account of a given coin in the BIP32 tree.
 */
 class Bip44PublicAccount {
 
@@ -1134,14 +1506,15 @@ class Bip44PublicAccount {
         wasm.__wbg_bip44publicaccount_free(ptr);
     }
     /**
+    * Returns the underlying {@link Bip32PublicNode}.
     * @returns {Bip32PublicNode}
     */
     node() {
-        var ret = wasm.bip44publicaccount_node(this.ptr);
+        const ret = wasm.bip44publicaccount_node(this.ptr);
         return Bip32PublicNode.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Accessor for the name of the underlying network.
     */
     get network() {
         try {
@@ -1156,37 +1529,63 @@ class Bip44PublicAccount {
         }
     }
     /**
+    * Creates a sub-account for either external keys (receiving addresses) or internal keys (change addresses). This distinction is
+    * a common practice that might help in accounting.
     * @param {boolean} change
     * @returns {Bip44PublicSubAccount}
     */
     chain(change) {
-        var ret = wasm.bip44publicaccount_chain(this.ptr, change);
-        return Bip44PublicSubAccount.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip44publicaccount_chain(retptr, this.ptr, change);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44PublicSubAccount.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates a key with a given index used on the chain for storing balance or
+    * authenticating actions. By default these keys are made on the receiving sub-account.
     * @param {number} idx
     * @returns {Bip44PublicKey}
     */
     key(idx) {
-        var ret = wasm.bip44publicaccount_key(this.ptr, idx);
-        return Bip44PublicKey.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip44publicaccount_key(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44PublicKey.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {number}
+    * The coin identifier of the coin, defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
     */
     get slip44() {
-        var ret = wasm.bip44publicaccount_slip44(this.ptr);
+        const ret = wasm.bip44publicaccount_slip44(this.ptr);
         return ret;
     }
     /**
-    * @returns {number}
+    * Accessor for the account index.
     */
     get account() {
-        var ret = wasm.bip44publicaccount_account(this.ptr);
+        const ret = wasm.bip44publicaccount_account(this.ptr);
         return ret;
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the account.
     */
     get path() {
         try {
@@ -1201,21 +1600,33 @@ class Bip44PublicAccount {
         }
     }
     /**
+    * Recreates the public API of a BIP44 account from its parts
     * @param {number} account
     * @param {string} xpub
     * @param {string} network
     * @returns {Bip44PublicAccount}
     */
     static fromXpub(account, xpub, network) {
-        var ptr0 = passStringToWasm0(xpub, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
-        var ret = wasm.bip44publicaccount_fromXpub(account, ptr0, len0, ptr1, len1);
-        return Bip44PublicAccount.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(xpub, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            wasm.bip44publicaccount_fromXpub(retptr, account, ptr0, len0, ptr1, len1);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44PublicAccount.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {string}
+    * Returns the extended public key in the BIP32 readable format with the version bytes of the network.
     */
     get xpub() {
         try {
@@ -1232,6 +1643,8 @@ class Bip44PublicAccount {
 }
 module.exports.Bip44PublicAccount = Bip44PublicAccount;
 /**
+* Represents a public key with a given index within a sub-account used on the chain for verifying signatures or validating
+* key identifiers.
 */
 class Bip44PublicKey {
 
@@ -1254,14 +1667,15 @@ class Bip44PublicKey {
         wasm.__wbg_bip44publickey_free(ptr);
     }
     /**
+    * Returns the underlying {@link Bip32PublicNode}.
     * @returns {Bip32PublicNode}
     */
     node() {
-        var ret = wasm.bip44publickey_node(this.ptr);
+        const ret = wasm.bip44publickey_node(this.ptr);
         return Bip32PublicNode.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Accessor for the name of the underlying network.
     */
     get network() {
         try {
@@ -1276,49 +1690,55 @@ class Bip44PublicKey {
         }
     }
     /**
+    * Creates the public key for verifying authentications done by this key.
     * @returns {SecpPublicKey}
     */
     publicKey() {
-        var ret = wasm.bip44publickey_publicKey(this.ptr);
+        const ret = wasm.bip44publickey_publicKey(this.ptr);
         return SecpPublicKey.__wrap(ret);
     }
     /**
+    * Creates the key identifier for the public key. This is an extra layer of security for single-use keys, so the
+    * revealing of the public key can be delayed to the point when the authenticated action (spending some coin or
+    * revoking access) makes the public key irrelevant after the action is successful.
+    *
+    * This method chooses the right algorithm used for creating key identifiers on the given network.
     * @returns {SecpKeyId}
     */
     keyId() {
-        var ret = wasm.bip44publickey_keyId(this.ptr);
+        const ret = wasm.bip44publickey_keyId(this.ptr);
         return SecpKeyId.__wrap(ret);
     }
     /**
-    * @returns {number}
+    * The coin identifier of the coin, defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
     */
     get slip44() {
-        var ret = wasm.bip44publickey_slip44(this.ptr);
+        const ret = wasm.bip44publickey_slip44(this.ptr);
         return ret;
     }
     /**
-    * @returns {number}
+    * Accessor for the account index.
     */
     get account() {
-        var ret = wasm.bip44publickey_account(this.ptr);
+        const ret = wasm.bip44publickey_account(this.ptr);
         return ret;
     }
     /**
-    * @returns {boolean}
+    * Accessor for whether the sub-account is for change addresses.
     */
     get change() {
-        var ret = wasm.bip44publickey_change(this.ptr);
+        const ret = wasm.bip44publickey_change(this.ptr);
         return ret !== 0;
     }
     /**
-    * @returns {number}
+    * Accessor for the key index within the sub-account.
     */
     get key() {
-        var ret = wasm.bip44publickey_key(this.ptr);
+        const ret = wasm.bip44publickey_key(this.ptr);
         return ret;
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the sub-account.
     */
     get path() {
         try {
@@ -1333,7 +1753,7 @@ class Bip44PublicKey {
         }
     }
     /**
-    * @returns {string}
+    * Returns the P2PKH address that belongs key with the version byte of the network.
     */
     get address() {
         try {
@@ -1350,6 +1770,9 @@ class Bip44PublicKey {
 }
 module.exports.Bip44PublicKey = Bip44PublicKey;
 /**
+* Public API for a sub-account of a given account on a given coin that is either used for external keys (receiving addresses) or
+* internal keys (change addresses). Some implementations do not distinguish these and just always use receiving
+* addresses.
 */
 class Bip44PublicSubAccount {
 
@@ -1372,14 +1795,15 @@ class Bip44PublicSubAccount {
         wasm.__wbg_bip44publicsubaccount_free(ptr);
     }
     /**
+    * Returns the underlying {@link Bip32PublicNode}.
     * @returns {Bip32PublicNode}
     */
     node() {
-        var ret = wasm.bip44publicsubaccount_node(this.ptr);
+        const ret = wasm.bip44publicsubaccount_node(this.ptr);
         return Bip32PublicNode.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Accessor for the name of the underlying network.
     */
     get network() {
         try {
@@ -1394,36 +1818,49 @@ class Bip44PublicSubAccount {
         }
     }
     /**
+    * Creates a key with a given index used on the chain for storing balance or
+    * authenticating actions.
     * @param {number} idx
     * @returns {Bip44PublicKey}
     */
     key(idx) {
-        var ret = wasm.bip44publicsubaccount_key(this.ptr, idx);
-        return Bip44PublicKey.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip44publicsubaccount_key(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44PublicKey.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {number}
+    * The coin identifier of the coin, defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
     */
     get slip44() {
-        var ret = wasm.bip44publicsubaccount_slip44(this.ptr);
+        const ret = wasm.bip44publicsubaccount_slip44(this.ptr);
         return ret;
     }
     /**
-    * @returns {number}
+    * Accessor for the account index.
     */
     get account() {
-        var ret = wasm.bip44publicsubaccount_account(this.ptr);
+        const ret = wasm.bip44publicsubaccount_account(this.ptr);
         return ret;
     }
     /**
-    * @returns {boolean}
+    * Accessor for whether the sub-account is for change addresses.
     */
     get change() {
-        var ret = wasm.bip44publicsubaccount_change(this.ptr);
+        const ret = wasm.bip44publicsubaccount_change(this.ptr);
         return ret !== 0;
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the sub-account.
     */
     get path() {
         try {
@@ -1438,6 +1875,7 @@ class Bip44PublicSubAccount {
         }
     }
     /**
+    * Recreates the public API of a BIP44 sub-account from its parts
     * @param {number} account
     * @param {boolean} change
     * @param {string} xpub
@@ -1445,15 +1883,26 @@ class Bip44PublicSubAccount {
     * @returns {Bip44PublicSubAccount}
     */
     static fromXpub(account, change, xpub, network) {
-        var ptr0 = passStringToWasm0(xpub, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
-        var ret = wasm.bip44publicsubaccount_fromXpub(account, change, ptr0, len0, ptr1, len1);
-        return Bip44PublicSubAccount.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(xpub, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            wasm.bip44publicsubaccount_fromXpub(retptr, account, change, ptr0, len0, ptr1, len1);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44PublicSubAccount.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {string}
+    * Returns the extended public key in the BIP32 readable format with the version bytes of the network.
     */
     get xpub() {
         try {
@@ -1470,6 +1919,9 @@ class Bip44PublicSubAccount {
 }
 module.exports.Bip44PublicSubAccount = Bip44PublicSubAccount;
 /**
+* Private API for a sub-account of a given account on a given coin that is either used for external keys (receiving addresses) or
+* internal keys (change addresses). Some implementations do not distinguish these and just always use receiving
+* addresses.
 */
 class Bip44SubAccount {
 
@@ -1492,14 +1944,15 @@ class Bip44SubAccount {
         wasm.__wbg_bip44subaccount_free(ptr);
     }
     /**
+    * Returns the underlying {@link Bip32Node}.
     * @returns {Bip32Node}
     */
     node() {
-        var ret = wasm.bip44subaccount_node(this.ptr);
+        const ret = wasm.bip44subaccount_node(this.ptr);
         return Bip32Node.__wrap(ret);
     }
     /**
-    * @returns {string}
+    * Accessor for the name of the underlying network.
     */
     get network() {
         try {
@@ -1514,36 +1967,49 @@ class Bip44SubAccount {
         }
     }
     /**
+    * Creates a key with a given index used on the chain for storing balance or
+    * authenticating actions.
     * @param {number} idx
     * @returns {Bip44Key}
     */
     key(idx) {
-        var ret = wasm.bip44subaccount_key(this.ptr, idx);
-        return Bip44Key.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.bip44subaccount_key(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44Key.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {number}
+    * The coin identifier of the coin, defined in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
     */
     get slip44() {
-        var ret = wasm.bip44subaccount_slip44(this.ptr);
+        const ret = wasm.bip44subaccount_slip44(this.ptr);
         return ret;
     }
     /**
-    * @returns {number}
+    * Accessor for the account index.
     */
     get account() {
-        var ret = wasm.bip44subaccount_account(this.ptr);
+        const ret = wasm.bip44subaccount_account(this.ptr);
         return ret;
     }
     /**
-    * @returns {boolean}
+    * Accessor for whether the sub-account is for change addresses.
     */
     get change() {
-        var ret = wasm.bip44subaccount_change(this.ptr);
+        const ret = wasm.bip44subaccount_change(this.ptr);
         return ret !== 0;
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the sub-account.
     */
     get path() {
         try {
@@ -1558,13 +2024,15 @@ class Bip44SubAccount {
         }
     }
     /**
+    * Neuters the sub-account and converts it into its public API
     * @returns {Bip44PublicSubAccount}
     */
     neuter() {
-        var ret = wasm.bip44subaccount_neuter(this.ptr);
+        const ret = wasm.bip44subaccount_neuter(this.ptr);
         return Bip44PublicSubAccount.__wrap(ret);
     }
     /**
+    * Recreates the private API of a BIP44 sub-account from its parts
     * @param {number} account
     * @param {boolean} change
     * @param {string} xprv
@@ -1572,15 +2040,26 @@ class Bip44SubAccount {
     * @returns {Bip44SubAccount}
     */
     static fromXprv(account, change, xprv, network) {
-        var ptr0 = passStringToWasm0(xprv, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
-        var ret = wasm.bip44subaccount_fromXprv(account, change, ptr0, len0, ptr1, len1);
-        return Bip44SubAccount.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(xprv, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            wasm.bip44subaccount_fromXprv(retptr, account, change, ptr0, len0, ptr1, len1);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Bip44SubAccount.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {string}
+    * Returns the extended private key in the BIP32 readable format with the version bytes of the network.
     */
     get xprv() {
         try {
@@ -1623,9 +2102,17 @@ class CoeusAsset {
     */
     constructor(data) {
         try {
-            var ret = wasm.coeusasset_new(addBorrowedObject(data));
-            return CoeusAsset.__wrap(ret);
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.coeusasset_new(retptr, addBorrowedObject(data));
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return CoeusAsset.__wrap(r0);
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -1634,10 +2121,21 @@ class CoeusAsset {
     * @returns {CoeusAsset}
     */
     static deserialize(bytes) {
-        var ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.coeusasset_deserialize(ptr0, len0);
-        return CoeusAsset.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.coeusasset_deserialize(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return CoeusAsset.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @returns {Uint8Array}
@@ -1648,6 +2146,11 @@ class CoeusAsset {
             wasm.coeusasset_serialize(retptr, this.ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            if (r3) {
+                throw takeObject(r2);
+            }
             var v0 = getArrayU8FromWasm0(r0, r1).slice();
             wasm.__wbindgen_free(r0, r1 * 1);
             return v0;
@@ -1656,7 +2159,7 @@ class CoeusAsset {
         }
     }
     /**
-    * @returns {BigInt}
+    * @returns {bigint}
     */
     fee() {
         try {
@@ -1676,8 +2179,19 @@ class CoeusAsset {
     * @returns {any}
     */
     toJSON() {
-        var ret = wasm.coeusasset_toJSON(this.ptr);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.coeusasset_toJSON(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.CoeusAsset = CoeusAsset;
@@ -1706,39 +2220,83 @@ class CoeusState {
     /**
     */
     constructor() {
-        var ret = wasm.coeusstate_new();
-        return CoeusState.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.coeusstate_new(retptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return CoeusState.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {DomainName} name
     * @returns {any}
     */
     resolveData(name) {
-        _assertClass(name, DomainName);
-        var ret = wasm.coeusstate_resolveData(this.ptr, name.ptr);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(name, DomainName);
+            wasm.coeusstate_resolveData(retptr, this.ptr, name.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {DomainName} name
     * @returns {any}
     */
     getMetadata(name) {
-        _assertClass(name, DomainName);
-        var ret = wasm.coeusstate_getMetadata(this.ptr, name.ptr);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(name, DomainName);
+            wasm.coeusstate_getMetadata(retptr, this.ptr, name.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {DomainName} name
     * @returns {any}
     */
     getChildren(name) {
-        _assertClass(name, DomainName);
-        var ret = wasm.coeusstate_getChildren(this.ptr, name.ptr);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(name, DomainName);
+            wasm.coeusstate_getChildren(retptr, this.ptr, name.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {PublicKey} pk
-    * @returns {BigInt}
+    * @returns {bigint}
     */
     lastNonce(pk) {
         try {
@@ -1760,42 +2318,80 @@ class CoeusState {
     * @param {CoeusAsset} asset
     */
     applyTransaction(txid, asset) {
-        var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        _assertClass(asset, CoeusAsset);
-        wasm.coeusstate_applyTransaction(this.ptr, ptr0, len0, asset.ptr);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            _assertClass(asset, CoeusAsset);
+            wasm.coeusstate_applyTransaction(retptr, this.ptr, ptr0, len0, asset.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} txid
     * @param {CoeusAsset} asset
     */
     revertTransaction(txid, asset) {
-        var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        _assertClass(asset, CoeusAsset);
-        wasm.coeusstate_revertTransaction(this.ptr, ptr0, len0, asset.ptr);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            _assertClass(asset, CoeusAsset);
+            wasm.coeusstate_revertTransaction(retptr, this.ptr, ptr0, len0, asset.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {number} height
     */
     blockApplying(height) {
-        wasm.coeusstate_blockApplying(this.ptr, height);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.coeusstate_blockApplying(retptr, this.ptr, height);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {number} height
     */
     blockReverted(height) {
-        wasm.coeusstate_blockReverted(this.ptr, height);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.coeusstate_blockReverted(retptr, this.ptr, height);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {boolean}
     */
     get corrupted() {
-        var ret = wasm.coeusstate_is_corrupted(this.ptr);
+        const ret = wasm.coeusstate_is_corrupted(this.ptr);
         return ret !== 0;
     }
     /**
-    * @returns {BigInt}
     */
     get version() {
         try {
@@ -1812,10 +2408,9 @@ class CoeusState {
         }
     }
     /**
-    * @returns {number}
     */
     get lastSeenHeight() {
-        var ret = wasm.coeusstate_last_seen_height(this.ptr);
+        const ret = wasm.coeusstate_last_seen_height(this.ptr);
         return ret >>> 0;
     }
     /**
@@ -1823,10 +2418,21 @@ class CoeusState {
     * @returns {boolean}
     */
     getTxnStatus(txid) {
-        var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.coeusstate_getTxnStatus(this.ptr, ptr0, len0);
-        return ret !== 0;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.coeusstate_getTxnStatus(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return r0 !== 0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.CoeusState = CoeusState;
@@ -1856,29 +2462,56 @@ class CoeusTxBuilder {
     * @param {string} network_name
     */
     constructor(network_name) {
-        var ptr0 = passStringToWasm0(network_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.coeustxbuilder_new(ptr0, len0);
-        return CoeusTxBuilder.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(network_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.coeustxbuilder_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return CoeusTxBuilder.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {SignedBundle} ops
     * @param {SecpPublicKey} sender_pubkey
-    * @param {BigInt} nonce
+    * @param {bigint} nonce
     * @returns {any}
     */
     build(ops, sender_pubkey, nonce) {
-        _assertClass(ops, SignedBundle);
-        _assertClass(sender_pubkey, SecpPublicKey);
-        uint64CvtShim[0] = nonce;
-        const low0 = u32CvtShim[0];
-        const high0 = u32CvtShim[1];
-        var ret = wasm.coeustxbuilder_build(this.ptr, ops.ptr, sender_pubkey.ptr, low0, high0);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(ops, SignedBundle);
+            _assertClass(sender_pubkey, SecpPublicKey);
+            uint64CvtShim[0] = nonce;
+            const low0 = u32CvtShim[0];
+            const high0 = u32CvtShim[1];
+            wasm.coeustxbuilder_build(retptr, this.ptr, ops.ptr, sender_pubkey.ptr, low0, high0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.CoeusTxBuilder = CoeusTxBuilder;
 /**
+* An object representing a valid DID. This identifier can be used to look up a DID document
+* on multiple blockchains. Without any on-chain SSI transactions, there will be a single
+* key that can update and impersonate the DID, which has the default key identifier.
+*
+* @see defaultKeyId
 */
 class Did {
 
@@ -1901,15 +2534,28 @@ class Did {
         wasm.__wbg_did_free(ptr);
     }
     /**
+    * Try to parse a string into a DID
     * @param {string} did_str
     */
     constructor(did_str) {
-        var ptr0 = passStringToWasm0(did_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.did_new(ptr0, len0);
-        return Did.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(did_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.did_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Did.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * All DID strings start with this prefix
     * @returns {string}
     */
     static prefix() {
@@ -1925,22 +2571,29 @@ class Did {
         }
     }
     /**
+    * Creates a DID from a multicipher {@KeyId}, so the default key identifier of the DID
+    * will match that.
+    *
+    * @see defaultKeyId
     * @param {KeyId} key_id
     * @returns {Did}
     */
     static fromKeyId(key_id) {
         _assertClass(key_id, KeyId);
-        var ret = wasm.did_fromKeyId(key_id.ptr);
+        const ret = wasm.did_fromKeyId(key_id.ptr);
         return Did.__wrap(ret);
     }
     /**
+    * Returns the default key identifier for a DID that has update and impersonation rights
+    * unless the DID document was modified on chain.
     * @returns {KeyId}
     */
     defaultKeyId() {
-        var ret = wasm.did_defaultKeyId(this.ptr);
+        const ret = wasm.did_defaultKeyId(this.ptr);
         return KeyId.__wrap(ret);
     }
     /**
+    * Converts the DID into a string like `did:morpheus:ezBlah`
     * @returns {string}
     */
     toString() {
@@ -2000,10 +2653,21 @@ class DomainName {
     * @param {string} domain_name
     */
     constructor(domain_name) {
-        var ptr0 = passStringToWasm0(domain_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.domainname_new(ptr0, len0);
-        return DomainName.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(domain_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.domainname_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return DomainName.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @returns {string}
@@ -2023,6 +2687,9 @@ class DomainName {
 }
 module.exports.DomainName = DomainName;
 /**
+* Builder object for creating and signing a JWT (JSON Web Token) with or without an associated content.
+*
+* @see JwtParser
 */
 class JwtBuilder {
 
@@ -2045,22 +2712,53 @@ class JwtBuilder {
         wasm.__wbg_jwtbuilder_free(ptr);
     }
     /**
+    * Creates a new JWT without an associated content. The time of creation is set
+    * in this call.
     */
     constructor() {
-        var ret = wasm.jwtbuilder_new();
+        const ret = wasm.jwtbuilder_new();
         return JwtBuilder.__wrap(ret);
     }
     /**
+    * Creates a new JWT without an associated content. The time of creation is set
+    * in this call.
     * @param {string} content_id
     * @returns {JwtBuilder}
     */
     static withContentId(content_id) {
-        var ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.jwtbuilder_withContentId(ptr0, len0);
+        const ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.jwtbuilder_withContentId(ptr0, len0);
         return JwtBuilder.__wrap(ret);
     }
     /**
+    * Gets how long the token is valid. (5 seconds by default)
+    */
+    get timeToLive() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.jwtbuilder_timeToLive(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            u32CvtShim[0] = r0;
+            u32CvtShim[1] = r1;
+            const n0 = int64CvtShim[0];
+            return n0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * Sets how long the token is valid.
+    */
+    set timeToLive(seconds) {
+        int64CvtShim[0] = seconds;
+        const low0 = u32CvtShim[0];
+        const high0 = u32CvtShim[1];
+        wasm.jwtbuilder_set_timeToLive(this.ptr, low0, high0);
+    }
+    /**
+    * Signs and serializes the token with the given multicipher {@link PrivateKey}
     * @param {PrivateKey} sk
     * @returns {string}
     */
@@ -2071,15 +2769,24 @@ class JwtBuilder {
             wasm.jwtbuilder_sign(retptr, this.ptr, sk.ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr0 = r0;
+            var len0 = r1;
+            if (r3) {
+                ptr0 = 0; len0 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr0, len0);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr0, len0);
         }
     }
 }
 module.exports.JwtBuilder = JwtBuilder;
 /**
+* Parser for reading a JWT (JSON Web Token) from a string and validate its content and signature.
 */
 class JwtParser {
 
@@ -2102,23 +2809,35 @@ class JwtParser {
         wasm.__wbg_jwtparser_free(ptr);
     }
     /**
+    * Parse JWT from a string created with {@link JwtBuilder}
     * @param {string} token
     */
     constructor(token) {
-        var ptr0 = passStringToWasm0(token, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.jwtparser_new(ptr0, len0);
-        return JwtParser.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(token, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.jwtparser_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return JwtParser.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {PublicKey}
+    * Returns the public key that signed the token
     */
     get publicKey() {
-        var ret = wasm.jwtparser_public_key(this.ptr);
+        const ret = wasm.jwtparser_public_key(this.ptr);
         return PublicKey.__wrap(ret);
     }
     /**
-    * @returns {BigInt}
+    * Returns the UTC date-time instance the token was created
     */
     get createdAt() {
         try {
@@ -2135,7 +2854,7 @@ class JwtParser {
         }
     }
     /**
-    * @returns {BigInt}
+    * Returns how long the token stays valid
     */
     get timeToLive() {
         try {
@@ -2154,6 +2873,11 @@ class JwtParser {
 }
 module.exports.JwtParser = JwtParser;
 /**
+* Multicipher key id (fingerprint/digest/hash of a public key)
+*
+* In some algorithms the public key is only revealed in point-to-point
+* communications and a keypair is identified only by the digest of the public
+* key in all other channels.
 */
 class KeyId {
 
@@ -2176,24 +2900,38 @@ class KeyId {
         wasm.__wbg_keyid_free(ptr);
     }
     /**
+    * Parses a string into a {@link KeyId}.
     * @param {string} key_id_str
     */
     constructor(key_id_str) {
-        var ptr0 = passStringToWasm0(key_id_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.keyid_new(ptr0, len0);
-        return KeyId.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(key_id_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.keyid_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return KeyId.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Converts a {@link SecpKeyId} into a multicipher {@link KeyId}.
     * @param {SecpKeyId} secp
     * @returns {KeyId}
     */
     static fromSecp(secp) {
         _assertClass(secp, SecpKeyId);
-        var ret = wasm.keyid_fromSecp(secp.ptr);
+        const ret = wasm.keyid_fromSecp(secp.ptr);
         return KeyId.__wrap(ret);
     }
     /**
+    * All multicipher key ids start with this prefix
     * @returns {string}
     */
     static prefix() {
@@ -2209,6 +2947,7 @@ class KeyId {
         }
     }
     /**
+    * Converts a {@link KeyId} into a string.
     * @returns {string}
     */
     toString() {
@@ -2226,6 +2965,9 @@ class KeyId {
 }
 module.exports.KeyId = KeyId;
 /**
+* Starting point for deriving all Morpheus related keys in a BIP32 hierarchy. Morpheus uses Ed25519 cipher and currently there are no
+* WASM wrappers for Bip32 nodes with that cipher. Still, Bip32 paths are returned by each object so compatible wallets can derive the
+* same extended private keys.
 */
 class Morpheus {
 
@@ -2241,17 +2983,30 @@ class Morpheus {
         wasm.__wbg_morpheus_free(ptr);
     }
     /**
+    * Calculate the root node of the Morpheus subtree in the HD wallet defined by a seed.
     * @param {Seed} seed
     * @returns {MorpheusRoot}
     */
     static root(seed) {
-        _assertClass(seed, Seed);
-        var ret = wasm.morpheus_root(seed.ptr);
-        return MorpheusRoot.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(seed, Seed);
+            wasm.morpheus_root(retptr, seed.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusRoot.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.Morpheus = Morpheus;
 /**
+* Root node of a specific kind of DIDs. The kind used to derive a DID is indistiguishable outside the wallet.
 */
 class MorpheusKind {
 
@@ -2274,7 +3029,7 @@ class MorpheusKind {
         wasm.__wbg_morpheuskind_free(ptr);
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the morpheus subtree for a DID kind.
     */
     get path() {
         try {
@@ -2289,7 +3044,7 @@ class MorpheusKind {
         }
     }
     /**
-    * @returns {string}
+    * Accessor for the kind of DIDs in this subtree
     */
     get kind() {
         try {
@@ -2304,16 +3059,30 @@ class MorpheusKind {
         }
     }
     /**
+    * Creates a {@link MorpheusPrivateKey} with the given index under this subtree.
+    * E.g. 5th persona, 3rd device, or 0th group, etc.
     * @param {number} idx
     * @returns {MorpheusPrivateKey}
     */
     key(idx) {
-        var ret = wasm.morpheuskind_key(this.ptr, idx);
-        return MorpheusPrivateKey.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheuskind_key(retptr, this.ptr, idx);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusPrivateKey.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.MorpheusKind = MorpheusKind;
 /**
+* The operations on an identifier that require the private key to be available in memory.
 */
 class MorpheusPrivateKey {
 
@@ -2336,7 +3105,7 @@ class MorpheusPrivateKey {
         wasm.__wbg_morpheusprivatekey_free(ptr);
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the morpheus key.
     */
     get path() {
         try {
@@ -2351,7 +3120,7 @@ class MorpheusPrivateKey {
         }
     }
     /**
-    * @returns {string}
+    * Accessor for the kind of DIDs in this subtree
     */
     get kind() {
         try {
@@ -2366,29 +3135,32 @@ class MorpheusPrivateKey {
         }
     }
     /**
-    * @returns {number}
+    * Index of the key in its subtree.
     */
     get idx() {
-        var ret = wasm.morpheusprivatekey_idx(this.ptr);
+        const ret = wasm.morpheusprivatekey_idx(this.ptr);
         return ret;
     }
     /**
+    * Creates the public interface of the node that does not need the private key in memory.
     * @returns {MorpheusPublicKey}
     */
     neuter() {
-        var ret = wasm.morpheusprivatekey_neuter(this.ptr);
+        const ret = wasm.morpheusprivatekey_neuter(this.ptr);
         return MorpheusPublicKey.__wrap(ret);
     }
     /**
+    * Returns the multicipher {@link PrivateKey} that belongs to this key.
     * @returns {PrivateKey}
     */
     privateKey() {
-        var ret = wasm.morpheusprivatekey_privateKey(this.ptr);
+        const ret = wasm.morpheusprivatekey_privateKey(this.ptr);
         return PrivateKey.__wrap(ret);
     }
 }
 module.exports.MorpheusPrivateKey = MorpheusPrivateKey;
 /**
+* The operations on an identifier that do not require the private key to be available in memory.
 */
 class MorpheusPublicKey {
 
@@ -2411,7 +3183,7 @@ class MorpheusPublicKey {
         wasm.__wbg_morpheuspublickey_free(ptr);
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the morpheus key.
     */
     get path() {
         try {
@@ -2426,7 +3198,7 @@ class MorpheusPublicKey {
         }
     }
     /**
-    * @returns {string}
+    * Accessor for the kind of DIDs in this subtree
     */
     get kind() {
         try {
@@ -2441,22 +3213,24 @@ class MorpheusPublicKey {
         }
     }
     /**
-    * @returns {number}
+    * Index of the key in its subtree.
     */
     get idx() {
-        var ret = wasm.morpheuspublickey_idx(this.ptr);
+        const ret = wasm.morpheuspublickey_idx(this.ptr);
         return ret;
     }
     /**
+    * Returns the multicipher {@link PublicKey} that belongs to this key.
     * @returns {PublicKey}
     */
     publicKey() {
-        var ret = wasm.morpheuspublickey_publicKey(this.ptr);
+        const ret = wasm.morpheuspublickey_publicKey(this.ptr);
         return PublicKey.__wrap(ret);
     }
 }
 module.exports.MorpheusPublicKey = MorpheusPublicKey;
 /**
+* Representation of the root node of the Morpheus subtree in the HD wallet.
 */
 class MorpheusRoot {
 
@@ -2479,7 +3253,7 @@ class MorpheusRoot {
         wasm.__wbg_morpheusroot_free(ptr);
     }
     /**
-    * @returns {string}
+    * Accessor for the BIP32 path of the morpheus root.
     */
     get path() {
         try {
@@ -2494,42 +3268,103 @@ class MorpheusRoot {
         }
     }
     /**
+    * Derive a separate HD wallet subtree of the given DID kind. Use 'persona', 'device', 'group' or 'resource' in
+    * singular as a parameter.
     * @param {string} did_kind
     * @returns {MorpheusKind}
     */
     kind(did_kind) {
-        var ptr0 = passStringToWasm0(did_kind, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.morpheusroot_kind(this.ptr, ptr0, len0);
-        return MorpheusKind.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(did_kind, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusroot_kind(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusKind.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Alias for kind('persona')
     * @returns {MorpheusKind}
     */
     personas() {
-        var ret = wasm.morpheusroot_personas(this.ptr);
-        return MorpheusKind.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusroot_personas(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusKind.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Alias for kind('device')
     * @returns {MorpheusKind}
     */
     devices() {
-        var ret = wasm.morpheusroot_devices(this.ptr);
-        return MorpheusKind.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusroot_devices(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusKind.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Alias for kind('group')
     * @returns {MorpheusKind}
     */
     groups() {
-        var ret = wasm.morpheusroot_groups(this.ptr);
-        return MorpheusKind.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusroot_groups(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusKind.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Alias for kind('resource')
     * @returns {MorpheusKind}
     */
     resources() {
-        var ret = wasm.morpheusroot_resources(this.ptr);
-        return MorpheusKind.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusroot_resources(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusKind.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.MorpheusRoot = MorpheusRoot;
@@ -2558,32 +3393,64 @@ class MorpheusState {
     /**
     */
     constructor() {
-        var ret = wasm.morpheusstate_new();
-        return MorpheusState.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusstate_new(retptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return MorpheusState.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {boolean}
     */
     get corrupted() {
-        var ret = wasm.morpheusstate_is_corrupted(this.ptr);
+        const ret = wasm.morpheusstate_is_corrupted(this.ptr);
         return ret !== 0;
     }
     /**
     * @returns {number}
     */
     lastBlockHeight() {
-        var ret = wasm.morpheusstate_lastBlockHeight(this.ptr);
-        return ret >>> 0;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusstate_lastBlockHeight(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return r0 >>> 0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} txid
     * @returns {boolean | undefined}
     */
     isConfirmed(txid) {
-        var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.morpheusstate_isConfirmed(this.ptr, ptr0, len0);
-        return ret === 0xFFFFFF ? undefined : ret !== 0;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusstate_isConfirmed(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return r0 === 0xFFFFFF ? undefined : r0 !== 0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} content_id
@@ -2591,20 +3458,42 @@ class MorpheusState {
     * @returns {boolean}
     */
     beforeProofExistsAt(content_id, height_opt) {
-        var ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.morpheusstate_beforeProofExistsAt(this.ptr, ptr0, len0, !isLikeNone(height_opt), isLikeNone(height_opt) ? 0 : height_opt);
-        return ret !== 0;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusstate_beforeProofExistsAt(retptr, this.ptr, ptr0, len0, !isLikeNone(height_opt), isLikeNone(height_opt) ? 0 : height_opt);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return r0 !== 0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} content_id
     * @returns {any}
     */
     beforeProofHistory(content_id) {
-        var ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.morpheusstate_beforeProofHistory(this.ptr, ptr0, len0);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(content_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusstate_beforeProofHistory(retptr, this.ptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} did
@@ -2614,10 +3503,21 @@ class MorpheusState {
     * @returns {any}
     */
     getTransactionHistory(did, include_attempts, from_height_inc, until_height_inc) {
-        var ptr0 = passStringToWasm0(did, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.morpheusstate_getTransactionHistory(this.ptr, ptr0, len0, include_attempts, from_height_inc, !isLikeNone(until_height_inc), isLikeNone(until_height_inc) ? 0 : until_height_inc);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(did, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusstate_getTransactionHistory(retptr, this.ptr, ptr0, len0, include_attempts, from_height_inc, !isLikeNone(until_height_inc), isLikeNone(until_height_inc) ? 0 : until_height_inc);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} did
@@ -2626,11 +3526,16 @@ class MorpheusState {
     lastTxId(did) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(did, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(did, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.morpheusstate_lastTxId(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            if (r3) {
+                throw takeObject(r2);
+            }
             let v1;
             if (r0 !== 0) {
                 v1 = getStringFromWasm0(r0, r1).slice();
@@ -2647,10 +3552,21 @@ class MorpheusState {
     * @returns {any}
     */
     getDidDocumentAt(did_data, height_opt) {
-        var ptr0 = passStringToWasm0(did_data, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.morpheusstate_getDidDocumentAt(this.ptr, ptr0, len0, !isLikeNone(height_opt), isLikeNone(height_opt) ? 0 : height_opt);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(did_data, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusstate_getDidDocumentAt(retptr, this.ptr, ptr0, len0, !isLikeNone(height_opt), isLikeNone(height_opt) ? 0 : height_opt);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {any} asset
@@ -2662,6 +3578,11 @@ class MorpheusState {
             wasm.morpheusstate_dryRun(retptr, this.ptr, addBorrowedObject(asset));
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            if (r3) {
+                throw takeObject(r2);
+            }
             var v0 = getArrayJsValueFromWasm0(r0, r1).slice();
             wasm.__wbindgen_free(r0, r1 * 4);
             return v0;
@@ -2674,7 +3595,17 @@ class MorpheusState {
     * @param {number} height
     */
     blockApplying(height) {
-        wasm.morpheusstate_blockApplying(this.ptr, height);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusstate_blockApplying(retptr, this.ptr, height);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} txid
@@ -2682,10 +3613,17 @@ class MorpheusState {
     */
     applyTransaction(txid, asset) {
         try {
-            var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
-            wasm.morpheusstate_applyTransaction(this.ptr, ptr0, len0, addBorrowedObject(asset));
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusstate_applyTransaction(retptr, this.ptr, ptr0, len0, addBorrowedObject(asset));
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -2693,7 +3631,17 @@ class MorpheusState {
     * @param {number} height
     */
     blockReverting(height) {
-        wasm.morpheusstate_blockReverting(this.ptr, height);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.morpheusstate_blockReverting(retptr, this.ptr, height);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {string} txid
@@ -2701,10 +3649,17 @@ class MorpheusState {
     */
     revertTransaction(txid, asset) {
         try {
-            var ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
-            wasm.morpheusstate_revertTransaction(this.ptr, ptr0, len0, addBorrowedObject(asset));
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(txid, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.morpheusstate_revertTransaction(retptr, this.ptr, ptr0, len0, addBorrowedObject(asset));
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -2736,7 +3691,7 @@ class NoncedBundle {
     * @returns {Price}
     */
     price() {
-        var ret = wasm.noncedbundle_price(this.ptr);
+        const ret = wasm.noncedbundle_price(this.ptr);
         return Price.__wrap(ret);
     }
     /**
@@ -2744,10 +3699,21 @@ class NoncedBundle {
     * @returns {SignedBundle}
     */
     sign(sk) {
-        const ptr = this.__destroy_into_raw();
-        _assertClass(sk, PrivateKey);
-        var ret = wasm.noncedbundle_sign(ptr, sk.ptr);
-        return SignedBundle.__wrap(ret);
+        try {
+            const ptr = this.__destroy_into_raw();
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(sk, PrivateKey);
+            wasm.noncedbundle_sign(retptr, ptr, sk.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SignedBundle.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @returns {string}
@@ -2758,10 +3724,18 @@ class NoncedBundle {
             wasm.noncedbundle_serialize(retptr, this.ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr0 = r0;
+            var len0 = r1;
+            if (r3) {
+                ptr0 = 0; len0 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr0, len0);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr0, len0);
         }
     }
 }
@@ -2791,7 +3765,7 @@ class NoncedBundleBuilder {
     /**
     */
     constructor() {
-        var ret = wasm.noncedbundlebuilder_new();
+        const ret = wasm.noncedbundlebuilder_new();
         return NoncedBundleBuilder.__wrap(ret);
     }
     /**
@@ -2802,14 +3776,14 @@ class NoncedBundleBuilder {
         wasm.noncedbundlebuilder_add(this.ptr, user_operation.ptr);
     }
     /**
-    * @param {BigInt} nonce
+    * @param {bigint} nonce
     * @returns {NoncedBundle}
     */
     build(nonce) {
         uint64CvtShim[0] = nonce;
         const low0 = u32CvtShim[0];
         const high0 = u32CvtShim[1];
-        var ret = wasm.noncedbundlebuilder_build(this.ptr, low0, high0);
+        const ret = wasm.noncedbundlebuilder_build(this.ptr, low0, high0);
         return NoncedBundle.__wrap(ret);
     }
 }
@@ -2837,7 +3811,6 @@ class Price {
         wasm.__wbg_price_free(ptr);
     }
     /**
-    * @returns {BigInt}
     */
     get fee() {
         try {
@@ -2881,7 +3854,7 @@ class Principal {
     * @returns {Principal}
     */
     static system() {
-        var ret = wasm.principal_system();
+        const ret = wasm.principal_system();
         return Principal.__wrap(ret);
     }
     /**
@@ -2889,20 +3862,50 @@ class Principal {
     * @returns {Principal}
     */
     static publicKey(pk) {
-        _assertClass(pk, PublicKey);
-        var ret = wasm.principal_publicKey(pk.ptr);
-        return Principal.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(pk, PublicKey);
+            wasm.principal_publicKey(retptr, pk.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Principal.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
     * @param {PublicKey} pk
     */
     validateImpersonation(pk) {
-        _assertClass(pk, PublicKey);
-        wasm.principal_validateImpersonation(this.ptr, pk.ptr);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(pk, PublicKey);
+            wasm.principal_validateImpersonation(retptr, this.ptr, pk.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.Principal = Principal;
 /**
+* Multicipher private key
+*
+* A private key (also called secret key or sk in some literature) is the part of an asymmetric keypair
+* which is never shared with anyone. It is used to sign a message sent to any recipient or to decrypt a
+* message that was sent encrypted from any recipients.
+*
+* In general it is discouraged to serialize and transfer secrets over a network, so you might be missing
+* some of those methods. The exception to this rule for compatibility is to support for deserializing
+* [WIF](https://en.bitcoin.it/wiki/Wallet_import_format) strings usual in BTC wallets.
 */
 class PrivateKey {
 
@@ -2925,34 +3928,44 @@ class PrivateKey {
         wasm.__wbg_privatekey_free(ptr);
     }
     /**
+    * Converts a {@link SecpPrivateKey} into a multicipher {@link PrivateKey}.
     * @param {SecpPrivateKey} sk
     * @returns {PrivateKey}
     */
     static fromSecp(sk) {
         _assertClass(sk, SecpPrivateKey);
-        var ret = wasm.privatekey_fromSecp(sk.ptr);
+        const ret = wasm.privatekey_fromSecp(sk.ptr);
         return PrivateKey.__wrap(ret);
     }
     /**
+    * Calculates the public key the belongs to this private key.
     * @returns {PublicKey}
     */
     publicKey() {
-        var ret = wasm.privatekey_publicKey(this.ptr);
+        const ret = wasm.privatekey_publicKey(this.ptr);
         return PublicKey.__wrap(ret);
     }
     /**
+    * Calculates the signature of a message that can be then verified using {@link PublicKey.validate_ecdsa}
     * @param {Uint8Array} data
     * @returns {Signature}
     */
     signEcdsa(data) {
-        var ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.privatekey_signEcdsa(this.ptr, ptr0, len0);
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.privatekey_signEcdsa(this.ptr, ptr0, len0);
         return Signature.__wrap(ret);
     }
 }
 module.exports.PrivateKey = PrivateKey;
 /**
+* Multicipher public key
+*
+* A public key (also called shared key or pk in some literature) is that part
+* of an asymmetric keypair which can be used to verify the authenticity of the
+* sender of a message or to encrypt a message that can only be decrypted by a
+* single recipient. In both cases this other party owns the {@link PrivateKey}
+* part of the keypair and never shares it with anyone else.
 */
 class PublicKey {
 
@@ -2975,24 +3988,38 @@ class PublicKey {
         wasm.__wbg_publickey_free(ptr);
     }
     /**
+    * Parses a string into a {@link PublicKey}.
     * @param {string} pub_key_str
     */
     constructor(pub_key_str) {
-        var ptr0 = passStringToWasm0(pub_key_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.publickey_new(ptr0, len0);
-        return PublicKey.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(pub_key_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.publickey_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return PublicKey.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Converts a {@link SecpPublicKey} into a multicipher {@link PublicKey}.
     * @param {SecpPublicKey} pk
     * @returns {PublicKey}
     */
     static fromSecp(pk) {
         _assertClass(pk, SecpPublicKey);
-        var ret = wasm.publickey_fromSecp(pk.ptr);
+        const ret = wasm.publickey_fromSecp(pk.ptr);
         return PublicKey.__wrap(ret);
     }
     /**
+    * All multicipher public keys start with this prefix
     * @returns {string}
     */
     static prefix() {
@@ -3008,34 +4035,47 @@ class PublicKey {
         }
     }
     /**
+    * Calculates the key id (also called fingerprint or address in some
+    * literature) of the public key.
     * @returns {KeyId}
     */
     keyId() {
-        var ret = wasm.publickey_keyId(this.ptr);
+        const ret = wasm.publickey_keyId(this.ptr);
         return KeyId.__wrap(ret);
     }
     /**
+    * Validates if `key_id` belongs to this public key
+    *
+    * We do not yet have multiple versions of key ids for the same multicipher
+    * public key, so for now this comparison is trivial. But when we introduce
+    * newer versions, we need to take the version of the `key_id` argument
+    * into account and calculate that possibly older version from `self`.
     * @param {KeyId} key_id
     * @returns {boolean}
     */
     validateId(key_id) {
         _assertClass(key_id, KeyId);
-        var ret = wasm.publickey_validateId(this.ptr, key_id.ptr);
+        const ret = wasm.publickey_validateId(this.ptr, key_id.ptr);
         return ret !== 0;
     }
     /**
+    * This method can be used to verify if a given signature for a message was
+    * made using the private key that belongs to this public key.
+    *
+    * @see PrivateKey.sign
     * @param {Uint8Array} data
     * @param {Signature} signature
     * @returns {boolean}
     */
     validateEcdsa(data, signature) {
-        var ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
         _assertClass(signature, Signature);
-        var ret = wasm.publickey_validateEcdsa(this.ptr, ptr0, len0, signature.ptr);
+        const ret = wasm.publickey_validateEcdsa(this.ptr, ptr0, len0, signature.ptr);
         return ret !== 0;
     }
     /**
+    * Converts a {@link PublicKey} into a string.
     * @returns {string}
     */
     toString() {
@@ -3053,6 +4093,7 @@ class PublicKey {
 }
 module.exports.PublicKey = PublicKey;
 /**
+* Secp256k1 key id (fingerprint/digest/hash of a public key)
 */
 class SecpKeyId {
 
@@ -3075,39 +4116,61 @@ class SecpKeyId {
         wasm.__wbg_secpkeyid_free(ptr);
     }
     /**
+    * Deserializes the key identifier from a `p2pkh` bitcoin address
     * @param {string} address
     * @param {string} network
     * @returns {SecpKeyId}
     */
     static fromAddress(address, network) {
-        var ptr0 = passStringToWasm0(address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
-        var ret = wasm.secpkeyid_fromAddress(ptr0, len0, ptr1, len1);
-        return SecpKeyId.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            wasm.secpkeyid_fromAddress(retptr, ptr0, len0, ptr1, len1);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SecpKeyId.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Serializes the key identifier as a `p2pkh` bitcoin address
     * @param {string} network
     * @returns {string}
     */
     toAddress(network) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.secpkeyid_toAddress(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr1 = r0;
+            var len1 = r1;
+            if (r3) {
+                ptr1 = 0; len1 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr1, len1);
         }
     }
 }
 module.exports.SecpKeyId = SecpKeyId;
 /**
+* Secp256k1 private key
 */
 class SecpPrivateKey {
 
@@ -3130,66 +4193,110 @@ class SecpPrivateKey {
         wasm.__wbg_secpprivatekey_free(ptr);
     }
     /**
+    * Creates a {@link SecpPrivateKey} from a passphrase compatible with ark.io wallets.
+    *
+    * An Ark passphrase is a secret that must not be kept unencrypted in transit or in rest!
     * @param {string} phrase
     * @returns {SecpPrivateKey}
     */
     static fromArkPassphrase(phrase) {
-        var ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.secpprivatekey_fromArkPassphrase(ptr0, len0);
-        return SecpPrivateKey.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(phrase, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.secpprivatekey_fromArkPassphrase(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SecpPrivateKey.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates a {@link SecpPrivateKey} from a WIF string compatible with BTC-related wallets. The
+    * second argument is a network name, that {@link validateNetworkName} accepts.
+    *
+    * A WIF is a secret that must not be kept unencrypted in transit or in rest!
     * @param {string} wif
     * @param {string} network
     * @returns {SecpPrivateKey}
     */
     static fromWif(wif, network) {
-        var ptr0 = passStringToWasm0(wif, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len1 = WASM_VECTOR_LEN;
-        var ret = wasm.secpprivatekey_fromWif(ptr0, len0, ptr1, len1);
-        return SecpPrivateKey.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(wif, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ptr1 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len1 = WASM_VECTOR_LEN;
+            wasm.secpprivatekey_fromWif(retptr, ptr0, len0, ptr1, len1);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SecpPrivateKey.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Creates a WIF string compatible with BTC-related wallets. The second argument is a
+    * network name, that {@link validateNetworkName} accepts.
+    *
+    * This is a secret that must not be kept unencrypted in transit or in rest!
     * @param {string} network
     * @returns {string}
     */
     toWif(network) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
+            const ptr0 = passStringToWasm0(network, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
             wasm.secpprivatekey_toWif(retptr, this.ptr, ptr0, len0);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
-            return getStringFromWasm0(r0, r1);
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            var r3 = getInt32Memory0()[retptr / 4 + 3];
+            var ptr1 = r0;
+            var len1 = r1;
+            if (r3) {
+                ptr1 = 0; len1 = 0;
+                throw takeObject(r2);
+            }
+            return getStringFromWasm0(ptr1, len1);
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_free(r0, r1);
+            wasm.__wbindgen_free(ptr1, len1);
         }
     }
     /**
+    * Calculates the public key the belongs to this private key.
     * @returns {SecpPublicKey}
     */
     publicKey() {
-        var ret = wasm.secpprivatekey_publicKey(this.ptr);
+        const ret = wasm.secpprivatekey_publicKey(this.ptr);
         return SecpPublicKey.__wrap(ret);
     }
     /**
+    * Calculates the signature of a message that can be then verified using {@link SecpPublicKey.validate_ecdsa}
     * @param {Uint8Array} data
     * @returns {SecpSignature}
     */
     signEcdsa(data) {
-        var ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.secpprivatekey_signEcdsa(this.ptr, ptr0, len0);
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.secpprivatekey_signEcdsa(this.ptr, ptr0, len0);
         return SecpSignature.__wrap(ret);
     }
 }
 module.exports.SecpPrivateKey = SecpPrivateKey;
 /**
+* Secp256k1 public key
 */
 class SecpPublicKey {
 
@@ -3212,59 +4319,84 @@ class SecpPublicKey {
         wasm.__wbg_secppublickey_free(ptr);
     }
     /**
+    * Parses a string into a {@link SecpPublicKey}.
     * @param {string} key
     */
     constructor(key) {
-        var ptr0 = passStringToWasm0(key, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.secppublickey_new(ptr0, len0);
-        return SecpPublicKey.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(key, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.secppublickey_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SecpPublicKey.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Calculates the key id (also called fingerprint or address in some
+    * literature) of the public key.
     * @returns {SecpKeyId}
     */
     keyId() {
-        var ret = wasm.secppublickey_keyId(this.ptr);
+        const ret = wasm.secppublickey_keyId(this.ptr);
         return SecpKeyId.__wrap(ret);
     }
     /**
+    * Calculates the key id of the public key the non-standard way ark.io and
+    * therefore Hydra uses.
+    *
+    * Regular bitcoin-based chains use the ripemd160 hash of the sha2-256 hash
+    * of the public key, but ARK only uses ripemd160.
     * @returns {SecpKeyId}
     */
     arkKeyId() {
-        var ret = wasm.secppublickey_arkKeyId(this.ptr);
+        const ret = wasm.secppublickey_arkKeyId(this.ptr);
         return SecpKeyId.__wrap(ret);
     }
     /**
+    * Validates if `key_id` belongs to this public key
     * @param {SecpKeyId} key_id
     * @returns {boolean}
     */
     validateId(key_id) {
         _assertClass(key_id, SecpKeyId);
-        var ret = wasm.secppublickey_validateId(this.ptr, key_id.ptr);
+        const ret = wasm.secppublickey_validateId(this.ptr, key_id.ptr);
         return ret !== 0;
     }
     /**
+    * Validates if `key_id` belongs to this public key if it was generated
+    * the ark.io way.
     * @param {SecpKeyId} key_id
     * @returns {boolean}
     */
     validateArkId(key_id) {
         _assertClass(key_id, SecpKeyId);
-        var ret = wasm.secppublickey_validateArkId(this.ptr, key_id.ptr);
+        const ret = wasm.secppublickey_validateArkId(this.ptr, key_id.ptr);
         return ret !== 0;
     }
     /**
+    * This method can be used to verify if a given signature for a message was
+    * made using the private key that belongs to this public key.
     * @param {Uint8Array} data
     * @param {SecpSignature} signature
     * @returns {boolean}
     */
     validateEcdsa(data, signature) {
-        var ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
         _assertClass(signature, SecpSignature);
-        var ret = wasm.secppublickey_validateEcdsa(this.ptr, ptr0, len0, signature.ptr);
+        const ret = wasm.secppublickey_validateEcdsa(this.ptr, ptr0, len0, signature.ptr);
         return ret !== 0;
     }
     /**
+    * Converts a {@link SecpPublicKey} into a string.
     * @returns {string}
     */
     toString() {
@@ -3282,6 +4414,7 @@ class SecpPublicKey {
 }
 module.exports.SecpPublicKey = SecpPublicKey;
 /**
+* Secp256k1 signature
 */
 class SecpSignature {
 
@@ -3304,16 +4437,29 @@ class SecpSignature {
         wasm.__wbg_secpsignature_free(ptr);
     }
     /**
+    * Deserializes an ASN.1 DER encoded buffer into a {@link SepcSignature}
     * @param {Uint8Array} bytes
     * @returns {SecpSignature}
     */
     static fromDer(bytes) {
-        var ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.secpsignature_fromDer(ptr0, len0);
-        return SecpSignature.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.secpsignature_fromDer(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SecpSignature.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Serializes a {@link SepcSignature} into an ASN.1 DER encoded buffer
     * @returns {Uint8Array}
     */
     toDer() {
@@ -3330,6 +4476,7 @@ class SecpSignature {
         }
     }
     /**
+    * Converts a {@link SecpSignature} into a string.
     * @returns {string}
     */
     toString() {
@@ -3347,6 +4494,9 @@ class SecpSignature {
 }
 module.exports.SecpSignature = SecpSignature;
 /**
+* The seed used for BIP32 derivations. A seed cannot be turned back into a
+* phrase, because there is salted hashing involed in creating it from the
+* BIP39 mnemonic phrase.
 */
 class Seed {
 
@@ -3369,15 +4519,29 @@ class Seed {
         wasm.__wbg_seed_free(ptr);
     }
     /**
+    * Creates seed from a raw 512-bit binary seed
     * @param {Uint8Array} bytes
     */
     constructor(bytes) {
-        var ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.seed_new(ptr0, len0);
-        return Seed.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.seed_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Seed.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * A BIP39 phrase we use in most of the demo videos and proof-of-concept
+    * applications. Do not use it in production code.
     * @returns {string}
     */
     static demoPhrase() {
@@ -3393,6 +4557,9 @@ class Seed {
         }
     }
     /**
+    * Legacy password used in the 0.0.1 version of the crate. Since 0.0.2 the
+    * crate always requires a password, which should be "" by default when
+    * the user does not provide one. (BIP39 standard for "25th word")
     * @returns {string}
     */
     static legacyPassword() {
@@ -3408,6 +4575,7 @@ class Seed {
         }
     }
     /**
+    * Returns the 512-bit binary representation of the seed
     * @returns {Uint8Array}
     */
     toBytes() {
@@ -3426,6 +4594,7 @@ class Seed {
 }
 module.exports.Seed = Seed;
 /**
+* Multicipher signature
 */
 class Signature {
 
@@ -3448,24 +4617,38 @@ class Signature {
         wasm.__wbg_signature_free(ptr);
     }
     /**
+    * Parses a string into a {@link Signature}.
     * @param {string} sign_str
     */
     constructor(sign_str) {
-        var ptr0 = passStringToWasm0(sign_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.signature_new(ptr0, len0);
-        return Signature.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(sign_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.signature_new(retptr, ptr0, len0);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return Signature.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Converts a {@link SecpSignature} into a multicipher {@link Signature}.
     * @param {SecpSignature} secp
     * @returns {Signature}
     */
     static fromSecp(secp) {
         _assertClass(secp, SecpSignature);
-        var ret = wasm.signature_fromSecp(secp.ptr);
+        const ret = wasm.signature_fromSecp(secp.ptr);
         return Signature.__wrap(ret);
     }
     /**
+    * All multicipher signatures start with this prefix
     * @returns {string}
     */
     static prefix() {
@@ -3481,6 +4664,7 @@ class Signature {
         }
     }
     /**
+    * Converts a {@link Signature} into a string.
     * @returns {string}
     */
     toString() {
@@ -3524,9 +4708,17 @@ class SignedBundle {
     */
     constructor(data) {
         try {
-            var ret = wasm.signedbundle_new(addBorrowedObject(data));
-            return SignedBundle.__wrap(ret);
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.signedbundle_new(retptr, addBorrowedObject(data));
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SignedBundle.__wrap(r0);
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -3534,19 +4726,20 @@ class SignedBundle {
     * @returns {Price}
     */
     price() {
-        var ret = wasm.signedbundle_price(this.ptr);
+        const ret = wasm.signedbundle_price(this.ptr);
         return Price.__wrap(ret);
     }
     /**
     * @returns {boolean}
     */
     verify() {
-        var ret = wasm.signedbundle_verify(this.ptr);
+        const ret = wasm.signedbundle_verify(this.ptr);
         return ret !== 0;
     }
 }
 module.exports.SignedBundle = SignedBundle;
 /**
+* Binary data signed by a multicipher key.
 */
 class SignedBytes {
 
@@ -3569,27 +4762,39 @@ class SignedBytes {
         wasm.__wbg_signedbytes_free(ptr);
     }
     /**
+    * Create {@link SignedBytes} from its parts.
     * @param {PublicKey} public_key
     * @param {Uint8Array} content
     * @param {Signature} signature
     */
     constructor(public_key, content, signature) {
-        _assertClass(public_key, PublicKey);
-        var ptr0 = passArray8ToWasm0(content, wasm.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
-        _assertClass(signature, Signature);
-        var ret = wasm.signedbytes_new(public_key.ptr, ptr0, len0, signature.ptr);
-        return SignedBytes.__wrap(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(public_key, PublicKey);
+            const ptr0 = passArray8ToWasm0(content, wasm.__wbindgen_malloc);
+            const len0 = WASM_VECTOR_LEN;
+            _assertClass(signature, Signature);
+            wasm.signedbytes_new(retptr, public_key.ptr, ptr0, len0, signature.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SignedBytes.__wrap(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {PublicKey}
+    * Accessor of the {@link PublicKey} that signed the binary data.
     */
     get publicKey() {
-        var ret = wasm.signedbytes_publicKey(this.ptr);
+        const ret = wasm.signedbytes_publicKey(this.ptr);
         return PublicKey.__wrap(ret);
     }
     /**
-    * @returns {Uint8Array}
+    * Accessor of the binary data.
     */
     get content() {
         try {
@@ -3605,43 +4810,72 @@ class SignedBytes {
         }
     }
     /**
-    * @returns {Signature}
+    * Accessor of the {@link Signature}.
     */
     get signature() {
-        var ret = wasm.signedbytes_signature(this.ptr);
+        const ret = wasm.signedbytes_signature(this.ptr);
         return Signature.__wrap(ret);
     }
     /**
+    * Verify if {@link signature} was made by the private key that belongs to {@link publicKey} on the {@link content}.
     * @returns {boolean}
     */
     validate() {
-        var ret = wasm.signedbytes_validate(this.ptr);
+        const ret = wasm.signedbytes_validate(this.ptr);
         return ret !== 0;
     }
     /**
+    * Not only validate the signature, but also check if the provided {@link KeyId} was made from {@link publicKey}.
+    *
+    * @see validate
     * @param {KeyId} signer_id
     * @returns {boolean}
     */
     validateWithKeyId(signer_id) {
         _assertClass(signer_id, KeyId);
-        var ret = wasm.signedbytes_validateWithKeyId(this.ptr, signer_id.ptr);
+        const ret = wasm.signedbytes_validateWithKeyId(this.ptr, signer_id.ptr);
         return ret !== 0;
     }
     /**
+    * Not only validate the signature, but also check the signing key had impersonation right the whole time period specified by the
+    * optional upper and lower block height boundaries. The DID document serialized as a string provides the whole history of key
+    * rights, so depending on the use-case there are three possible outcomes:
+    *
+    * - The signing key had impersonation right the whole time and the signature is valid (green)
+    * - Cannot prove if the signing key had impersonation right the whole time, but no other issues found (yellow)
+    * - The signature is invalid or we can prove the signing key did not have impersonation right at any point in
+    *   the given time interval (red)
+    *
+    * The return value is a {@link ValidationResult}
     * @param {string} did_doc_str
     * @param {number | undefined} from_height_inc
     * @param {number | undefined} until_height_exc
     * @returns {any}
     */
     validateWithDidDoc(did_doc_str, from_height_inc, until_height_exc) {
-        var ptr0 = passStringToWasm0(did_doc_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.signedbytes_validateWithDidDoc(this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(did_doc_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.signedbytes_validateWithDidDoc(retptr, this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
 }
 module.exports.SignedBytes = SignedBytes;
 /**
+* JSON signed by a multicipher key. Since the signature is done on a digest created by {@link digestJson}, the same signature can be
+* validated against different selectively revealed JSON documents.
+*
+* @see selectiveDigestJson
 */
 class SignedJson {
 
@@ -3664,85 +4898,151 @@ class SignedJson {
         wasm.__wbg_signedjson_free(ptr);
     }
     /**
+    * Create {@link SignedJson} from its parts.
     * @param {PublicKey} public_key
     * @param {any} content
     * @param {Signature} signature
     */
     constructor(public_key, content, signature) {
         try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
             _assertClass(public_key, PublicKey);
             _assertClass(signature, Signature);
-            var ret = wasm.signedjson_new(public_key.ptr, addBorrowedObject(content), signature.ptr);
-            return SignedJson.__wrap(ret);
+            wasm.signedjson_new(retptr, public_key.ptr, addBorrowedObject(content), signature.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SignedJson.__wrap(r0);
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
     /**
-    * @returns {PublicKey}
+    * Accessor of the {@link PublicKey} that signed the binary data.
     */
     get publicKey() {
-        var ret = wasm.signedjson_publicKey(this.ptr);
+        const ret = wasm.signedjson_publicKey(this.ptr);
         return PublicKey.__wrap(ret);
     }
     /**
-    * @returns {any}
+    * Accessor of the JSON content.
     */
     get content() {
-        var ret = wasm.signedjson_content(this.ptr);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.signedjson_content(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
-    * @returns {Signature}
+    * Accessor of the {@link Signature}.
     */
     get signature() {
-        var ret = wasm.signedjson_signature(this.ptr);
+        const ret = wasm.signedjson_signature(this.ptr);
         return Signature.__wrap(ret);
     }
     /**
+    * Verify if {@link signature} was made by the private key that belongs to {@link publicKey} on the {@link content}.
     * @returns {boolean}
     */
     validate() {
-        var ret = wasm.signedjson_validate(this.ptr);
+        const ret = wasm.signedjson_validate(this.ptr);
         return ret !== 0;
     }
     /**
+    * Not only validate the signature, but also check if the provided {@link KeyId} was made from {@link publicKey}.
+    *
+    * @see validate
     * @param {KeyId} signer_id
     * @returns {boolean}
     */
     validateWithKeyId(signer_id) {
         _assertClass(signer_id, KeyId);
-        var ret = wasm.signedjson_validateWithKeyId(this.ptr, signer_id.ptr);
+        const ret = wasm.signedjson_validateWithKeyId(this.ptr, signer_id.ptr);
         return ret !== 0;
     }
     /**
+    * Not only validate the signature, but also check the signing key had impersonation right the whole time period specified by the
+    * optional upper and lower block height boundaries. The DID document serialized as a string provides the whole history of key
+    * rights, so depending on the use-case there are three possible outcomes:
+    *
+    * - The signing key had impersonation right the whole time and the signature is valid (green)
+    * - Cannot prove if the signing key had impersonation right the whole time, but no other issues found (yellow)
+    * - The signature is invalid or we can prove the signing key did not have impersonation right at any point in
+    *   the given time interval (red)
+    *
+    * The return value is a {@link ValidationResult}
     * @param {string} did_doc_str
     * @param {number | undefined} from_height_inc
     * @param {number | undefined} until_height_exc
     * @returns {any}
     */
     validateWithDidDoc(did_doc_str, from_height_inc, until_height_exc) {
-        var ptr0 = passStringToWasm0(did_doc_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.signedjson_validateWithDidDoc(this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            const ptr0 = passStringToWasm0(did_doc_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            wasm.signedjson_validateWithDidDoc(retptr, this.ptr, ptr0, len0, !isLikeNone(from_height_inc), isLikeNone(from_height_inc) ? 0 : from_height_inc, !isLikeNone(until_height_exc), isLikeNone(until_height_exc) ? 0 : until_height_exc);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Serialize this object as a JSON in a format used by IOP SSI in several places
     * @returns {any}
     */
     toJSON() {
-        var ret = wasm.signedjson_toJSON(this.ptr);
-        return takeObject(ret);
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.signedjson_toJSON(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return takeObject(r0);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
     }
     /**
+    * Deserialize a {@SignedJson} from a JSON in a format used by IOP SSI in several places
     * @param {any} json
     * @returns {SignedJson}
     */
     static fromJSON(json) {
         try {
-            var ret = wasm.signedjson_fromJSON(addBorrowedObject(json));
-            return SignedJson.__wrap(ret);
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.signedjson_fromJSON(retptr, addBorrowedObject(json));
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SignedJson.__wrap(r0);
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -3773,7 +5073,7 @@ class SubtreePolicies {
     /**
     */
     constructor() {
-        var ret = wasm.subtreepolicies_new();
+        const ret = wasm.subtreepolicies_new();
         return SubtreePolicies.__wrap(ret);
     }
     /**
@@ -3782,10 +5082,17 @@ class SubtreePolicies {
     */
     withSchema(schema) {
         try {
-            const ptr = this.__destroy_into_raw();
-            var ret = wasm.subtreepolicies_withSchema(ptr, addBorrowedObject(schema));
-            return SubtreePolicies.__wrap(ret);
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.subtreepolicies_withSchema(retptr, this.ptr, addBorrowedObject(schema));
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return SubtreePolicies.__wrap(r0);
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -3794,8 +5101,7 @@ class SubtreePolicies {
     * @returns {SubtreePolicies}
     */
     withExpiration(max_block_count) {
-        const ptr = this.__destroy_into_raw();
-        var ret = wasm.subtreepolicies_withExpiration(ptr, max_block_count);
+        const ret = wasm.subtreepolicies_withExpiration(this.ptr, max_block_count);
         return SubtreePolicies.__wrap(ret);
     }
 }
@@ -3832,12 +5138,20 @@ class UserOperation {
     */
     static register(name, owner, subtree_policies, data, expires_at_height) {
         try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
             _assertClass(name, DomainName);
             _assertClass(owner, Principal);
             _assertClass(subtree_policies, SubtreePolicies);
-            var ret = wasm.useroperation_register(name.ptr, owner.ptr, subtree_policies.ptr, addBorrowedObject(data), expires_at_height);
-            return UserOperation.__wrap(ret);
+            wasm.useroperation_register(retptr, name.ptr, owner.ptr, subtree_policies.ptr, addBorrowedObject(data), expires_at_height);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return UserOperation.__wrap(r0);
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -3848,10 +5162,18 @@ class UserOperation {
     */
     static update(name, data) {
         try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
             _assertClass(name, DomainName);
-            var ret = wasm.useroperation_update(name.ptr, addBorrowedObject(data));
-            return UserOperation.__wrap(ret);
+            wasm.useroperation_update(retptr, name.ptr, addBorrowedObject(data));
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            var r2 = getInt32Memory0()[retptr / 4 + 2];
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return UserOperation.__wrap(r0);
         } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
             heap[stack_pointer++] = undefined;
         }
     }
@@ -3862,7 +5184,7 @@ class UserOperation {
     */
     static renew(name, expires_at_height) {
         _assertClass(name, DomainName);
-        var ret = wasm.useroperation_renew(name.ptr, expires_at_height);
+        const ret = wasm.useroperation_renew(name.ptr, expires_at_height);
         return UserOperation.__wrap(ret);
     }
     /**
@@ -3873,7 +5195,7 @@ class UserOperation {
     static transfer(name, to_owner) {
         _assertClass(name, DomainName);
         _assertClass(to_owner, Principal);
-        var ret = wasm.useroperation_transfer(name.ptr, to_owner.ptr);
+        const ret = wasm.useroperation_transfer(name.ptr, to_owner.ptr);
         return UserOperation.__wrap(ret);
     }
     /**
@@ -3882,12 +5204,15 @@ class UserOperation {
     */
     static delete(name) {
         _assertClass(name, DomainName);
-        var ret = wasm.useroperation_delete(name.ptr);
+        const ret = wasm.useroperation_delete(name.ptr);
         return UserOperation.__wrap(ret);
     }
 }
 module.exports.UserOperation = UserOperation;
 /**
+* A single issue found while validating against a DID document.
+*
+* @see SignedBytes.validateWithDidDoc, SignedJson.validateWithDidDoc
 */
 class ValidationIssue {
 
@@ -3910,14 +5235,14 @@ class ValidationIssue {
         wasm.__wbg_validationissue_free(ptr);
     }
     /**
-    * @returns {number}
+    * Error code of the issue
     */
     get code() {
-        var ret = wasm.validationissue_code(this.ptr);
+        const ret = wasm.validationissue_code(this.ptr);
         return ret >>> 0;
     }
     /**
-    * @returns {string}
+    * Severity of the issue ('warning' or 'error')
     */
     get severity() {
         try {
@@ -3932,7 +5257,7 @@ class ValidationIssue {
         }
     }
     /**
-    * @returns {string}
+    * Description of the issue as a string
     */
     get reason() {
         try {
@@ -3949,6 +5274,9 @@ class ValidationIssue {
 }
 module.exports.ValidationIssue = ValidationIssue;
 /**
+* All issues found while validating against a DID document.
+*
+* @see SignedBytes.validateWithDidDoc, SignedJson.validateWithDidDoc
 */
 class ValidationResult {
 
@@ -3971,7 +5299,7 @@ class ValidationResult {
         wasm.__wbg_validationresult_free(ptr);
     }
     /**
-    * @returns {string}
+    * Status of the validation based on the highest severity found among the issues ('invalid', 'maybe valid' or 'valid')
     */
     get status() {
         try {
@@ -3986,7 +5314,7 @@ class ValidationResult {
         }
     }
     /**
-    * @returns {any[]}
+    * An array of all issues. Treat each item as a {@link ValidationIssue}.
     */
     get messages() {
         try {
@@ -4009,190 +5337,173 @@ module.exports.__wbindgen_object_drop_ref = function(arg0) {
 };
 
 module.exports.__wbindgen_string_new = function(arg0, arg1) {
-    var ret = getStringFromWasm0(arg0, arg1);
+    const ret = getStringFromWasm0(arg0, arg1);
     return addHeapObject(ret);
 };
 
 module.exports.__wbindgen_json_parse = function(arg0, arg1) {
-    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+    const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
 module.exports.__wbindgen_json_serialize = function(arg0, arg1) {
     const obj = getObject(arg1);
-    var ret = JSON.stringify(obj === undefined ? null : obj);
-    var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
+    const ret = JSON.stringify(obj === undefined ? null : obj);
+    const ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
     getInt32Memory0()[arg0 / 4 + 1] = len0;
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
-module.exports.__wbg_validationresult_new = function(arg0) {
-    var ret = ValidationResult.__wrap(arg0);
-    return addHeapObject(ret);
-};
-
 module.exports.__wbg_validationissue_new = function(arg0) {
-    var ret = ValidationIssue.__wrap(arg0);
+    const ret = ValidationIssue.__wrap(arg0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbindgen_object_clone_ref = function(arg0) {
-    var ret = getObject(arg0);
+module.exports.__wbg_validationresult_new = function(arg0) {
+    const ret = ValidationResult.__wrap(arg0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_getRandomValues_98117e9a7e993920 = function() { return handleError(function (arg0, arg1) {
-    getObject(arg0).getRandomValues(getObject(arg1));
-}, arguments) };
-
-module.exports.__wbg_randomFillSync_64cc7d048f228ca8 = function() { return handleError(function (arg0, arg1, arg2) {
-    getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
-}, arguments) };
-
-module.exports.__wbg_process_2f24d6544ea7b200 = function(arg0) {
-    var ret = getObject(arg0).process;
+module.exports.__wbg_process_e56fd54cf6319b6c = function(arg0) {
+    const ret = getObject(arg0).process;
     return addHeapObject(ret);
 };
 
 module.exports.__wbindgen_is_object = function(arg0) {
     const val = getObject(arg0);
-    var ret = typeof(val) === 'object' && val !== null;
+    const ret = typeof(val) === 'object' && val !== null;
     return ret;
 };
 
-module.exports.__wbg_versions_6164651e75405d4a = function(arg0) {
-    var ret = getObject(arg0).versions;
+module.exports.__wbg_versions_77e21455908dad33 = function(arg0) {
+    const ret = getObject(arg0).versions;
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_node_4b517d861cbcb3bc = function(arg0) {
-    var ret = getObject(arg0).node;
+module.exports.__wbg_node_0dd25d832e4785d5 = function(arg0) {
+    const ret = getObject(arg0).node;
     return addHeapObject(ret);
 };
 
 module.exports.__wbindgen_is_string = function(arg0) {
-    var ret = typeof(getObject(arg0)) === 'string';
+    const ret = typeof(getObject(arg0)) === 'string';
     return ret;
 };
 
-module.exports.__wbg_crypto_98fc271021c7d2ad = function(arg0) {
-    var ret = getObject(arg0).crypto;
-    return addHeapObject(ret);
-};
-
-module.exports.__wbg_msCrypto_a2cdb043d2bfe57f = function(arg0) {
-    var ret = getObject(arg0).msCrypto;
-    return addHeapObject(ret);
-};
-
-module.exports.__wbg_modulerequire_3440a4bcf44437db = function() { return handleError(function (arg0, arg1) {
-    var ret = module.require(getStringFromWasm0(arg0, arg1));
+module.exports.__wbg_require_0db1598d9ccecb30 = function() { return handleError(function (arg0, arg1, arg2) {
+    const ret = getObject(arg0).require(getStringFromWasm0(arg1, arg2));
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_now_559193109055ebad = function(arg0) {
-    var ret = getObject(arg0).now();
-    return ret;
-};
-
-module.exports.__wbg_newnoargs_be86524d73f67598 = function(arg0, arg1) {
-    var ret = new Function(getStringFromWasm0(arg0, arg1));
+module.exports.__wbg_crypto_b95d7173266618a9 = function(arg0) {
+    const ret = getObject(arg0).crypto;
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_call_888d259a5fefc347 = function() { return handleError(function (arg0, arg1) {
-    var ret = getObject(arg0).call(getObject(arg1));
-    return addHeapObject(ret);
-}, arguments) };
-
-module.exports.__wbg_getTime_10d33f4f2959e5dd = function(arg0) {
-    var ret = getObject(arg0).getTime();
-    return ret;
-};
-
-module.exports.__wbg_new0_fd3a3a290b25cdac = function() {
-    var ret = new Date();
+module.exports.__wbg_msCrypto_5a86d77a66230f81 = function(arg0) {
+    const ret = getObject(arg0).msCrypto;
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_self_c6fbdfc2918d5e58 = function() { return handleError(function () {
-    var ret = self.self;
+module.exports.__wbg_getRandomValues_b14734aa289bc356 = function() { return handleError(function (arg0, arg1) {
+    getObject(arg0).getRandomValues(getObject(arg1));
+}, arguments) };
+
+module.exports.__wbg_static_accessor_NODE_MODULE_26b231378c1be7dd = function() {
+    const ret = module;
+    return addHeapObject(ret);
+};
+
+module.exports.__wbg_randomFillSync_91e2b39becca6147 = function() { return handleError(function (arg0, arg1, arg2) {
+    getObject(arg0).randomFillSync(getArrayU8FromWasm0(arg1, arg2));
+}, arguments) };
+
+module.exports.__wbg_newnoargs_fc5356289219b93b = function(arg0, arg1) {
+    const ret = new Function(getStringFromWasm0(arg0, arg1));
+    return addHeapObject(ret);
+};
+
+module.exports.__wbg_call_4573f605ca4b5f10 = function() { return handleError(function (arg0, arg1) {
+    const ret = getObject(arg0).call(getObject(arg1));
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_window_baec038b5ab35c54 = function() { return handleError(function () {
-    var ret = window.window;
+module.exports.__wbg_self_ba1ddafe9ea7a3a2 = function() { return handleError(function () {
+    const ret = self.self;
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_globalThis_3f735a5746d41fbd = function() { return handleError(function () {
-    var ret = globalThis.globalThis;
+module.exports.__wbg_window_be3cc430364fd32c = function() { return handleError(function () {
+    const ret = window.window;
     return addHeapObject(ret);
 }, arguments) };
 
-module.exports.__wbg_global_1bc0b39582740e95 = function() { return handleError(function () {
-    var ret = global.global;
+module.exports.__wbg_globalThis_56d9c9f814daeeee = function() { return handleError(function () {
+    const ret = globalThis.globalThis;
+    return addHeapObject(ret);
+}, arguments) };
+
+module.exports.__wbg_global_8c35aeee4ac77f2b = function() { return handleError(function () {
+    const ret = global.global;
     return addHeapObject(ret);
 }, arguments) };
 
 module.exports.__wbindgen_is_undefined = function(arg0) {
-    var ret = getObject(arg0) === undefined;
+    const ret = getObject(arg0) === undefined;
     return ret;
 };
 
-module.exports.__wbg_buffer_397eaa4d72ee94dd = function(arg0) {
-    var ret = getObject(arg0).buffer;
+module.exports.__wbg_getTime_7c8d3b79f51e2b87 = function(arg0) {
+    const ret = getObject(arg0).getTime();
+    return ret;
+};
+
+module.exports.__wbg_new0_6b49a1fca8534d39 = function() {
+    const ret = new Date();
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_new_a7ce447f15ff496f = function(arg0) {
-    var ret = new Uint8Array(getObject(arg0));
+module.exports.__wbg_buffer_de1150f91b23aa89 = function(arg0) {
+    const ret = getObject(arg0).buffer;
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_set_969ad0a60e51d320 = function(arg0, arg1, arg2) {
+module.exports.__wbg_new_97cf52648830a70d = function(arg0) {
+    const ret = new Uint8Array(getObject(arg0));
+    return addHeapObject(ret);
+};
+
+module.exports.__wbg_set_a0172b213e2469e9 = function(arg0, arg1, arg2) {
     getObject(arg0).set(getObject(arg1), arg2 >>> 0);
 };
 
-module.exports.__wbg_length_1eb8fc608a0d4cdb = function(arg0) {
-    var ret = getObject(arg0).length;
+module.exports.__wbg_length_e09c0b925ab8de5d = function(arg0) {
+    const ret = getObject(arg0).length;
     return ret;
 };
 
-module.exports.__wbg_newwithlength_929232475839a482 = function(arg0) {
-    var ret = new Uint8Array(arg0 >>> 0);
+module.exports.__wbg_newwithlength_e833b89f9db02732 = function(arg0) {
+    const ret = new Uint8Array(arg0 >>> 0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_subarray_8b658422a224f479 = function(arg0, arg1, arg2) {
-    var ret = getObject(arg0).subarray(arg1 >>> 0, arg2 >>> 0);
+module.exports.__wbg_subarray_9482ae5cd5cd99d3 = function(arg0, arg1, arg2) {
+    const ret = getObject(arg0).subarray(arg1 >>> 0, arg2 >>> 0);
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_get_4d0f21c2f823742e = function() { return handleError(function (arg0, arg1) {
-    var ret = Reflect.get(getObject(arg0), getObject(arg1));
+module.exports.__wbindgen_object_clone_ref = function(arg0) {
+    const ret = getObject(arg0);
     return addHeapObject(ret);
-}, arguments) };
-
-module.exports.__wbindgen_debug_string = function(arg0, arg1) {
-    var ret = debugString(getObject(arg1));
-    var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
-    getInt32Memory0()[arg0 / 4 + 1] = len0;
-    getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
 module.exports.__wbindgen_throw = function(arg0, arg1) {
     throw new Error(getStringFromWasm0(arg0, arg1));
 };
 
-module.exports.__wbindgen_rethrow = function(arg0) {
-    throw takeObject(arg0);
-};
-
 module.exports.__wbindgen_memory = function() {
-    var ret = wasm.memory;
+    const ret = wasm.memory;
     return addHeapObject(ret);
 };
 
@@ -4203,4 +5514,8 @@ const wasmModule = new WebAssembly.Module(bytes);
 const wasmInstance = new WebAssembly.Instance(wasmModule, imports);
 wasm = wasmInstance.exports;
 module.exports.__wasm = wasm;
+
+cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
+cachedUint32Memory0 = new Uint32Array(wasm.memory.buffer);
+cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
 

@@ -34,7 +34,7 @@
     "@hapi/boom": "^8.0.0",
     "@internet-of-people/hydra-plugin-core": "5.0.6",
     "@internet-of-people/coeus-proto": "5.0.6",
-    "@internet-of-people/node-wasm": "0.0.15"
+    "@internet-of-people/node-wasm": "0.0.16"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "2.11.0",
