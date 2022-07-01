@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.1.0
+
+- Integrate new WASM 0.16 which contains new documentation and some bugfixes, optimization.
+
 ## 5.0.6
 
 - Fix layer-1 `sendMultipleTx` method.
